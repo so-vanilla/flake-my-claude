@@ -5,13 +5,22 @@
 
 set -euo pipefail
 
+# jqの存在確認。なければcommaで実行を試みる
+run_jq() {
+  if command -v jq &>/dev/null; then
+    jq "$@"
+  else
+    , jq "$@"
+  fi
+}
+
 DATA_DIR="/tmp/claude-code"
 mkdir -p "$DATA_DIR"
 
 input=$(cat)
 
 # project_dirからMD5ハッシュを生成してファイル名にする
-project_dir=$(echo "$input" | jq -r '.workspace.project_dir // empty')
+project_dir=$(echo "$input" | run_jq -r '.workspace.project_dir // empty')
 if [[ -z "$project_dir" ]]; then
   exit 0
 fi
@@ -23,7 +32,7 @@ else
 fi
 
 # 必要なフィールドを抽出して書き出すJSONを構築
-output=$(echo "$input" | jq '{
+output=$(echo "$input" | run_jq '{
   model: .model.display_name,
   model_id: .model.id,
   context_used: (.context_window.used_percentage // 0),
