@@ -70,7 +70,7 @@
 (defun claude-code-modeline--data-file (project-dir)
   "Return the intermediate data file path for PROJECT-DIR."
   (expand-file-name
-   (concat (md5 project-dir) ".json")
+   (concat (md5 (directory-file-name project-dir)) ".json")
    claude-code-modeline-data-directory))
 
 (defun claude-code-modeline--read-data (project-dir)
@@ -86,11 +86,13 @@ Returns parsed data as alist, or nil on failure."
 
 (defun claude-code-modeline--poll ()
   "Poll all active sessions and update the data cache."
-  (maphash
-   (lambda (dir _process)
-     (when-let ((data (claude-code-modeline--read-data dir)))
-       (puthash dir data claude-code-modeline--data-cache)))
-   claude-code-ide--processes)
+  (when (and (boundp 'claude-code-ide--processes)
+             (hash-table-p claude-code-ide--processes))
+    (maphash
+     (lambda (dir _process)
+       (when-let ((data (claude-code-modeline--read-data dir)))
+         (puthash dir data claude-code-modeline--data-cache)))
+     claude-code-ide--processes))
   (claude-code-modeline--update-all-buffers)
   (force-mode-line-update t))
 
@@ -145,14 +147,16 @@ Returns parsed data as alist, or nil on failure."
 (defun claude-code-modeline--buffer-project-dir (buffer)
   "Find the project directory associated with BUFFER.
 Walk `claude-code-ide--processes' and match buffer names."
-  (let ((buf-name (buffer-name buffer))
-        (result nil))
-    (maphash
-     (lambda (dir _process)
-       (when (string= buf-name (claude-code-ide--get-buffer-name dir))
-         (setq result dir)))
-     claude-code-ide--processes)
-    result))
+  (when (and (boundp 'claude-code-ide--processes)
+             (hash-table-p claude-code-ide--processes))
+    (let ((buf-name (buffer-name buffer))
+          (result nil))
+      (maphash
+       (lambda (dir _process)
+         (when (string= buf-name (claude-code-ide--get-buffer-name dir))
+           (setq result dir)))
+       claude-code-ide--processes)
+      result)))
 
 ;;;; Modeline construction
 
@@ -195,8 +199,9 @@ Walk `claude-code-ide--processes' and match buffer names."
     (doom-modeline-def-segment claude-code-info
       "Claude Code session information segment."
       (when-let ((dir (claude-code-modeline--buffer-project-dir (current-buffer))))
-        (when-let ((data (gethash dir claude-code-modeline--data-cache)))
-          (claude-code-modeline--format-data data)))))
+        (if-let ((data (gethash dir claude-code-modeline--data-cache)))
+            (claude-code-modeline--format-data data)
+          (propertize " Claude Code ... " 'face 'claude-code-modeline-normal)))))
 
   (when (fboundp 'doom-modeline-def-modeline)
     (doom-modeline-def-modeline 'claude-code
@@ -228,14 +233,16 @@ Runs with a short delay to allow the buffer to be fully set up."
         (setq claude-code-modeline--timer
               (run-with-timer 0 claude-code-modeline-update-interval
                               #'claude-code-modeline--poll))
-        (advice-add 'claude-code-ide--start-session :after
-                    #'claude-code-modeline--after-start-session)
+        (with-eval-after-load 'claude-code-ide
+          (advice-add 'claude-code-ide--start-session :after
+                      #'claude-code-modeline--after-start-session))
         (claude-code-modeline--update-all-buffers))
     (when claude-code-modeline--timer
       (cancel-timer claude-code-modeline--timer)
       (setq claude-code-modeline--timer nil))
-    (advice-remove 'claude-code-ide--start-session
-                   #'claude-code-modeline--after-start-session)
+    (when (featurep 'claude-code-ide)
+      (advice-remove 'claude-code-ide--start-session
+                     #'claude-code-modeline--after-start-session))
     (dolist (buffer (buffer-list))
       (claude-code-modeline--restore-buffer buffer))
     (clrhash claude-code-modeline--data-cache)
