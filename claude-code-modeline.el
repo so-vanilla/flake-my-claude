@@ -168,13 +168,13 @@ Walk `claude-code-ide--processes' and match buffer names."
   "Apply claude-code modeline to BUFFER if it has associated session data."
   (when (buffer-live-p buffer)
     (when-let ((dir (claude-code-modeline--buffer-project-dir buffer)))
-      (when-let ((data (gethash dir claude-code-modeline--data-cache)))
-        (with-current-buffer buffer
-          (unless (gethash (buffer-name buffer) claude-code-modeline--original-mode-line-formats)
-            (puthash (buffer-name buffer) mode-line-format
-                     claude-code-modeline--original-mode-line-formats))
-          (if (featurep 'doom-modeline)
-              (claude-code-modeline--apply-doom buffer)
+      (with-current-buffer buffer
+        (unless (gethash (buffer-name buffer) claude-code-modeline--original-mode-line-formats)
+          (puthash (buffer-name buffer) mode-line-format
+                   claude-code-modeline--original-mode-line-formats))
+        (if (featurep 'doom-modeline)
+            (claude-code-modeline--apply-doom buffer)
+          (when-let ((data (gethash dir claude-code-modeline--data-cache)))
             (setq-local mode-line-format
                         (claude-code-modeline--mode-line-format data))))))))
 
@@ -206,13 +206,24 @@ Walk `claude-code-ide--processes' and match buffer names."
   (when (fboundp 'doom-modeline-def-modeline)
     (doom-modeline-def-modeline 'claude-code
       '(bar claude-code-info)
-      '())))
+      '()))
+
+  (when claude-code-modeline-mode
+    (claude-code-modeline--update-all-buffers)))
 
 (defun claude-code-modeline--apply-doom (buffer)
   "Apply doom-modeline claude-code modeline to BUFFER."
   (with-current-buffer buffer
     (when (fboundp 'doom-modeline-set-modeline)
       (doom-modeline-set-modeline 'claude-code))))
+
+;;;; Window change hook
+
+(defun claude-code-modeline--on-window-change (frame)
+  "Re-apply modeline when switching to a Claude Code session buffer in FRAME."
+  (when claude-code-modeline-mode
+    (let ((buffer (window-buffer (frame-selected-window frame))))
+      (claude-code-modeline--apply-to-buffer buffer))))
 
 ;;;; Advice for session start
 
@@ -236,6 +247,8 @@ Runs with a short delay to allow the buffer to be fully set up."
         (with-eval-after-load 'claude-code-ide
           (advice-add 'claude-code-ide--start-session :after
                       #'claude-code-modeline--after-start-session))
+        (add-hook 'window-selection-change-functions
+                  #'claude-code-modeline--on-window-change)
         (claude-code-modeline--update-all-buffers))
     (when claude-code-modeline--timer
       (cancel-timer claude-code-modeline--timer)
@@ -243,6 +256,8 @@ Runs with a short delay to allow the buffer to be fully set up."
     (when (featurep 'claude-code-ide)
       (advice-remove 'claude-code-ide--start-session
                      #'claude-code-modeline--after-start-session))
+    (remove-hook 'window-selection-change-functions
+                 #'claude-code-modeline--on-window-change)
     (dolist (buffer (buffer-list))
       (claude-code-modeline--restore-buffer buffer))
     (clrhash claude-code-modeline--data-cache)
