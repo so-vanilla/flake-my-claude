@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # setup.sh - 会社macOS環境向けClaude Code設定セットアップ
-# settings.jsonの既存envフィールドを保持しつつ、設定ファイルを配置する
+# settings.jsonはスマートマージ: language/statusLine/permissionsはリポジトリ、
+# enabledPluginsは既存を維持、その他の既存フィールドも保持
 
 set -euo pipefail
 
@@ -35,26 +36,26 @@ DEST_SETTINGS="$CLAUDE_DIR/settings.json"
 SRC_SETTINGS="$SCRIPT_DIR/settings.json"
 
 if [[ -f "$DEST_SETTINGS" ]]; then
-  # 既存のenvフィールドを抽出
-  EXISTING_ENV=$(run_jq -r '.env // empty' "$DEST_SETTINGS")
-
   # バックアップ
   cp "$DEST_SETTINGS" "${DEST_SETTINGS}${BACKUP_SUFFIX}"
   echo "  バックアップ: ${DEST_SETTINGS}${BACKUP_SUFFIX}"
 
-  # 新settings配置
-  cp "$SRC_SETTINGS" "$DEST_SETTINGS"
-
-  # envフィールドが存在していたらマージ
-  if [[ -n "$EXISTING_ENV" ]]; then
-    run_jq --argjson env "$EXISTING_ENV" '. + {env: $env}' "$DEST_SETTINGS" > "${DEST_SETTINGS}.tmp"
-    mv "${DEST_SETTINGS}.tmp" "$DEST_SETTINGS"
-    echo "  既存のenvフィールドを復元しました"
-  fi
+  # マージ:
+  # - language, statusLine, permissions → リポジトリのものを使用
+  # - enabledPlugins → 既存のものを維持
+  # - その他の既存フィールド（env等） → 全て残す
+  run_jq -s '
+    .[0] as $existing |
+    .[1] as $repo |
+    ($existing * $repo) |
+    if $existing.enabledPlugins then .enabledPlugins = $existing.enabledPlugins else . end
+  ' "$DEST_SETTINGS" "$SRC_SETTINGS" > "${DEST_SETTINGS}.tmp"
+  mv "${DEST_SETTINGS}.tmp" "$DEST_SETTINGS"
+  echo "  マージ完了: $DEST_SETTINGS"
 else
   cp "$SRC_SETTINGS" "$DEST_SETTINGS"
+  echo "  配置完了: $DEST_SETTINGS"
 fi
-echo "  配置完了: $DEST_SETTINGS"
 
 # --- commands/ ---
 echo "[2/4] commands/"

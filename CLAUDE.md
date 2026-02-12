@@ -50,3 +50,33 @@
     b
   }
   ```
+
+## Custom Commands
+
+### コマンド一覧
+
+| コマンド | 説明 | 用途 |
+|---|---|---|
+| `/init-personal` | so-vanilla開発環境初期化 | so-vanilla配下の新規リポジトリのdevenv + flake.nixセットアップ |
+| `/init-work` | 会社プロジェクト環境初期化 | 会社リポジトリのdevenvセットアップ |
+| `/worktree` | Worktree作成 | ghq並列配置方式でworktreeを作成しdevenv環境を構築 |
+| `/nix-check` | Nix/devenv環境チェック | 環境の健全性を読み取り専用で検証 |
+| `/commit` | スマートコミット | 変更を分析しリポジトリのスタイルに合わせたコミットメッセージを生成 |
+| `/pr` | Pull Request作成 | 全コミットを分析し構造化されたPRを作成 |
+| `/test` | テスト実行 | フレームワークを自動検出しdevenv経由でテスト実行 |
+| `/format` | コードフォーマット | devenvに設定されたフォーマッタでコード整形 |
+| `/explore` | コードベース探索 | プロジェクト構造やコンポーネントの調査・解説（読み取り専用） |
+| `/cleanup` | リポジトリ整理 | staleなworktree・マージ済みブランチの検出と整理 |
+| `/dep-update` | 依存関係更新 | flake.lockや言語別lockファイルの更新 |
+| `/security-review` | セキュリティ監査 | コードのセキュリティ問題を検出・報告（読み取り専用） |
+| `/changelog` | 変更履歴生成 | git履歴からカテゴリ分類された変更履歴を生成 |
+
+### ワークフロー連携パターン
+
+superpowersスキルと組み合わせた典型的なワークフロー:
+
+- **機能開発**: `/worktree` → 実装 → `/format` → `/test` → superpowers:verification-before-completion → `/commit` → `/pr` → superpowers:finishing-a-development-branch
+- **バグ修正**: superpowers:systematic-debugging → 修正 → `/test` → `/commit`
+- **新機能設計**: superpowers:brainstorming → superpowers:writing-plans → 実装 → `/format` → `/test` → `/commit`
+- **リリース準備**: `/dep-update` → `/test` → `/security-review` → `/changelog` → `/commit` → `/pr`
+- **プロジェクト理解**: `/explore` → `/nix-check` → superpowers:writing-plans
