@@ -141,12 +141,27 @@
 
       "Bash(emacsclient --eval *)",
       "Bash(emacsclient -e *)",
+      "Bash(emacs --batch *)",
 
       "Bash(git worktree *)",
       "Bash(git checkout -b *)",
+      "Bash(git -C * remote -v)",
+      "Bash(git -C * worktree list)",
+      "Bash(git -C * worktree list *)",
+      "Bash(git -C * rev-parse *)",
+      "Bash(git -C * branch --show-current)",
+      "Bash(git -C * branch *)",
+      "Bash(git -C * log *)",
+      "Bash(git -C * ls-files *)",
       "Bash(ghq *)",
       "Bash(direnv allow *)",
-      "Bash(direnv allow)"
+      "Bash(direnv allow)",
+
+      "Bash(echo *)",
+      "Bash(test *)",
+      "Bash(if *)",
+      "Bash(for *)",
+      "Bash(git config --local *)"
     ],
 
     "deny": [
