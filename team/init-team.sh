@@ -47,6 +47,18 @@ case "$PHASE" in
 esac
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+WORKER_COUNT=4
+
+# 共有ディレクトリとチーム情報を作成
+mkdir -p "/tmp/claude-team/${TEAM_ID}/messages"
+{
+  echo "TEAM_ID=${TEAM_ID}"
+  echo "PHASE=${PHASE}"
+  echo "WORKER_COUNT=${WORKER_COUNT}"
+  for i in $(seq 1 $WORKER_COUNT); do
+    echo "WORKER_${i}_ROLE=${ROLES[$((i-1))]}"
+  done
+} > "/tmp/claude-team/${TEAM_ID}/team-info.txt"
 
 # Phase 2ではワーカーごとにworktreeを作成
 if [[ "$PHASE" == "impl" ]]; then

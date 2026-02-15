@@ -167,6 +167,7 @@
       "Bash(~/.claude/team/wait-workers.sh *)",
       "Bash(~/.claude/team/read-buffer.sh *)",
       "Bash(~/.claude/team/cleanup-team.sh *)",
+      "Bash(~/.claude/team/team-msg.sh *)",
       "Bash(sleep *)",
       "Bash(mkdir -p /tmp/claude-team/*)",
       "Bash(cat /tmp/claude-team/*)",

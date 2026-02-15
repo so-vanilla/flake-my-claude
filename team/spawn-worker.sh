@@ -12,11 +12,30 @@ RESULT_DIR="/tmp/claude-team/${TEAM_ID}/worker-${WORKER_NUM}"
 
 mkdir -p "$RESULT_DIR"
 
+# team-info.txtからチーム構成を読み取り
+TEAM_INFO_FILE="/tmp/claude-team/${TEAM_ID}/team-info.txt"
+TEAM_ROSTER=""
+if [[ -f "$TEAM_INFO_FILE" ]]; then
+  WORKER_COUNT=$(grep '^WORKER_COUNT=' "$TEAM_INFO_FILE" | cut -d= -f2)
+  for i in $(seq 1 "${WORKER_COUNT:-4}"); do
+    PEER_ROLE=$(grep "^WORKER_${i}_ROLE=" "$TEAM_INFO_FILE" | cut -d= -f2-)
+    if [[ "$i" -eq "$WORKER_NUM" ]]; then
+      TEAM_ROSTER="${TEAM_ROSTER}  - Worker ${i}: ${PEER_ROLE} ← あなた
+"
+    else
+      TEAM_ROSTER="${TEAM_ROSTER}  - Worker ${i}: ${PEER_ROLE}
+"
+    fi
+  done
+fi
+
 # ワーカー用システムプロンプトをファイルに書き出し
 cat > "${RESULT_DIR}/system-prompt.txt" << PROMPT_EOF
 あなたはチーム(ID: ${TEAM_ID})のワーカー${WORKER_NUM}（従）です。
 役割: ${ROLE}
 
+チーム構成:
+${TEAM_ROSTER}
 重要なルール:
 - 作業結果は ${RESULT_DIR}/result.md に書き出すこと（Bashのechoやcatで書く）
 - 全作業完了後、最後に必ず ${RESULT_DIR}/done ファイルを作成すること（touch コマンドで作成。内容は空でよい）
@@ -24,6 +43,13 @@ cat > "${RESULT_DIR}/system-prompt.txt" << PROMPT_EOF
 - あなたはオーケストレータ（主）の指示に従って作業する従セッションである
 - タスクは1回で完結させること。他ワーカーへの追加要求は行わない
 - 作業が完了したらresult.mdに書き出してdoneファイルを作成し、それ以上の作業はしない
+
+ワーカー間メッセージング:
+他のワーカーにメッセージを送信できます。メッセージは相手のClaude Code TUIに新しいユーザー入力として表示されます。
+- ユニキャスト: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} <宛先番号> "メッセージ"
+- ブロードキャスト: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} broadcast "メッセージ"
+- ログ参照: cat /tmp/claude-team/${TEAM_ID}/messages/log.txt
+- 制約: メッセージに改行を含めないこと。送信後は0.5秒程度の間隔を空けること
 PROMPT_EOF
 
 PROMPT_FILE="${RESULT_DIR}/system-prompt.txt"
