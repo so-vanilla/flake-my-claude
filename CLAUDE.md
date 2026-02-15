@@ -75,6 +75,7 @@ claude-code-ideのメインセッション（主/オーケストレータ）が�
 | `~/.claude/team/wait-workers.sh <team-id> <count> [timeout]` | 完了待機（inotifywait/ポーリングフォールバック） |
 | `~/.claude/team/read-buffer.sh <worker-num> [chars]` | バッファ読み取り |
 | `~/.claude/team/setup-env.sh <working-dir> [timeout]` | 環境構築（claude -p 非対話実行） |
+| `~/.claude/team/team-msg.sh <team-id> <from> <to\|broadcast> <msg>` | ワーカー間メッセージ送信 |
 | `~/.claude/team/cleanup-team.sh <team-id> <count>` | チーム解散 |
 
 ### ワークフロー
@@ -89,7 +90,7 @@ claude-code-ideのメインセッション（主/オーケストレータ）が�
 ### 通信プロトコル
 - **主→従**: `send-message.sh` でプロンプトを直接送信（権限プロンプト検出で安全に中止）
 - **従→主**: `/tmp/claude-team/{team-id}/worker-{n}/result.md` に結果書き出し + `done` ファイル作成
-- **従→従**: 共有ディレクトリ `/tmp/claude-team/{team-id}/` のファイル経由、オーケストレータが中継
+- **従→従**: `team-msg.sh` でユニキャスト（特定ワーカー宛）またはブロードキャスト（全ワーカー宛）。メッセージは相手のeat端末に直接注入される。ログは `/tmp/claude-team/{team-id}/messages/log.txt` に記録
 - **待機**: `wait-workers.sh` でイベント駆動待機（inotifywait優先、フォールバックで5秒ポーリング）
 
 ### ファイル競合の防止
@@ -102,6 +103,8 @@ CCAと同じアプローチ: タスク分解時にファイル所有権を各ワ
 - perspective.el使用時: init-team/spawn-worker/cleanupはclaude-codeバッファのperspectiveに自動切り替え→操作後に復帰
 - 主セッションはdevenv有効化前から起動しているためPATHが古い。テスト・ビルド等は従セッションに委任すること
 - ワーカーセッションは `CLAUDE_TEAM_WORKER=1` 環境変数付きで起動される。hookスクリプト（session-status.sh, log-permission-request.sh）はこの変数を検出して早期終了し、主セッションのステータスファイル上書きやログ混入を防ぐ
+- team-msg.shで送信したメッセージは相手のClaude Code TUIに新しいユーザー入力として表示される
+- ワーカー間メッセージに改行は含めないこと（send-message.shの制約）
 
 ## Custom Commands
 
