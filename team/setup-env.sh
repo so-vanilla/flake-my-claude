@@ -1,27 +1,54 @@
 #!/usr/bin/env bash
-# Usage: setup-env.sh <working-dir> [timeout-seconds]
-# claude -p（パイプモード）で環境構築を非対話実行
+# Usage: setup-env.sh <subcommand> <working-dir>
+# Subcommands:
+#   setup <dir> - devenv初期化（既存ファイル削除 + devenv init）
+#   check <dir> - 環境状態チェック（devenv.nix存在確認 + devenv build）
 set -euo pipefail
 
-WORK_DIR="$1"
-TIMEOUT="${2:-300}"
-RESULT_FILE="/tmp/claude-team/setup-$(date +%s)/result.md"
-mkdir -p "$(dirname "$RESULT_FILE")"
+SUBCMD="${1:-}"
+WORK_DIR="${2:-}"
 
-cd "$WORK_DIR"
+if [[ -z "$SUBCMD" || -z "$WORK_DIR" ]]; then
+  echo "Usage: setup-env.sh <setup|check> <working-dir>" >&2
+  exit 1
+fi
 
-export CLAUDE_TEAM_WORKER=1
-timeout "$TIMEOUT" claude -p \
-  --dangerously-skip-permissions \
-  "このプロジェクトの開発環境を構築してください。devenv.nixがあればdevenvを使い、必要な依存関係をインストールしてください。構築内容をサマリーとして出力してください。" \
-  > "$RESULT_FILE" 2>&1 || {
-    echo "環境構築が失敗またはタイムアウトしました (exit: $?)" >&2
-    if [[ -f "$RESULT_FILE" ]]; then
-      echo "--- 出力 ---"
-      cat "$RESULT_FILE"
+case "$SUBCMD" in
+  setup)
+    cd "$WORK_DIR"
+    # 既存devenv環境のチェック
+    if [[ -f devenv.nix ]]; then
+      echo "devenv.nix が既に存在します。既存の環境を使用します。" >&2
+      echo "再初期化するには先に devenv.nix を削除してください。" >&2
+      exit 0
     fi
+    # 既存devenvファイルの削除（devenv.nixがない場合のゴミ掃除）
+    rm -f devenv.yaml devenv.lock .devenv.flake.nix
+    rm -rf .devenv
+    # devenv init（非対話）
+    echo "" | devenv init
+    echo "devenv init完了。devenv.nixを編集してください。"
+    ;;
+  check)
+    cd "$WORK_DIR"
+    echo "=== devenv環境チェック ==="
+    # devenv.nixの存在確認
+    if [[ -f devenv.nix ]]; then
+      echo "✓ devenv.nix exists"
+    else
+      echo "✗ devenv.nix missing"
+      exit 1
+    fi
+    # devenv buildの実行
+    if devenv build; then
+      echo "✓ devenv build success"
+    else
+      echo "✗ devenv build failed"
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Error: unknown subcommand '$SUBCMD'. Use 'setup' or 'check'." >&2
     exit 1
-  }
-
-echo "環境構築完了: $RESULT_FILE"
-cat "$RESULT_FILE"
+    ;;
+esac

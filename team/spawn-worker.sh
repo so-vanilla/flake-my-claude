@@ -39,7 +39,7 @@ fi
 emacsclient -e "(let* ((use-persp (featurep 'perspective))
          (orig-persp (and use-persp (persp-current-name)))
          (_persp-switched
-           (when use-persp
+           (when (and use-persp orig-persp)
              (seq-find
                (lambda (name)
                  (persp-switch name t)

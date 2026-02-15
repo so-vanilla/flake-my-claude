@@ -3,6 +3,33 @@ Execute the following 2-phase workflow to accomplish the user's task: $ARGUMENTS
 
 ## Phase 1: Planning (多視点分析)
 
+### Step 0.5: ウィンドウ状態確認
+ワーカー配置の2x2分割前に、ウィンドウレイアウトを確認する。
+
+1. 現在のウィンドウ構成を取得:
+```bash
+emacsclient -e '(mapcar (lambda (w) (buffer-name (window-buffer w))) (seq-remove (function window-minibuffer-p) (window-list)))'
+```
+
+2. perspective.elが有効な場合、claude-codeバッファがあるperspectiveを確認:
+```bash
+emacsclient -e '(and (featurep (quote perspective)) (persp-current-name))'
+```
+
+3. 想定構成は **sidebar | workspace | claude-code の3ウィンドウ** である。
+   結果が想定と異なる場合（ウィンドウ数が3でない、前回のワーカー分割が残っている等）:
+   - 現在の構成をユーザーに報告する
+   - 「ウィンドウレイアウトが想定と異なります。sidebar | workspace | claude-code にリセットしてよいですか？」と確認する
+   - ユーザーが承認した場合、以下を実行してリセット:
+     ```bash
+     emacsclient -e '(let ((claude-win (seq-find (lambda (w) (let ((case-fold-search t)) (string-match-p "claude-code" (buffer-name (window-buffer w))))) (window-list))) (sidebar-win (seq-find (lambda (w) (string-match-p "Side Bar" (buffer-name (window-buffer w)))) (window-list)))) (dolist (w (window-list)) (unless (or (eq w claude-win) (eq w sidebar-win) (window-minibuffer-p w)) (delete-window w))) (when claude-win (let ((ws-win (split-window claude-win nil (quote left)))) (set-window-buffer ws-win (car (buffer-list)))) (select-window claude-win)))'
+     ```
+   - ユーザーが拒否した場合、現状のまま続行する
+   - claude-codeウィンドウが現在のperspectiveに見つからない場合は、
+     perspective切り替え等の対応を検討すること
+
+4. 想定通りならそのまま次のステップへ進む。
+
 ### Step 1: チーム初期化
 ```bash
 TEAM_ID=$(date +%s)
@@ -67,7 +94,9 @@ head -20 /tmp/claude-team/$TEAM_ID/worker-3/result.md
 head -20 /tmp/claude-team/$TEAM_ID/worker-4/result.md
 ```
 
-以下のいずれかに該当する場合、改訂ラウンドを実施する（該当しなければStep 5へ進む）:
+**1回目の相互参照ラウンドは必ず実施する。** 初回分析は視点が独立しているため、
+他ワーカーの分析を読んだ上での改訂が不可欠である。
+2回目のラウンドは、以下のいずれかに該当する場合に実施する（該当しなければStep 5へ進む）:
 - 分析の視点が一方に偏っている（例: 全員が同じ結論で反対意見がない）
 - ワーカー間で矛盾する主張があり、解消されていない
 - 重要な観点が深掘りされていない
@@ -124,18 +153,36 @@ cat /tmp/claude-team/$TEAM_ID/worker-4/result.md
 
 ## Phase 1.5: 環境構築
 
-### Step 7.5: 環境構築（非対話）
-Phase 2で必要な開発環境を事前構築する。claude -p（パイプモード）で非対話実行するため、eat terminalやperspective.elの影響を受けない。
+**スキップ判定**: 以下のいずれかに該当する場合、Phase 1.5全体をスキップしてPhase 2へ進む:
+- プロジェクトに `devenv.nix` が既に存在し、`~/.claude/team/setup-env.sh check "$(pwd)"` が成功する
+- 環境非依存のタスクである（ドキュメント修正等）
+
+スキップしない場合のみ以下を実行する:
+
+### Step 7.5a: devenv初期化
+Phase 2で必要な開発環境を事前構築する。まずdevenv initで雛形を作成する（devenv.nixが既に存在する場合は自動スキップされる）。
 
 ```bash
-~/.claude/team/setup-env.sh "$(pwd)" 300
+~/.claude/team/setup-env.sh setup "$(pwd)"
 ```
 
-この結果を確認し、環境が正常に構築されたことを確認してからPhase 2に進む。
-devenv構築や依存関係のインストールが完了していることを確認する。
-環境構築が不要な場合（既に構築済み、または環境非依存のタスクの場合）はこのステップをスキップしてよい。
+initが完了したら、プロジェクトに必要な言語・ツールを`devenv.nix`に追記する。
+主セッション自身がdevenv.nixを編集すること（例: Clojureプロジェクトなら`languages.clojure.enable = true;`等）。
+
+### Step 7.5b: 環境チェック
+devenv.nixの編集が完了したら、ビルドが通ることを確認する。
+
+```bash
+~/.claude/team/setup-env.sh check "$(pwd)"
+```
+
+チェックが通ったらPhase 2に進む。失敗した場合はdevenv.nixを修正して再度checkする。
 
 ## Phase 2: Implementation (実装)
+
+### Step 7.9: ウィンドウ状態確認
+Phase 1のクリーンアップ後、再度ワーカー配置の2x2分割を行う前にウィンドウレイアウトを確認する。
+手順はStep 0.5と同一（上記を参照）。
 
 ### Step 8: 実装チーム初期化
 ```bash
@@ -208,3 +255,7 @@ cat /tmp/claude-team/$TEAM_ID_VERIFY/worker-1/result.md
 - TEAM_IDはPhase 1とPhase 2で別のIDを使うこと（tmpディレクトリの衝突防止）
 - メッセージに改行を含めないこと。改行はClaude Code TUIのマルチライン入力を起動し送信失敗の原因となる
 - **主セッションのPATH制約**: 主（オーケストレータ）はdevenv有効化前から起動しているため、devenvで追加されたツール（テストランナー、フォーマッタ、LSP等）がPATHに含まれない。テスト実行・フォーマット・ビルド等のdevenv依存コマンドは、主が直接実行せず、必ず従セッション（ワーカー）を立てて委任すること
+- **cleanup後のウィンドウ復元**: cleanup-team.shはサイドバーとclaude-codeウィンドウを保持しつつワーカー表示ウィンドウを削除し、ワークスペース用ウィンドウを再作成する。ただしレイアウトは環境依存が大きいため、期待通りにならない場合は以下の手順で手動復元すること:
+  1. `window-list`でウィンドウ構成を確認
+  2. 余分なワーカーバッファ跡のウィンドウを`delete-window`で個別削除
+  3. サイドバー | ワークスペース | claude-code の3列構成に復元

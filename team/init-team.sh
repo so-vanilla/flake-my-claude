@@ -72,7 +72,7 @@ emacsclient -e '(let* ((use-persp (featurep (quote perspective)))
                  (orig-persp (and use-persp (persp-current-name)))
                  ;; claude-codeバッファがあるperspectiveを見つけて切り替え
                  (_persp-switched
-                   (when use-persp
+                   (when (and use-persp orig-persp)
                      (seq-find
                        (lambda (name)
                          (persp-switch name t)

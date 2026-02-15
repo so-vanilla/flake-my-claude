@@ -135,13 +135,13 @@ wait_with_inotifywait() {
   trap cleanup EXIT
 
   # inotifywaitが起動済みなので、この間に作成されたdoneファイルもキューに入る
+  echo "監視開始 (inotifywait: ${method})" >&2
   local done_count
   done_count=$(check_done_count)
   if [[ "$done_count" -ge "$WORKER_COUNT" ]]; then
     print_results
     exit 0
   fi
-  echo "完了済み: ${done_count}/${WORKER_COUNT} (inotifywait: ${method})" >&2
 
   # イベントループ: fd 3からinotifywaitの出力を読む
   while IFS= read -r path <&3; do

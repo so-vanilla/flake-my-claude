@@ -13,7 +13,7 @@ if [[ "$FORCE" != "--force" ]]; then
     (buffer-substring-no-properties
       (max (point-min) (- (point-max) 500)) (point-max)))" 2>/dev/null || echo "")
 
-  if echo "$TAIL" | grep -qiE '(allow|deny|permission|approve|\[Y/n\]|\[y/N\])'; then
+  if echo "$TAIL" | grep -viE 'bypass permissions' | grep -qiE '(allow|deny|permission|approve|\[Y/n\]|\[y/N\])'; then
     echo "WARNING: Worker ${WORKER_NUM} は権限プロンプト中の可能性があります。" >&2
     echo "メッセージ送信を中止しました。--force で強制送信できます。" >&2
     exit 1

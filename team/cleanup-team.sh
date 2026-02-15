@@ -10,7 +10,7 @@ KEEP_WORKTREES="${3:-}"
 emacsclient -e "(let* ((use-persp (featurep 'perspective))
          (orig-persp (and use-persp (persp-current-name)))
          (_persp-switched
-           (when use-persp
+           (when (and use-persp orig-persp)
              (seq-find
                (lambda (name)
                  (persp-switch name t)
@@ -29,14 +29,27 @@ emacsclient -e "(let* ((use-persp (featurep 'perspective))
         (let ((kill-buffer-hook nil)
               (kill-buffer-query-functions nil))
           (kill-buffer buf)))))
-  ;; ワーカーの4分割ウィンドウを元に戻す
+  ;; ワーカーの4分割ウィンドウを元に戻す（サイドバーとclaude-codeを保持）
   (let ((claude-win
           (seq-find (lambda (w)
             (let ((case-fold-search t))
               (string-match-p \"claude-code\" (buffer-name (window-buffer w)))))
+            (window-list)))
+        (sidebar-win
+          (seq-find (lambda (w)
+            (string-match-p \"Side Bar\" (buffer-name (window-buffer w))))
             (window-list))))
-    (select-window (or claude-win (selected-window)))
-    (delete-other-windows))
+    ;; ワーカーバッファでもサイドバーでもclaude-codeでもないウィンドウを削除
+    (dolist (w (window-list))
+      (unless (or (eq w claude-win)
+                  (eq w sidebar-win)
+                  (window-minibuffer-p w))
+        (delete-window w)))
+    ;; ワークスペース用ウィンドウを確保（claude-codeの左に分割）
+    (when claude-win
+      (let ((workspace-win (split-window claude-win nil 'left)))
+        (set-window-buffer workspace-win (car (buffer-list))))
+      (select-window claude-win)))
   ;; 元のperspectiveに復帰
   (when (and use-persp orig-persp
              (not (string= orig-persp (persp-current-name))))
