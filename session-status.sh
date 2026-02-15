@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ワーカーセッションではステータス更新をスキップ
+[[ "${CLAUDE_TEAM_WORKER:-}" == "1" ]] && exit 0
+
 run_jq() {
   if command -v jq &>/dev/null; then
     jq "$@"

@@ -21,8 +21,24 @@
         ".claude/commands/dep-update.md".source = "${self}/commands/dep-update.md";
         ".claude/commands/security-review.md".source = "${self}/commands/security-review.md";
         ".claude/commands/changelog.md".source = "${self}/commands/changelog.md";
+        ".claude/commands/perm-review.md".source = "${self}/commands/perm-review.md";
+        ".claude/commands/team.md".source = "${self}/commands/team.md";
+        ".claude/team/init-team.sh" = { source = "${self}/team/init-team.sh"; executable = true; };
+        ".claude/team/spawn-worker.sh" = { source = "${self}/team/spawn-worker.sh"; executable = true; };
+        ".claude/team/send-message.sh" = { source = "${self}/team/send-message.sh"; executable = true; };
+        ".claude/team/wait-workers.sh" = { source = "${self}/team/wait-workers.sh"; executable = true; };
+        ".claude/team/read-buffer.sh" = { source = "${self}/team/read-buffer.sh"; executable = true; };
+        ".claude/team/cleanup-team.sh" = { source = "${self}/team/cleanup-team.sh"; executable = true; };
         ".claude/statusline.sh" = {
           source = "${self}/statusline.sh";
+          executable = true;
+        };
+        ".claude/session-status.sh" = {
+          source = "${self}/session-status.sh";
+          executable = true;
+        };
+        ".claude/log-permission-request.sh" = {
+          source = "${self}/log-permission-request.sh";
           executable = true;
         };
       };
