@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # Usage: setup-env.sh <subcommand> <working-dir>
 # Subcommands:
-#   setup <dir> - devenv初期化（既存ファイル削除 + devenv init）
-#   check <dir> - 環境状態チェック（devenv.nix存在確認 + devenv build）
+#   setup <dir>    - devenv初期化（既存ファイル削除 + devenv init）
+#   check <dir>    - 環境状態チェック（devenv.nix存在確認 + devenv build）
+#   git-init <dir> - gitリポジトリ初期化（.gitが無い場合のみ）
 set -euo pipefail
 
 SUBCMD="${1:-}"
 WORK_DIR="${2:-}"
 
 if [[ -z "$SUBCMD" || -z "$WORK_DIR" ]]; then
-  echo "Usage: setup-env.sh <setup|check> <working-dir>" >&2
+  echo "Usage: setup-env.sh <setup|check|git-init> <working-dir>" >&2
   exit 1
 fi
 
@@ -47,8 +48,17 @@ case "$SUBCMD" in
       exit 1
     fi
     ;;
+  git-init)
+    cd "$WORK_DIR"
+    if [[ -d .git ]] || git rev-parse --git-dir &>/dev/null; then
+      echo "既にgitリポジトリです。スキップします。"
+    else
+      git init
+      echo "git init完了: $WORK_DIR"
+    fi
+    ;;
   *)
-    echo "Error: unknown subcommand '$SUBCMD'. Use 'setup' or 'check'." >&2
+    echo "Error: unknown subcommand '$SUBCMD'. Use 'setup', 'check', or 'git-init'." >&2
     exit 1
     ;;
 esac

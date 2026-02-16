@@ -15,9 +15,10 @@ mkdir -p "$RESULT_DIR"
 # team-info.txtからチーム構成を読み取り
 TEAM_INFO_FILE="/tmp/claude-team/${TEAM_ID}/team-info.txt"
 TEAM_ROSTER=""
+WORKER_COUNT=1
 if [[ -f "$TEAM_INFO_FILE" ]]; then
   WORKER_COUNT=$(grep '^WORKER_COUNT=' "$TEAM_INFO_FILE" | cut -d= -f2)
-  for i in $(seq 1 "${WORKER_COUNT:-4}"); do
+  for i in $(seq 1 "${WORKER_COUNT:-1}"); do
     PEER_ROLE=$(grep "^WORKER_${i}_ROLE=" "$TEAM_INFO_FILE" | cut -d= -f2-)
     if [[ "$i" -eq "$WORKER_NUM" ]]; then
       TEAM_ROSTER="${TEAM_ROSTER}  - Worker ${i}: ${PEER_ROLE} ← あなた
@@ -29,6 +30,18 @@ if [[ -f "$TEAM_INFO_FILE" ]]; then
   done
 fi
 
+# メッセージ宛先一覧を生成
+MSG_TARGETS=""
+if [[ "${WORKER_COUNT:-1}" -gt 1 ]]; then
+  for i in $(seq 1 "${WORKER_COUNT:-1}"); do
+    [[ "$i" -eq "$WORKER_NUM" ]] && continue
+    MSG_TARGETS="${MSG_TARGETS}  - Worker ${i} 宛: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} ${i} \"メッセージ\"
+"
+  done
+  MSG_TARGETS="${MSG_TARGETS}  - 全員宛: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} broadcast \"メッセージ\"
+"
+fi
+
 # ワーカー用システムプロンプトをファイルに書き出し
 cat > "${RESULT_DIR}/system-prompt.txt" << PROMPT_EOF
 あなたはチーム(ID: ${TEAM_ID})のワーカー${WORKER_NUM}（従）です。
@@ -38,6 +51,7 @@ cat > "${RESULT_DIR}/system-prompt.txt" << PROMPT_EOF
 ${TEAM_ROSTER}
 重要なルール:
 - 作業結果は ${RESULT_DIR}/result.md に書き出すこと（Bashのechoやcatで書く）
+- result.mdは200行以内に収めること。詳細は result-detail.md 等に分割してよい
 - 全作業完了後、最後に必ず ${RESULT_DIR}/done ファイルを作成すること（touch コマンドで作成。内容は空でよい）
 - 他ワーカーの成果物は /tmp/claude-team/${TEAM_ID}/worker-*/result.md で参照できる
 - あなたはオーケストレータ（主）の指示に従って作業する従セッションである
@@ -46,10 +60,18 @@ ${TEAM_ROSTER}
 
 ワーカー間メッセージング:
 他のワーカーにメッセージを送信できます。メッセージは相手のClaude Code TUIに新しいユーザー入力として表示されます。
-- ユニキャスト: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} <宛先番号> "メッセージ"
-- ブロードキャスト: ~/.claude/team/team-msg.sh ${TEAM_ID} ${WORKER_NUM} broadcast "メッセージ"
+${MSG_TARGETS:+
+メッセージ送信先:
+${MSG_TARGETS}}
 - ログ参照: cat /tmp/claude-team/${TEAM_ID}/messages/log.txt
 - 制約: メッセージに改行を含めないこと。送信後は0.5秒程度の間隔を空けること
+
+メッセージング制約:
+- ラウンドあたり各宛先に最大5メッセージまで（自分から送信したもののみカウント。相手からの返答はカウントしない）
+- メッセージの用途: 決定の理由や重要度を問う質問 + 全体にクリティカルな決定事項の共有
+- ただし共有はresult.mdの該当箇所を強調する形でもよい（メッセージ送信は必須ではない）
+- 質問を送ったら返信を待たずに自分の作業を進めること
+- 延々と議論を続けることは禁止。反論は1往復まで
 PROMPT_EOF
 
 PROMPT_FILE="${RESULT_DIR}/system-prompt.txt"
@@ -61,19 +83,20 @@ else
   CLAUDE_LIST_ARGS="\"--append-system-prompt\" (with-temp-buffer (insert-file-contents \"${PROMPT_FILE}\") (buffer-string))"
 fi
 
-# eatバッファ作成 + Claude起動（perspective.el対応）
+# eatバッファ作成 + Claude起動（perspective.el対応、nilガード付き）
 emacsclient -e "(let* ((use-persp (featurep 'perspective))
          (orig-persp (and use-persp (persp-current-name)))
          (_persp-switched
            (when (and use-persp orig-persp)
              (seq-find
                (lambda (name)
-                 (persp-switch name t)
-                 (seq-some
-                   (lambda (b)
-                     (string-match-p \"claude-code\" (buffer-name b)))
-                   (persp-current-buffers)))
-               (persp-names)))))
+                 (when (and name (stringp name))
+                   (persp-switch name t)
+                   (seq-some
+                     (lambda (b)
+                       (string-match-p \"claude-code\" (buffer-name b)))
+                     (persp-current-buffers))))
+               (seq-remove #'null (persp-names))))))
   (require 'eat)
   (let* ((buf (get-buffer-create \"${BUFFER_NAME}\"))
          (default-directory \"${WORK_DIR}/\")

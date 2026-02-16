@@ -29,6 +29,8 @@
         ".claude/team/wait-workers.sh" = { source = "${self}/team/wait-workers.sh"; executable = true; };
         ".claude/team/read-buffer.sh" = { source = "${self}/team/read-buffer.sh"; executable = true; };
         ".claude/team/cleanup-team.sh" = { source = "${self}/team/cleanup-team.sh"; executable = true; };
+        ".claude/team/team-msg.sh" = { source = "${self}/team/team-msg.sh"; executable = true; };
+        ".claude/team/setup-env.sh" = { source = "${self}/team/setup-env.sh"; executable = true; };
         ".claude/statusline.sh" = {
           source = "${self}/statusline.sh";
           executable = true;
