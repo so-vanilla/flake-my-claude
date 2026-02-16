@@ -12,6 +12,20 @@ Execute the following workflow to accomplish the user's task: $ARGUMENTS
 
 ユーザーに推奨値を提示し、確認を得てから `$WORKER_COUNT` を設定する（1, 2, 4 のいずれか）。
 
+### Step 0.1: カスタムロール（オプション）
+デフォルトロールではなくタスクに特化したロールを使いたい場合、init-team.shの前にカスタムロールファイルを作成する:
+```bash
+TEAM_ID=$(date +%s)
+mkdir -p /tmp/claude-team/$TEAM_ID
+cat > /tmp/claude-team/$TEAM_ID/custom-roles.txt << 'EOF'
+Frontend Engineer: UIコンポーネントの設計と実装を担当。
+Backend Engineer: APIとデータモデルの設計と実装を担当。
+EOF
+```
+- 1行1ロール、行数は `$WORKER_COUNT` と一致させること
+- ファイルが存在しない場合はデフォルトロールが使用される
+- ロール数が `$WORKER_COUNT` と一致しない場合もデフォルトにフォールバックする
+
 ## Phase 1: Planning (多視点分析)
 
 ### Step 0.5: ウィンドウ状態確認
@@ -273,6 +287,34 @@ TEAM_ID_IMPL=$(date +%s)
 sleep 15
 ```
 
+### Step 9.5: インターフェース仕様作成（2+ワーカー時）
+
+**WORKER_COUNT=1 の場合はこのステップをスキップ。**
+
+ワーカーが独立worktreeで作業するため、関数名・データ構造の不整合を防ぐためにインターフェース仕様を共有する。
+
+1. プランから以下を抽出し、仕様ファイルを作成:
+```bash
+cat > /tmp/claude-team/$TEAM_ID_IMPL/interface-spec.md << 'SPEC_EOF'
+# インターフェース仕様
+
+## 命名規約
+- [関数名・変数名の規約を記載]
+
+## 関数シグネチャ
+- [ワーカー間で共有する関数の名前・引数・戻り値]
+
+## データ構造
+- [共有するデータ構造の定義]
+
+## ファイル間依存関係
+- [どのファイルがどのファイルをimport/requireするか]
+SPEC_EOF
+```
+
+2. 仕様の内容はプランで決定したタスク分解・ファイル所有権に基づいて記載する。
+   特にワーカー間でやり取りするインターフェース（関数呼び出し、データ受け渡し）を重点的に定義する。
+
 ### Step 10: プラン+タスク送信
 各ワーカーにプランと担当タスク（ファイル所有権含む）を送信する。
 プランの全文と、そのワーカー固有の担当範囲を明確に伝える。
@@ -305,7 +347,16 @@ for i in $(seq 1 $WORKER_COUNT); do cat /tmp/claude-team/$TEAM_ID_IMPL/worker-$i
 ```
 
 ### Step 14.5: 検証（必要に応じて）
-テスト実行やフォーマット確認が必要な場合、従セッションを1つ立てて実行させる。
+テスト実行やフォーマット確認が必要な場合、以下の2つの方法がある:
+
+**方法A: 軽微な検証（単一コマンド）** — 主セッションから `devenv shell -- <cmd>` で直接実行:
+```bash
+devenv shell -- pytest
+devenv shell -- npm test
+devenv shell -- cargo fmt --check
+```
+
+**方法B: 複雑な検証** — 従セッションを1つ立てて実行させる:
 主セッションはdevenv有効化前から起動しているため、devenvで追加されたツールがPATHに含まれていない。
 
 ```bash

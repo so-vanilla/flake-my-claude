@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TRASH_DIR="${HOME}/.local/share/claude-trash"
+FILES_DIR="${TRASH_DIR}/files"
+INDEX_DIR="${TRASH_DIR}/index"
+
+ensure_dirs() {
+  mkdir -p "$FILES_DIR" "$INDEX_DIR"
+}
+
+# --- delete ---
+cmd_delete() {
+  local recursive=false
+  local paths=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -r|-R|--recursive) recursive=true; shift ;;
+      -rf|-fr) recursive=true; shift ;;
+      --) shift; paths+=("$@"); break ;;
+      -*) echo "error: unknown option: $1" >&2; return 1 ;;
+      *) paths+=("$1"); shift ;;
+    esac
+  done
+
+  if [[ ${#paths[@]} -eq 0 ]]; then
+    echo "error: no files specified" >&2
+    echo "usage: safe-rm delete [-r] <path>..." >&2
+    return 1
+  fi
+
+  ensure_dirs
+
+  for path in "${paths[@]}"; do
+    if [[ ! -e "$path" ]]; then
+      echo "error: '$path' does not exist" >&2
+      return 1
+    fi
+
+    if [[ -d "$path" && "$recursive" == false ]]; then
+      echo "error: '$path' is a directory (use -r to delete directories)" >&2
+      return 1
+    fi
+
+    local abs_path
+    abs_path="$(realpath "$path")"
+    local name
+    name="$(basename "$abs_path")"
+    local file_type=$([[ -d "$abs_path" ]] && echo "directory" || echo "file")
+    local uuid
+    uuid="$(uuidgen)"
+    local date
+    date="$(date -Iseconds)"
+
+    mkdir -p "${FILES_DIR}/${uuid}"
+    mv "$abs_path" "${FILES_DIR}/${uuid}/${name}"
+
+    cat > "${INDEX_DIR}/${uuid}.json" <<EOF
+{"id":"${uuid}","path":"${abs_path}","name":"${name}","date":"${date}","type":"${file_type}"}
+EOF
+
+    echo "deleted: ${abs_path} (id: ${uuid:0:8})"
+  done
+}
+
+# --- list ---
+cmd_list() {
+  ensure_dirs
+
+  local count=0
+  printf "%-10s  %-20s  %s\n" "ID" "DATE" "PATH"
+  printf "%-10s  %-20s  %s\n" "--------" "--------------------" "----"
+
+  for index_file in "${INDEX_DIR}"/*.json; do
+    [[ -e "$index_file" ]] || break
+    count=$((count + 1))
+
+    local id path date
+    if command -v jq &>/dev/null; then
+      id="$(jq -r '.id' "$index_file")"
+      path="$(jq -r '.path' "$index_file")"
+      date="$(jq -r '.date' "$index_file")"
+    else
+      id="$(grep -o '"id":"[^"]*"' "$index_file" | head -1 | cut -d'"' -f4)"
+      path="$(grep -o '"path":"[^"]*"' "$index_file" | head -1 | cut -d'"' -f4)"
+      date="$(grep -o '"date":"[^"]*"' "$index_file" | head -1 | cut -d'"' -f4)"
+    fi
+
+    printf "%-10s  %-20s  %s\n" "${id:0:8}" "${date:0:19}" "$path"
+  done
+
+  echo ""
+  echo "${count} item(s) in trash"
+}
+
+# --- restore ---
+cmd_restore() {
+  if [[ $# -ne 1 ]]; then
+    echo "error: specify exactly one ID (8+ characters)" >&2
+    echo "usage: safe-rm restore <id>" >&2
+    return 1
+  fi
+
+  ensure_dirs
+  local search_id="$1"
+
+  if [[ ${#search_id} -lt 8 ]]; then
+    echo "error: ID must be at least 8 characters" >&2
+    return 1
+  fi
+
+  local matches=()
+  for index_file in "${INDEX_DIR}"/*.json; do
+    [[ -e "$index_file" ]] || break
+    local filename
+    filename="$(basename "$index_file" .json)"
+    if [[ "$filename" == "$search_id"* ]]; then
+      matches+=("$filename")
+    fi
+  done
+
+  if [[ ${#matches[@]} -eq 0 ]]; then
+    echo "error: no match found for ID '${search_id}'" >&2
+    return 1
+  fi
+
+  if [[ ${#matches[@]} -gt 1 ]]; then
+    echo "error: multiple matches found. use full ID:" >&2
+    for m in "${matches[@]}"; do
+      echo "  $m" >&2
+    done
+    return 1
+  fi
+
+  local uuid="${matches[0]}"
+  local index_file="${INDEX_DIR}/${uuid}.json"
+
+  local orig_path name
+  if command -v jq &>/dev/null; then
+    orig_path="$(jq -r '.path' "$index_file")"
+    name="$(jq -r '.name' "$index_file")"
+  else
+    orig_path="$(grep -o '"path":"[^"]*"' "$index_file" | head -1 | cut -d'"' -f4)"
+    name="$(grep -o '"name":"[^"]*"' "$index_file" | head -1 | cut -d'"' -f4)"
+  fi
+
+  if [[ -e "$orig_path" ]]; then
+    echo "error: restore target already exists: ${orig_path}" >&2
+    return 1
+  fi
+
+  local parent_dir
+  parent_dir="$(dirname "$orig_path")"
+  mkdir -p "$parent_dir"
+
+  mv "${FILES_DIR}/${uuid}/${name}" "$orig_path"
+  rm -rf "${FILES_DIR}/${uuid}"
+  rm -f "$index_file"
+
+  echo "restored: ${orig_path}"
+}
+
+# --- empty ---
+cmd_empty() {
+  ensure_dirs
+
+  local force=false
+  [[ "${1:-}" == "--force" ]] && force=true
+
+  local count=0
+  for f in "${INDEX_DIR}"/*.json; do
+    [[ -e "$f" ]] || break
+    count=$((count + 1))
+  done
+
+  if [[ $count -eq 0 ]]; then
+    echo "trash is already empty"
+    return 0
+  fi
+
+  if [[ "$force" == false ]]; then
+    printf "permanently delete %d item(s)? [y/N] " "$count"
+    read -r answer
+    [[ "$answer" == "y" || "$answer" == "Y" ]] || { echo "cancelled"; return 0; }
+  fi
+
+  rm -rf "${FILES_DIR:?}"/* "${INDEX_DIR:?}"/*
+  echo "deleted ${count} item(s) permanently"
+}
+
+# --- help ---
+cmd_help() {
+  cat <<'HELP'
+safe-rm - trash-based rm alternative for Claude Code
+
+usage: safe-rm <command> [options] [args]
+
+commands:
+  delete [-r] <path>...   Move files/directories to trash
+  list                    List items in trash
+  restore <id>            Restore item by ID (8+ char prefix)
+  empty [--force]         Permanently delete all items in trash
+  help                    Show this help
+
+trash location: ~/.local/share/claude-trash/
+HELP
+}
+
+# --- main ---
+case "${1:-}" in
+  delete)  shift; cmd_delete "$@" ;;
+  list)    cmd_list ;;
+  restore) shift; cmd_restore "$@" ;;
+  empty)   shift; cmd_empty "$@" ;;
+  help|--help|-h|"") cmd_help ;;
+  *) echo "error: unknown command: $1" >&2; cmd_help >&2; exit 1 ;;
+esac

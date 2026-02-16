@@ -12,6 +12,8 @@
       "Read",
       "WebSearch",
 
+      "Bash(~/.claude/bin/safe-rm *)",
+
       "Bash(uname *)",
       "Bash(whoami)",
       "Bash(hostname)",
@@ -175,6 +177,8 @@
     ],
 
     "deny": [
+      "Bash(rm *)",
+
       "Read(**/.env)",
       "Read(**/.env.*)",
       "Read(**/credentials.json)",

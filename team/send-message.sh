@@ -7,6 +7,14 @@ MESSAGE="$2"
 FORCE="${3:-}"
 BUFFER_NAME="*eat-claude-worker-${WORKER_NUM}*"
 
+# 送信先ワーカーのdoneファイルが存在する場合は削除（ワーカーが再作業するため）
+for done_file in /tmp/claude-team/*/worker-"${WORKER_NUM}"/done; do
+  if [[ -f "$done_file" ]]; then
+    echo "Note: Worker ${WORKER_NUM} のdoneファイルを削除します（再作業のため）: ${done_file}" >&2
+    command rm -f "$done_file"
+  fi
+done
+
 # 権限プロンプト中の送信防止チェック（--forceで無視可能）
 if [[ "$FORCE" != "--force" ]]; then
   TAIL=$(emacsclient -e "(with-current-buffer \"${BUFFER_NAME}\"

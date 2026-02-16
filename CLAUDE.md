@@ -109,15 +109,38 @@ claude-code-ideのメインセッション（主/オーケストレータ）が�
 ### ファイル競合の防止
 CCAと同じアプローチ: タスク分解時にファイル所有権を各ワーカーに割り当て、重複を避ける。
 
+### カスタムロール
+- `/tmp/claude-team/$TEAM_ID/custom-roles.txt` に1行1ロールで記述するとデフォルトロールを上書き可能
+- 行数は `$WORKER_COUNT` と一致させること（不一致時はデフォルトにフォールバック）
+
+### インターフェース仕様共有（Phase 2）
+- `/tmp/claude-team/$TEAM_ID/interface-spec.md` にオーケストレータが仕様を記述
+- ワーカーは作業開始前にこのファイルを参照し、定義された命名・シグネチャに従う
+- 独自の命名を導入せず、不明点はteam-msg.shで確認
+
+### done検知のdebounce
+- send-message.shは送信先ワーカーのdoneファイルを自動削除（再作業のため）
+- wait-workers.shは全員done検知後に3秒debounce待機し、doneが消えていないか再確認
+
 ### 注意事項
 - Phase 2ワーカーは `--dangerously-skip-permissions` で起動する（Phase 1は権限スキップなし）
 - cleanup-team.sh は必ず最後に実行すること（Emacsブロック防止のため安全にバッファを削除する）
 - send-message.shは権限プロンプト検出時に送信を中止する（--forceで上書き可能）
 - perspective.el使用時: init-team/spawn-worker/cleanupはclaude-codeバッファのperspectiveに自動切り替え→操作後に復帰
-- 主セッションはdevenv有効化前から起動しているためPATHが古い。テスト・ビルド等は従セッションに委任すること
+- 主セッションはdevenv有効化前から起動しているためPATHが古い。テスト・ビルド等は従セッションに委任すること。`devenv shell -- <cmd>` で軽微な検証は主セッションからも実行可能
 - ワーカーセッションは `CLAUDE_TEAM_WORKER=1` 環境変数付きで起動される。hookスクリプト（session-status.sh, log-permission-request.sh）はこの変数を検出して早期終了し、主セッションのステータスファイル上書きやログ混入を防ぐ
 - team-msg.shで送信したメッセージは相手のClaude Code TUIに新しいユーザー入力として表示される
 - ワーカー間メッセージに改行は含めないこと（send-message.shの制約）
+- Phase 2ワーカーはworktreeブランチで作業し、mainにcheckoutすることは禁止
+
+## safe-rm（ファイル削除）
+- `rm` はdenyされているため、ファイル削除には `~/.claude/bin/safe-rm` を使うこと
+- ゴミ箱: `~/.local/share/claude-trash/`
+- サブコマンド:
+  - `safe-rm delete [-r] <path>...` — ファイル/ディレクトリをゴミ箱に移動（ディレクトリは `-r` 必須）
+  - `safe-rm list` — ゴミ箱の内容を一覧表示
+  - `safe-rm restore <id>` — IDで指定したアイテムを元の場所に復元（8文字以上の前方一致）
+  - `safe-rm empty [--force]` — ゴミ箱を完全削除
 
 ## Custom Commands
 

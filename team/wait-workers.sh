@@ -36,13 +36,32 @@ is_worker_done() {
   return 1
 }
 
-# 完了済みワーカー数を返す
+# debounce付きで全ワーカーの完了を確認（done検知後3秒待機し、消えていたら未完了扱い）
 check_done_count() {
   local count=0
   for i in $(seq 1 "$WORKER_COUNT"); do
     is_worker_done "$i" && count=$((count + 1))
   done
   echo "$count"
+}
+
+# debounce付き完了チェック: 全員done後に3秒待機し、doneが消えていないか再確認
+check_all_done_with_debounce() {
+  local done_count
+  done_count=$(check_done_count)
+  if [[ "$done_count" -lt "$WORKER_COUNT" ]]; then
+    return 1
+  fi
+  # 全員done → 3秒debounce
+  echo "全ワーカーdone検知。3秒debounce待機..." >&2
+  sleep 3
+  # 再確認: doneファイルが消えていないか
+  done_count=$(check_done_count)
+  if [[ "$done_count" -lt "$WORKER_COUNT" ]]; then
+    echo "debounce中にワーカーが再作業を開始。再待機します。" >&2
+    return 1
+  fi
+  return 0
 }
 
 # 完了時の結果表示
@@ -136,9 +155,7 @@ wait_with_inotifywait() {
 
   # inotifywaitが起動済みなので、この間に作成されたdoneファイルもキューに入る
   echo "監視開始 (inotifywait: ${method})" >&2
-  local done_count
-  done_count=$(check_done_count)
-  if [[ "$done_count" -ge "$WORKER_COUNT" ]]; then
+  if check_all_done_with_debounce; then
     print_results
     exit 0
   fi
@@ -152,18 +169,18 @@ wait_with_inotifywait() {
       local worker_num="${dir_name#worker-}"
       echo "Worker ${worker_num} 完了を検知" >&2
 
-      done_count=$(check_done_count)
-      if [[ "$done_count" -ge "$WORKER_COUNT" ]]; then
+      if check_all_done_with_debounce; then
         print_results
         exit 0
       fi
+      local done_count
+      done_count=$(check_done_count)
       echo "完了: ${done_count}/${WORKER_COUNT}" >&2
     fi
   done
 
   # パイプ切断（inotifywait異常終了）→ 最終チェック
-  done_count=$(check_done_count)
-  if [[ "$done_count" -ge "$WORKER_COUNT" ]]; then
+  if check_all_done_with_debounce; then
     print_results
     exit 0
   fi
@@ -178,9 +195,7 @@ wait_with_polling() {
   echo "inotifywait不可: 5秒ポーリングにフォールバック" >&2
   local elapsed=0
   while [ "$elapsed" -lt "$TIMEOUT" ]; do
-    local done_count
-    done_count=$(check_done_count)
-    if [[ "$done_count" -ge "$WORKER_COUNT" ]]; then
+    if check_all_done_with_debounce; then
       print_results
       exit 0
     fi

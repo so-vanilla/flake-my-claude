@@ -31,6 +31,7 @@
         ".claude/team/cleanup-team.sh" = { source = "${self}/team/cleanup-team.sh"; executable = true; };
         ".claude/team/team-msg.sh" = { source = "${self}/team/team-msg.sh"; executable = true; };
         ".claude/team/setup-env.sh" = { source = "${self}/team/setup-env.sh"; executable = true; };
+        ".claude/bin/safe-rm" = { source = "${self}/bin/safe-rm"; executable = true; };
         ".claude/statusline.sh" = {
           source = "${self}/statusline.sh";
           executable = true;

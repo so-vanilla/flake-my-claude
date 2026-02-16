@@ -40,7 +40,7 @@ echo "=== Claude Code 設定セットアップ ==="
 echo ""
 
 # --- settings.json ---
-echo "[1/7] settings.json"
+echo "[1/8] settings.json"
 DEST_SETTINGS="$CLAUDE_DIR/settings.json"
 SRC_SETTINGS="$SCRIPT_DIR/settings.json"
 
@@ -68,7 +68,7 @@ else
 fi
 
 # --- commands/ ---
-echo "[2/7] commands/"
+echo "[2/8] commands/"
 DEST_COMMANDS="$CLAUDE_DIR/commands"
 
 if [[ -d "$DEST_COMMANDS" ]]; then
@@ -82,7 +82,7 @@ cp -r "$SCRIPT_DIR/commands" "$DEST_COMMANDS"
 echo "  配置完了: $DEST_COMMANDS"
 
 # --- CLAUDE.md ---
-echo "[3/7] CLAUDE.md"
+echo "[3/8] CLAUDE.md"
 DEST_CLAUDE="$CLAUDE_DIR/CLAUDE.md"
 SRC_CLAUDE="$SCRIPT_DIR/CLAUDE.md"
 
@@ -99,7 +99,7 @@ else
 fi
 
 # --- statusline.sh ---
-echo "[4/7] statusline.sh"
+echo "[4/8] statusline.sh"
 DEST_STATUSLINE="$CLAUDE_DIR/statusline.sh"
 SRC_STATUSLINE="$SCRIPT_DIR/statusline.sh"
 
@@ -118,7 +118,7 @@ else
 fi
 
 # --- session-status.sh ---
-echo "[5/7] session-status.sh"
+echo "[5/8] session-status.sh"
 DEST_SESSION_STATUS="$CLAUDE_DIR/session-status.sh"
 SRC_SESSION_STATUS="$SCRIPT_DIR/session-status.sh"
 
@@ -137,7 +137,7 @@ else
 fi
 
 # --- log-permission-request.sh ---
-echo "[6/7] log-permission-request.sh"
+echo "[6/8] log-permission-request.sh"
 DEST_LOG_PERM="$CLAUDE_DIR/log-permission-request.sh"
 SRC_LOG_PERM="$SCRIPT_DIR/log-permission-request.sh"
 
@@ -156,7 +156,7 @@ else
 fi
 
 # --- team/ ---
-echo "[7/7] team/"
+echo "[7/8] team/"
 DEST_TEAM="$CLAUDE_DIR/team"
 
 if [[ -d "$DEST_TEAM" ]]; then
@@ -168,6 +168,19 @@ fi
 cp -r "$SCRIPT_DIR/team" "$DEST_TEAM"
 chmod +x "$DEST_TEAM"/*.sh
 echo "  配置完了: $DEST_TEAM"
+
+# --- bin/ ---
+echo "[8/8] bin/"
+DEST_BIN="$CLAUDE_DIR/bin"
+mkdir -p "$DEST_BIN"
+
+for src_bin in "$SCRIPT_DIR/bin"/*; do
+  [[ -f "$src_bin" ]] || continue
+  name="$(basename "$src_bin")"
+  safe_cp "$src_bin" "$DEST_BIN/$name"
+  chmod +x "$DEST_BIN/$name"
+done
+echo "  配置完了: $DEST_BIN"
 
 echo ""
 echo "=== セットアップ完了 ==="

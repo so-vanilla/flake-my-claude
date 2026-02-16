@@ -42,6 +42,35 @@ if [[ "${WORKER_COUNT:-1}" -gt 1 ]]; then
 "
 fi
 
+# フェーズの判定（team-info.txtから）
+CURRENT_PHASE=""
+if [[ -f "$TEAM_INFO_FILE" ]]; then
+  CURRENT_PHASE=$(grep '^PHASE=' "$TEAM_INFO_FILE" | cut -d= -f2)
+fi
+
+# impl phase向けの追加指示を構築
+IMPL_INSTRUCTIONS=""
+if [[ "$CURRENT_PHASE" == "impl" ]]; then
+  # worktreeブランチ指示
+  IMPL_INSTRUCTIONS="
+ブランチ管理:
+- あなたは専用のworktreeブランチで作業しています。このブランチから離れないでください
+- mainブランチにcheckoutすることは絶対にしないでください
+- git checkout main, git switch main は禁止です
+- コミットは現在のブランチに対して行ってください
+"
+  # interface-spec.md参照指示（ファイルはオーケストレータが後から作成する場合がある）
+  INTERFACE_SPEC="/tmp/claude-team/${TEAM_ID}/interface-spec.md"
+  IMPL_INSTRUCTIONS="${IMPL_INSTRUCTIONS}
+インターフェース仕様:
+- ${INTERFACE_SPEC} に共有インターフェース仕様が定義されている場合があります
+- 作業開始前にこのファイルの存在を確認し、存在する場合は必ず参照してください
+- 関数シグネチャ、データ構造、命名規約は仕様に厳密に従ってください
+- 仕様に定義されている名前と異なる独自の命名を導入しないでください
+- 不明点がある場合はteam-msg.shで他ワーカーに確認してください
+"
+fi
+
 # ワーカー用システムプロンプトをファイルに書き出し
 cat > "${RESULT_DIR}/system-prompt.txt" << PROMPT_EOF
 あなたはチーム(ID: ${TEAM_ID})のワーカー${WORKER_NUM}（従）です。
@@ -57,7 +86,7 @@ ${TEAM_ROSTER}
 - あなたはオーケストレータ（主）の指示に従って作業する従セッションである
 - タスクは1回で完結させること。他ワーカーへの追加要求は行わない
 - 作業が完了したらresult.mdに書き出してdoneファイルを作成し、それ以上の作業はしない
-
+${IMPL_INSTRUCTIONS}
 ワーカー間メッセージング:
 他のワーカーにメッセージを送信できます。メッセージは相手のClaude Code TUIに新しいユーザー入力として表示されます。
 ${MSG_TARGETS:+
