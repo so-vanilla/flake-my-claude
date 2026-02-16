@@ -36,6 +36,37 @@ TEAM_ID=$(date +%s)
 ~/.claude/team/init-team.sh "$TEAM_ID" plan
 ```
 
+### Step 1.5: ウィンドウ分割
+init-team.shがワーカーバッファを作成したので、ウィンドウを2x2に分割してワーカーを配置する。
+ウィンドウ操作はスクリプトではなくオーケストレータが動的に実行する（環境依存のside windowエラーを回避するため）。
+
+1. 現在のウィンドウ構成を詳細に確認する:
+```bash
+emacsclient -e '(mapcar (lambda (w) (list (buffer-name (window-buffer w)) (window-dedicated-p w) (window-parameter w (quote window-side)))) (seq-remove (function window-minibuffer-p) (window-list)))'
+```
+
+2. 上記の結果から「分割可能なワークスペースウィンドウ」を特定する。条件:
+   - バッファ名が "Side Bar" を含まない
+   - バッファ名が "claude-code" を含まない
+   - `window-dedicated-p` が nil
+   - `window-side` パラメータが nil（side windowでない）
+
+3. 特定したウィンドウを2x2に分割しワーカーバッファを配置する。
+   以下は典型的な sidebar | workspace | claude-code レイアウトの場合のサンプル:
+```bash
+emacsclient -e '(let* ((target-win (seq-find (lambda (w) (and (not (string-match-p "Side Bar" (buffer-name (window-buffer w)))) (not (string-match-p "claude-code" (buffer-name (window-buffer w)))) (not (window-dedicated-p w)) (not (window-parameter w (quote window-side))))) (seq-remove (function window-minibuffer-p) (window-list)))) (claude-win (seq-find (lambda (w) (string-match-p "claude-code" (buffer-name (window-buffer w)))) (window-list)))) (when target-win (select-window target-win) (let* ((top-left target-win) (top-right (split-window top-left nil (quote right))) (bottom-left (progn (select-window top-left) (split-window top-left nil (quote below)))) (bottom-right (progn (select-window top-right) (split-window top-right nil (quote below))))) (set-window-buffer top-left (get-buffer "*eat-claude-worker-1*")) (set-window-buffer top-right (get-buffer "*eat-claude-worker-2*")) (set-window-buffer bottom-left (get-buffer "*eat-claude-worker-3*")) (set-window-buffer bottom-right (get-buffer "*eat-claude-worker-4*")) (when claude-win (select-window claude-win)))))'
+```
+
+4. 分割後にウィンドウ構成を再確認する:
+```bash
+emacsclient -e '(mapcar (lambda (w) (buffer-name (window-buffer w))) (seq-remove (function window-minibuffer-p) (window-list)))'
+```
+
+5. 分割が失敗した場合（side windowエラー等）:
+   - エラーメッセージをユーザーに報告する
+   - `window-side` パラメータが non-nil のウィンドウしかない場合、サイドバーの一時非表示を提案する
+   - バッファは作成済みなのでワーカー自体は動作する。ウィンドウ表示は必須ではない
+
 ### Step 2: ワーカー起動待ち
 Claude CLIの起動に時間がかかるため、各ワーカーの準備完了を待つ:
 ```bash
@@ -128,6 +159,27 @@ cat /tmp/claude-team/$TEAM_ID/worker-3/result.md
 cat /tmp/claude-team/$TEAM_ID/worker-4/result.md
 ```
 
+### Step 5.5: ウィンドウ復元
+cleanup-team.shを実行する前に、ワーカー表示用の2x2ウィンドウを元に戻す。
+cleanup-team.shはバッファ削除のみ行い、ウィンドウ操作はしない。
+
+1. 現在のウィンドウ構成を確認する:
+```bash
+emacsclient -e '(mapcar (lambda (w) (list (buffer-name (window-buffer w)) (window-dedicated-p w))) (seq-remove (function window-minibuffer-p) (window-list)))'
+```
+
+2. サイドバーとclaude-codeウィンドウ以外を削除し、ワークスペースウィンドウを再作成する:
+```bash
+emacsclient -e '(let ((claude-win (seq-find (lambda (w) (string-match-p "claude-code" (buffer-name (window-buffer w)))) (window-list))) (sidebar-win (seq-find (lambda (w) (or (string-match-p "Side Bar" (buffer-name (window-buffer w))) (window-parameter w (quote window-side)))) (window-list)))) (dolist (w (window-list)) (unless (or (eq w claude-win) (eq w sidebar-win) (window-minibuffer-p w)) (ignore-errors (delete-window w)))) (when claude-win (let ((ws-win (split-window claude-win nil (quote left)))) (set-window-buffer ws-win (car (buffer-list)))) (select-window claude-win)))'
+```
+
+3. 復元後のウィンドウ構成を確認する:
+```bash
+emacsclient -e '(mapcar (lambda (w) (buffer-name (window-buffer w))) (seq-remove (function window-minibuffer-p) (window-list)))'
+```
+
+4. 期待通りでない場合はStep 0.5のリセット手順を参照して調整する。
+
 ### Step 6: クリーンアップ
 ```bash
 ~/.claude/team/cleanup-team.sh "$TEAM_ID" 4
@@ -190,6 +242,9 @@ TEAM_ID_IMPL=$(date +%s)
 ~/.claude/team/init-team.sh "$TEAM_ID_IMPL" impl
 ```
 
+### Step 8.5: ウィンドウ分割（Phase 2）
+手順はStep 1.5と同一。Phase 2のワーカーバッファ (*eat-claude-worker-1* 〜 *eat-claude-worker-4*) を2x2に配置する。
+
 ### Step 9: ワーカー起動待ち
 ```bash
 sleep 15
@@ -218,6 +273,9 @@ cat /tmp/claude-team/$TEAM_ID_IMPL/worker-4/result.md
 各worktreeのコミットをメインブランチに統合する:
 1. 各ワーカーのworktreeでコミットを確認: `git -C <worktree> log --oneline -5`
 2. メインブランチにcherry-pick: `git cherry-pick <commit-hash>`
+
+### Step 13.5: ウィンドウ復元（Phase 2完了時）
+手順はStep 5.5と同一。
 
 ### Step 14: クリーンアップ
 ```bash
@@ -255,7 +313,4 @@ cat /tmp/claude-team/$TEAM_ID_VERIFY/worker-1/result.md
 - TEAM_IDはPhase 1とPhase 2で別のIDを使うこと（tmpディレクトリの衝突防止）
 - メッセージに改行を含めないこと。改行はClaude Code TUIのマルチライン入力を起動し送信失敗の原因となる
 - **主セッションのPATH制約**: 主（オーケストレータ）はdevenv有効化前から起動しているため、devenvで追加されたツール（テストランナー、フォーマッタ、LSP等）がPATHに含まれない。テスト実行・フォーマット・ビルド等のdevenv依存コマンドは、主が直接実行せず、必ず従セッション（ワーカー）を立てて委任すること
-- **cleanup後のウィンドウ復元**: cleanup-team.shはサイドバーとclaude-codeウィンドウを保持しつつワーカー表示ウィンドウを削除し、ワークスペース用ウィンドウを再作成する。ただしレイアウトは環境依存が大きいため、期待通りにならない場合は以下の手順で手動復元すること:
-  1. `window-list`でウィンドウ構成を確認
-  2. 余分なワーカーバッファ跡のウィンドウを`delete-window`で個別削除
-  3. サイドバー | ワークスペース | claude-code の3列構成に復元
+- **ウィンドウ管理**: ウィンドウの分割・復元はオーケストレータ（本手順のStep 1.5, 5.5等）が担当する。cleanup-team.shはバッファ削除とworktree/tmpの片付けのみ行う。ウィンドウ操作が失敗した場合は `(window-list)` で状態を確認し、`window-side` パラメータや `window-dedicated-p` を考慮して適応すること。side windowは分割できないため、必ず通常のウィンドウを対象にすること

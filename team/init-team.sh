@@ -79,44 +79,4 @@ else
   done
 fi
 
-# 中央ウィンドウを2x2に分割してワーカーバッファを配置（perspective.el対応）
-emacsclient -e '(let* ((use-persp (featurep (quote perspective)))
-                 (orig-persp (and use-persp (persp-current-name)))
-                 ;; claude-codeバッファがあるperspectiveを見つけて切り替え
-                 (_persp-switched
-                   (when (and use-persp orig-persp)
-                     (seq-find
-                       (lambda (name)
-                         (persp-switch name t)
-                         (seq-some
-                           (lambda (b)
-                             (string-match-p "claude-code" (buffer-name b)))
-                           (persp-current-buffers)))
-                       (persp-names))))
-                 (claude-win
-                   (seq-find (lambda (w)
-                     (string-match-p "claude-code" (buffer-name (window-buffer w))))
-                     (window-list)))
-                 (middle-win
-                   (seq-find (lambda (w)
-                     (let ((buf (buffer-name (window-buffer w))))
-                       (and (not (string-match-p "Side Bar" buf))
-                            (not (string-match-p "claude-code" buf)))))
-                     (window-list))))
-  (when middle-win
-    (select-window middle-win)
-    (let* ((top-left middle-win)
-           (top-right (split-window-right))
-           (bottom-left (progn (select-window top-left) (split-window-below)))
-           (bottom-right (progn (select-window top-right) (split-window-below))))
-      (set-window-buffer top-left (get-buffer "*eat-claude-worker-1*"))
-      (set-window-buffer top-right (get-buffer "*eat-claude-worker-2*"))
-      (set-window-buffer bottom-left (get-buffer "*eat-claude-worker-3*"))
-      (set-window-buffer bottom-right (get-buffer "*eat-claude-worker-4*"))
-      (select-window claude-win)))
-  ;; 元のperspectiveに復帰
-  (when (and use-persp orig-persp
-             (not (string= orig-persp (persp-current-name))))
-    (persp-switch orig-persp t)))'
-
 echo "Team ${TEAM_ID} initialized (phase: ${PHASE}, workers: 4)"
