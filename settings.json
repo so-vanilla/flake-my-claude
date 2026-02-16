@@ -252,9 +252,6 @@
       "Bash(gem install *)",
       "Bash(cargo install *)",
 
-      "Bash(curl *)",
-      "Bash(wget *)",
-
       "Bash(nix-env --install *)",
       "Bash(nix-env -i *)",
       "Bash(nix-env --uninstall *)",
