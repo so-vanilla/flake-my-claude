@@ -51,6 +51,12 @@
   }
   ```
 
+## 安全なファイル操作
+- `rm` を使う際は必ず対象を明示的に指定すること。`rm -rf` でディレクトリを丸ごと削除する前に、中身を確認(`ls` または `find`)してから実行する
+- ワイルドカード(`*`)を含む `rm` は特に注意。展開結果を事前に確認する（`echo rm target/*` や `ls target/` で確認してから実行）
+- 可能な場合は `git clean` や `git checkout` など復元可能な手段を優先する
+- 重要なファイルの削除前にはユーザーに確認を取ること
+
 ## Emacs操作 (emacsclient -e + eat)
 - eatターミナルへのキー送信には `eat-term-send-string` を使う
   - Enterキー(送信)は `\r`(CR)を使うこと。`\n`(LF)はマルチライン入力での改行扱いになる
@@ -66,10 +72,10 @@
 emacsclient + eatターミナルを使い、複数のClaudeセッションを協調動作させる。
 claude-code-ideのメインセッション（主/オーケストレータ）が、eat内のClaudeセッション（従/ワーカー）を管理する。
 
-### ヘルパースクリプト
-| スクリプト | 用途 |
+### ヘルパースクリプト・ガイド
+| ファイル | 用途 |
 |-----------|------|
-| `~/.claude/team/init-team.sh <team-id> <phase> [count] [dir]` | ワーカー生成（1/2/4エージェント対応） |
+| `~/.claude/team/init-team.sh <team-id> <phase> [count] [dir] [master-team-id]` | ワーカー生成（1/2/4エージェント対応） |
 | `~/.claude/team/spawn-worker.sh <team-id> <worker-num> <role> [dir]` | 個別ワーカー生成 |
 | `~/.claude/team/send-message.sh <worker-num> <message> [--force]` | メッセージ送信 |
 | `~/.claude/team/wait-workers.sh <team-id> <count> [timeout]` | 完了待機（inotifywait/ポーリングフォールバック） |
@@ -77,24 +83,44 @@ claude-code-ideのメインセッション（主/オーケストレータ）が�
 | `~/.claude/team/setup-env.sh <setup\|check\|git-init> <dir>` | 環境構築・gitリポジトリ初期化 |
 | `~/.claude/team/team-msg.sh <team-id> <from> <to\|broadcast> <msg>` | ワーカー間メッセージ送信 |
 | `~/.claude/team/cleanup-team.sh <team-id> <count> [--keep-worktrees] [--force]` | チーム解散 |
+| `~/.claude/team/window-guide.md` | ウィンドウ管理アドバイザリーガイド（Readツールで参照） |
 
-### ワークフロー
-1. **Phase 1 (plan)**: `init-team.sh <id> plan [count]` → 多視点分析（3ラウンド相互参照）→プラン生成
-2. **Phase 1.5 (env)**: `setup-env.sh git-init/setup/check <dir>` → git初期化+開発環境構築
-3. **Phase 2 (impl)**: `init-team.sh <id> impl [count]` → タスクフェーズ型ワーカーがプランを実装
+### ワークフロー（4Phase制）
+`/team` がオーケストレータとして各Phaseを Skill ツール経由で順次呼び出す:
+
+1. **Phase 1 (要件)**: `/team-plan` → 多視点要件分析（3ラウンド相互参照）→ requirements-plan.md 生成
+2. **Phase 2 (設計)**: `/team-design` → 多視点設計分析（3ラウンド相互参照）→ design-plan.md 生成
+3. **Phase 3 (環境)**: `/team-env` → git初期化 + devenv構築 + ワーカー検証（既存環境ならスキップ）
+4. **Phase 4 (実装)**: `/team-impl` → タスクフェーズ型ワーカーがプランを実装 + 検証
+
+### ロール適合判定
+`/team` のStep 2でタスクとデフォルトロールを照合し、マッチしない場合はカスタムロールを提案する。
+
+**Phase 1（要件）デフォルトロール**:
+- 4: End User Advocate / Business/Domain Expert / Technical Feasibility / Quality Gatekeeper
+- 2: Product(User+Business) / Technical(Engineering+Quality)
+- 1: Requirements Analyst
+
+**Phase 2（設計）デフォルトロール**:
+- 4: Architect / Interface Designer / Implementation Planner / Integration Engineer
+- 2: Architecture(Architect+Interface) / Implementation(Planner+Integration)
+- 1: Full-Stack Designer
+
+**Phase 4（実装）デフォルトロール**:
+- 4: Researcher / Implementer / Tester / Reviewer
+- 2: Builder(Researcher+Implementer) / Verifier(Tester+Reviewer)
+- 1: Full-Stack
 
 ### エージェント数
-タスク複雑度に応じて1, 2, 4から選択:
-- **4**: Engineer×Conservative / User×Innovative / Security×Critical / PM×Integrative (plan) / Researcher / Implementer / Tester / Reviewer (impl)
-- **2**: Technical(Engineer+Security) / Product(User+PM) (plan) / Builder(Researcher+Implementer) / Verifier(Tester+Reviewer) (impl)
-- **1**: 全視点統合Analyst (plan) / Full-Stack (impl)
+タスク複雑度に応じて1, 2, 4から選択。オーケストレータがユーザーに推奨値を提示して確認を得る。
 
 ### ウィンドウレイアウト
 - **4エージェント**: 2x2グリッド（左上/右上/左下/右下）
 - **2エージェント**: 左右分割
 - **1エージェント**: ワークスペースウィンドウに直接表示（分割なし）
+- ウィンドウ管理の詳細は `~/.claude/team/window-guide.md` を参照
 
-### Plan Phase 3ラウンド制（2+エージェント時）
+### 3ラウンド制（2+エージェント時、Phase 1/2共通）
 1. **Round 1**: 独立分析 → result.md書き出し
 2. **Round 2**: 他者のresult.md読み + team-msg.shで質問 → 改訂版result.md
 3. **Round 3**: メッセージログ踏まえ妥協・統合版を作成
@@ -107,7 +133,7 @@ claude-code-ideのメインセッション（主/オーケストレータ）が�
 - **待機**: `wait-workers.sh` でイベント駆動待機（inotifywait優先、フォールバックで5秒ポーリング）
 
 ### ファイル競合の防止
-CCAと同じアプローチ: タスク分解時にファイル所有権を各ワーカーに割り当て、重複を避ける。
+タスク分解時にファイル所有権を各ワーカーに割り当て、重複を避ける。
 
 ### カスタムロール
 - `/tmp/claude-team/$TEAM_ID/custom-roles.txt` に1行1ロールで記述するとデフォルトロールを上書き可能
@@ -123,7 +149,7 @@ CCAと同じアプローチ: タスク分解時にファイル所有権を各ワ
 - wait-workers.shは全員done検知後に3秒debounce待機し、doneが消えていないか再確認
 
 ### 注意事項
-- Phase 2ワーカーは `--dangerously-skip-permissions` で起動する（Phase 1は権限スキップなし）
+- Phase 4ワーカーは `--dangerously-skip-permissions` で起動する（Phase 1/2は権限スキップなし）
 - cleanup-team.sh は必ず最後に実行すること（Emacsブロック防止のため安全にバッファを削除する）
 - send-message.shは権限プロンプト検出時に送信を中止する（--forceで上書き可能）
 - perspective.el使用時: init-team/spawn-worker/cleanupはclaude-codeバッファのperspectiveに自動切り替え→操作後に復帰
@@ -131,7 +157,7 @@ CCAと同じアプローチ: タスク分解時にファイル所有権を各ワ
 - ワーカーセッションは `CLAUDE_TEAM_WORKER=1` 環境変数付きで起動される。hookスクリプト（session-status.sh, log-permission-request.sh）はこの変数を検出して早期終了し、主セッションのステータスファイル上書きやログ混入を防ぐ
 - team-msg.shで送信したメッセージは相手のClaude Code TUIに新しいユーザー入力として表示される
 - ワーカー間メッセージに改行は含めないこと（send-message.shの制約）
-- Phase 2ワーカーはworktreeブランチで作業し、mainにcheckoutすることは禁止
+- MASTER_TEAM_IDは全Phase共通、各Phaseは個別のTEAM_IDを使用（衝突防止）
 
 ## safe-rm（ファイル削除）
 - `rm` はdenyされているため、ファイル削除には `~/.claude/bin/safe-rm` を使うこと
@@ -152,6 +178,7 @@ CCAと同じアプローチ: タスク分解時にファイル所有権を各ワ
 | `/init-work` | 会社プロジェクト環境初期化 | 会社リポジトリのdevenvセットアップ |
 | `/worktree` | Worktree作成 | ghq並列配置方式でworktreeを作成しdevenv環境を構築 |
 | `/nix-check` | Nix/devenv環境チェック | 環境の健全性を読み取り専用で検証 |
+| `/edit-claude` | Claude設定編集 | flake-my-claudeリポジトリで設定・コマンド・スクリプトを編集 |
 | `/commit` | スマートコミット | 変更を分析しリポジトリのスタイルに合わせたコミットメッセージを生成 |
 | `/pr` | Pull Request作成 | 全コミットを分析し構造化されたPRを作成 |
 | `/test` | テスト実行 | フレームワークを自動検出しdevenv経由でテスト実行 |
@@ -162,7 +189,15 @@ CCAと同じアプローチ: タスク分解時にファイル所有権を各ワ
 | `/security-review` | セキュリティ監査 | コードのセキュリティ問題を検出・報告（読み取り専用） |
 | `/changelog` | 変更履歴生成 | git履歴からカテゴリ分類された変更履歴を生成 |
 | `/perm-review` | パーミッション権限レビュー | PermissionRequestログを分析しallow/denyルールを提案・適用 |
-| `/team` | マルチエージェントチーム | Eat Terminal経由で1/2/4ワーカーを生成し、3ラウンドplan + impl の2フェーズ制で協調タスク実行 |
+| `/team` | マルチエージェントオーケストレータ | 4Phase制（要件→設計→環境→実装）で協調タスク実行。各Phaseを遅延ロード |
+| `/team-plan` | 要件プランニング | 多視点3ラウンド制で要件を分析し requirements-plan.md を生成 |
+| `/team-design` | 設計プランニング | 要件プランに基づき多視点3ラウンド制で設計し design-plan.md を生成 |
+| `/team-env` | 環境構築 | devenv初期化 + ワーカーによる動作検証 |
+| `/team-impl` | 実装 | 設計プランに基づきワーカーが並列実装 + cherry-pick統合 + 検証 |
+| `/org-agenda` | 今日のアジェンダ表示 | schedule.org + todo.org を読み込み今日の予定・タスクを合成提示（読み取り専用） |
+| `/org-bump` | デイリータスクDEADLINE修正 | `++1d` タスクの過去日DEADLINEを今日/明日に修正 |
+| `/org-prune` | 古い完了タスク削除 | 1ヶ月以上前のDONE非リピートタスクを一括削除 |
+| `/org-todo` | タスク追加 | 会話の文脈からタスク候補を抽出しtodo.orgに追記 |
 
 ### ワークフロー連携パターン
 
@@ -174,4 +209,5 @@ superpowersスキルと組み合わせた典型的なワークフロー:
 - **リリース準備**: `/dep-update` → `/test` → `/security-review` → `/changelog` → `/commit` → `/pr`
 - **プロジェクト理解**: `/explore` → `/nix-check` → superpowers:writing-plans
 - **パーミッション管理**: セッション運用 → `/perm-review status` で統計確認 → `/perm-review` でルール適用 → `/commit`
-- **マルチエージェント開発**: `/team <タスク>` → Phase 1(3ラウンド多視点プラン) → Phase 2(並列実装) → 統合 → `/commit`
+- **マルチエージェント開発**: `/team <タスク>` → Phase 1(要件プラン) → Phase 2(設計プラン) → Phase 3(環境構築) → Phase 4(並列実装+検証) → `/commit`
+- **org日次運用**: `/org-agenda` → `/org-bump` → 作業 → `/org-todo` → `/org-prune`（月次）

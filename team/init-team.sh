@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Usage: init-team.sh <team-id> <phase> [worker-count] [working-dir]
-# phase: "plan" or "impl"
+# Usage: init-team.sh <team-id> <phase> [worker-count] [working-dir] [master-team-id]
+# phase: "req-plan", "design", "plan" (後方互換=req-plan), or "impl"
 # worker-count: 1, 2, or 4 (default: 4)
 set -euo pipefail
 
@@ -8,6 +8,7 @@ TEAM_ID="$1"
 PHASE="$2"
 WORKER_COUNT="${3:-4}"
 WORK_DIR="${4:-$(pwd)}"
+MASTER_TEAM_ID="${5:-}"
 
 # ワーカー数のバリデーション
 case "$WORKER_COUNT" in
@@ -34,73 +35,92 @@ fi
 # フェーズとワーカー数に応じたロール定義と権限設定
 PERM_FLAG="--skip-permissions"
 
-# カスタムロールファイルが存在する場合はそちらを優先
-CUSTOM_ROLES_FILE="/tmp/claude-team/${TEAM_ID}/custom-roles.txt"
-
-case "$PHASE" in
-  plan)
-    case "$WORKER_COUNT" in
-      4)
-        DEFAULT_ROLES=(
-          "Engineer×Conservative: 技術的に堅実な設計を提案。既存パターン活用、実績ある手法を重視。プロジェクトファイルの編集は行わないこと。"
-          "User×Innovative: ユーザー体験の革新を提案。DX向上、新しいアプローチを追求。プロジェクトファイルの編集は行わないこと。"
-          "Security×Critical: リスク・脆弱性を指摘。エッジケース発見、Devil's advocateとして機能。プロジェクトファイルの編集は行わないこと。"
-          "PM×Integrative: 全体の一貫性を確保。優先順位、スコープ調整、妥協点を提示。プロジェクトファイルの編集は行わないこと。"
-        )
-        ;;
-      2)
-        DEFAULT_ROLES=(
-          "Technical(Engineer+Security): 技術的堅実性とリスク分析を担当。実績ある手法、脆弱性指摘、エッジケース発見を重視。プロジェクトファイルの編集は行わないこと。"
-          "Product(User+PM): ユーザー体験と全体統合を担当。DX向上、優先順位、スコープ調整、妥協点の提示を重視。プロジェクトファイルの編集は行わないこと。"
-        )
-        ;;
-      1)
-        DEFAULT_ROLES=(
-          "Comprehensive Analyst: 技術的堅実性、ユーザー体験、セキュリティリスク、全体一貫性の全視点で統合的に分析。プロジェクトファイルの編集は行わないこと。"
-        )
-        ;;
-    esac
-    ;;
-  impl)
-    case "$WORKER_COUNT" in
-      4)
-        DEFAULT_ROLES=(
-          "Researcher: コードベース調査、情報収集、既存パターン分析を担当。"
-          "Implementer: コード実装、ファイル編集を担当。"
-          "Tester: テスト作成・実行、エッジケース検証を担当。"
-          "Reviewer: コードレビュー、品質チェック、改善提案を担当。"
-        )
-        ;;
-      2)
-        DEFAULT_ROLES=(
-          "Builder(Researcher+Implementer): コードベース調査・情報収集と、コード実装・ファイル編集を担当。"
-          "Verifier(Tester+Reviewer): テスト作成・実行、エッジケース検証、コードレビュー、品質チェックを担当。"
-        )
-        ;;
-      1)
-        DEFAULT_ROLES=(
-          "Full-Stack: コードベース調査、コード実装、テスト作成・実行、コードレビューの全工程を担当。"
-        )
-        ;;
-    esac
-    ;;
-  *)
-    echo "Error: phase must be 'plan' or 'impl'" >&2
-    exit 1
-    ;;
-esac
-
-# カスタムロールまたはデフォルトロールを適用
-if [[ -f "$CUSTOM_ROLES_FILE" ]]; then
-  mapfile -t ROLES < "$CUSTOM_ROLES_FILE"
-  if [[ "${#ROLES[@]}" -ne "$WORKER_COUNT" ]]; then
-    echo "Warning: custom-roles.txt has ${#ROLES[@]} roles but worker-count is ${WORKER_COUNT}. Using defaults." >&2
-    ROLES=("${DEFAULT_ROLES[@]}")
-  else
-    echo "Using custom roles from ${CUSTOM_ROLES_FILE}" >&2
+# カスタムロールファイルチェック（デフォルトロールより優先）
+ROLES=()
+if [[ -n "$MASTER_TEAM_ID" ]]; then
+  CUSTOM_FILE="/tmp/claude-team/${MASTER_TEAM_ID}/custom-roles-${PHASE}.txt"
+  if [[ -f "$CUSTOM_FILE" ]]; then
+    mapfile -t ROLES < "$CUSTOM_FILE"
   fi
-else
-  ROLES=("${DEFAULT_ROLES[@]}")
+fi
+
+# ROLES未設定ならデフォルトのcase文へ
+if [[ ${#ROLES[@]} -eq 0 ]]; then
+  case "$PHASE" in
+    req-plan|plan)
+      case "$WORKER_COUNT" in
+        4)
+          ROLES=(
+            "End User Advocate: ユーザー体験・ユースケース・使いやすさを分析。プロジェクトファイルの編集は行わないこと。"
+            "Business/Domain Expert: ビジネス要件・優先度・ROIを分析。プロジェクトファイルの編集は行わないこと。"
+            "Technical Feasibility: 技術的実現可能性・制約・リスクを評価。プロジェクトファイルの編集は行わないこと。"
+            "Quality Gatekeeper: 品質要件・セキュリティ・運用性・保守性を評価。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+        2)
+          ROLES=(
+            "Product(User+Business): プロダクト視点で要件を定義。ユーザー体験とビジネス優先度を統合。プロジェクトファイルの編集は行わないこと。"
+            "Technical(Engineering+Quality): 技術視点で実現性と品質を評価。制約・リスク・保守性を分析。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+        1)
+          ROLES=(
+            "Requirements Analyst: 全視点を統合した包括的要件分析。ユーザー・ビジネス・技術・品質の全観点。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+      esac
+      ;;
+    design)
+      case "$WORKER_COUNT" in
+        4)
+          ROLES=(
+            "Architect: 全体構造・モジュール分割・依存関係を設計。プロジェクトファイルの編集は行わないこと。"
+            "Interface Designer: API設計・型定義・モジュール間契約を策定。プロジェクトファイルの編集は行わないこと。"
+            "Implementation Planner: 実装手順・アルゴリズム・ファイル分割を計画。プロジェクトファイルの編集は行わないこと。"
+            "Integration Engineer: 統合計画・テスト戦略・エッジケースを検証。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+        2)
+          ROLES=(
+            "Architecture(Architect+Interface): 構造設計と契約定義。モジュール分割・API設計を統合。プロジェクトファイルの編集は行わないこと。"
+            "Implementation(Planner+Integration): 実装計画と統合検証。ファイル分割・テスト戦略を統合。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+        1)
+          ROLES=(
+            "Full-Stack Designer: 全設計を一貫して担当。構造・API・実装計画・テスト戦略。プロジェクトファイルの編集は行わないこと。"
+          )
+          ;;
+      esac
+      ;;
+    impl)
+      case "$WORKER_COUNT" in
+        4)
+          ROLES=(
+            "Researcher: コードベース調査、情報収集、既存パターン分析を担当。"
+            "Implementer: コード実装、ファイル編集を担当。"
+            "Tester: テスト作成・実行、エッジケース検証を担当。"
+            "Reviewer: コードレビュー、品質チェック、改善提案を担当。"
+          )
+          ;;
+        2)
+          ROLES=(
+            "Builder(Researcher+Implementer): コードベース調査・情報収集と、コード実装・ファイル編集を担当。"
+            "Verifier(Tester+Reviewer): テスト作成・実行、エッジケース検証、コードレビュー、品質チェックを担当。"
+          )
+          ;;
+        1)
+          ROLES=(
+            "Full-Stack: コードベース調査、コード実装、テスト作成・実行、コードレビューの全工程を担当。"
+          )
+          ;;
+      esac
+      ;;
+    *)
+      echo "Error: phase must be 'req-plan', 'design', 'plan', or 'impl'" >&2
+      exit 1
+      ;;
+  esac
 fi
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -111,12 +131,13 @@ mkdir -p "/tmp/claude-team/${TEAM_ID}/messages"
   echo "TEAM_ID=${TEAM_ID}"
   echo "PHASE=${PHASE}"
   echo "WORKER_COUNT=${WORKER_COUNT}"
+  [[ -n "$MASTER_TEAM_ID" ]] && echo "MASTER_TEAM_ID=${MASTER_TEAM_ID}"
   for i in $(seq 1 "$WORKER_COUNT"); do
     echo "WORKER_${i}_ROLE=${ROLES[$((i-1))]}"
   done
 } > "/tmp/claude-team/${TEAM_ID}/team-info.txt"
 
-# Phase 2ではワーカーごとにworktreeを作成
+# implフェーズではワーカーごとにworktreeを作成
 if [[ "$PHASE" == "impl" ]]; then
   REPO_DIR=$(git -C "$WORK_DIR" rev-parse --show-toplevel)
   REPO_NAME=$(basename "$REPO_DIR")
@@ -155,7 +176,7 @@ if [[ "$PHASE" == "impl" ]]; then
     "$SCRIPT_DIR/spawn-worker.sh" "$TEAM_ID" "$i" "${ROLES[$((i-1))]}" "$WORKTREE_DIR" "$PERM_FLAG"
   done
 else
-  # Phase 1: 同一ディレクトリで読み取り専用
+  # req-plan/design/plan: 同一ディレクトリで読み取り専用
   for i in $(seq 1 "$WORKER_COUNT"); do
     "$SCRIPT_DIR/spawn-worker.sh" "$TEAM_ID" "$i" "${ROLES[$((i-1))]}" "$WORK_DIR" "$PERM_FLAG"
   done

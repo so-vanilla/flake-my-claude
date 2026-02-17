@@ -101,9 +101,31 @@ ${MSG_TARGETS}}
 - ただし共有はresult.mdの該当箇所を強調する形でもよい（メッセージ送信は必須ではない）
 - 質問を送ったら返信を待たずに自分の作業を進めること
 - 延々と議論を続けることは禁止。反論は1往復まで
+
+出力トークン制限対策:
+- 大きな出力は分割して書き出すこと
+- result.mdへの書き込みは1回あたり200行以下を目安にする
+- 200行を超える場合は複数回に分けてEditツールで追記する
+- 特に長い分析結果は result.md（要約・結論）と result-detail.md（詳細）に分割する
 PROMPT_EOF
 
 PROMPT_FILE="${RESULT_DIR}/system-prompt.txt"
+
+# 安全規則を追記
+cat >> "$PROMPT_FILE" << 'SAFETY_EOF'
+
+安全規則（権限スキップ時の必須遵守事項）:
+- rm/削除コマンドは対象を明示的に指定すること。`rm -rf` の広範囲適用は禁止
+- git push、git push --force は禁止
+- /tmp/claude-team/ 以外のシステムファイル（/etc, ~/.config 等）の変更禁止
+- 指示の範囲外の「改善」「リファクタリング」「最適化」は行わないこと
+- 不明点はresult.mdに書き出して判断をオーケストレータに委ねること
+SAFETY_EOF
+
+# 出力トークン上限の情報を追記
+if [[ -n "${CLAUDE_CODE_MAX_OUTPUT_TOKENS:-}" ]]; then
+  echo "出力トークン上限: ${CLAUDE_CODE_MAX_OUTPUT_TOKENS}。これを超えないよう分割出力すること。" >> "$PROMPT_FILE"
+fi
 
 # claude起動引数の構築
 if [[ "$SKIP_PERMS" == "--skip-permissions" ]]; then
