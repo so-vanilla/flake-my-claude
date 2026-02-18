@@ -93,34 +93,58 @@ print_timeout() {
   done
 }
 
-# --- inotifywait 検出・実行 ---
+# --- ファイル監視ツール検出 ---
 
-resolve_inotifywait() {
-  if command -v inotifywait &>/dev/null; then
-    echo "direct"
-  elif command -v , &>/dev/null; then
-    echo "comma"
-  elif command -v nix-shell &>/dev/null; then
-    echo "nix-shell"
-  else
-    echo "none"
-  fi
+resolve_watcher() {
+  local os
+  os=$(uname -s)
+  case "$os" in
+    Linux)
+      if command -v inotifywait &>/dev/null; then echo "linux:direct"
+      elif command -v , &>/dev/null; then echo "linux:comma"
+      elif command -v nix-shell &>/dev/null; then echo "linux:nix-shell"
+      else echo "none"
+      fi
+      ;;
+    Darwin)
+      if command -v fswatch &>/dev/null; then echo "darwin:direct"
+      elif command -v , &>/dev/null; then echo "darwin:comma"
+      elif command -v nix-shell &>/dev/null; then echo "darwin:nix-shell"
+      else echo "none"
+      fi
+      ;;
+    *)
+      echo "none"
+      ;;
+  esac
 }
 
 run_inotifywait() {
   local method="$1"
   shift
   case "$method" in
-    direct)   inotifywait "$@" ;;
-    comma)    , inotifywait "$@" ;;
+    direct)    inotifywait "$@" ;;
+    comma)     , inotifywait "$@" ;;
     nix-shell) nix-shell -p inotify-tools --run "inotifywait $*" ;;
   esac
 }
 
-# --- inotifywait によるイベント駆動待機 ---
-
-wait_with_inotifywait() {
+run_fswatch() {
   local method="$1"
+  shift
+  case "$method" in
+    direct)    fswatch "$@" ;;
+    comma)     , fswatch "$@" ;;
+    nix-shell) nix-shell -p fswatch --run "fswatch $*" ;;
+  esac
+}
+
+# --- イベント駆動待機 ---
+
+wait_with_event_watcher() {
+  local watcher_info="$1"
+  local os="${watcher_info%%:*}"
+  local method="${watcher_info#*:}"
 
   # 監視対象ディレクトリを準備
   local watch_dirs=()
@@ -130,37 +154,49 @@ wait_with_inotifywait() {
     watch_dirs+=("$dir")
   done
 
-  local fifo="${BASE_DIR}/.inotify-fifo"
+  local fifo="${BASE_DIR}/.watcher-fifo"
   rm -f "$fifo"
   mkfifo "$fifo"
 
   # read-writeオープンでブロックを回避（readerがいないとwriterがブロックする問題の防止）
   exec 3<>"$fifo"
 
-  # inotifywait起動（fifoに書き込み、fdが開いているので即座にモニタリング開始）
-  run_inotifywait "$method" -m -e create --format '%w%f' "${watch_dirs[@]}" > "$fifo" 2>/dev/null &
-  local inotify_pid=$!
+  # OS別の監視コマンド起動
+  case "$os" in
+    linux)
+      run_inotifywait "$method" -m -e create --format '%w%f' \
+        "${watch_dirs[@]}" > "$fifo" 2>/dev/null &
+      ;;
+    darwin)
+      run_fswatch "$method" --event Created \
+        "${watch_dirs[@]}" > "$fifo" 2>/dev/null &
+      ;;
+  esac
+  local watcher_pid=$!
 
   # タイムアウト用バックグラウンドプロセス
   (sleep "$TIMEOUT" && kill -TERM $$ 2>/dev/null) &
   local timeout_pid=$!
 
   cleanup() {
-    kill "$inotify_pid" 2>/dev/null || true
+    kill "$watcher_pid" 2>/dev/null || true
     kill "$timeout_pid" 2>/dev/null || true
     exec 3<&- 2>/dev/null || true
     rm -f "$fifo"
   }
   trap cleanup EXIT
 
-  # inotifywaitが起動済みなので、この間に作成されたdoneファイルもキューに入る
-  echo "監視開始 (inotifywait: ${method})" >&2
+  local watcher_name
+  watcher_name=$([[ "$os" == "linux" ]] && echo "inotifywait" || echo "fswatch")
+  echo "監視開始 (${watcher_name}: ${method})" >&2
+
+  # 監視開始済みなので、この間に作成されたdoneファイルもキューに入る
   if check_all_done_with_debounce; then
     print_results
     exit 0
   fi
 
-  # イベントループ: fd 3からinotifywaitの出力を読む
+  # イベントループ: fd 3から監視ツールの出力を読む
   while IFS= read -r path <&3; do
     if [[ "$path" == */done ]]; then
       # パスからワーカー番号を抽出: .../worker-N/done
@@ -179,7 +215,7 @@ wait_with_inotifywait() {
     fi
   done
 
-  # パイプ切断（inotifywait異常終了）→ 最終チェック
+  # パイプ切断（監視ツール異常終了）→ 最終チェック
   if check_all_done_with_debounce; then
     print_results
     exit 0
@@ -192,7 +228,7 @@ wait_with_inotifywait() {
 # --- ポーリング方式での待機（フォールバック） ---
 
 wait_with_polling() {
-  echo "inotifywait不可: 5秒ポーリングにフォールバック" >&2
+  echo "イベント監視不可: 5秒ポーリングにフォールバック" >&2
   local elapsed=0
   while [ "$elapsed" -lt "$TIMEOUT" ]; do
     if check_all_done_with_debounce; then
@@ -209,9 +245,9 @@ wait_with_polling() {
 
 # --- メインロジック ---
 
-method=$(resolve_inotifywait)
-if [[ "$method" != "none" ]]; then
-  wait_with_inotifywait "$method"
+watcher=$(resolve_watcher)
+if [[ "$watcher" != "none" ]]; then
+  wait_with_event_watcher "$watcher"
 else
   wait_with_polling
 fi
