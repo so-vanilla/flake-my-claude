@@ -30,7 +30,24 @@ window-guide.md の「分割」手順に従い、WORKER_COUNT に応じてウィ
 sleep 15
 ```
 
-### Step 6: プラン+タスク送信
+### Step 6: スケルトンファイル配布
+`/tmp/claude-team/${MASTER_TEAM_ID}/skeletons/` にスケルトンファイルが存在する場合、
+各ワーカーのworktreeにコピーする。同時に `/tmp/claude-team/${TEAM_ID}/skeletons` にもリンクする
+（spawn-worker.shのシステムプロンプトが参照するため）。
+```bash
+if [[ -d "/tmp/claude-team/${MASTER_TEAM_ID}/skeletons" ]]; then
+  cp -r "/tmp/claude-team/${MASTER_TEAM_ID}/skeletons" "/tmp/claude-team/${TEAM_ID}/skeletons"
+  # 各worktreeにスケルトンをコピー（WORKER_COUNT>=2の場合）
+  for i in $(seq 1 "$WORKER_COUNT"); do
+    WORKTREE="<worktree-dir-for-worker-$i>"
+    cp -r /tmp/claude-team/${MASTER_TEAM_ID}/skeletons/* "$WORKTREE/" 2>/dev/null || true
+  done
+fi
+```
+（worktreeパスはinit-team.shの命名規則 `{repo}_team-{TEAM_ID}-worker-{N}` から算出）
+
+### Step 7: プラン+タスク送信
+
 design-plan.md (`/tmp/claude-team/${MASTER_TEAM_ID}/design-plan.md`) からプランをReadツールで読み取り、各ワーカーに担当タスク（ファイル所有権含む）を送信する。
 
 各ワーカーへの送信時、以下の制限前文を必ずメッセージの先頭に含める:
@@ -46,15 +63,15 @@ design-plan.md (`/tmp/claude-team/${MASTER_TEAM_ID}/design-plan.md`) からプ�
    team-msg.sh で相手ワーカーと合意を取ってから進めること。
    用法: ~/.claude/team/team-msg.sh $TEAM_ID <自分の番号> <相手の番号|broadcast> <メッセージ>」
 
-### Step 7: 完了待機
+### Step 8: 完了待機
 ```bash
 ~/.claude/team/wait-workers.sh "$TEAM_ID" "$WORKER_COUNT" 600
 ```
 
-### Step 8: 結果回収
+### Step 9: 結果回収
 各ワーカーのresult.mdをReadツールで読み取る。
 
-### Step 9: 統合
+### Step 10: 統合
 **WORKER_COUNT=1**: ワーカーはメインディレクトリで直接作業。cherry-pick不要。
 
 **WORKER_COUNT=2/4**: 各worktreeのコミットをメインブランチにcherry-pick。
@@ -68,45 +85,51 @@ git cherry-pick <commit-hash>
 ```
 衝突が発生した場合は手動で解決し、解決内容をメモする。
 
-### Step 10: ウィンドウ復元
+### Step 11: ウィンドウ復元
 window-guide.md の「復元」手順に従う。
 
-### Step 11: クリーンアップ
+### Step 12: クリーンアップ
 ```bash
 ~/.claude/team/cleanup-team.sh "$TEAM_ID" "$WORKER_COUNT"
 ```
 
-### Step 12: 検証・修正（1ワーカー）
-マージ後の統合確認として、ワーカーを1つ起動して以下を実行させる:
-- design-plan.md の「クリアすべきAPIテスト項目」に基づく検証
-- テスト実行、フォーマット確認、ビルド検証
-- 不整合や失敗があれば修正
-- 修正完了後に結果をresult.mdに報告
+### Step 13: 統合検証ゲート（1ワーカー、リトライあり）
+マージ後の統合確認として検証ワーカーを起動する。**ビルド・テスト全パスが完了条件。**
 
 背景: 主セッションはdevenvのPATHを持たないため、devenv依存コマンドは
-必ずワーカーに委任する。ワーカーは --dangerously-skip-permissions で
-起動するため権限確認が不要。
+必ずワーカーに委任する。
 
+#### 13a: 検証ワーカー起動
 ```bash
 TEAM_ID_VERIFY=$(date +%s)
 mkdir -p /tmp/claude-team/${TEAM_ID_VERIFY}/worker-1
-~/.claude/team/spawn-worker.sh "$TEAM_ID_VERIFY" 1 "Verifier: テスト実行、フォーマット確認、ビルド検証、不整合修正を担当。" "$(pwd)" "--skip-permissions"
+~/.claude/team/spawn-worker.sh "$TEAM_ID_VERIFY" 1 "Verifier: ビルド検証・テスト実行・不整合修正を担当。" "$(pwd)" "--skip-permissions"
 sleep 15
-~/.claude/team/send-message.sh 1 "【重要な行動制限】(1) 設計プランとオーケストレータの指示の範囲外の作業禁止 (2) rm/削除は対象を明示的に指定し最小範囲で実行 (3) git push禁止 (4) 不明点はresult.mdへ。--- マージ後の統合確認をしてください。テスト実行、フォーマット確認、ビルド検証を行い、不整合があれば修正してください。結果をresult.mdに書き出してdoneファイルを作成してください。"
-~/.claude/team/wait-workers.sh "$TEAM_ID_VERIFY" 1 300
+~/.claude/team/send-message.sh 1 "【重要な行動制限】(1) 設計プランとオーケストレータの指示の範囲外の作業禁止 (2) rm/削除は対象を明示的に指定し最小範囲で実行 (3) git push禁止 (4) 不明点はresult.mdへ。--- マージ後の統合検証を実行してください。以下の順序で検証し、FAILがあれば修正してください: (1) ビルド検証: 全コンポーネントがビルドできること (2) テスト実行: E2Eテスト・ユニットテスト (3) design-plan.mdのAPIテスト項目の確認。result.mdの末尾に必ず以下を記載: ## Verification / - Build: PASS or FAIL / - Test: X/Y passed / - API Check: PASS or FAIL。全PASSになるまで修正を続けてください。修正不能な問題はNotesに記載。完了後doneファイルを作成。"
+~/.claude/team/wait-workers.sh "$TEAM_ID_VERIFY" 1 600
 ```
 
-結果をReadツールで確認。
+#### 13b: 結果確認とリトライ判定
+result.mdをReadツールで読み取り、Verificationセクションを確認する。
 
+- **全PASS**: Step 13c へ進む
+- **FAILあり**: result.mdのNotes/エラー内容を確認し、修正指示を送信してリトライ:
+```bash
+~/.claude/team/send-message.sh 1 "【リトライ】前回の検証でFAILがありました。以下を修正してください: [具体的な修正指示]。修正後、再度全検証を実行し、result.mdを更新してdoneを作成してください。"
+~/.claude/team/wait-workers.sh "$TEAM_ID_VERIFY" 1 600
+```
+リトライは最大2回まで。2回リトライしてもFAILが残る場合は、残課題としてStep 14で報告。
+
+#### 13c: クリーンアップ
 ```bash
 ~/.claude/team/cleanup-team.sh "$TEAM_ID_VERIFY" 1
 ```
 
-### Step 13: 報告
+### Step 14: 報告
 実装結果をユーザーに報告する:
 - 各ワーカーの成果サマリー
 - 統合されたコミット一覧
-- 検証結果（Step 12の結果）
+- 検証結果（Step 13の結果）
 - 残課題があれば記載
 
 ## 注意事項

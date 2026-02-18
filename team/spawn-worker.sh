@@ -69,6 +69,28 @@ if [[ "$CURRENT_PHASE" == "impl" ]]; then
 - 仕様に定義されている名前と異なる独自の命名を導入しないでください
 - 不明点がある場合はteam-msg.shで他ワーカーに確認してください
 "
+  # スケルトンファイル参照指示
+  SKELETON_DIR="/tmp/claude-team/${TEAM_ID}/skeletons"
+  IMPL_INSTRUCTIONS="${IMPL_INSTRUCTIONS}
+スケルトンファイル:
+- ${SKELETON_DIR}/ にインターフェース定義のスケルトンファイルが配置されている場合があります
+- 存在する場合は、これらのファイルをworktreeの該当パスにコピーし、実装で肉付けしてください
+- スケルトンで定義された型・シグネチャ・構造体名を変更しないでください
+"
+  # Verification Gate指示
+  IMPL_INSTRUCTIONS="${IMPL_INSTRUCTIONS}
+検証義務（Verification Gate）:
+- コード実装後、doneファイルを作成する前に必ず以下を実行すること:
+  1. ビルド検証: 担当コンポーネントがビルドできることを確認
+  2. テスト実行: 利用可能なテストを実行（テストがなければビルド確認のみでよい）
+  3. 基本動作: import/require エラーや型エラーがないことを確認
+- result.md の末尾に以下のセクションを必ず含めること:
+  ## Verification
+  - Build: PASS / FAIL（コマンドと結果）
+  - Test: PASS / FAIL / SKIP（コマンドと結果、またはスキップ理由）
+  - Notes: 検証で発見した問題や懸念事項
+- FAIL状態でdoneファイルを作成しないこと。修正してPASSにするか、修正不能な場合はresult.mdにその旨を詳細に記載してからdoneを作成すること
+"
 fi
 
 # ワーカー用システムプロンプトをファイルに書き出し
