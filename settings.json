@@ -4,8 +4,8 @@
   "sandbox": {
     "mode": "auto-allow",
     "excludedCommands": ["nix", "nix-build", "nix-shell", "nix-instantiate", "nix-info", "devenv", ","],
-    "allowUnsandboxedCommands": true,
-    "enableWeakerNestedSandbox": false
+    "allowUnsandboxedCommands": false,
+    "enableWeakerNestedSandbox": true
   },
 
   "env": {
