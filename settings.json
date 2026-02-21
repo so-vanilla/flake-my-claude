@@ -2,7 +2,8 @@
   "language": "japanese",
 
   "sandbox": {
-    "mode": "auto-allow",
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
     "excludedCommands": ["nix", "nix-build", "nix-shell", "nix-instantiate", "nix-info", "devenv", ","],
     "allowUnsandboxedCommands": false,
     "enableWeakerNestedSandbox": true
