@@ -1,6 +1,17 @@
 {
   "language": "japanese",
 
+  "sandbox": {
+    "mode": "auto-allow",
+    "excludedCommands": ["nix", "nix-build", "nix-shell", "nix-instantiate", "nix-info", "devenv", ","],
+    "allowUnsandboxedCommands": true,
+    "enableWeakerNestedSandbox": false
+  },
+
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline.sh"
@@ -163,17 +174,7 @@
       "Bash(for *)",
       "Bash(git config --local *)",
 
-      "Bash(~/.claude/team/init-team.sh *)",
-      "Bash(~/.claude/team/spawn-worker.sh *)",
-      "Bash(~/.claude/team/send-message.sh *)",
-      "Bash(~/.claude/team/wait-workers.sh *)",
-      "Bash(~/.claude/team/read-buffer.sh *)",
-      "Bash(~/.claude/team/cleanup-team.sh *)",
-      "Bash(~/.claude/team/team-msg.sh *)",
-      "Bash(sleep *)",
-      "Bash(mkdir -p /tmp/claude-team/*)",
-      "Bash(cat /tmp/claude-team/*)",
-      "Bash(ls /tmp/claude-team/*)"
+      "Bash(sleep *)"
     ],
 
     "deny": [
@@ -353,6 +354,7 @@
   },
 
   "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true
+    "superpowers@superpowers-marketplace": true,
+    "ralph-wiggum@anthropics/claude-code": true
   }
 }

@@ -4,9 +4,6 @@
 # O_APPENDによりPIPE_BUF以下の書き込みは原子的（並列セッション安全）
 set -euo pipefail
 
-# ワーカーセッションではログ記録をスキップ
-[[ "${CLAUDE_TEAM_WORKER:-}" == "1" ]] && exit 0
-
 run_jq() {
   if command -v jq &>/dev/null; then
     jq "$@"
