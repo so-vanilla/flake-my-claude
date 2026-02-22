@@ -10,7 +10,8 @@
   },
 
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "NIX_CACHE_HOME": "/tmp/claude/nix-cache"
   },
 
   "statusLine": {
