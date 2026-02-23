@@ -141,6 +141,7 @@
 | `/org-bump` | デイリータスクDEADLINE修正 | `++1d` タスクの過去日DEADLINEを今日/明日に修正 |
 | `/org-prune` | 古い完了タスク削除 | 1ヶ月以上前のDONE非リピートタスクを一括削除 |
 | `/org-todo` | タスク追加 | 会話の文脈からタスク候補を抽出しtodo.orgに追記 |
+| `/show-idle-agenda` | Emacs org-agenda 表示 | ウィンドウレイアウトを分析しワークスペースにagendaを表示 |
 
 ### ワークフロー連携パターン
 
