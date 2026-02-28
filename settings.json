@@ -355,6 +355,14 @@
     ]
   },
 
+  "mcpServers": {
+    "voicevox": {
+      "type": "stdio",
+      "command": "nix",
+      "args": ["run", "/home/somura/repos/github.com/so-vanilla/voicevox-claude"]
+    }
+  },
+
   "enabledPlugins": {
     "superpowers@superpowers-marketplace": true,
     "ralph-wiggum@anthropics/claude-code": true

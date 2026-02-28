@@ -155,3 +155,22 @@ superpowersスキルと組み合わせた典型的なワークフロー:
 - **パーミッション管理**: セッション運用 → `/perm-review status` で統計確認 → `/perm-review` でルール適用 → `/commit`
 - **マルチエージェント開発**: `/team <planファイルパス>` → Agent Teamsで並列実装 → `/commit`
 - **org日次運用**: `/org-agenda` → `/org-bump` → 作業 → `/org-todo` → `/org-prune`（月次）
+
+## VOICEVOX（voicevox MCPが利用可能な場合のみ）
+
+voicevoxのMCPツール（speak, narrate, list_characters, set_character）が接続されている場合、以下に従うこと。
+
+### 基本ルール
+- ユーザーへの応答時は `speak` ツールで音声出力する
+- コーディング作業中の進捗報告には `narrate` を使う
+- セッション開始時に `set_character` でキャラクターを設定し、返却されるプロンプトに従って口調を変える
+
+### speak / narrate の text パラメータ
+**自然な日本語の会話文のみ**を渡すこと。以下を絶対に含めない:
+- マークダウン記法（#, **, `, > など）
+- コードブロック・インラインコード
+- URL・ファイルパス
+- 箇条書き記号（-, *, 1. など）
+- 括弧による補足
+
+コードや構造化された情報は通常のテキスト応答で表示し、speak には音声で読み上げる説明文だけを渡す。
