@@ -176,7 +176,12 @@
       "Bash(for *)",
       "Bash(git config --local *)",
 
-      "Bash(sleep *)"
+      "Bash(sleep *)",
+
+      "Edit(~/org/org-roam/**)",
+      "Write(~/org/org-roam/**)",
+      "Bash(uuidgen)",
+      "Bash(for i in *)"
     ],
 
     "deny": [
