@@ -153,6 +153,15 @@
 | `/show-idle-agenda` | Emacs org-agenda 表示 | ウィンドウレイアウトを分析しワークスペースにagendaを表示 |
 | `/scrap-daily` | デイリーニューススクラップ | 前日のニュース・技術ブログを収集しorg-roamノードとして蓄積 |
 | `/scrap-weekly` | ウィークリーニューススクラップ | 過去7日分のdailyから重要記事をピックアップしweeklyインデックスを作成 |
+| `/emacs-persp-windows` | Perspective一覧+ウィンドウ構成 | 各perspectiveのウィンドウ構成を取得（読み取り専用） |
+| `/emacs-window-geometry` | ウィンドウジオメトリ取得 | フレーム・ウィンドウのピクセル/行列数サイズを取得（読み取り専用） |
+| `/emacs-layout-diagram` | ウィンドウレイアウト図示 | ウィンドウ構成をASCIIアートで図示（読み取り専用） |
+| `/emacs-buffer-tail` | バッファ末尾取得 | 指定バッファの末尾N行を取得（読み取り専用） |
+| `/emacs-window-content` | ウィンドウ表示内容取得 | 指定ウィンドウの表示範囲テキストを取得（読み取り専用） |
+| `/emacs-buffers` | バッファ一覧取得 | 全バッファのmode・変更状態・ファイルパスを一覧（読み取り専用） |
+| `/emacs-minor-modes` | マイナーモード一覧 | 指定バッファの有効マイナーモードを一覧（読み取り専用） |
+| `/emacs-eval` | 汎用Elisp評価 | 任意のElispを評価し結果を返す（副作用ありは確認） |
+| `/emacs-inspect` | Emacs状態検査 | 全emacs系Skillを統合した包括的状態検査（読み取り専用） |
 
 ### ワークフロー連携パターン
 
@@ -167,6 +176,7 @@ superpowersスキルと組み合わせた典型的なワークフロー:
 - **マルチエージェント開発**: `/team <planファイルパス>` → Agent Teamsで並列実装 → `/commit`
 - **org日次運用**: `/org-agenda` → `/org-bump` → 作業 → `/org-todo` → `/org-prune`（月次）
 - **ニュース収集**: `/scrap-daily`（日次） → `/scrap-weekly`（週次まとめ）
+- **Emacs設定デバッグ**: `/emacs-inspect` → 問題特定 → `/emacs-eval` で詳細調査 → 設定修正
 
 ## VOICEVOX（voicevox MCPが利用可能な場合のみ）
 
