@@ -162,6 +162,7 @@
 | `/emacs-minor-modes` | マイナーモード一覧 | 指定バッファの有効マイナーモードを一覧（読み取り専用） |
 | `/emacs-eval` | 汎用Elisp評価 | 任意のElispを評価し結果を返す（副作用ありは確認） |
 | `/emacs-inspect` | Emacs状態検査 | 全emacs系Skillを統合した包括的状態検査（読み取り専用） |
+| `/code-patrol` | コードレビューループ | detect→validate→fixをサブエージェントで逐次実行（branch/projectモード） |
 
 ### ワークフロー連携パターン
 
@@ -177,6 +178,7 @@ superpowersスキルと組み合わせた典型的なワークフロー:
 - **org日次運用**: `/org-agenda` → `/org-bump` → 作業 → `/org-todo` → `/org-prune`（月次）
 - **ニュース収集**: `/scrap-daily`（日次） → `/scrap-weekly`（週次まとめ）
 - **Emacs設定デバッグ**: `/emacs-inspect` → 問題特定 → `/emacs-eval` で詳細調査 → 設定修正
+- **コードレビュー**: `/code-patrol`（ブランチ差分） / `/code-patrol project`（全体） → `/commit`
 
 ## VOICEVOX（voicevox MCPが利用可能な場合のみ）
 
