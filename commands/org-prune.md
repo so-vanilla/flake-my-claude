@@ -30,6 +30,10 @@ subagent の出力をそのままユーザーに表示すること。
 
 以下の手順を順に実行してください。
 
+## 0. フォーマットルールの確認
+
+Read ツールで ~/.claude/commands/org-format-rules.md を読み込み、フォーマットルールを把握する。
+
 ## 1. todo.org の読み込み
 
 Read ツールで ~/org/todo.org を読み込む。
