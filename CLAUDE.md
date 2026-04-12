@@ -151,6 +151,7 @@
 | `/org-prune` | 古い完了タスク削除 | 1ヶ月以上前のDONE非リピートタスクを一括削除 |
 | `/org-todo` | タスク追加 | 会話の文脈からタスク候補を抽出しtodo.orgに追記 |
 | `org-format-rules` | org-modeフォーマットルール | org-mode編集スキルが参照するガードレール文書（直接呼出し不可） |
+| `/org-remind` | 生活リマインド | food/bottle/clothes等の引数で消耗品・物品の廃棄/交換/寿命をtodo.orgに追記 |
 | `/show-idle-agenda` | Emacs org-agenda 表示 | ウィンドウレイアウトを分析しワークスペースにagendaを表示 |
 | `/scrap-daily` | デイリーニューススクラップ | 前日のニュース・技術ブログを収集しorg-roamノードとして蓄積 |
 | `/scrap-weekly` | ウィークリーニューススクラップ | 過去7日分のdailyから重要記事をピックアップしweeklyインデックスを作成 |
