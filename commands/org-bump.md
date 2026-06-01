@@ -56,10 +56,21 @@ Read ツールで ~/org/todo.org を読み込む。
 
 ## 4. DEADLINE行の書き換え
 
-Edit ツールで各タスクの DEADLINE行の日付部分のみを書き換える。
+sed コマンドで各タスクの DEADLINE行の日付と曜日を書き換える。
+Edit ツールは使わないこと（日付文字列が欠落するため）。
 ++1d やその他の修飾子はそのまま維持する。
 
-例: DEADLINE: <2025-01-01 Wed 09:00 ++1d> → DEADLINE: <2026-04-12 Sun 09:00 ++1d>
+各タスクごとに以下の形式で sed -i を実行する:
+```
+sed -i 's/DEADLINE: <OLD_DATE OLD_DOW/DEADLINE: <NEW_DATE NEW_DOW/' ~/org/todo.org
+```
+
+例: `sed -i 's/DEADLINE: <2025-01-01 Wed/DEADLINE: <2026-04-13 Mon/' ~/org/todo.org`
+
+書き換え後、Emacsのバッファを最新のディスク内容に同期する:
+```
+emacsclient -e '(when-let ((buf (find-buffer-visiting (expand-file-name "~/org/todo.org")))) (with-current-buffer buf (revert-buffer t t t)))'
+```
 
 ## 5. 結果報告
 
