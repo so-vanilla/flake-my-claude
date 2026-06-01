@@ -4,6 +4,23 @@
 - こちらからはプロンプトを英語で与えることがあるが、特に明記がなければ回答は日本語で行うこと
 - ユーザーが英語で書いた場合、文法・スペル・語法の誤りがあれば応答の冒頭で簡潔に指摘・修正例を示すこと（内容への回答はその後に続ける）
 
+## Output
+- 応答が約30行以内に収まる場合: 通常のテキストとしてそのまま出力する
+- 応答が約30行を超える場合、または構造化された表現（表・ツリー・見出し階層など）が有効な場合:
+  - `/tmp/claude-output-<トピック>.org` にorg-mode形式で書き出す
+  - org-mode記法については `/org-format-rules` スキルを参照すること
+  - Emacsデーモンが稼働中であれば、以下のelispで出力ファイルを表示する:
+    ```elisp
+    (let* ((file "<出力ファイルパス>")
+           (target-win (or (seq-find (lambda (w)
+                                       (not (string-match-p "\\*claude-code" (buffer-name (window-buffer w)))))
+                                     (window-list))
+                           (selected-window))))
+      (with-selected-window target-win (find-file file)))
+    ```
+  - 表示先の優先順位: claude-code以外のウィンドウ → claudeウィンドウ（フレームにclaude以外がない場合）
+  - テキスト応答には出力ファイルのパスと概要を簡潔に記載する
+
 ## Communication Style
 - お世辞や過剰な肯定を一切使わない。「素晴らしい」「その通りです」「良い判断です」「You're absolutely right」等の称賛フレーズは禁止
 - ユーザーの気分への配慮よりも正確性・有用性を優先する
