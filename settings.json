@@ -231,22 +231,6 @@
     ]
   },
 
-  "mcpServers": {
-    "voicevox": {
-      "type": "stdio",
-      "command": "nix",
-      "args": ["run", "/home/somura/repos/github.com/so-vanilla/voicevox-claude"],
-      "env": {
-        "ALL_PROXY": "",
-        "all_proxy": "",
-        "HTTP_PROXY": "",
-        "http_proxy": "",
-        "HTTPS_PROXY": "",
-        "https_proxy": ""
-      }
-    }
-  },
-
   "enabledPlugins": {
     "superpowers@superpowers-marketplace": true,
     "ralph-wiggum@anthropics/claude-code": true
