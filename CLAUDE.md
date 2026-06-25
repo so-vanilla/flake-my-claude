@@ -4,23 +4,6 @@
 - こちらからはプロンプトを英語で与えることがあるが、特に明記がなければ回答は日本語で行うこと
 - ユーザーが英語で書いた場合、文法・スペル・語法の誤りがあれば応答の冒頭で簡潔に指摘・修正例を示すこと（内容への回答はその後に続ける）
 
-## Output
-- 応答が約30行以内に収まる場合: 通常のテキストとしてそのまま出力する
-- 応答が約30行を超える場合、または構造化された表現（表・ツリー・見出し階層など）が有効な場合:
-  - `/tmp/claude-output-<トピック>.org` にorg-mode形式で書き出す
-  - org-mode記法については `/org-format-rules` スキルを参照すること
-  - Emacsデーモンが稼働中であれば、以下のelispで出力ファイルを表示する:
-    ```elisp
-    (let* ((file "<出力ファイルパス>")
-           (target-win (or (seq-find (lambda (w)
-                                       (not (string-match-p "\\*claude-code" (buffer-name (window-buffer w)))))
-                                     (window-list))
-                           (selected-window))))
-      (with-selected-window target-win (find-file file)))
-    ```
-  - 表示先の優先順位: claude-code以外のウィンドウ → claudeウィンドウ（フレームにclaude以外がない場合）
-  - テキスト応答には出力ファイルのパスと概要を簡潔に記載する
-
 ## Communication Style
 - お世辞や過剰な肯定を一切使わない。「素晴らしい」「その通りです」「良い判断です」「You're absolutely right」等の称賛フレーズは禁止
 - ユーザーの気分への配慮よりも正確性・有用性を優先する
@@ -38,7 +21,6 @@
 
 ## Workflow
 ### Environment settings
-- グローバルへの言語ランタイム、LSP、フォーマッタなどのインストールは避け、devenvで管理する
 - flake.nixの扱いについて
   - so-vanilla配下のリポジトリ(github.com/so-vanilla/*)では、flake.nixを活用しビルド等を定義する。ただし、devshellはdevenvで定義するためflake.nix側では不要
   - それ以外のリポジトリではflake.nixを使用しないこと
@@ -83,15 +65,6 @@
 - ワイルドカード(`*`)を含む `rm` は特に注意。展開結果を事前に確認する（`echo rm target/*` や `ls target/` で確認してから実行）
 - 可能な場合は `git clean` や `git checkout` など復元可能な手段を優先する
 - 重要なファイルの削除前にはユーザーに確認を取ること
-
-## Emacs操作 (emacsclient -e + eat)
-- eatターミナルへのキー送信には `eat-term-send-string` を使う
-  - Enterキー(送信)は `\r`(CR)を使うこと。`\n`(LF)はマルチライン入力での改行扱いになる
-  - 例: `(eat-term-send-string eat-terminal "echo hello\r")`
-- eatバッファの `kill-buffer` 前に、プロセスの終了確認プロンプトを無効化すること
-  - `(set-process-query-on-exit-flag (get-buffer-process buf) nil)` を先に実行する
-  - これを怠るとミニバッファの y/n プロンプトでEmacsサーバーがブロックされ、以降の `emacsclient -e` が全て応答不能になる
-  - 一度ブロックされると `emacsclient -e` からは介入不可能。ユーザーがEmacs側で `C-g` するしかない
 
 ## Agent Teams
 
@@ -164,24 +137,6 @@
 | `/changelog` | 変更履歴生成 | git履歴からカテゴリ分類された変更履歴を生成 |
 | `/perm-review` | パーミッション権限レビュー | PermissionRequestログを分析しallow/denyルールを提案・適用 |
 | `/team` | Agent Teamsオーケストレータ | プランファイルに基づきAgent Teamsで並列タスク実行 |
-| `/org-agenda` | 今日のアジェンダ表示 | schedule.org + todo.org を読み込み今日の予定・タスクを合成提示（読み取り専用） |
-| `/org-bump` | デイリータスクDEADLINE修正 | `++1d` タスクの過去日DEADLINEを今日/明日に修正 |
-| `/org-prune` | 古い完了タスク削除 | 1ヶ月以上前のDONE非リピートタスクを一括削除 |
-| `/org-todo` | タスク追加 | 会話の文脈からタスク候補を抽出しtodo.orgに追記 |
-| `org-format-rules` | org-modeフォーマットルール | org-mode編集スキルが参照するガードレール文書（直接呼出し不可） |
-| `/org-remind` | 生活リマインド | food/bottle/clothes等の引数で消耗品・物品の廃棄/交換/寿命をtodo.orgに追記 |
-| `/show-idle-agenda` | Emacs org-agenda 表示 | ウィンドウレイアウトを分析しワークスペースにagendaを表示 |
-| `/scrap-daily` | デイリーニューススクラップ | 前日のニュース・技術ブログを収集しorg-roamノードとして蓄積 |
-| `/scrap-weekly` | ウィークリーニューススクラップ | 過去7日分のdailyから重要記事をピックアップしweeklyインデックスを作成 |
-| `/emacs-persp-windows` | Perspective一覧+ウィンドウ構成 | 各perspectiveのウィンドウ構成を取得（読み取り専用） |
-| `/emacs-window-geometry` | ウィンドウジオメトリ取得 | フレーム・ウィンドウのピクセル/行列数サイズを取得（読み取り専用） |
-| `/emacs-layout-diagram` | ウィンドウレイアウト図示 | ウィンドウ構成をASCIIアートで図示（読み取り専用） |
-| `/emacs-buffer-tail` | バッファ末尾取得 | 指定バッファの末尾N行を取得（読み取り専用） |
-| `/emacs-window-content` | ウィンドウ表示内容取得 | 指定ウィンドウの表示範囲テキストを取得（読み取り専用） |
-| `/emacs-buffers` | バッファ一覧取得 | 全バッファのmode・変更状態・ファイルパスを一覧（読み取り専用） |
-| `/emacs-minor-modes` | マイナーモード一覧 | 指定バッファの有効マイナーモードを一覧（読み取り専用） |
-| `/emacs-eval` | 汎用Elisp評価 | 任意のElispを評価し結果を返す（副作用ありは確認） |
-| `/emacs-inspect` | Emacs状態検査 | 全emacs系Skillを統合した包括的状態検査（読み取り専用） |
 | `/code-patrol` | コードレビューループ | detect→validate→fixをサブエージェントで逐次実行（branch/projectモード） |
 
 ### ワークフロー連携パターン
@@ -195,9 +150,6 @@ superpowersスキルと組み合わせた典型的なワークフロー:
 - **プロジェクト理解**: `/explore` → `/nix-check` → superpowers:writing-plans
 - **パーミッション管理**: セッション運用 → `/perm-review status` で統計確認 → `/perm-review` でルール適用 → `/commit`
 - **マルチエージェント開発**: `/team <planファイルパス>` → Agent Teamsで並列実装 → `/commit`
-- **org日次運用**: `/org-agenda` → `/org-bump` → 作業 → `/org-todo` → `/org-prune`（月次）
-- **ニュース収集**: `/scrap-daily`（日次） → `/scrap-weekly`（週次まとめ）
-- **Emacs設定デバッグ**: `/emacs-inspect` → 問題特定 → `/emacs-eval` で詳細調査 → 設定修正
 - **コードレビュー**: `/code-patrol`（ブランチ差分） / `/code-patrol project`（全体） → `/commit`
 
 ## VOICEVOX（voicevox MCPが利用可能な場合のみ）
