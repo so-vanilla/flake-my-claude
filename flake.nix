@@ -12,6 +12,7 @@
         ".claude/commands/init-work.md".source = "${self}/commands/init-work.md";
         ".claude/commands/worktree.md".source = "${self}/commands/worktree.md";
         ".claude/commands/nix-check.md".source = "${self}/commands/nix-check.md";
+        ".claude/commands/edit-claude.md".source = "${self}/commands/edit-claude.md";
         ".claude/commands/commit.md".source = "${self}/commands/commit.md";
         ".claude/commands/pr.md".source = "${self}/commands/pr.md";
         ".claude/commands/test.md".source = "${self}/commands/test.md";
@@ -23,6 +24,7 @@
         ".claude/commands/changelog.md".source = "${self}/commands/changelog.md";
         ".claude/commands/perm-review.md".source = "${self}/commands/perm-review.md";
         ".claude/commands/team.md".source = "${self}/commands/team.md";
+        ".claude/commands/code-patrol.md".source = "${self}/commands/code-patrol.md";
         ".claude/team/init-team.sh" = { source = "${self}/team/init-team.sh"; executable = true; };
         ".claude/team/spawn-worker.sh" = { source = "${self}/team/spawn-worker.sh"; executable = true; };
         ".claude/team/send-message.sh" = { source = "${self}/team/send-message.sh"; executable = true; };
