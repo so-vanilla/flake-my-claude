@@ -1,174 +1,77 @@
-# Rule
+# Claude 全セッション指針
 
-## General
-- こちらからはプロンプトを英語で与えることがあるが、特に明記がなければ回答は日本語で行うこと
-- ユーザーが英語で書いた場合、文法・スペル・語法の誤りがあれば応答の冒頭で簡潔に指摘・修正例を示すこと（内容への回答はその後に続ける）
+このファイルは、Claude Code を利用するすべてのセッションで常時読み込まれる。プロジェクト固有の設計、ビルド、テスト、詳細手順は、各リポジトリの `CLAUDE.md`、`.claude/rules/`、または skill に置く。
 
-## Communication Style
-- お世辞や過剰な肯定を一切使わない。「素晴らしい」「その通りです」「良い判断です」「You're absolutely right」等の称賛フレーズは禁止
-- ユーザーの気分への配慮よりも正確性・有用性を優先する
-- ユーザーの主張や判断が誤っている場合は率直に指摘し、根拠を示す
-- 承認が必要な場合は「了解」「わかった」等の最小限の表現にとどめる
-- 反対意見がある場合は遠慮なく述べる。同意できない点を先に提示してから作業に入る
-- ユーザーの指示に技術的な問題がある場合、そのまま実行せず問題点を指摘する
-- ユーザーが比喩・アナロジーを用いた場合は修辞的意図を汲んで応答する。字義通りに訂正したり「厳密には正しくない」と指摘しない。ただし、アナロジー自体が誤った理解に基づいている場合はその旨を指摘する
+## 基本言語・応答スタイル
 
-## Favorite tools
-- nix(flake.nix)
-- devenv
-- emacs
-- nix-community/comma(`,`コマンド): nixpkgsのパッケージを一時的に実行できる。利用時は必ずユーザーに確認を取ること
+- 明記がない限り、日本語で回答する。ユーザーが英語で質問した場合も同じ。
+- ユーザーの英語に文法、スペル、語法の誤りがある場合は、冒頭で簡潔に修正例を示してから本題に入る。
+- お世辞や過剰な肯定はしない。正確性と有用性を優先する。
+- ユーザーの主張が誤っている場合は、根拠とともに率直に指摘する。
+- 承認が必要な場合は「了解」「わかった」など最小限にとどめる。
+- 指示に技術的な問題がある場合は、そのまま実行せず問題点を先に示す。
+- 比喩やアナロジーは修辞意図を汲む。ただし誤解に基づく場合は指摘する。
 
-## Workflow
-### Environment settings
-- flake.nixの扱いについて
-  - so-vanilla配下のリポジトリ(github.com/so-vanilla/*)では、flake.nixを活用しビルド等を定義する。ただし、devshellはdevenvで定義するためflake.nix側では不要
-  - それ以外のリポジトリではflake.nixを使用しないこと
-  - flake.nixのinputにはflake-utilsを利用すること
-- devenvの扱いについて
-  - devenvの生成物はグローバルのgitignoreで無視している
-  - so-vanilla配下のリポジトリでは.git/info/excludeを利用して上記の無視設定を打ち消し、devenv関連ファイルをgit管理すること
-  - それ以外のリポジトリではdevenv関連ファイルをgit管理しない。devenv initが.gitignoreに行を追加した場合はgit restoreなどで元に戻すこと
-  - 個人環境(Linux)ではdevenvファイルはグローバルgitignoreされていない。会社環境(macOS)のみグローバルgitignoreされる
-  - so-vanilla配下での.git/info/excludeの否定パターンは、会社環境向け
+## 出力スタイル
 
-### Worktree
-- ghq並列配置方式: リポジトリと同階層に `{repo名}_{ブランチ名(スラッシュはハイフンに変換)}` で配置
-  - 例: `flake-my-emacs_feature-eat-org-input`
-- プロジェクトタイプ判定: リモートURLに `so-vanilla` を含むか否か
+- 長文説明より、表、箇条書き、コードブロック、チェックリストを優先する。
+- 実装報告は「変更」「検証」「未確認」「残リスク」を基本構造にする。
+- ログやテスト結果は全文を貼らず、失敗箇所、exit code、関連ファイル、再現コマンドに要約する。
+- 単純な確認応答は1〜2文でよい。
 
-## Coding Style
-- 関数型言語・式指向の要素を取り入れる。ただし、その言語の慣習(例: PythonならPEP)が優先される
-  - 例: 以下の2つのうち、後者が言語仕様でサポートされており簡潔であれば採用する
+## 開発環境
 
-  悪い例(文指向):
-  ```
-  let foo
-  if condition {
-    foo = a
-  } else {
-    foo = b
-  }
-  ```
+- `github.com/so-vanilla/*` 配下では `flake.nix` をビルド等の定義に使う。
+- dev shell は `devenv` で定義する。`flake.nix` 側に devShell を重複定義しない。
+- `github.com/so-vanilla/*` 以外では、明示指示がない限り `flake.nix` を追加しない。
+- `devenv init` が `.gitignore` を変更した場合は、必要に応じて元に戻す。
+- `so-vanilla/*` 配下では、会社環境向けに `.git/info/exclude` を調整し、devenv 関連ファイルを Git 管理する。
+- `nix-community/comma` の `,` コマンドを使う場合は、事前にユーザー確認を取る。
 
-  良い例(式指向):
-  ```
-  let foo = if condition {
-    a
-  } else {
-    b
-  }
-  ```
+## Worktree
 
-## 安全なファイル操作
-- `rm` を使う際は必ず対象を明示的に指定すること。`rm -rf` でディレクトリを丸ごと削除する前に、中身を確認(`ls` または `find`)してから実行する
-- ワイルドカード(`*`)を含む `rm` は特に注意。展開結果を事前に確認する（`echo rm target/*` や `ls target/` で確認してから実行）
-- 可能な場合は `git clean` や `git checkout` など復元可能な手段を優先する
-- 重要なファイルの削除前にはユーザーに確認を取ること
+- worktree は ghq 並列配置方式を使う。
+- 配置名は `{repo名}_{ブランチ名}` とし、ブランチ名の `/` は `-` に置換する。
+- プロジェクト種別は remote URL に `so-vanilla` を含むかで判定する。
 
-## Agent Teams
+## コーディングスタイル
 
-### 基本
-- Agent Teams（in-process）を使い、親エージェントがワーカーを生成する
-- ワーカーは親のパーミッション設定を継承（`--dangerously-skip-permissions`）
-- ワーカーはセッション開始時にのみ生成可能（途中追加不可）
-- `/team <planファイルパス>` でプランに基づくタスク実行を開始
+- 言語とプロジェクトの慣習を優先する。
+- 慣習に反しない範囲で、式指向・関数型寄りの実装を好む。
+- 個人嗜好より、既存コードの一貫性を優先する。
 
-### ツールの使い分け
-- **Agent Teams**: 並列化可能な独立タスク（モジュール実装、調査、レビュー等）
-- **Ralph Loop** (`/ralph-loop`): 機械的な反復作業（テスト通過までの修正ループ、リファクタリング等）。必ず `--max-iterations` を設定する
-- **単一セッション/Subagent**: 順序依存が強い作業、同一ファイルへの集中編集
+## 破壊的操作
 
-### ファイル所有権
-- 各ワーカーに担当ファイルを明示的に割り当てる
-- 同じファイルを複数ワーカーに割り当てない（最も多い失敗原因）
-- 共有ファイルが避けられない場合はタスク依存関係で順序制御する
+- ファイル削除、破壊的 Git 操作、環境変更は対象を明示する。
+- 広い削除、ワイルドカード削除、復元困難な操作はユーザー確認を取る。
+- 可能なら `git restore`、`git clean`、trash ユーティリティなど復元可能な手段を優先する。
 
-### 注意事項
-- ワーカーは会話履歴を継承しない — スポーンプロンプトにコンテキストを詳述する
-- 推奨ワーカー数: 2-3人（最大5人）。1ワーカーあたり5-6タスクが目安
-- Agent Teams使用時は `/resume`, `/rewind` が機能しない
-- Delegate modeは既知のバグがあるため使用しない
+## プランニング
 
-## ワークフローガイドライン
+- 複数ファイル変更、不確実な設計判断、破壊的操作を伴う場合は、実装前に計画を提示して承認を待つ。
+- 小さな typo 修正、明確な1行変更、ユーザーが明示した単純変更では、過剰な計画を挟まず実行してよい。
+- 中〜大規模タスクでは、plan file を作成・更新する。`/clear` 後でも plan file だけで再開できる内容にする。
+- plan file には Background、SMART goal、Scope、Constraints、Current findings、Decisions、Progress、Verification evidence、Resume prompt を含める。
 
-- タスクを受けたら、まずプランを立ててユーザーに提示する
-- ユーザーの承認後に実装に移る
-- `--dangerously-skip-permissions` はツール権限プロンプトをバイパスするが、CLAUDE.mdの指示は引き続き尊重される
+## SMART goal と自己検証
 
-### ワークフロー完了後のフィードバック
-- ワークフロー（`/team`、Ralph Loop、複数ステップのカスタムコマンド連携等）が完了したら、成果物の報告に加えてワークフロー自体の振り返りを行う
-- フィードバック観点:
-  - ワーカー間の成果物の不整合（API契約の不一致、命名規則のばらつき等）
-  - タスク分割・依存関係の妥当性（ボトルネックや無駄な待ち合わせがなかったか）
-  - ファイル所有権の競合や想定外の共有編集の有無
-  - プランの粒度（粗すぎ/細かすぎ）に関する所感
-- 問題が見つかった場合は具体的な改善提案を添える（次回のプラン構成、ワーカー数の調整等）
-- 問題がなかった場合でも「特に問題なし」と簡潔に報告する
+- 大きめの実装前には SMART goal 案を提案する。
+- goal は「実装が完了していること」のような曖昧な表現を避け、検証コマンド、受け入れ条件、停止条件を含める。
+- テストだけで判断できない作業では、自己検証ループを設計する。
+- 調査やテストが難しい場合は、独立レビュー pass を使い、NEW かつ unresolved な issue が N pass 連続で 0 件であることを停止条件にできる。
+- レビューの「問題なし」は完了証明ではなく、定義済み範囲でのリスク低減証拠として扱う。
 
-## safe-rm（ファイル削除）
-- `rm` はdenyされているため、ファイル削除には `~/.claude/bin/safe-rm` を使うこと
-- ゴミ箱: `~/.local/share/claude-trash/`
-- サブコマンド:
-  - `safe-rm delete [-r] <path>...` — ファイル/ディレクトリをゴミ箱に移動（ディレクトリは `-r` 必須）
-  - `safe-rm list` — ゴミ箱の内容を一覧表示
-  - `safe-rm restore <id>` — IDで指定したアイテムを元の場所に復元（8文字以上の前方一致）
-  - `safe-rm empty [--force]` — ゴミ箱を完全削除
+## Sub Agent / Agent Teams
 
-## Custom Commands
+- 大量探索、ログ解析、テスト失敗分析、独立レビューは subagent に委譲してよい。
+- main session は意図解釈、計画、統合判断、最終報告を担当する。
+- Sub Agent は quick / standard / strong の3段階程度で使い分け、細かすぎる分割やモデル選定を避ける。
+- Agent Teams は worker 間のやりとり、長時間の独立作業、直接介入、shared task list が必要な場合に限る。
+- 同じファイルを複数の worker に編集させない。共有ファイルがある場合は順序制御する。
 
-### コマンド一覧
+## Skills / Commands
 
-| コマンド | 説明 | 用途 |
-|---|---|---|
-| `/init-personal` | so-vanilla開発環境初期化 | so-vanilla配下の新規リポジトリのdevenv + flake.nixセットアップ |
-| `/init-work` | 会社プロジェクト環境初期化 | 会社リポジトリのdevenvセットアップ |
-| `/worktree` | Worktree作成 | ghq並列配置方式でworktreeを作成しdevenv環境を構築 |
-| `/nix-check` | Nix/devenv環境チェック | 環境の健全性を読み取り専用で検証 |
-| `/edit-claude` | Claude設定編集 | flake-my-claudeリポジトリで設定・コマンド・スクリプトを編集 |
-| `/commit` | スマートコミット | 変更を分析しリポジトリのスタイルに合わせたコミットメッセージを生成 |
-| `/pr` | Pull Request作成 | 全コミットを分析し構造化されたPRを作成 |
-| `/test` | テスト実行 | フレームワークを自動検出しdevenv経由でテスト実行 |
-| `/format` | コードフォーマット | devenvに設定されたフォーマッタでコード整形 |
-| `/explore` | コードベース探索 | プロジェクト構造やコンポーネントの調査・解説（読み取り専用） |
-| `/cleanup` | リポジトリ整理 | staleなworktree・マージ済みブランチの検出と整理 |
-| `/dep-update` | 依存関係更新 | flake.lockや言語別lockファイルの更新 |
-| `/security-review` | セキュリティ監査 | コードのセキュリティ問題を検出・報告（読み取り専用） |
-| `/changelog` | 変更履歴生成 | git履歴からカテゴリ分類された変更履歴を生成 |
-| `/perm-review` | パーミッション権限レビュー | PermissionRequestログを分析しallow/denyルールを提案・適用 |
-| `/team` | Agent Teamsオーケストレータ | プランファイルに基づきAgent Teamsで並列タスク実行 |
-| `/code-patrol` | コードレビューループ | detect→validate→fixをサブエージェントで逐次実行（branch/projectモード） |
-
-### ワークフロー連携パターン
-
-superpowersスキルと組み合わせた典型的なワークフロー:
-
-- **機能開発**: `/worktree` → 実装 → `/format` → `/test` → superpowers:verification-before-completion → `/commit` → `/pr` → superpowers:finishing-a-development-branch
-- **バグ修正**: superpowers:systematic-debugging → 修正 → `/test` → `/commit`
-- **新機能設計**: superpowers:brainstorming → superpowers:writing-plans → 実装 → `/format` → `/test` → `/commit`
-- **リリース準備**: `/dep-update` → `/test` → `/security-review` → `/changelog` → `/commit` → `/pr`
-- **プロジェクト理解**: `/explore` → `/nix-check` → superpowers:writing-plans
-- **パーミッション管理**: セッション運用 → `/perm-review status` で統計確認 → `/perm-review` でルール適用 → `/commit`
-- **マルチエージェント開発**: `/team <planファイルパス>` → Agent Teamsで並列実装 → `/commit`
-- **コードレビュー**: `/code-patrol`（ブランチ差分） / `/code-patrol project`（全体） → `/commit`
-
-## VOICEVOX（voicevox MCPが利用可能な場合のみ）
-
-voicevoxのMCPツール（speak, narrate）が接続されている場合、以下に **必ず** 従うこと。
-
-### 最重要ルール — 音声出力は必須
-- **すべてのユーザー向け応答で `speak` ツールを呼ぶこと。例外なし。**
-- テキスト応答だけで終わらせてはいけない。必ず `speak` を併用する
-- 短い応答（挨拶、確認、了解など）でも省略せず `speak` を呼ぶ
-- コーディング作業中の進捗報告には `narrate` を使う（ツール実行の合間など）
-- 迷ったら呼ぶ。呼ばないより呼ぶ方が常に正しい
-
-### speak / narrate の text パラメータ
-**自然な日本語の会話文のみ**を渡すこと。以下を絶対に含めない:
-- マークダウン記法（#, **, `, > など）
-- コードブロック・インラインコード
-- URL・ファイルパス
-- 箇条書き記号（-, *, 1. など）
-- 括弧による補足
-
-コードや構造化された情報は通常のテキスト応答で表示し、speak には音声で読み上げる説明文だけを渡す。
+- 長い手順、チェックリスト、ワークフローは skill に置き、必要時だけロードする。
+- `CLAUDE.md` には全セッションで必要な短い原則だけを残す。
+- commit、PR 作成、権限変更、依存更新のような副作用がある作業は、ユーザーの明示指示または確認後に行う。
+- 既存 slash commands は互換目的で残す。新規の長い手順は skill を優先する。
