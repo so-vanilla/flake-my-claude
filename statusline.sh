@@ -12,14 +12,66 @@ json() {
   jq -r "$1" <<<"$input" 2>/dev/null || true
 }
 
+percent_floor() {
+  local value="$1"
+  if [[ "$value" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    printf '%.0f' "$value" 2>/dev/null || echo ""
+  else
+    echo ""
+  fi
+}
+
+clamp_percent() {
+  local value="$1"
+  if [[ -z "$value" ]]; then
+    echo ""
+    return 0
+  fi
+  if (( value < 0 )); then
+    echo 0
+  elif (( value > 100 )); then
+    echo 100
+  else
+    echo "$value"
+  fi
+}
+
+progress_bar() {
+  local raw="$1"
+  local width="${2:-10}"
+  local pct
+  pct=$(percent_floor "$raw")
+  pct=$(clamp_percent "$pct")
+
+  if [[ -z "$pct" ]]; then
+    printf '%*s --%%' "$width" '' | tr ' ' '░'
+    return 0
+  fi
+
+  local filled=$((pct * width / 100))
+  local empty=$((width - filled))
+  local bar=""
+
+  if (( filled > 0 )); then
+    local fill_chars
+    printf -v fill_chars "%${filled}s"
+    bar="${fill_chars// /█}"
+  fi
+  if (( empty > 0 )); then
+    local empty_chars
+    printf -v empty_chars "%${empty}s"
+    bar="${bar}${empty_chars// /░}"
+  fi
+
+  printf '%s %s%%' "$bar" "$pct"
+}
+
 model=$(json '.model.display_name // .model.id // "Claude"')
 dir=$(json '.workspace.current_dir // .cwd // ""')
-project_dir=$(json '.workspace.project_dir // .workspace.current_dir // .cwd // ""')
 session_id=$(json '.session_id // "unknown"')
-pct=$(json '(.context_window.used_percentage // 0) | floor')
-cost=$(json '.cost.total_cost_usd // 0')
-duration_ms=$(json '.cost.total_duration_ms // 0')
-five_hour=$(json '.rate_limits.five_hour.used_percentage // empty')
+context_pct=$(json '.context_window.used_percentage // empty')
+five_hour_pct=$(json '.rate_limits.five_hour.used_percentage // empty')
+seven_day_pct=$(json '.rate_limits.seven_day.used_percentage // empty')
 agent=$(json '.agent.name // empty')
 pr_number=$(json '.pr.number // empty')
 pr_state=$(json '.pr.review_state // empty')
@@ -28,38 +80,11 @@ pr_state=$(json '.pr.review_state // empty')
 base="${dir##*/}"
 [[ -n "$base" ]] || base="/"
 
-# Context bar
-bar_width=10
-if [[ "$pct" =~ ^[0-9]+$ ]]; then
-  (( pct < 0 )) && pct=0
-  (( pct > 100 )) && pct=100
-else
-  pct=0
-fi
-filled=$((pct * bar_width / 100))
-empty=$((bar_width - filled))
-bar=""
-if (( filled > 0 )); then
-  printf -v fill_chars "%${filled}s"
-  bar="${fill_chars// /█}"
-fi
-if (( empty > 0 )); then
-  printf -v empty_chars "%${empty}s"
-  bar="${bar}${empty_chars// /░}"
-fi
+context_bar=$(progress_bar "$context_pct" 10)
+five_hour_bar=$(progress_bar "$five_hour_pct" 10)
+seven_day_bar=$(progress_bar "$seven_day_pct" 10)
 
-# Duration
-if [[ "$duration_ms" =~ ^[0-9]+$ ]]; then
-  total_sec=$((duration_ms / 1000))
-  mins=$((total_sec / 60))
-  secs=$((total_sec % 60))
-else
-  mins=0
-  secs=0
-fi
-cost_fmt=$(printf '$%.2f' "$cost" 2>/dev/null || printf '$0.00')
-
-# Git status, cached because statusline runs often.
+# Git status is cached because the statusline runs often.
 git_segment=""
 if [[ -n "$dir" ]] && command -v git >/dev/null 2>&1 && git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   cache_file="/tmp/claude-statusline-git-${session_id}"
@@ -95,9 +120,5 @@ if [[ -n "$pr_number" ]]; then
   extra+="  #${pr_number}"
   [[ -n "$pr_state" ]] && extra+=" ${pr_state}"
 fi
-if [[ -n "$five_hour" ]]; then
-  limit=$(printf '%.0f' "$five_hour" 2>/dev/null || true)
-  [[ -n "$limit" ]] && extra+=" 󰓅5h:${limit}%"
-fi
 
-echo "󰚩 ${model}   ${base}${git_segment}  󰅟 ${bar} ${pct}%   ${cost_fmt}   ${mins}m${secs}s${extra}"
+echo "󰚩 ${model}   ${base}${git_segment}  󰅟 ctx:${context_bar}  󰥔 5h:${five_hour_bar}  󰃭 7d:${seven_day_bar}${extra}"
