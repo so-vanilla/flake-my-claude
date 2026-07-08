@@ -13,7 +13,8 @@
 
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline.sh"
+    "command": "~/.claude/statusline.sh",
+    "padding": 1
   },
 
   "permissions": {
@@ -144,6 +145,10 @@
   },
 
   "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "lua-lsp@claude-plugins-official": true
   }
 }
