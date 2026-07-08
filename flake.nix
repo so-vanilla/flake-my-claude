@@ -55,10 +55,6 @@
           source = "${self}/statusline.sh";
           executable = true;
         };
-        ".claude/session-status.sh" = {
-          source = "${self}/session-status.sh";
-          executable = true;
-        };
         ".claude/log-permission-request.sh" = {
           source = "${self}/log-permission-request.sh";
           executable = true;
