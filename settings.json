@@ -1,5 +1,11 @@
 {
-  "language": "japanese",
+  "language": "日本語",
+  "model": "opus[1m]",
+  "promptSuggestionEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "light",
+  "editorMode": "normal",
+  "preferredNotifChannel": "auto",
 
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
@@ -11,9 +17,8 @@
   },
 
   "permissions": {
-
+    "defaultMode": "default",
     "allow": [],
-
     "deny": [
       "Read(**/.env)",
       "Read(**/.env.*)",
@@ -139,7 +144,6 @@
   },
 
   "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true,
-    "ralph-wiggum@anthropics/claude-code": true
+    "typescript-lsp@claude-plugins-official": true
   }
 }
