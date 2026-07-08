@@ -28,7 +28,7 @@
         ".claude/commands/code-patrol.md".source = "${self}/commands/code-patrol.md";
 
         ".claude/rules/output-style.md".source = "${self}/rules/output-style.md";
-        ".claude/rules/destructive-operations.md".source = "${self}/rules/destructive-operations.md";
+        ".claude/rules/operation-safety.md".source = "${self}/rules/operation-safety.md";
         ".claude/rules/plan-file.md".source = "${self}/rules/plan-file.md";
         ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
 
@@ -44,11 +44,11 @@
         ".claude/agents/deep-explorer.md".source = "${self}/agents/deep-explorer.md";
         ".claude/agents/log-analyzer.md".source = "${self}/agents/log-analyzer.md";
         ".claude/agents/test-failure-analyzer.md".source = "${self}/agents/test-failure-analyzer.md";
-        ".claude/agents/code-reviewer.md".source = "${self}/agents/code-reviewer.md";
+        ".claude/agents/change-reviewer.md".source = "${self}/agents/change-reviewer.md";
         ".claude/agents/security-reviewer.md".source = "${self}/agents/security-reviewer.md";
-        ".claude/agents/plan-reviewer.md".source = "${self}/agents/plan-reviewer.md";
+        ".claude/agents/plan-checker.md".source = "${self}/agents/plan-checker.md";
         ".claude/agents/implementation-agent.md".source = "${self}/agents/implementation-agent.md";
-        ".claude/agents/verification-agent.md".source = "${self}/agents/verification-agent.md";
+        ".claude/agents/check-runner.md".source = "${self}/agents/check-runner.md";
         ".claude/agents/final-auditor.md".source = "${self}/agents/final-auditor.md";
 
         ".claude/team/init-team.sh" = { source = "${self}/team/init-team.sh"; executable = true; };
