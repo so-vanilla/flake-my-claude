@@ -13,7 +13,7 @@
 
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline.sh",
+    "command": "nix shell nixpkgs#jq --command bash ~/.claude/statusline.sh",
     "padding": 1
   },
 
