@@ -3,6 +3,8 @@
 
   outputs = { self, ... }: {
     homeManagerModules.default = { ... }: {
+      programs.claude-code.enable = true;
+
       home.file = {
         ".claude/CLAUDE.md".source = "${self}/CLAUDE.md";
         ".claude/settings.json".source = "${self}/settings.json";
