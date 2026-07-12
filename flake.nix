@@ -33,6 +33,8 @@
         ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
         ".claude/rules/codex-nix-config.md".source = "${self}/rules/codex-nix-config.md";
 
+        ".agents/skills/grill-me/SKILL.md".source = "${self}/codex/skills/grill-me/SKILL.md";
+
         ".claude/skills/plan-task/SKILL.md".source = "${self}/skills/plan-task/SKILL.md";
         ".claude/skills/plan-task/plan-file-template.md".source = "${self}/skills/plan-task/plan-file-template.md";
         ".claude/skills/self-verification-loop/SKILL.md".source = "${self}/skills/self-verification-loop/SKILL.md";
