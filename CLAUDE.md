@@ -27,6 +27,7 @@
 - `devenv init` が `.gitignore` を変更した場合は、必要に応じて元に戻す。
 - `so-vanilla/*` 配下では、会社環境向けに `.git/info/exclude` を調整し、devenv 関連ファイルを Git 管理する。
 - `nix-community/comma` の `,` コマンドを使う場合は、事前にユーザー確認を取る。
+- Codex 設定を Nix で共存管理する場合は、`.claude/rules/codex-nix-config.md` を参照する。
 
 ## Worktree
 

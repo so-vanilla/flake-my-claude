@@ -31,6 +31,7 @@
         ".claude/rules/operation-safety.md".source = "${self}/rules/operation-safety.md";
         ".claude/rules/plan-file.md".source = "${self}/rules/plan-file.md";
         ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
+        ".claude/rules/codex-nix-config.md".source = "${self}/rules/codex-nix-config.md";
 
         ".claude/skills/plan-task/SKILL.md".source = "${self}/skills/plan-task/SKILL.md";
         ".claude/skills/plan-task/plan-file-template.md".source = "${self}/skills/plan-task/plan-file-template.md";
