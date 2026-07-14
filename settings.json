@@ -1,6 +1,6 @@
 {
   "language": "日本語",
-  "model": "opus[1m]",
+  "model": "sonnet[1m]",
   "promptSuggestionEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "light",
