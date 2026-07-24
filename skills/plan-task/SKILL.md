@@ -25,6 +25,12 @@ model: opus
 - 方針が変わったら decision log を更新する。
 - 実装や検証のたびに Progress と Evidence を更新する。
 
+## Plan file location
+
+- Repository root を特定する。
+- plan file は `<repository-root>/claude-plans/current.md` に作成・更新する。
+- `docs/` には作成しない。
+
 ## Supporting files
 
 - plan file の雛形は [plan-file-template.md](plan-file-template.md) を使う。
