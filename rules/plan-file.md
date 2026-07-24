@@ -17,6 +17,14 @@ Plan file は `/clear` 後でも再開できる内容にする。
 - Verification evidence: 実行済み検証と残リスク。
 - Resume prompt: 新しいセッションで再開するための指示。
 
+## 保存先
+
+- 通常モードで維持する永続的な plan file は、リポジトリルートの
+  `claude-plans/` に保存する。
+- plan file は `claude-plans/<task-slug>.md` とする。
+- plan file を `docs/` やその他の Git 追跡対象ディレクトリに作成しない。
+- `claude-plans/` が存在しない場合は作成してよい。
+
 ## 更新タイミング
 
 - 実装前に SMART goal と acceptance criteria を書く。
