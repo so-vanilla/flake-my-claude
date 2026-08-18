@@ -1,0 +1,4 @@
+interface:
+  display_name: "Record Decision"
+  short_description: "Capture durable decisions and ADR candidates"
+  default_prompt: "Use $record-decision to capture this decision at the right durability level."

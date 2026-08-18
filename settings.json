@@ -1,22 +1,16 @@
 {
   "language": "日本語",
-  "model": "sonnet[1m]",
+  "model": "sonnet",
   "promptSuggestionEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "light",
   "editorMode": "normal",
   "preferredNotifChannel": "auto",
-
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
-
   "statusLine": {
     "type": "command",
     "command": "nix shell nixpkgs#jq --command bash ~/.claude/statusline.sh",
     "padding": 1
   },
-
   "permissions": {
     "defaultMode": "default",
     "allow": [],
@@ -37,7 +31,6 @@
       "Read(**/.netrc)",
       "Read(**/.npmrc)",
       "Read(**/.pypirc)",
-
       "Edit(~/.config/**)",
       "Write(~/.config/**)",
       "Edit(~/.local/**)",
@@ -52,7 +45,6 @@
       "Write(~/.nix-defexpr/**)",
       "Edit(~/.nix-profile/**)",
       "Write(~/.nix-profile/**)",
-
       "Edit(~/.claude/settings.json)",
       "Write(~/.claude/settings.json)",
       "Edit(~/.claude/settings.local.json)",
@@ -61,7 +53,6 @@
       "Write(~/.claude/keybindings.json)",
       "Edit(~/.claude/skills/**)",
       "Write(~/.claude/skills/**)",
-
       "Edit(~/Desktop/**)",
       "Write(~/Desktop/**)",
       "Edit(~/Documents/**)",
@@ -78,7 +69,6 @@
       "Write(~/Templates/**)",
       "Edit(~/Public/**)",
       "Write(~/Public/**)",
-
       "Edit(//etc/**)",
       "Write(//etc/**)",
       "Edit(//nix/**)",
@@ -93,7 +83,6 @@
       "Write(//sys/**)",
       "Edit(//proc/**)",
       "Write(//proc/**)",
-
       "Bash(git push --force *)",
       "Bash(git push --force)",
       "Bash(git push -f *)",
@@ -111,7 +100,6 @@
       "Bash(git branch -d --force *)",
       "Bash(git rebase -i *)",
       "Bash(git rebase --interactive *)",
-
       "Bash(rm -rf /*)",
       "Bash(rm -rf /)",
       "Bash(rm -rf ~/*)",
@@ -127,14 +115,12 @@
       "Bash(reboot *)",
       "Bash(systemctl *)",
       "Bash(dd *)",
-
       "Bash(npm install -g *)",
       "Bash(npm i -g *)",
       "Bash(pip install *)",
       "Bash(pip3 install *)",
       "Bash(gem install *)",
       "Bash(cargo install *)",
-
       "Bash(nix-env --install *)",
       "Bash(nix-env -i *)",
       "Bash(nix-env --uninstall *)",
@@ -143,12 +129,105 @@
       "Bash(nix-env -u *)"
     ]
   },
-
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
     "gopls-lsp@claude-plugins-official": true,
     "jdtls-lsp@claude-plugins-official": true,
     "lua-lsp@claude-plugins-official": true
+  },
+  "effortLevel": "medium",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "manual|auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/work-ledger-hook hook --harness claude",
+            "timeout": 1
+          }
+        ]
+      }
+    ]
   }
 }

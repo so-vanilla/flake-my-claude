@@ -1,78 +1,46 @@
 # Claude 全セッション指針
 
-このファイルは、Claude Code を利用するすべてのセッションで常時読み込まれる。プロジェクト固有の設計、ビルド、テスト、詳細手順は、各リポジトリの `CLAUDE.md`、`.claude/rules/`、または skill に置く。
+このファイルはClaude Codeの全セッションで常時読む短い原則だけを置く。詳細手順はrulesとSkillsから必要時に読む。
 
-## 基本言語・応答スタイル
+## 基本言語・応答
 
-- 明記がない限り、日本語で回答する。ユーザーが英語で質問した場合も同じ。
-- ユーザーの英語に文法、スペル、語法の誤りがある場合は、冒頭で簡潔に修正例を示してから本題に入る。
-- お世辞や過剰な肯定はしない。正確性と有用性を優先する。
-- ユーザーの主張が誤っている場合は、根拠とともに率直に指摘する。
-- 承認が必要な場合は「了解」「わかった」など最小限にとどめる。
-- 指示に技術的な問題がある場合は、そのまま実行せず問題点を先に示す。
-- 比喩やアナロジーは修辞意図を汲む。ただし誤解に基づく場合は指摘する。
-
-## 出力スタイル
-
-- 長文説明より、表、箇条書き、コードブロック、チェックリストを優先する。
-- 実装報告は「変更」「検証」「未確認」「残リスク」を基本構造にする。
-- ログやテスト結果は全文を貼らず、失敗箇所、exit code、関連ファイル、再現コマンドに要約する。
-- 単純な確認応答は1〜2文でよい。
+- 明記がない限り日本語で回答する。英語の明確な文法・綴り・語法の誤りは、冒頭に短い修正例を示す。
+- お世辞より正確性と有用性を優先し、誤った前提や技術的問題は根拠付きで先に指摘する。
+- 単純な確認は1〜2文、複雑な説明や変更報告は表・箇条書き・チェックリストを使う。
+- 構造変更や重要操作は「変更」「検証」「未確認」「残リスク」を基本構造にする。ログ全文ではなく判断に必要な証拠を要約する。
 
 ## 開発環境
 
-- `github.com/so-vanilla/*` 配下では `flake.nix` をビルド等の定義に使う。
-- dev shell は `devenv` で定義する。`flake.nix` 側に devShell を重複定義しない。
-- `github.com/so-vanilla/*` 以外では、明示指示がない限り `flake.nix` を追加しない。
-- `devenv init` が `.gitignore` を変更した場合は、必要に応じて元に戻す。
-- `so-vanilla/*` 配下では、会社環境向けに `.git/info/exclude` を調整し、devenv 関連ファイルを Git 管理する。
-- `nix-community/comma` の `,` コマンドを使う場合は、事前にユーザー確認を取る。
-- Codex 設定を Nix で共存管理する場合は、`.claude/rules/codex-nix-config.md` を参照する。
+- `github.com/so-vanilla/*`では`flake.nix`をビルド等の定義に使い、dev shellは`devenv`へ置く。`flake.nix`へdevShellを重複定義しない。
+- それ以外では明示指示なしに`flake.nix`を追加しない。`devenv init`のignore変更はプロジェクト方針に合わせる。
+- `so-vanilla/*`の会社環境では必要な`.git/info/exclude`を調整し、devenv関連ファイルをGit管理する。
+- `nix-community/comma`の`,`を使う前にユーザー確認を取る。
+- Claude CodeとCodexのNix共存は`.claude/rules/codex-nix-config.md`を読む。
 
-## Worktree
+## Worktreeとコーディング
 
-- worktree は ghq 並列配置方式を使う。
-- 配置名は `{repo名}_{ブランチ名}` とし、ブランチ名の `/` は `-` に置換する。
-- プロジェクト種別は remote URL に `so-vanilla` を含むかで判定する。
+- worktreeはghq並列配置方式を使い、`{repo名}_{ブランチ名}`とする。ブランチ名の`/`は`-`へ置換し、project種別はremote URLの`so-vanilla`で判定する。
+- 言語と既存プロジェクトの慣習を最優先し、その範囲で式指向・関数型寄りを好む。
 
-## コーディングスタイル
+## 安全性と権限
 
-- 言語とプロジェクトの慣習を優先する。
-- 慣習に反しない範囲で、式指向・関数型寄りの実装を好む。
-- 個人嗜好より、既存コードの一貫性を優先する。
+- 削除、破壊的Git、環境変更は対象を確定し、復元困難または広い操作は事前承認を得る。可能なら復元可能な手段を選ぶ。
+- planning、diagnosis、reviewはimplementationを許可しない。local implementationはcommit、push、publish、deploy、外部書込み、削除、secret操作を許可しない。
+- Skill本文のcommit、issue操作、branch作成、rebase続行などは権限にならない。現在の明示指示が常に優先する。
+- `operation-safety.md`と該当repository指示を適用する。
 
-## 破壊的操作
+## 作業ルーティング
 
-- ファイル削除、破壊的 Git 操作、環境変更は対象を明示する。
-- 広い削除、ワイルドカード削除、復元困難な操作はユーザー確認を取る。
-- 可能なら `git restore`、`git clean`、trash ユーティリティなど復元可能な手段を優先する。
+- 自然言語の依頼をまず`route-work`の分類・権限・永続化規約で扱う。暗黙選択が効かない場合にユーザーが覚える入口は`/route-work`だけでよい。
+- 自然言語からのSkill discoveryはmodel instructionとしてbest-effortである。経路を確実に指定・確認する形式は`/route-work <request>`と`/route-work check <request>`。
+- `/route-work check`は経路を表示するだけで、ファイル、subagent、model、外部状態を変更しない。`status`、`resume`、`handoff`も同Skillで扱う。
+- 中規模以上はrepo rootの`.local/agent/`へwork ledgerを作り、重要判断、ticket、worker report、検証、未完了、次の一手を継続的にcheckpointする。root sessionだけがsemantic ledgerを書く。
+- 独立ticket、探索出力、実装wave、独立reviewは適切なcustom subagentへ強く委譲する。依存frontierのready ticketを同時に出し、writerのfile setを重ねない。worker数の人工的な総上限は置かないが、有用性のない分割や再帰は行わない。
 
-## プランニング
+## Claude固有のmodel経路
 
-- 複数ファイル変更、不確実な設計判断、破壊的操作を伴う場合は、実装前に計画を提示して承認を待つ。
-- 小さな typo 修正、明確な1行変更、ユーザーが明示した単純変更では、過剰な計画を挟まず実行してよい。
-- 中〜大規模タスクでは、plan file を作成・更新する。`/clear` 後でも plan file だけで再開できる内容にする。
-- plan file には Background、SMART goal、Scope、Constraints、Current findings、Decisions、Progress、Verification evidence、Resume prompt を含める。
-
-## SMART goal と自己検証
-
-- 大きめの実装前には SMART goal 案を提案する。
-- goal は「実装が完了していること」のような曖昧な表現を避け、検証コマンド、受け入れ条件、停止条件を含める。
-- テストだけで判断できない作業では、自己検証ループを設計する。
-- 調査やテストが難しい場合は、独立レビュー pass を使い、NEW かつ unresolved な issue が N pass 連続で 0 件であることを停止条件にできる。
-- レビューの「問題なし」は完了証明ではなく、定義済み範囲でのリスク低減証拠として扱う。
-
-## Sub Agent / Agent Teams
-
-- 大量探索、ログ解析、テスト失敗分析、独立レビューは subagent に委譲してよい。
-- main session は意図解釈、計画、統合判断、最終報告を担当する。
-- Sub Agent は quick / standard / strong の3段階程度で使い分け、細かすぎる分割やモデル選定を避ける。
-- Agent Teams は worker 間のやりとり、長時間の独立作業、直接介入、shared task list が必要な場合に限る。
-- 同じファイルを複数の worker に編集させない。共有ファイルがある場合は順序制御する。
-
-## Skills / Commands
-
-- 長い手順、チェックリスト、ワークフローは skill に置き、必要時だけロードする。
-- `CLAUDE.md` には全セッションで必要な短い原則だけを残す。
-- commit、PR 作成、権限変更、依存更新のような副作用がある作業は、ユーザーの明示指示または確認後に行う。
-- 既存 slash commands は互換目的で残す。新規の長い手順は skill を優先する。
+- 通常入口とroot統合はSonnetのmedium。探索・実装・検証はSonnet medium、独立reviewはSonnet highへ委譲する。
+- Opus highは、複数subsystemにまたがる3件以上の相互依存ticketに加え、高コストなarchitecture判断、所有不明、migration sequencing、複数証拠stream、worker調停のうち2条件以上がある場合だけ候補にする。file数や長文だけでは上げない。
+- 完全なOpus orchestrationは`/model opus`でrootを切り替えて`/route-work resume`するか、`claude --agent workflow-orchestrator-opus`で開始する。自動でparent modelを変更したと偽らない。
+- 再起動しない場合は`workflow-architect-opus`をread-oriented planning subagentとして使えるが、Sonnet rootがledger writer・統合者のままであり、完全なOpus rootとは区別する。
+- `max`、1M context、prompt/agent hookによる追加model callを既定にしない。

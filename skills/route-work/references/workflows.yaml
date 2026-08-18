@@ -1,0 +1,218 @@
+schema: "route-work-catalog/v1"
+
+request_classes:
+  question-explanation:
+    authority: ["read"]
+    default_phases: ["inspect", "answer", "verify-claims"]
+  research:
+    authority: ["read", "private-ledger", "private-worker-report"]
+    default_phases: ["scope", "collect-primary-sources", "synthesize", "verify-claims"]
+  design-planning:
+    authority: ["read", "private-ledger", "private-plan"]
+    default_phases: ["clarify-if-material", "design", "ticket", "verify-plan"]
+  documentation:
+    authority: ["read", "requested-documentation-write"]
+    default_phases: ["inspect", "draft", "edit-docs", "verify-content"]
+  diagnosis-review:
+    authority: ["read", "private-ledger", "private-worker-report"]
+    default_phases: ["reproduce-or-inspect", "find-cause-or-findings", "report"]
+  implementation-fix:
+    authority: ["read", "scoped-local-source-write", "validate"]
+    default_phases: ["clarify-if-material", "ticket", "implement", "review-uncommitted", "verify"]
+  publish-external-operation:
+    authority: ["read", "exact-previewed-external-action"]
+    default_phases: ["inspect-target", "preview", "authorize", "apply", "reread"]
+
+durability:
+  precedence: "Apply ephemeral_when_all first; only otherwise evaluate ledger_when_any. Ordinary inspect/edit/verify steps within one bounded action are not separate recoverable phases."
+  ephemeral_when_all:
+    - "one bounded answer or edit"
+    - "no worker"
+    - "no durable or contested decision"
+    - "one continuous session is sufficient"
+  ledger_when_any:
+    - "two or more independently recoverable semantic phases"
+    - "delegation or dependent tickets"
+    - "compaction or interruption risk"
+    - "multiple implementation concerns"
+    - "durable, surprising, or contested decision"
+
+side_effect_gates:
+  LW: "Require matching local-write scope; a private ledger/report is pre-authorized only for durable workflow state."
+  GIT: "Require explicit authority for branch, switch, stage, commit, merge, rebase continuation, or history mutation."
+  EXT: "Preview exact targets and actions, then require explicit authority for each external mutation class."
+  DEL: "Apply only when the concrete operation is destructive or materially difficult to recover. Resolve exact targets and require explicit destructive authority; prefer a recoverable action."
+  SEC: "Require explicit secret-handling authority; never place secret values in prompts, ledgers, reports, or logs."
+  UI: "Require the relevant human/UI stage; generation or inspection does not authorize execution."
+  SUB: "Use bounded Sonnet or Terra tickets, unique worker reports, root assimilation, and dependency waves."
+
+hard_overrides:
+  - "Diagnosis-only work stops before a fix."
+  - "Implementation never implies branch, stage, commit, push, deploy, or external publication."
+  - "Merge-conflict edits never imply staging, commit, or merge/rebase continuation."
+  - "Tracker reads never imply comment, label, assignment, close, delete, or creation authority."
+  - "Wizard generation never implies execution."
+  - "Working decisions stay private until documentation publication is authorized."
+  - "Direct Skill invocation never broadens user authority."
+
+worker_policy:
+  claude:
+    root: "Sonnet normally; Opus only when already selected through the harness evidence gate"
+    worker: "Sonnet"
+  codex:
+    root: "Sol"
+    worker: "named Terra agent"
+  scheduling: "Dispatch the dependency-ready frontier with non-overlapping write sets; impose no artificial total-worker cap."
+  persistence: "Root writes the ledger; workers write `.local/agent/reports/<work-id>/<agent-id>.md`; root validates, assimilates, and checkpoints between waves."
+
+skills:
+  - name: "ask-matt"
+    phase: ["meta-routing"]
+    route_mode: "direct-only"
+    upstream_invocation: "manual-only"
+    effects: []
+    gates: ["Recommendations grant no authority; do not nest this duplicate router."]
+  - name: "diagnosing-bugs"
+    phase: ["diagnosis-review", "implementation-fix"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW", "DEL"]
+    gates: ["Diagnosis-only stops before fix.", "Require fix scope for edits and delete authority for cleanup.", "Require explicit permission for production instrumentation."]
+  - name: "grill-with-docs"
+    phase: ["design-planning", "documentation"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW"]
+    gates: ["Use equivalent clarification and decision contract or suggest direct invocation.", "Tracked docs require documentation scope."]
+  - name: "triage"
+    phase: ["diagnosis-review", "publish-external-operation"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW", "EXT", "DEL"]
+    gates: ["Use read-only triage contract by default.", "Preview exact tracker mutations and obtain authority.", "Require authority before close/delete."]
+  - name: "improve-codebase-architecture"
+    phase: ["diagnosis-review", "design-planning"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["SUB", "UI", "LW"]
+    gates: ["Use equivalent architecture-review contract or suggest direct invocation.", "Opening HTML and tracked doc updates are separately gated."]
+  - name: "setup-matt-pocock-skills"
+    phase: ["documentation", "implementation-fix"]
+    route_mode: "direct-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW"]
+    gates: ["Never run automatically.", "Require an explicit reviewed dual-harness migration ticket."]
+  - name: "tdd"
+    phase: ["implementation-fix"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW"]
+    gates: ["Require approved seams or confirm them before the first test.", "No commit authority."]
+  - name: "to-spec"
+    phase: ["design-planning", "publish-external-operation"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["EXT"]
+    gates: ["Use equivalent private draft contract or suggest direct invocation.", "Require explicit tracker publication authority."]
+  - name: "to-tickets"
+    phase: ["design-planning", "publish-external-operation"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW", "EXT"]
+    gates: ["Use equivalent private ticket/dependency contract or suggest direct invocation.", "Require explicit tracker publication authority.", "Do not modify a parent issue implicitly."]
+  - name: "wayfinder"
+    phase: ["design-planning", "publish-external-operation"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["SUB", "GIT", "EXT", "DEL"]
+    gates: ["Use bounded-ticket equivalent contract or suggest direct invocation.", "Gate every branch and tracker mutation class separately.", "Never assume 100K tickets or Max/Ultra."]
+  - name: "implement"
+    phase: ["implementation-fix"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW", "SUB", "GIT"]
+    gates: ["Use equivalent implementation/review contract or suggest direct invocation.", "Review the uncommitted tree.", "Commit requires explicit authority."]
+  - name: "prototype"
+    phase: ["design-planning", "implementation-fix"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW", "GIT", "EXT"]
+    gates: ["Confirm the prototype question and local-write scope.", "Gate branch, commit, issue linkage, and production folding separately."]
+  - name: "research"
+    phase: ["research"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["SUB", "LW"]
+    gates: ["Default output to a private worker report.", "Tracked research publication requires documentation scope."]
+  - name: "domain-modeling"
+    phase: ["design-planning", "documentation"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW"]
+    gates: ["Select read-only reference mode by default.", "Tracked glossary or ADR updates require publication intent."]
+  - name: "codebase-design"
+    phase: ["question-explanation", "design-planning"]
+    route_mode: "auto"
+    upstream_invocation: "implicit"
+    effects: ["SUB"]
+    gates: ["Dispatch design alternatives only when useful or requested.", "Use Sonnet/Terra without Max/Ultra."]
+  - name: "code-review"
+    phase: ["diagnosis-review"]
+    route_mode: "auto"
+    upstream_invocation: "implicit"
+    effects: ["SUB"]
+    gates: ["Remain read-only.", "Require a resolvable fixed point.", "Include staged and working-tree diffs for uncommitted review."]
+  - name: "resolving-merge-conflicts"
+    phase: ["implementation-fix"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW", "GIT"]
+    gates: ["Select only for an explicitly requested in-progress resolution.", "Gate stage, commit, and continuation separately.", "Permit stop-and-report."]
+  - name: "wizard"
+    phase: ["implementation-fix", "publish-external-operation"]
+    route_mode: "gated"
+    upstream_invocation: "implicit"
+    effects: ["LW", "UI", "SEC", "EXT", "GIT"]
+    gates: ["Confirm scope and stages before generation.", "Never execute end-to-end automatically.", "Never expose secrets.", "Gate external and Git actions separately."]
+  - name: "grill-me"
+    phase: ["design-planning"]
+    route_mode: "direct-only"
+    upstream_invocation: "manual-only"
+    effects: ["SUB"]
+    gates: ["Keep as the user's direct interview entry; route-work uses its own equivalent clarification contract."]
+  - name: "grilling"
+    phase: ["design-planning"]
+    route_mode: "auto"
+    upstream_invocation: "implicit"
+    effects: ["SUB"]
+    gates: ["Use only for material ambiguity.", "Checkpoint settled decisions before implementation."]
+  - name: "handoff"
+    phase: ["continuity"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW"]
+    gates: ["Use on explicit handoff mode or suggest direct invocation.", "Redact output and keep the ledger authoritative."]
+  - name: "teach"
+    phase: ["question-explanation", "documentation"]
+    route_mode: "direct-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW", "UI"]
+    gates: ["Run only by direct request in a dedicated teaching workspace.", "Confirm mission changes and UI actions."]
+  - name: "to-questionnaire"
+    phase: ["documentation", "design-planning"]
+    route_mode: "suggest-only"
+    upstream_invocation: "manual-only"
+    effects: ["LW", "EXT"]
+    gates: ["Use equivalent private questionnaire draft or suggest direct invocation.", "Sending/sharing requires separate authority."]
+  - name: "wait-what"
+    phase: ["question-explanation"]
+    route_mode: "direct-only"
+    upstream_invocation: "manual-only"
+    effects: []
+    gates: ["Only the user can select this correction flow directly."]
+  - name: "writing-for-agents"
+    phase: ["documentation"]
+    route_mode: "auto"
+    upstream_invocation: "implicit"
+    effects: ["LW"]
+    gates: ["Reference use is read-only; writes remain limited to the requested agent documentation scope."]

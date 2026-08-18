@@ -1,68 +1,209 @@
 {
-  description = "Claude Code configuration";
+  description = "Claude Code and Codex workflow configuration";
 
-  outputs = { self, ... }: {
-    homeManagerModules.default = { ... }: {
-      programs.claude-code.enable = true;
-
-      home.file = {
-        ".claude/CLAUDE.md".source = "${self}/CLAUDE.md";
-        ".claude/settings.json".source = "${self}/settings.json";
-
-        ".claude/commands/init-personal.md".source = "${self}/commands/init-personal.md";
-        ".claude/commands/init-work.md".source = "${self}/commands/init-work.md";
-        ".claude/commands/worktree.md".source = "${self}/commands/worktree.md";
-        ".claude/commands/nix-check.md".source = "${self}/commands/nix-check.md";
-        ".claude/commands/edit-claude.md".source = "${self}/commands/edit-claude.md";
-        ".claude/commands/commit.md".source = "${self}/commands/commit.md";
-        ".claude/commands/pr.md".source = "${self}/commands/pr.md";
-        ".claude/commands/test.md".source = "${self}/commands/test.md";
-        ".claude/commands/format.md".source = "${self}/commands/format.md";
-        ".claude/commands/explore.md".source = "${self}/commands/explore.md";
-        ".claude/commands/cleanup.md".source = "${self}/commands/cleanup.md";
-        ".claude/commands/dep-update.md".source = "${self}/commands/dep-update.md";
-        ".claude/commands/security-review.md".source = "${self}/commands/security-review.md";
-        ".claude/commands/changelog.md".source = "${self}/commands/changelog.md";
-        ".claude/commands/perm-review.md".source = "${self}/commands/perm-review.md";
-        ".claude/commands/team.md".source = "${self}/commands/team.md";
-        ".claude/commands/code-patrol.md".source = "${self}/commands/code-patrol.md";
-
-        ".claude/rules/output-style.md".source = "${self}/rules/output-style.md";
-        ".claude/rules/operation-safety.md".source = "${self}/rules/operation-safety.md";
-        ".claude/rules/plan-file.md".source = "${self}/rules/plan-file.md";
-        ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
-        ".claude/rules/codex-nix-config.md".source = "${self}/rules/codex-nix-config.md";
-
-        ".agents/skills/grill-me/SKILL.md".source = "${self}/codex/skills/grill-me/SKILL.md";
-
-        ".claude/skills/plan-task/SKILL.md".source = "${self}/skills/plan-task/SKILL.md";
-        ".claude/skills/plan-task/plan-file-template.md".source = "${self}/skills/plan-task/plan-file-template.md";
-        ".claude/skills/self-verification-loop/SKILL.md".source = "${self}/skills/self-verification-loop/SKILL.md";
-        ".claude/skills/self-verification-loop/loop-patterns.md".source = "${self}/skills/self-verification-loop/loop-patterns.md";
-        ".claude/skills/self-verification-loop/review-quorum.md".source = "${self}/skills/self-verification-loop/review-quorum.md";
-        ".claude/skills/self-verification-loop/smart-goal-template.md".source = "${self}/skills/self-verification-loop/smart-goal-template.md";
-        ".claude/skills/self-verification-loop/verification-report-template.md".source = "${self}/skills/self-verification-loop/verification-report-template.md";
-
-        ".claude/agents/quick-explorer.md".source = "${self}/agents/quick-explorer.md";
-        ".claude/agents/deep-explorer.md".source = "${self}/agents/deep-explorer.md";
-        ".claude/agents/log-analyzer.md".source = "${self}/agents/log-analyzer.md";
-        ".claude/agents/test-failure-analyzer.md".source = "${self}/agents/test-failure-analyzer.md";
-        ".claude/agents/change-reviewer.md".source = "${self}/agents/change-reviewer.md";
-        ".claude/agents/security-reviewer.md".source = "${self}/agents/security-reviewer.md";
-        ".claude/agents/plan-checker.md".source = "${self}/agents/plan-checker.md";
-        ".claude/agents/implementation-agent.md".source = "${self}/agents/implementation-agent.md";
-        ".claude/agents/check-runner.md".source = "${self}/agents/check-runner.md";
-        ".claude/agents/final-auditor.md".source = "${self}/agents/final-auditor.md";
-
-        ".claude/statusline.sh" = {
-          source = "${self}/statusline.sh";
-          executable = true;
-        };
-        ".claude/log-permission-request.sh" = {
-          source = "${self}/log-permission-request.sh";
-          executable = true;
-        };
-      };
-    };
+  inputs.aihero-skills = {
+    url = "github:mattpocock/skills/8b78b531ab965735c5dc74f6f7a219e1e37326df";
+    flake = false;
   };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  outputs =
+    {
+      self,
+      aihero-skills,
+      nixpkgs,
+      ...
+    }:
+    let
+      aiHeroManifest = builtins.fromJSON (builtins.readFile ./manifests/aihero-skills.json);
+      cutoverManifest = builtins.fromJSON (builtins.readFile ./manifests/workflow-cutover.json);
+      upstreamPluginManifest = builtins.fromJSON (
+        builtins.readFile (aihero-skills + "/.claude-plugin/plugin.json")
+      );
+      aiHeroSkills = aiHeroManifest.skills;
+      aiHeroSkillNames = map (skill: skill.name) aiHeroSkills;
+      upstreamPluginSkillNames = map builtins.baseNameOf upstreamPluginManifest.skills;
+      localSkillNames = [
+        "route-work"
+        "work-ledger"
+        "record-decision"
+        "self-verification"
+        "use-repo-local-workspace"
+      ];
+      sharedSkillNames = localSkillNames ++ aiHeroSkillNames;
+      supportedSystems = [
+        "aarch64-darwin"
+        "x86_64-linux"
+      ];
+      forAllSystems =
+        function:
+        builtins.listToAttrs (
+          map (system: {
+            name = system;
+            value = function system;
+          }) supportedSystems
+        );
+
+      localSkills = map (name: {
+        inherit name;
+        source = "${self}/skills/${name}";
+      }) localSkillNames;
+
+      externalSkills = map (skill: {
+        inherit (skill) name files;
+        source = builtins.path {
+          path = aihero-skills + "/${skill.subdir}";
+          name = "aihero-${skill.name}";
+          sha256 = skill.nar_hash;
+        };
+      }) aiHeroSkills;
+
+      mkSkillEntries =
+        target: skills:
+        builtins.listToAttrs (
+          map (skill: {
+            name = "${target}/${skill.name}";
+            value = {
+              inherit (skill) source;
+              recursive = true;
+            };
+          }) skills
+        );
+
+      mkFileEntries =
+        target: sourceDir: names:
+        builtins.listToAttrs (
+          map (name: {
+            name = "${target}/${name}";
+            value.source = "${self}/${sourceDir}/${name}";
+          }) names
+        );
+    in
+    {
+      inherit aiHeroSkillNames sharedSkillNames;
+      aiHeroSkillManifest = aiHeroManifest;
+      workflowCutoverManifest = cutoverManifest;
+
+      checks = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          files = (self.homeManagerModules.default { inherit pkgs; }).home.file;
+          names = builtins.attrNames files;
+          claudeSkillCount = builtins.length (
+            builtins.filter (name: builtins.match "[.]claude/skills/.*" name != null) names
+          );
+          codexSkillCount = builtins.length (
+            builtins.filter (name: builtins.match "[.]agents/skills/.*" name != null) names
+          );
+          allSourcesExist = builtins.all (
+            name:
+            !(files.${name} ? source)
+            || builtins.isAttrs files.${name}.source
+            || builtins.pathExists files.${name}.source
+          ) names;
+        in
+        {
+          workflow-contract =
+            assert claudeSkillCount == 30;
+            assert codexSkillCount == 30;
+            assert allSourcesExist;
+            pkgs.runCommand "flake-my-claude-workflow-contract"
+              {
+                nativeBuildInputs = [
+                  pkgs.git
+                  pkgs.python3
+                ];
+              }
+              ''
+                python ${self}/checks/validate-workflow.py
+                python -m unittest discover -s ${self}/hooks/tests -v
+                touch "$out"
+              '';
+        }
+      );
+
+      homeManagerModules.default =
+        { pkgs, ... }:
+        let
+          expectedAiHeroCount = aiHeroManifest.upstream.release_boundary.expected_skill_count;
+          expectedAiHeroFileCount = aiHeroManifest.upstream.release_boundary.expected_file_count;
+          manifestAiHeroFileCount = builtins.foldl' (
+            total: skill: total + builtins.length skill.files
+          ) 0 aiHeroSkills;
+          uniqueSharedSkillCount = builtins.length (
+            builtins.attrNames (
+              builtins.listToAttrs (
+                map (name: {
+                  inherit name;
+                  value = true;
+                }) sharedSkillNames
+              )
+            )
+          );
+          workLedgerHook = pkgs.writeShellScript "work-ledger-hook" ''
+            exec ${pkgs.python3}/bin/python ${self}/hooks/work-ledger-hook.py "$@"
+          '';
+          claudeAgentNames = [
+            "workflow-orchestrator-opus.md"
+            "workflow-architect-opus.md"
+            "workflow-explorer.md"
+            "workflow-worker.md"
+            "workflow-reviewer.md"
+            "workflow-verifier.md"
+          ];
+          codexAgentNames = [
+            "workflow-explorer.toml"
+            "workflow-worker.toml"
+            "workflow-reviewer.toml"
+            "workflow-verifier.toml"
+          ];
+        in
+        assert builtins.length aiHeroSkills == expectedAiHeroCount;
+        assert aiHeroSkillNames == upstreamPluginSkillNames;
+        assert manifestAiHeroFileCount == expectedAiHeroFileCount;
+        assert builtins.all (
+          skill: builtins.all (file: builtins.pathExists "${skill.source}/${file}") skill.files
+        ) externalSkills;
+        assert builtins.length sharedSkillNames == uniqueSharedSkillCount;
+        {
+          programs.claude-code.enable = true;
+
+          home.file = {
+            ".claude/CLAUDE.md".source = "${self}/CLAUDE.md";
+            ".claude/settings.json".source = "${self}/settings.json";
+
+            ".claude/rules/output-style.md".source = "${self}/rules/output-style.md";
+            ".claude/rules/operation-safety.md".source = "${self}/rules/operation-safety.md";
+            ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
+            ".claude/rules/codex-nix-config.md".source = "${self}/rules/codex-nix-config.md";
+
+            ".claude/statusline.sh" = {
+              source = "${self}/statusline.sh";
+              executable = true;
+            };
+            ".claude/log-permission-request.sh" = {
+              source = "${self}/log-permission-request.sh";
+              executable = true;
+            };
+            ".claude/session-status.sh" = {
+              source = "${self}/session-status.sh";
+              executable = true;
+            };
+            ".claude/hooks/work-ledger-hook".source = workLedgerHook;
+
+            ".codex/AGENTS.md".source = "${self}/codex/AGENTS.md";
+            ".codex/hooks.json".source = "${self}/codex/hooks.json";
+            ".codex/hooks/work-ledger-hook".source = workLedgerHook;
+
+            ".local/share/licenses/mattpocock-skills/LICENSE".source = "${aihero-skills}/LICENSE";
+            ".local/share/agent-skills/mattpocock-skills/manifest.json".source =
+              "${self}/manifests/aihero-skills.json";
+          }
+          // mkSkillEntries ".claude/skills" (localSkills ++ externalSkills)
+          // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills)
+          // mkFileEntries ".claude/agents" "agents" claudeAgentNames
+          // mkFileEntries ".codex/agents" "codex/agents" codexAgentNames;
+        };
+    };
 }

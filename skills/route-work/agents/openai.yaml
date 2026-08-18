@@ -1,0 +1,4 @@
+interface:
+  display_name: "Route Work"
+  short_description: "Classify and route durable agent work"
+  default_prompt: "Use $route-work to classify this request and run the authorized workflow."

@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-08-15",
+  "policy": {
+    "allowlist_only": true,
+    "force_overwrite": false,
+    "installer_cleanup": false,
+    "activation_authorized": false
+  },
+  "entries": [
+    {
+      "path": "~/.claude/CLAUDE.md",
+      "owner": "home-manager",
+      "disposition": "rewrite",
+      "replacement": "CLAUDE.md",
+      "preserve": [
+        "language-response",
+        "output-conventions",
+        "nix-devenv",
+        "worktree-layout",
+        "coding-style",
+        "operation-safety",
+        "side-effect-authorization"
+      ]
+    },
+    {
+      "path": "~/.claude/settings.json",
+      "owner": "home-manager",
+      "disposition": "rewrite",
+      "replacement": "settings.json",
+      "preserve": [
+        "language",
+        "visual-preferences",
+        "permissions",
+        "enabled-plugins",
+        "status-line"
+      ],
+      "add": [
+        "sonnet-medium-default",
+        "work-ledger-command-hooks"
+      ]
+    },
+    {
+      "path": "~/.claude/statusline.sh",
+      "owner": "home-manager",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/log-permission-request.sh",
+      "owner": "home-manager",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/session-status.sh",
+      "owner": "unmanaged-regular-file",
+      "disposition": "rewrite",
+      "replacement": "session-status.sh",
+      "note": "Import unchanged behavior into Home Manager ownership."
+    },
+    {
+      "path": "~/.claude/commands/changelog.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/cleanup.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/code-patrol.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/commit.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/dep-update.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/edit-claude.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/explore.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/format.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/init-personal.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/init-work.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/nix-check.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/perm-review.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/pr.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/security-review.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/team.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/test.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/commands/worktree.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/skills/plan-task",
+      "owner": "home-manager-recursive-leaves",
+      "disposition": "replace-with",
+      "replacement": "~/.claude/skills/work-ledger"
+    },
+    {
+      "path": "~/.claude/skills/self-verification-loop",
+      "owner": "home-manager-recursive-leaves",
+      "disposition": "replace-with",
+      "replacement": "~/.claude/skills/self-verification"
+    },
+    {
+      "path": "~/.claude/agents/change-reviewer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/check-runner.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/deep-explorer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/final-auditor.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/implementation-agent.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/log-analyzer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/plan-checker.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/quick-explorer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/security-reviewer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/agents/test-failure-analyzer.md",
+      "owner": "home-manager",
+      "disposition": "remove"
+    },
+    {
+      "path": "~/.claude/rules/codex-nix-config.md",
+      "owner": "home-manager",
+      "disposition": "rewrite",
+      "replacement": "rules/codex-nix-config.md"
+    },
+    {
+      "path": "~/.claude/rules/nix-devenv.md",
+      "owner": "home-manager",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/rules/operation-safety.md",
+      "owner": "home-manager",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/rules/output-style.md",
+      "owner": "home-manager",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/rules/plan-file.md",
+      "owner": "home-manager",
+      "disposition": "replace-with",
+      "replacement": "~/.claude/skills/work-ledger"
+    },
+    {
+      "path": "~/.agents/skills/grill-me",
+      "owner": "home-manager-recursive-leaves",
+      "disposition": "replace-with",
+      "replacement": "pinned-aihero/grill-me"
+    },
+    {
+      "path": "~/.codex/AGENTS.md",
+      "owner": "unmanaged-regular-file",
+      "disposition": "rewrite",
+      "replacement": "codex/AGENTS.md",
+      "preserve": [
+        "common-response-policy",
+        "todoist-policy"
+      ]
+    },
+    {
+      "path": "~/.codex/hooks.json",
+      "owner": "unmanaged-regular-file",
+      "disposition": "rewrite",
+      "replacement": "codex/hooks.json",
+      "preserve": [
+        "permission-request-log",
+        "session-status-events"
+      ],
+      "add": [
+        "work-ledger-command-hooks"
+      ]
+    },
+    {
+      "path": "~/.codex/config.toml",
+      "owner": "unmanaged-app-updated-file",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.codex/keybindings.json",
+      "owner": "unmanaged-user-file",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.codex/rules/default.rules",
+      "owner": "unmanaged-user-file",
+      "disposition": "keep"
+    },
+    {
+      "path": "~/.claude/bin/safe-rm",
+      "owner": "unmanaged-user-file",
+      "disposition": "keep"
+    }
+  ],
+  "additions": {
+    "shared_skills": {
+      "names": [
+        "route-work",
+        "work-ledger",
+        "record-decision",
+        "self-verification",
+        "use-repo-local-workspace",
+        "ask-matt",
+        "diagnosing-bugs",
+        "grill-with-docs",
+        "triage",
+        "improve-codebase-architecture",
+        "setup-matt-pocock-skills",
+        "tdd",
+        "to-spec",
+        "to-tickets",
+        "wayfinder",
+        "implement",
+        "prototype",
+        "research",
+        "domain-modeling",
+        "codebase-design",
+        "code-review",
+        "resolving-merge-conflicts",
+        "wizard",
+        "grill-me",
+        "grilling",
+        "handoff",
+        "teach",
+        "to-questionnaire",
+        "wait-what",
+        "writing-for-agents"
+      ],
+      "targets": [
+        "~/.claude/skills",
+        "~/.agents/skills"
+      ],
+      "home_file_recursive": true
+    },
+    "claude_agents": [
+      "workflow-orchestrator-opus.md",
+      "workflow-architect-opus.md",
+      "workflow-explorer.md",
+      "workflow-worker.md",
+      "workflow-reviewer.md",
+      "workflow-verifier.md"
+    ],
+    "codex_agents": [
+      "workflow-explorer.toml",
+      "workflow-worker.toml",
+      "workflow-reviewer.toml",
+      "workflow-verifier.toml"
+    ],
+    "support": [
+      "codex/AGENTS.md",
+      "codex/hooks.json",
+      "hooks/work-ledger-hook.py",
+      "session-status.sh",
+      ".local/share/licenses/mattpocock-skills/LICENSE"
+    ]
+  },
+  "repository_sources": {
+    "remove": [
+      "commands/",
+      "agents/change-reviewer.md",
+      "agents/check-runner.md",
+      "agents/deep-explorer.md",
+      "agents/final-auditor.md",
+      "agents/implementation-agent.md",
+      "agents/log-analyzer.md",
+      "agents/plan-checker.md",
+      "agents/quick-explorer.md",
+      "agents/security-reviewer.md",
+      "agents/test-failure-analyzer.md",
+      "skills/plan-task/",
+      "skills/self-verification-loop/",
+      "codex/skills/grill-me/",
+      "rules/plan-file.md",
+      "setup.sh",
+      "todo-plan/cost-reduction.md"
+    ],
+    "rewrite": [
+      "CLAUDE.md",
+      "settings.json",
+      "rules/codex-nix-config.md"
+    ],
+    "keep": [
+      "rules/nix-devenv.md",
+      "rules/operation-safety.md",
+      "rules/output-style.md",
+      "statusline.sh",
+      "log-permission-request.sh",
+      "skills/use-repo-local-workspace/"
+    ]
+  },
+  "cutover_conflicts": [
+    {
+      "path": "~/.codex/AGENTS.md",
+      "current_type": "regular-file",
+      "required_action": "User removes the reviewed old regular file immediately before activation."
+    },
+    {
+      "path": "~/.codex/hooks.json",
+      "current_type": "regular-file",
+      "required_action": "User removes the reviewed old regular file immediately before activation."
+    },
+    {
+      "path": "~/.claude/session-status.sh",
+      "current_type": "regular-file",
+      "required_action": "User removes or backs up the reviewed old regular file immediately before activation."
+    }
+  ],
+  "pre_activation_checks": [
+    "Back up or remove the three reviewed unmanaged regular-file conflicts; activation must stop rather than force-overwrite if one remains.",
+    "Keep ~/.codex/config.toml unmanaged, but set model = gpt-5.6-sol and model_reasoning_effort = medium through the app or a reviewed direct edit.",
+    "Review and trust the new ~/.codex/hooks.json definition after activation before claiming hook enforcement.",
+    "Keep the previous Home Manager generation and reviewed regular-file backups as the rollback path."
+  ],
+  "post_activation_cleanup": {
+    "inventory_exact_paths": [
+      "~/.claude/commands",
+      "~/.claude/skills/plan-task",
+      "~/.claude/skills/self-verification-loop"
+    ],
+    "remove_only_if_empty_and_separately_authorized": true,
+    "completion_checks": [
+      "The live Codex configured default is model = gpt-5.6-sol and model_reasoning_effort = medium; an xhigh value keeps cutover incomplete.",
+      "All 17 legacy command files are absent.",
+      "All 10 legacy Claude agent files are absent while the six new profiles are present.",
+      "The plan-task and self-verification-loop directories contain no SKILL.md or other residual file.",
+      "Each harness exposes exactly the approved 30 shared Skill names.",
+      "Excluded product-managed Codex and Claude state remains untouched."
+    ]
+  },
+  "excluded_product_state": [
+    "~/.codex/skills/.system",
+    "~/.codex/plugins/cache",
+    "~/.codex/config.toml",
+    "~/.claude/plugins",
+    "~/.claude/cache",
+    "~/.claude/projects",
+    "~/.claude/sessions"
+  ]
+}

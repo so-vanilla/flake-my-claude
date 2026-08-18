@@ -1,0 +1,744 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "revision": "8b78b531ab965735c5dc74f6f7a219e1e37326df",
+    "git_tree": "f4effeaa391f196b146046266cca1918f7be6ad4",
+    "archive_sha256": "54d3cfeb8fd1d3b8b6e08d3f4a77efff3021d6114eb1b9f83a1a737cd2a5c7d8",
+    "release_boundary": {
+      "path": ".claude-plugin/plugin.json",
+      "name": "mattpocock-skills",
+      "version": "1.2.3",
+      "sha256": "40d0fbf87be08aa64e08393d061047e8c29753fb0aaf3c0b55085166467dcc42",
+      "expected_skill_count": 25,
+      "expected_file_count": 74
+    },
+    "license": {
+      "spdx": "MIT",
+      "author": "Matt Pocock",
+      "source_path": "LICENSE",
+      "target": ".local/share/licenses/mattpocock-skills/LICENSE"
+    },
+    "installer_evidence": {
+      "claude": {
+        "kind": "official-marketplace-plugin",
+        "resolved_revision": "8b78b531ab965735c5dc74f6f7a219e1e37326df",
+        "activation_mechanism": "not-used"
+      },
+      "skills_cli": {
+        "package": "skills",
+        "version": "1.5.22",
+        "source_revision": "c6f69c631292444cc541ac6d91e2226b0ff247da",
+        "entrypoint": "bin/cli.mjs",
+        "upstream_command": "npx skills@latest add mattpocock/skills",
+        "activation_mechanism": "not-used"
+      }
+    }
+  },
+  "policy": {
+    "recursive_discovery": false,
+    "installers_during_activation": false,
+    "setup_skill_automatic_invocation": false,
+    "selection_is_authorization": false,
+    "preserve_upstream_bytes": true
+  },
+  "skills": [
+    {
+      "name": "ask-matt",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/ask-matt",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "PHASE-BOUNDARIES.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-AfKFKkqACPh+VEYLOdcjzr/yG9znpBohtktST3u0RKo=",
+      "semantic_dependencies": [],
+      "side_effects": [],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "direct-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "diagnosing-bugs",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/diagnosing-bugs",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml",
+        "scripts/hitl-loop.template.sh"
+      ],
+      "nar_hash": "sha256-JvPDOU/cZQsn12Jtb0FsRhsb6quiT5HsTLT34RIOoOs=",
+      "semantic_dependencies": [
+        "improve-codebase-architecture"
+      ],
+      "side_effects": [
+        "local-write",
+        "delete-debug-artifacts",
+        "diagnosis-to-fix-scope"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "grill-with-docs",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/grill-with-docs",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-g0ZokZuwrdQIUP5P6MPEa82XMQvnnviS57Wg/kLcAFA=",
+      "semantic_dependencies": [
+        "grilling",
+        "domain-modeling"
+      ],
+      "side_effects": [
+        "local-documentation-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "triage",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/triage",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "AGENT-BRIEF.md",
+        "OUT-OF-SCOPE.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-ErkHO7IUtxIKvNTYa4mqC5PohG9jgqPF2pw0AxPqfCI=",
+      "semantic_dependencies": [
+        "grilling",
+        "domain-modeling",
+        "setup-matt-pocock-skills"
+      ],
+      "side_effects": [
+        "local-write",
+        "external-tracker-write",
+        "delete-or-close"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "improve-codebase-architecture",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/improve-codebase-architecture",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "HTML-REPORT.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-ZERxA34QFDiGn9XDX/aCutKBE99ZoVH97drzfM8vCeg=",
+      "semantic_dependencies": [
+        "grilling",
+        "domain-modeling",
+        "codebase-design"
+      ],
+      "side_effects": [
+        "temp-write",
+        "ui-open",
+        "local-documentation-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "setup-matt-pocock-skills",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/setup-matt-pocock-skills",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "domain.md",
+        "issue-tracker-github.md",
+        "issue-tracker-gitlab.md",
+        "issue-tracker-local.md",
+        "triage-labels.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-fSzB/yn8fAjdKpnJmM1LIhWWJEYfCSKlsGq9X86PtD0=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "repository-instruction-write",
+        "repository-documentation-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "direct-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "tdd",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/tdd",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "mocking.md",
+        "tests.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-CwtTBWiimLbXHvwW4qFGsauAsKFJKltw6/VuLYrWZ6c=",
+      "semantic_dependencies": [
+        "codebase-design"
+      ],
+      "side_effects": [
+        "local-code-write",
+        "local-test-write"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "to-spec",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/to-spec",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-O7HWWTLH+TXkQ3/CxoaMKt3t8XaowFCCzADinfGUZfA=",
+      "semantic_dependencies": [
+        "setup-matt-pocock-skills"
+      ],
+      "side_effects": [
+        "external-tracker-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "to-tickets",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/to-tickets",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-TEsHvEBL/t3zMfErxxFsDX6/X3RttJVggrowlByF+T8=",
+      "semantic_dependencies": [
+        "setup-matt-pocock-skills"
+      ],
+      "side_effects": [
+        "local-write",
+        "external-tracker-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "wayfinder",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/wayfinder",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-snRS1CNT7b14JjaCJatv7K16z92bRxFbmYoXCUQkWog=",
+      "semantic_dependencies": [
+        "grilling",
+        "domain-modeling",
+        "research",
+        "prototype",
+        "setup-matt-pocock-skills"
+      ],
+      "side_effects": [
+        "external-tracker-write",
+        "delete-or-close",
+        "branch-or-git-state"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "implement",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/implement",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-NJyb+JIah1o4n0SMq7JSEgEfn4or2FVmuVVd/j5u+f8=",
+      "semantic_dependencies": [
+        "tdd",
+        "code-review"
+      ],
+      "side_effects": [
+        "local-code-write",
+        "commit"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "prototype",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/prototype",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "LOGIC.md",
+        "UI.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-ZMTbHhQXDPDj/Xsj96GyXZ2l9XwgWu4r3h8hFl8t0ZQ=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-code-write",
+        "branch-or-git-state",
+        "commit",
+        "external-tracker-write"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "research",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/research",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-J1X5RNGTzz0Dp8QrtGFKqF9kS05UwRj1dlZaBpkhBmU=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-documentation-write",
+        "subagents"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "domain-modeling",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/domain-modeling",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "ADR-FORMAT.md",
+        "CONTEXT-FORMAT.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-kRV4NVU0J+lcrxqrPj7ASwetuSnMcfvvtRFc6DlAJSY=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-documentation-write"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "codebase-design",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/codebase-design",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "DEEPENING.md",
+        "DESIGN-IT-TWICE.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-Wk2OTGUH58DDH3oLJO06OA6E5F3oJjMyNg7teAuuJ9o=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "optional-subagents"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "auto"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "code-review",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/code-review",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-XVN6MHtmqMW428rs1fQcqDBhvxQWqCGK/MoDqu16EMo=",
+      "semantic_dependencies": [
+        "setup-matt-pocock-skills"
+      ],
+      "side_effects": [
+        "subagents"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "auto"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "resolving-merge-conflicts",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/resolving-merge-conflicts",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-Tg82i+3ZiujDv0J0EYNUpz9tNNpLcTngxJaBlmog4So=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-code-write",
+        "stage",
+        "commit",
+        "rebase-or-merge-state"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "wizard",
+      "source": "aihero-skills",
+      "subdir": "skills/engineering/wizard",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "template.sh",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-6RUSTtwThsg2sjCHge0qwIPsvo9EvYP+lqgNVAu2+zc=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-write",
+        "ui-open",
+        "secret-handling",
+        "external-write",
+        "commit"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "gated"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "grill-me",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/grill-me",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-le/ebx5J7qJveVfRYLlWsgCVPGQIVFyT3HRa/6clFpU=",
+      "semantic_dependencies": [
+        "grilling"
+      ],
+      "side_effects": [],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "direct-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "grilling",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/grilling",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-ZgHjKJsJvN1aJkBHfO0S+FJiFqQlNgDf7g9ShesyRGc=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "optional-subagents"
+      ],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "auto"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "handoff",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/handoff",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-exQ9Wqq/2ikRhw1RgttAaunAH+T+v0qrhnim/+loSB8=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "temp-or-private-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "teach",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/teach",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "GLOSSARY-FORMAT.md",
+        "LEARNING-RECORD-FORMAT.md",
+        "MISSION-FORMAT.md",
+        "RESOURCES-FORMAT.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-6EwxKT7BlqY9KzYPtcKlRWhQbW7NNnk/yUaSb0DvsXU=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "workspace-write",
+        "ui-open"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "direct-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "to-questionnaire",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/to-questionnaire",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-fSADuVdckD822QBz6DMj8Ct8IOhgIFfP+stiiYMJVa4=",
+      "semantic_dependencies": [],
+      "side_effects": [
+        "local-documentation-write"
+      ],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "suggest-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "wait-what",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/wait-what",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-I0l/T0CIR9s1DwijRCsYs3RQwKtA9bm65VtAuyo6qDA=",
+      "semantic_dependencies": [],
+      "side_effects": [],
+      "invocation": {
+        "claude_manual": true,
+        "codex_implicit": false,
+        "route_mode": "direct-only"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    },
+    {
+      "name": "writing-for-agents",
+      "source": "aihero-skills",
+      "subdir": "skills/productivity/writing-for-agents",
+      "targets": [
+        "claude",
+        "codex"
+      ],
+      "mode": "mirror",
+      "files": [
+        "SKILL.md",
+        "SKILL-MECHANICS.md",
+        "agents/openai.yaml"
+      ],
+      "nar_hash": "sha256-Vs1pShpaqjavXxiu8EA3YmLnlcdzzla074JYABXAS1g=",
+      "semantic_dependencies": [],
+      "side_effects": [],
+      "invocation": {
+        "claude_manual": false,
+        "codex_implicit": true,
+        "route_mode": "auto"
+      },
+      "adoption_reason": "Included in the approved AI Hero plugin manifest for shared personal and team engineering workflows."
+    }
+  ]
+}

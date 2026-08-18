@@ -1,0 +1,4 @@
+interface:
+  display_name: "Work Ledger"
+  short_description: "Create and maintain resumable work ledgers"
+  default_prompt: "Use $work-ledger to create or resume a durable work ledger for this task."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Self Verification"
+  short_description: "Verify work against evidence and acceptance criteria"
+  default_prompt: "Use $self-verification to verify this work against its acceptance criteria."
