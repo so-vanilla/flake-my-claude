@@ -1,0 +1,121 @@
+{
+  "schema": "project-workflows/v1",
+  "selection_state": ".local/agent/workflow-selection.json",
+  "workflows": {
+    "aidlc": {
+      "display_name": "AI-DLC",
+      "upstream": {
+        "repository": "https://github.com/awslabs/aidlc-workflows.git",
+        "ref": "v2"
+      },
+      "selections": {
+        "codex": {
+          "label": "official AI-DLC Codex distribution",
+          "payload": [
+            "dist/codex/.codex",
+            "dist/codex/.agents",
+            "dist/codex/aidlc",
+            "dist/codex/AGENTS.md",
+            "dist/codex/.gitignore"
+          ],
+          "payload_targets": {
+            "dist/codex/.codex": ".codex",
+            "dist/codex/.agents": ".agents",
+            "dist/codex/aidlc": "aidlc",
+            "dist/codex/AGENTS.md": "AGENTS.md",
+            "dist/codex/.gitignore": ".gitignore"
+          },
+          "workflow_status_template": "templates/project-workflow/codex/workflow-status",
+          "workflow_status_target": ".agents/skills/workflow-status",
+          "workflow_status_shared": "templates/project-workflow/shared/workflow-status/phases.json",
+          "requirements": [
+            { "command": "codex", "minimum_version": "0.145.0" },
+            { "command": "bun" }
+          ],
+          "model_settings": ["dist/codex/.codex/config.toml"],
+          "doctor": ["bun", ".codex/tools/aidlc.ts", "--doctor"],
+          "manual_gates": [],
+          "completion_gates": [
+            "Review and accept Codex's official interactive hook-trust prompts; the initializer never pre-seeds trust.",
+            "Run $aidlc --doctor successfully in a fresh Codex session after trust is confirmed."
+          ]
+        },
+        "claude": {
+          "label": "official AI-DLC Claude Code distribution",
+          "payload": [
+            "dist/claude/.claude",
+            "dist/claude/aidlc"
+          ],
+          "payload_targets": {
+            "dist/claude/.claude": ".claude",
+            "dist/claude/aidlc": "aidlc"
+          },
+          "workflow_status_template": "templates/project-workflow/claude/workflow-status",
+          "workflow_status_target": ".claude/skills/workflow-status",
+          "workflow_status_shared": "templates/project-workflow/shared/workflow-status/phases.json",
+          "requirements": [
+            { "command": "claude" },
+            { "command": "bun" }
+          ],
+          "model_settings": ["dist/claude/.claude/settings.json"],
+          "doctor": ["bun", ".claude/tools/aidlc.ts", "--doctor"],
+          "manual_gates": []
+        }
+      }
+    },
+    "superpowers": {
+      "display_name": "Superpowers",
+      "upstream": {
+        "repository": "https://github.com/obra/superpowers.git",
+        "ref": "main"
+      },
+      "selections": {
+        "codex": {
+          "label": "approved project-local Codex adapter (not the official Quickstart)",
+          "payload": [
+            "skills"
+          ],
+          "payload_targets": {
+            "skills": ".agents/skills/superpowers"
+          },
+          "workflow_status_template": "templates/project-workflow/codex/workflow-status",
+          "workflow_status_target": ".agents/skills/workflow-status",
+          "workflow_status_shared": "templates/project-workflow/shared/workflow-status/phases.json",
+          "requirements": [
+            { "command": "codex" }
+          ],
+          "adapter": "project-local-skills-copy",
+          "manual_gates": [
+            "This is an approved adapter, not the Superpowers Codex marketplace Quickstart."
+          ],
+          "completion_gates": [
+            "Start a fresh Codex session and verify repository-local Skill discovery before relying on the adapter."
+          ]
+        },
+        "claude": {
+          "label": "official Claude Code project-scope plugin operation",
+          "payload": [],
+          "workflow_status_template": "templates/project-workflow/claude/workflow-status",
+          "workflow_status_target": ".claude/skills/workflow-status",
+          "workflow_status_shared": "templates/project-workflow/shared/workflow-status/phases.json",
+          "requirements": [
+            { "command": "claude" }
+          ],
+          "project_cli": [
+            "claude",
+            "plugin",
+            "install",
+            "superpowers@claude-plugins-official",
+            "--scope",
+            "project"
+          ],
+          "project_settings": ".claude/settings.json",
+          "plugin_inventory": ["claude", "plugin", "list", "--json"],
+          "manual_gates": [
+            "The marketplace payload remains in Claude Code's user-local cache; only project enablement is recorded here."
+          ]
+        }
+      }
+    }
+  }
+}

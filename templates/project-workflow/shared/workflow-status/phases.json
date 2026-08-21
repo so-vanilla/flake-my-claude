@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "installation": {
+    "template_source": "templates/project-workflow/shared/workflow-status/phases.json",
+    "installed_relative_path": "./phases.json",
+    "rule": "Copy this single shared source beside each installed workflow-status SKILL.md; do not create a harness-specific phase map."
+  },
+  "harnesses": {
+    "codex": {
+      "display_name": "Codex",
+      "status_skill": "$workflow-status"
+    },
+    "claude": {
+      "display_name": "Claude Code",
+      "status_skill": "/workflow-status"
+    }
+  },
+  "aidlc": {
+    "display_name": "AI-DLC",
+    "full_flow": [
+      "Initialization",
+      "Ideation",
+      "Inception",
+      "Construction",
+      "Operation"
+    ],
+    "official_status": {
+      "codex": "$aidlc --status",
+      "claude": "/aidlc --status"
+    },
+    "state_file": "aidlc/spaces/<space>/intents/<intent>/aidlc-state.md",
+    "required_status_fields": [
+      "Phase",
+      "Current Stage",
+      "Next Stage",
+      "Status"
+    ],
+    "state_cases": {
+      "valid": {
+        "when": "Official --status output identifies a known phase and all required status fields.",
+        "current_position": "Phase + Current Stage from official status output.",
+        "next_entry": {
+          "codex": "$aidlc --resume",
+          "claude": "/aidlc --resume"
+        }
+      },
+      "unavailable": {
+        "when": "Official --status output says no active AI-DLC workflow is found.",
+        "current_position": "Unavailable — no active AI-DLC workflow.",
+        "next_entry": {
+          "codex": "$aidlc",
+          "claude": "/aidlc"
+        }
+      },
+      "invalid": {
+        "when": "Official output or state is missing, unknown, malformed, or internally inconsistent.",
+        "current_position": "Unverified — AI-DLC state/status is invalid.",
+        "next_entry": {
+          "codex": "$aidlc --status",
+          "claude": "/aidlc --status"
+        }
+      }
+    }
+  },
+  "superpowers": {
+    "display_name": "Superpowers",
+    "inference_policy": "No deterministic persistent state machine exists. Report every position as Inferred and do not treat artifacts as proof of completion.",
+    "full_flow": [
+      {
+        "id": "design",
+        "label": "Design",
+        "evidence": [
+          "docs/superpowers/specs/**/*.md",
+          "approved design discussion"
+        ],
+        "next_entry": {
+          "codex": "$brainstorming",
+          "claude": "/superpowers:brainstorming"
+        }
+      },
+      {
+        "id": "plan",
+        "label": "Plan",
+        "evidence": [
+          "docs/superpowers/plans/**/*.md",
+          "approved design/specification"
+        ],
+        "next_entry": {
+          "codex": "$writing-plans",
+          "claude": "/superpowers:writing-plans"
+        }
+      },
+      {
+        "id": "implementation",
+        "label": "Implementation",
+        "evidence": [
+          "plan task checkboxes",
+          "implementation diff and fresh test output"
+        ],
+        "next_entry": {
+          "codex": "$subagent-driven-development",
+          "claude": "/superpowers:subagent-driven-development"
+        },
+        "alternative_entry": {
+          "codex": "$executing-plans",
+          "claude": "/superpowers:executing-plans"
+        }
+      },
+      {
+        "id": "review",
+        "label": "Review",
+        "evidence": [
+          "task or code review findings",
+          "fresh verification output"
+        ],
+        "next_entry": {
+          "codex": "$requesting-code-review",
+          "claude": "/superpowers:requesting-code-review"
+        }
+      },
+      {
+        "id": "completion",
+        "label": "Completion evidence",
+        "evidence": [
+          "fresh verification output",
+          "recorded human integration decision"
+        ],
+        "next_entry": {
+          "codex": "$verification-before-completion",
+          "claude": "/superpowers:verification-before-completion"
+        },
+        "following_entry": {
+          "codex": "$finishing-a-development-branch",
+          "claude": "/superpowers:finishing-a-development-branch"
+        }
+      }
+    ]
+  }
+}

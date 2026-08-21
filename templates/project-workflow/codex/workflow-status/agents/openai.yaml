@@ -1,0 +1,6 @@
+interface:
+  display_name: "Workflow Status"
+  short_description: "Read-only position for installed project workflows"
+  default_prompt: "Use $workflow-status to report the current workflow position and evidence."
+policy:
+  allow_implicit_invocation: false

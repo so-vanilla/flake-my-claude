@@ -1,0 +1,10 @@
+{
+  "schema": "project-workflow-selection/v1",
+  "agent": "claude",
+  "workflow": "superpowers",
+  "upstream": {
+    "repository": "https://github.com/obra/superpowers.git",
+    "ref": "main",
+    "commit": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797"
+  }
+}

@@ -78,11 +78,46 @@
             value.source = "${self}/${sourceDir}/${name}";
           }) names
         );
+
+      # Keep the initializer's source tree in the Nix store. Its manifest and
+      # project-local Skill templates are resolved relative to __file__ by the
+      # Python implementation, so a copied standalone script is insufficient.
+      mkAgentWorkflowInit =
+        pkgs:
+        pkgs.writeShellApplication {
+          name = "agent-workflow-init";
+          runtimeInputs = [
+            pkgs.git
+            pkgs.python3
+          ];
+          text = ''
+            exec ${pkgs.python3}/bin/python ${self}/scripts/agent-workflow-init.py "$@"
+          '';
+        };
     in
     {
       inherit aiHeroSkillNames sharedSkillNames;
       aiHeroSkillManifest = aiHeroManifest;
       workflowCutoverManifest = cutoverManifest;
+
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          "agent-workflow-init" = mkAgentWorkflowInit pkgs;
+        }
+      );
+
+      apps = forAllSystems (
+        system: {
+          "agent-workflow-init" = {
+            type = "app";
+            program = "${self.packages.${system}.agent-workflow-init}/bin/agent-workflow-init";
+          };
+        }
+      );
 
       checks = forAllSystems (
         system:
@@ -141,6 +176,7 @@
               )
             )
           );
+          agentWorkflowInit = mkAgentWorkflowInit pkgs;
           workLedgerHook = pkgs.writeShellScript "work-ledger-hook" ''
             exec ${pkgs.python3}/bin/python ${self}/hooks/work-ledger-hook.py "$@"
           '';
@@ -168,6 +204,13 @@
         assert builtins.length sharedSkillNames == uniqueSharedSkillCount;
         {
           programs.claude-code.enable = true;
+
+          # AI-DLC requires bun in the interactive Home Manager environment.
+          # The initializer retains its own per-selection prerequisite check.
+          home.packages = [
+            agentWorkflowInit
+            pkgs.bun
+          ];
 
           home.file = {
             ".claude/CLAUDE.md".source = "${self}/CLAUDE.md";

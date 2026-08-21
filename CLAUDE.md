@@ -31,6 +31,10 @@
 
 ## 作業ルーティング
 
+- `route-work`のlifecycleを始める前に、repo rootの`.local/agent/workflow-selection.json`を読む。ファイルがないプロジェクトは従来の`route-work`経路を使う。
+- ファイルがある場合は、JSON objectで、`schema: "project-workflow-selection/v1"`、既知の`agent`（`claude`または`codex`）、既知の`workflow`（`aidlc`または`superpowers`）、非空の`upstream.repository`、`upstream.ref`、`upstream.commit`を確認する。これを満たさない、未知の値、または現在のharnessと`agent`が不一致の選択は、lifecycle routingを停止してselectionを`unverified`と報告する。推測でwork ledger、work plan、ticket、workerを新設しない。
+- 有効なAI-DLC選択では、Claude Codeのlifecycleを`/aidlc`へ渡し、`route-work`のwork plan/ledgerを並行して初期化しない。有効なSuperpowers選択では、そのphase Skillsがdesign/implementation lifecycleを所有し、`route-work`は競合するlifecycleを作らない。AI Hero Skillsはutilityとして使えても、lifecycle orchestratorにはしない。
+- project selectionは権限ではない。commit、push、publish/deploy、外部書込み、削除、secret操作、scope拡張には、従来どおり個別の明示的な権限が必要である。
 - 自然言語の依頼をまず`route-work`の分類・権限・永続化規約で扱う。暗黙選択が効かない場合にユーザーが覚える入口は`/route-work`だけでよい。
 - 自然言語からのSkill discoveryはmodel instructionとしてbest-effortである。経路を確実に指定・確認する形式は`/route-work <request>`と`/route-work check <request>`。
 - `/route-work check`は経路を表示するだけで、ファイル、subagent、model、外部状態を変更しない。`status`、`resume`、`handoff`も同Skillで扱う。

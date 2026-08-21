@@ -1,5 +1,29 @@
 schema: "route-work-catalog/v1"
 
+project_selection:
+  path: ".local/agent/workflow-selection.json"
+  schema: "project-workflow-selection/v1"
+  read_before: "mode selection, lifecycle initialization, ledger access, ticketing, or worker dispatch"
+  validation:
+    required_object_fields: ["schema", "agent", "workflow", "upstream"]
+    known_agents: ["claude", "codex"]
+    known_workflows: ["aidlc", "superpowers"]
+    required_upstream_fields: ["repository", "ref", "commit"]
+    non_empty_string_fields: ["upstream.repository", "upstream.ref", "upstream.commit"]
+    optional_fields:
+      adapter: "string"
+  lifecycle_ownership:
+    absent: "Use the normal route-work lifecycle."
+    malformed_or_unknown: "Report selection as unverified and stop lifecycle routing; do not guess by creating or resuming a route-work ledger, work plan, tickets, or workers."
+    current_harness_agent_mismatch: "Report selection as unverified and do not fall back to the global lifecycle."
+    aidlc: "AI-DLC owns lifecycle routing; enter $aidlc in Codex or /aidlc in Claude Code, without a parallel route-work lifecycle or ledger."
+    superpowers: "Superpowers phase Skills own design and implementation lifecycle; route-work may expose utilities but must not create a competing lifecycle, ledger, tickets, or workers."
+  invariants:
+    - "Read project selection before any global lifecycle initialization."
+    - "Project selection never broadens authorization; existing side-effect gates still apply."
+    - "AI Hero Skills remain utilities when another selected workflow owns lifecycle."
+    - "An absent selection preserves the normal route-work behavior."
+
 request_classes:
   question-explanation:
     authority: ["read"]

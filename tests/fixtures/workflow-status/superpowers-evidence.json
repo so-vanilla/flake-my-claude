@@ -1,0 +1,8 @@
+{
+  "design_artifact": "docs/superpowers/specs/2026-08-22-example-design.md",
+  "plan_artifact": "docs/superpowers/plans/2026-08-22-example-plan.md",
+  "implementation_evidence": "Task 2 is marked complete; targeted tests passed in a recorded command output.",
+  "review_evidence": "No fresh review receipt is present.",
+  "expected_position": "Inferred — implementation/review boundary",
+  "expected_unverified": "Artifact and task evidence do not prove Superpowers phase completion."
+}

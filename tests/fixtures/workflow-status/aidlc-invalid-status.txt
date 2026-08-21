@@ -1,0 +1,12 @@
+AI-DLC Workflow Status
+==============================
+Project:        Example service
+Scope:          feature
+Phase:          Unknown
+Current Stage:  missing-stage
+Status:         Unknown
+Active Agent:   None
+Completion:     0/0 stages (0%)
+
+Last Completed: None
+Next Stage:     None

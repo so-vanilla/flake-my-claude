@@ -192,12 +192,121 @@ def validate_helper_is_mechanical():
     require(isinstance(first, ast.List) and isinstance(first.elts[0], ast.Constant) and first.elts[0].value == "git", "hook helper may execute only git")
 
 
+def validate_project_workflow_initializer():
+    manifest = json_file("manifests/project-workflows.json")
+    require(manifest.get("schema") == "project-workflows/v1", "initializer manifest schema mismatch")
+    require(
+        manifest.get("selection_state") == ".local/agent/workflow-selection.json",
+        "initializer selection state path mismatch",
+    )
+    workflows = manifest.get("workflows")
+    require(isinstance(workflows, dict), "initializer workflows must be an object")
+    require(set(workflows) == {"aidlc", "superpowers"}, "initializer workflow set mismatch")
+
+    script_relative = "scripts/agent-workflow-init.py"
+    script = ROOT / script_relative
+    require(script.is_file(), f"initializer script missing: {script_relative}")
+    script_text = script.read_text(encoding="utf-8")
+    require(
+        'SCRIPT_ROOT = Path(__file__).resolve().parents[1]' in script_text,
+        "initializer must derive its source root from its installed script path",
+    )
+    require(
+        'DEFAULT_MANIFEST = SCRIPT_ROOT / "manifests" / "project-workflows.json"' in script_text,
+        "initializer default manifest must remain store-source relative",
+    )
+    require("def _check_prerequisites(" in script_text, "initializer prerequisite checks are missing")
+
+    expected_status_targets = {
+        "codex": ".agents/skills/workflow-status",
+        "claude": ".claude/skills/workflow-status",
+    }
+    expected_templates = {
+        "codex": "templates/project-workflow/codex/workflow-status",
+        "claude": "templates/project-workflow/claude/workflow-status",
+    }
+    shared_phase_map = "templates/project-workflow/shared/workflow-status/phases.json"
+    require((ROOT / shared_phase_map).is_file(), "shared workflow-status phase map missing")
+
+    for workflow_name, workflow in workflows.items():
+        require(isinstance(workflow, dict), f"invalid initializer workflow: {workflow_name}")
+        upstream = workflow.get("upstream")
+        require(
+            isinstance(upstream, dict)
+            and isinstance(upstream.get("repository"), str)
+            and isinstance(upstream.get("ref"), str),
+            f"initializer upstream is incomplete: {workflow_name}",
+        )
+        selections = workflow.get("selections")
+        require(isinstance(selections, dict), f"initializer selections missing: {workflow_name}")
+        require(set(selections) == set(expected_status_targets), f"initializer selection matrix mismatch: {workflow_name}")
+        for agent, config in selections.items():
+            require(isinstance(config, dict), f"invalid initializer selection: {agent}/{workflow_name}")
+            template = config.get("workflow_status_template")
+            target = config.get("workflow_status_target")
+            shared = config.get("workflow_status_shared")
+            require(template == expected_templates[agent], f"workflow-status template mismatch: {agent}/{workflow_name}")
+            require(target == expected_status_targets[agent], f"workflow-status target mismatch: {agent}/{workflow_name}")
+            require(shared == shared_phase_map, f"workflow-status phase map mismatch: {agent}/{workflow_name}")
+            require((ROOT / str(template) / "SKILL.md").is_file(), f"workflow-status Skill missing: {agent}")
+            requirements = config.get("requirements")
+            require(isinstance(requirements, list), f"initializer requirements missing: {agent}/{workflow_name}")
+            require(
+                all(isinstance(item, dict) and isinstance(item.get("command"), str) for item in requirements),
+                f"invalid initializer requirement: {agent}/{workflow_name}",
+            )
+
+    for agent in expected_status_targets:
+        aidlc = workflows["aidlc"]["selections"][agent]
+        commands = {item["command"] for item in aidlc["requirements"]}
+        require("bun" in commands, f"AI-DLC must retain bun prerequisite: {agent}")
+
+    codex_aidlc = workflows["aidlc"]["selections"]["codex"]
+    codex_superpowers = workflows["superpowers"]["selections"]["codex"]
+    require(codex_aidlc.get("completion_gates"), "Codex AI-DLC trust gate must block completion")
+    require(
+        codex_superpowers.get("completion_gates"),
+        "Codex Superpowers fresh-session discovery must block completion",
+    )
+    claude_superpowers = workflows["superpowers"]["selections"]["claude"]
+    require(
+        claude_superpowers.get("plugin_inventory") == ["claude", "plugin", "list", "--json"],
+        "Claude Superpowers inventory must use structured JSON output",
+    )
+    require("dst_dir_fd=parent_fd" in script_text, "initializer placement is not parent-anchored")
+    require("os.link(" in script_text, "initializer placement must be atomic and no-replace")
+    require("_same_anchored_entry" in script_text, "initializer rollback is not inode-aware")
+
+
 def validate_nix_surface():
     flake = (ROOT / "flake.nix").read_text(encoding="utf-8")
     require("force = true" not in flake, "Home Manager conflict is hidden with force")
     require("builtins.path" in flake and "sha256 = skill.nar_hash" in flake, "AI Hero NAR hashes are not enforced by Nix")
     require('mkSkillEntries ".claude/skills"' in flake, "Claude shared Skill mapping missing")
     require('mkSkillEntries ".agents/skills"' in flake, "Codex shared Skill mapping missing")
+    local_skills = re.search(r"localSkillNames\s*=\s*\[(.*?)\];", flake, re.DOTALL)
+    require(local_skills is not None, "local Skill list missing from Nix")
+    require(
+        '"workflow-status"' not in local_skills.group(1),
+        "project-local workflow-status must not be installed as a global Skill",
+    )
+    require("mkAgentWorkflowInit" in flake, "initializer package helper missing")
+    require("pkgs.writeShellApplication" in flake, "initializer must be a Nix executable package")
+    require("pkgs.git" in flake and "pkgs.python3" in flake, "initializer runtime tools are not explicit")
+    require(
+        "${self}/scripts/agent-workflow-init.py" in flake,
+        "initializer package must execute the repository-store source tree",
+    )
+    require('"agent-workflow-init" = mkAgentWorkflowInit pkgs;' in flake, "initializer package output missing")
+    require('"agent-workflow-init" = {' in flake and 'type = "app";' in flake, "initializer app output missing")
+    require(
+        'program = "${self.packages.${system}.agent-workflow-init}/bin/agent-workflow-init";' in flake,
+        "initializer app must point at the package executable",
+    )
+    home_packages = re.search(r"home\.packages\s*=\s*\[(.*?)\];", flake, re.DOTALL)
+    require(home_packages is not None, "Home Manager package surface missing")
+    require("agentWorkflowInit" in home_packages.group(1), "initializer is not exposed through Home Manager")
+    require("pkgs.bun" in home_packages.group(1), "bun is not exposed through Home Manager")
 
 
 def main():
@@ -206,6 +315,7 @@ def main():
     validate_skills(manifest)
     validate_hooks_and_models()
     validate_helper_is_mechanical()
+    validate_project_workflow_initializer()
     validate_nix_surface()
     print(
         json.dumps(

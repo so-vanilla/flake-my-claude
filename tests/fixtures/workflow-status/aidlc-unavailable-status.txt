@@ -1,0 +1,6 @@
+No active AI-DLC workflow found.
+
+To get started:
+  /aidlc "build the auth service"   Describe what to build (creates the workflow record automatically)
+  /aidlc <scope>      Start a workflow by scope (e.g., /aidlc feature)
+  /aidlc --help       Show all commands and scopes

@@ -187,6 +187,10 @@ Todoistへ追加しました。
 
 # AI coding workflow
 
+- Before starting a `route-work` lifecycle, read `.local/agent/workflow-selection.json` at the repository root. If it is absent, retain the current `route-work` behavior.
+- When the file is present, require a JSON object with `schema: "project-workflow-selection/v1"`, a known `agent` (`claude` or `codex`), a known `workflow` (`aidlc` or `superpowers`), and non-empty `upstream.repository`, `upstream.ref`, and `upstream.commit`. A malformed or unknown selection, or an `agent` that does not match the current harness, stops lifecycle routing and is reported as unverified; do not guess by initializing a work ledger, work plan, tickets, or workers.
+- A valid AI-DLC selection hands the Codex lifecycle to `$aidlc`; do not initialize a parallel `route-work` work plan or ledger. A valid Superpowers selection leaves design and implementation lifecycle control to its phase Skills; `route-work` must not create a competing lifecycle. AI Hero Skills remain available as utilities, never as a competing lifecycle orchestrator.
+- Project selection is not authorization. It does not authorize commit, push, deploy, tracker or other external writes, deletion, secret handling, or material scope expansion; retain the existing separate gates.
 - Apply `route-work` to natural-language questions, research, planning, documentation, diagnosis, implementation, and publish/external-operation requests. The only explicit Skill entry the user needs to remember is `$route-work`.
 - Natural-language Skill discovery is best-effort model behavior. Use `$route-work <request>` or `$route-work check <request>` as the explicit deterministic fallback.
 - `$route-work check` is read-only: do not create files, spawn subagents, switch models, or mutate external state. Use `status`, `resume`, and `handoff` through the same entry.

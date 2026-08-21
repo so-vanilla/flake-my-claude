@@ -1,0 +1,16 @@
+AI-DLC Workflow Status
+==============================
+Project:        Example service
+Scope:          feature
+Phase:          IDEATION
+Current Stage:  Scope Definition (1.4)
+Status:         Awaiting your approval on Scope Definition
+Active Agent:   aidlc-product-agent
+Completion:     3/33 stages (9%)
+
+Phase Progress:
+  INITIALIZATION   ███ 3/3
+  IDEATION         ██?░░░░ 2/7
+
+Last Completed: Feasibility & Constraints
+Next Stage:     team-formation

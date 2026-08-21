@@ -7,6 +7,16 @@ description: Classify and orchestrate coding-agent work through one durable entr
 
 Use this Skill as the public workflow entry. Keep specialized Skills and harness syntax internal unless a preserved manual-only Skill requires direct user invocation.
 
+## Honor project workflow ownership first
+
+Before selecting a mode, resolve the repository root and read the catalog's project-selection state when `.local/agent/workflow-selection.json` is present. Reading this state is read-only, including for `check`, `status`, `resume`, and `handoff`.
+
+- When the state is absent, use the route below unchanged.
+- Validate a present state against `project-workflow-selection/v1` before interpreting it. A malformed state, unknown workflow or harness, or `agent` that does not match the current harness is `unverified`: stop lifecycle routing, report the reason, and do not initialize or resume a `route-work` ledger/work plan, tickets, or workers by guesswork.
+- For a valid AI-DLC selection, hand lifecycle actions to `$aidlc` in Codex or `/aidlc` in Claude Code. Do not create a parallel `route-work` lifecycle or ledger.
+- For a valid Superpowers selection, its phase Skills own design and implementation lifecycle. `route-work` may still offer catalogued utility Skills and authorization guidance, but must not create a competing lifecycle, ledger, tickets, or workers.
+- Selection does not grant authority. Keep every existing local-write, Git, external, deletion, secret, and UI gate; a selected lifecycle receives only the authority the request separately grants.
+
 ## Select the mode
 
 - Treat an ordinary request as `normal`: classify and perform the authorized work.
