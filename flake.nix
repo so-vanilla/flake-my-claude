@@ -208,6 +208,12 @@
         assert builtins.length sharedSkillNames == uniqueSharedSkillCount;
         {
           programs.claude-code.enable = true;
+          programs.codex = {
+            enable = true;
+            package = pkgs.codex;
+            # Keep Codex configuration under the explicit home.file entries below.
+            settings = null;
+          };
 
           # AI-DLC requires bun in the interactive Home Manager environment.
           # The initializer retains its own per-selection prerequisite check.
