@@ -6,7 +6,7 @@
       "display_name": "AI-DLC",
       "upstream": {
         "repository": "https://github.com/awslabs/aidlc-workflows.git",
-        "ref": "v2"
+        "ref": "refs/heads/v2"
       },
       "selections": {
         "codex": {
@@ -67,7 +67,7 @@
       "display_name": "Superpowers",
       "upstream": {
         "repository": "https://github.com/obra/superpowers.git",
-        "ref": "main"
+        "ref": "refs/heads/main"
       },
       "selections": {
         "codex": {

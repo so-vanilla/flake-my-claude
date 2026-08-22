@@ -105,6 +105,7 @@ class AgentWorkflowInitTests(unittest.TestCase):
         self._git(self.root, "init", "-q", "--bare", str(self.remote))
         self._git(self.upstream, "remote", "add", "origin", str(self.remote))
         self._git(self.upstream, "push", "-q", "origin", "main")
+        self._git(self.upstream, "push", "-q", "origin", "main:refs/heads/v2")
         self.manifest_path = self._write_manifest()
 
     def tearDown(self) -> None:
@@ -152,7 +153,7 @@ class AgentWorkflowInitTests(unittest.TestCase):
             "workflows": {
                 "aidlc": {
                     "display_name": "AI-DLC",
-                    "upstream": {"repository": str(self.remote), "ref": "main"},
+                    "upstream": {"repository": str(self.remote), "ref": "refs/heads/v2"},
                     "selections": {
                         "codex": {
                             "label": "official AI-DLC Codex distribution",
@@ -201,7 +202,7 @@ class AgentWorkflowInitTests(unittest.TestCase):
                 },
                 "superpowers": {
                     "display_name": "Superpowers",
-                    "upstream": {"repository": str(self.remote), "ref": "main"},
+                    "upstream": {"repository": str(self.remote), "ref": "refs/heads/main"},
                     "selections": {
                         "codex": {
                             "label": "approved adapter",
@@ -303,6 +304,27 @@ class AgentWorkflowInitTests(unittest.TestCase):
                 self.assertFalse((target / ".local").exists())
                 self.assertFalse((target / ".agents").exists())
                 self.assertFalse((target / ".claude").exists())
+
+    def test_fully_qualified_v2_branch_resolves_then_uses_detached_switch(self) -> None:
+        target = self._target("qualified v2")
+        runner = FixtureRunner()
+        result = self._initializer(runner=runner).run(
+            self._options(target, "claude", "aidlc", dry_run=True, yes=True)
+        )
+        self.assertEqual(result.action, "dry-run")
+        git_commands = [call[0] for call in runner.calls if call[0][0] == "git"]
+        self.assertTrue(
+            any(
+                "rev-parse" in command
+                and "refs/remotes/origin/v2^{commit}" in command
+                for command in git_commands
+            )
+        )
+        switches = [command for command in git_commands if "switch" in command]
+        self.assertEqual(len(switches), 1)
+        self.assertIn("--detach", switches[0])
+        self.assertRegex(switches[0][-1], r"^[0-9a-f]{40}$")
+        self.assertFalse(any("checkout" in command for command in git_commands))
 
     def test_codex_superpowers_install_target_with_spaces_and_idempotence(self) -> None:
         target = self._target("target with spaces")

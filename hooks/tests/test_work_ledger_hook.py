@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -14,7 +15,17 @@ class WorkLedgerHookTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        self.environment = os.environ.copy()
+        self.environment.update(
+            {
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_SYSTEM": os.devnull,
+                "XDG_CONFIG_HOME": str(self.root / "isolated-xdg"),
+            }
+        )
+        subprocess.run(
+            ["git", "init", "-q", str(self.root)], check=True, env=self.environment
+        )
         (self.root / ".gitignore").write_text("/.local/\n", encoding="utf-8")
 
     def tearDown(self) -> None:
@@ -28,6 +39,7 @@ class WorkLedgerHookTests(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            env=self.environment,
         )
         self.assertEqual(result.returncode, expected, result.stderr or result.stdout)
         return result

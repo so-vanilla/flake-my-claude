@@ -267,19 +267,32 @@ class WorkflowInitializer:
         repository, ref = upstream.get("repository"), upstream.get("ref")
         if not isinstance(repository, str) or not isinstance(ref, str):
             raise InitializerError("manifest upstream requires repository and ref")
+        if not ref.startswith("refs/heads/") or ref == "refs/heads/":
+            raise InitializerError(
+                "manifest upstream ref must be a fully qualified branch under refs/heads/"
+            )
+        remote_ref = "refs/remotes/origin/" + ref.removeprefix("refs/heads/")
         temporary = tempfile.TemporaryDirectory(prefix="agent-workflow-upstream-")
         checkout = Path(temporary.name) / "upstream"
         try:
             # A normal Git checkout deliberately replaces unsafe curl|shell installation paths.
             self._command(["git", "clone", "--quiet", "--no-checkout", repository, str(checkout)])
-            self._command(["git", "-C", str(checkout), "checkout", "--quiet", "--detach", ref])
-            commit = self._command(["git", "-C", str(checkout), "rev-parse", "HEAD"]).stdout.strip()
+            commit = self._command(
+                ["git", "-C", str(checkout), "rev-parse", "--verify", f"{remote_ref}^{{commit}}"]
+            ).stdout.strip()
+            if not re.fullmatch(r"[0-9a-f]{40}", commit):
+                raise InitializerError(f"upstream ref did not resolve to a Git commit: {commit!r}")
+            self._command(
+                ["git", "-C", str(checkout), "switch", "--quiet", "--detach", commit]
+            )
+            checked_out = self._command(
+                ["git", "-C", str(checkout), "rev-parse", "HEAD"]
+            ).stdout.strip()
+            if checked_out != commit:
+                raise InitializerError("detached upstream checkout does not match resolved commit")
         except Exception:
             temporary.cleanup()
             raise
-        if not re.fullmatch(r"[0-9a-f]{40}", commit):
-            temporary.cleanup()
-            raise InitializerError(f"upstream ref did not resolve to a Git commit: {commit!r}")
         return temporary, checkout, commit
 
     @staticmethod

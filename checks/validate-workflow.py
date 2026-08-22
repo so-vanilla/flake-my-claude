@@ -234,7 +234,9 @@ def validate_project_workflow_initializer():
         require(
             isinstance(upstream, dict)
             and isinstance(upstream.get("repository"), str)
-            and isinstance(upstream.get("ref"), str),
+            and isinstance(upstream.get("ref"), str)
+            and upstream["ref"].startswith("refs/heads/")
+            and upstream["ref"] != "refs/heads/",
             f"initializer upstream is incomplete: {workflow_name}",
         )
         selections = workflow.get("selections")
