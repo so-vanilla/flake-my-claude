@@ -128,8 +128,11 @@
           claudeSkillCount = builtins.length (
             builtins.filter (name: builtins.match "[.]claude/skills/.*" name != null) names
           );
-          codexSkillCount = builtins.length (
+          sharedSkillCount = builtins.length (
             builtins.filter (name: builtins.match "[.]agents/skills/.*" name != null) names
+          );
+          codexSkillCount = builtins.length (
+            builtins.filter (name: builtins.match "[.]codex/skills/.*" name != null) names
           );
           allSourcesExist = builtins.all (
             name:
@@ -141,6 +144,7 @@
         {
           workflow-contract =
             assert claudeSkillCount == 30;
+            assert sharedSkillCount == 30;
             assert codexSkillCount == 30;
             assert allSourcesExist;
             pkgs.runCommand "flake-my-claude-workflow-contract"
@@ -245,6 +249,7 @@
           }
           // mkSkillEntries ".claude/skills" (localSkills ++ externalSkills)
           // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills)
+          // mkSkillEntries ".codex/skills" (localSkills ++ externalSkills)
           // mkFileEntries ".claude/agents" "agents" claudeAgentNames
           // mkFileEntries ".codex/agents" "codex/agents" codexAgentNames;
         };
