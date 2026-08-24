@@ -70,6 +70,15 @@
           }) skills
         );
 
+      mkSkillMap =
+        skills:
+        builtins.listToAttrs (
+          map (skill: {
+            name = skill.name;
+            value = skill.source;
+          }) skills
+        );
+
       mkFileEntries =
         target: sourceDir: names:
         builtins.listToAttrs (
@@ -123,7 +132,9 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          files = (self.homeManagerModules.default { inherit pkgs; }).home.file;
+          module = self.homeManagerModules.default { inherit pkgs; };
+          files = module.home.file;
+          codexSkills = module.programs.codex.skills;
           names = builtins.attrNames files;
           claudeSkillCount = builtins.length (
             builtins.filter (name: builtins.match "[.]claude/skills/.*" name != null) names
@@ -131,15 +142,16 @@
           sharedSkillCount = builtins.length (
             builtins.filter (name: builtins.match "[.]agents/skills/.*" name != null) names
           );
-          codexSkillCount = builtins.length (
-            builtins.filter (name: builtins.match "[.]codex/skills/.*" name != null) names
-          );
+          codexSkillCount = builtins.length (builtins.attrNames codexSkills);
           allSourcesExist = builtins.all (
             name:
             !(files.${name} ? source)
             || builtins.isAttrs files.${name}.source
             || builtins.pathExists files.${name}.source
           ) names;
+          codexSourcesExist = builtins.all (
+            name: builtins.pathExists codexSkills.${name}
+          ) (builtins.attrNames codexSkills);
         in
         {
           workflow-contract =
@@ -147,6 +159,7 @@
             assert sharedSkillCount == 30;
             assert codexSkillCount == 30;
             assert allSourcesExist;
+            assert codexSourcesExist;
             pkgs.runCommand "flake-my-claude-workflow-contract"
               {
                 nativeBuildInputs = [
@@ -211,8 +224,11 @@
           programs.codex = {
             enable = true;
             package = pkgs.codex;
-            # Keep Codex configuration under the explicit home.file entries below.
+            # Keep config.toml unmanaged and top-level files under home.file below.
             settings = null;
+            # Codex currently rejects a symlinked SKILL.md, so use the module's
+            # directory-level skill mapping rather than home.file entries.
+            skills = mkSkillMap (localSkills ++ externalSkills);
           };
 
           # AI-DLC requires bun in the interactive Home Manager environment.
@@ -255,7 +271,6 @@
           }
           // mkSkillEntries ".claude/skills" (localSkills ++ externalSkills)
           // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills)
-          // mkSkillEntries ".codex/skills" (localSkills ++ externalSkills)
           // mkFileEntries ".claude/agents" "agents" claudeAgentNames
           // mkFileEntries ".codex/agents" "codex/agents" codexAgentNames;
         };

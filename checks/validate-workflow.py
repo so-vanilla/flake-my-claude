@@ -286,6 +286,8 @@ def validate_nix_surface():
     require("builtins.path" in flake and "sha256 = skill.nar_hash" in flake, "AI Hero NAR hashes are not enforced by Nix")
     require('mkSkillEntries ".claude/skills"' in flake, "Claude shared Skill mapping missing")
     require('mkSkillEntries ".agents/skills"' in flake, "Codex shared Skill mapping missing")
+    require("skills = mkSkillMap" in flake, "Codex Skill directory mapping missing")
+    require('mkSkillEntries ".codex/skills"' not in flake, "Codex Skills must not symlink SKILL.md through home.file")
     local_skills = re.search(r"localSkillNames\s*=\s*\[(.*?)\];", flake, re.DOTALL)
     require(local_skills is not None, "local Skill list missing from Nix")
     require(
