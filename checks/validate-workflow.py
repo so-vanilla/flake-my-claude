@@ -131,6 +131,32 @@ def validate_skills(manifest):
     require(len(local_names) + len(manifest["skills"]) == 30, "shared Skill total must be 30")
 
 
+def validate_route_work_model_advice():
+    route_skill = (ROOT / "skills/route-work/SKILL.md").read_text(encoding="utf-8")
+    catalog = (ROOT / "skills/route-work/references/workflows.yaml").read_text(encoding="utf-8")
+    codex = (ROOT / "codex/AGENTS.md").read_text(encoding="utf-8")
+    claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
+
+    for token in (
+        "## Give next-step model advice",
+        "Next-step model advice",
+        "Never switch the parent model",
+        "valid AI-DLC or Superpowers selection",
+    ):
+        require(token in route_skill, f"route-work model-advice contract missing: {token}")
+    for token in (
+        "model_advice:",
+        'applies_to: ["normal", "check", "status", "resume"]',
+        "required_fields: [\"Next-step model advice\", \"Recommended assignment\", \"Reason\", \"Action required\"]",
+        "named Terra medium",
+        "Sonnet high",
+        "route-work does not override it",
+    ):
+        require(token in catalog, f"route-work model-advice catalog missing: {token}")
+    require("next-step model advice" in codex, "Codex global model-advice instruction missing")
+    require("次の段階の推奨role/model・effort" in claude, "Claude global model-advice instruction missing")
+
+
 def validate_hooks_and_models():
     settings = json_file("settings.json")
     codex_hooks = json_file("codex/hooks.json")
@@ -317,6 +343,7 @@ def main():
     manifest = validate_aihero()
     cutover = validate_cutover()
     validate_skills(manifest)
+    validate_route_work_model_advice()
     validate_hooks_and_models()
     validate_helper_is_mechanical()
     validate_project_workflow_initializer()

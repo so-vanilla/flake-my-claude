@@ -26,6 +26,15 @@ Before selecting a mode, resolve the repository root and read the catalog's proj
 - Treat `resume` as continuation from the helper-selected ledger. Validate the pointer and ledger, reconcile unassimilated worker reports, then checkpoint before dispatching new work.
 - Treat `handoff` as an explicit redacted emergency export under `.local/agent/handoffs/`. Keep the continuous ledger authoritative; never replace it with the handoff.
 
+## Give next-step model advice
+
+For every normal route outcome and every `check`, `status`, or `resume` outcome, append a concise `Next-step model advice` section using the catalog's output contract. State the recommended role/model and effort, the reason, and any user or harness action needed before that next step.
+
+- This is advisory only. Never switch the parent model, modify model configuration, spawn an additional model call, or treat advice as authorization.
+- `check` remains read-only: report the prospective advice only. `status` and `resume` distinguish configured, observed, and unverified model/effort when the harness exposes them.
+- With a valid AI-DLC or Superpowers selection, the selected lifecycle owns model routing. Say that `route-work` defers to that owner and name its next entry; do not impose the global route's models.
+- For the normal global route, use the harness-specific roles in the catalog. Do not recommend Max, Ultra, xhigh, or an expensive substitution as a default. Recommend an Opus root only when the explicit evidence gate is met, and state that the user must change the root through the harness before resuming.
+
 ## Build the route
 
 1. Read [references/workflows.yaml](references/workflows.yaml).

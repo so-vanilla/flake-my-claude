@@ -38,6 +38,7 @@
 - 自然言語の依頼をまず`route-work`の分類・権限・永続化規約で扱う。暗黙選択が効かない場合にユーザーが覚える入口は`/route-work`だけでよい。
 - 自然言語からのSkill discoveryはmodel instructionとしてbest-effortである。経路を確実に指定・確認する形式は`/route-work <request>`と`/route-work check <request>`。
 - `/route-work check`は経路を表示するだけで、ファイル、subagent、model、外部状態を変更しない。`status`、`resume`、`handoff`も同Skillで扱う。
+- 通常の`route-work`、`check`、`status`、`resume`の結果には、次の段階の推奨role/model・effort、理由、必要なユーザーまたはharness操作を短く添える。これは助言のみであり、root modelの切替、設定変更、追加model call、権限付与は行わない。AI-DLC/Superpowersの有効な選択では、そのlifecycleのmodel経路へ委ね、global policyを重ねず次のentryだけを示す。
 - 中規模以上はrepo rootの`.local/agent/`へwork ledgerを作り、重要判断、ticket、worker report、検証、未完了、次の一手を継続的にcheckpointする。root sessionだけがsemantic ledgerを書く。
 - 独立ticket、探索出力、実装wave、独立reviewは適切なcustom subagentへ強く委譲する。依存frontierのready ticketを同時に出し、writerのfile setを重ねない。worker数の人工的な総上限は置かないが、有用性のない分割や再帰は行わない。
 

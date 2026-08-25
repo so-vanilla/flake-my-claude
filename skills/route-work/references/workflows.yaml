@@ -89,6 +89,31 @@ worker_policy:
   scheduling: "Dispatch the dependency-ready frontier with non-overlapping write sets; impose no artificial total-worker cap."
   persistence: "Root writes the ledger; workers write `.local/agent/reports/<work-id>/<agent-id>.md`; root validates, assimilates, and checkpoints between waves."
 
+model_advice:
+  output_contract:
+    applies_to: ["normal", "check", "status", "resume"]
+    required_fields: ["Next-step model advice", "Recommended assignment", "Reason", "Action required"]
+  invariants:
+    - "Advice is informational: it never switches a parent model, edits configuration, starts an extra model call, or grants authority."
+    - "Check reports prospective advice only and remains read-only."
+    - "Status and resume distinguish configured, observed, and unverified model or effort whenever the harness exposes those values."
+    - "A valid AI-DLC or Superpowers selection owns lifecycle model routing; route-work names the selected next entry and defers instead of imposing a global model route."
+    - "Do not default to Max, Ultra, xhigh, or an expensive substitute."
+  normal_global_route:
+    claude:
+      root_integration: "Sonnet medium"
+      explorer_implementation_verifier: "Sonnet medium"
+      independent_reviewer: "Sonnet high"
+      opus_exception: "Opus high only after the documented evidence gate; the user changes the root through the harness, then resumes route-work."
+    codex:
+      root_integration: "configured Sol root; report observed effort when exposed"
+      explorer_implementation_verifier: "named Terra medium"
+      independent_reviewer: "named Terra high"
+      unavailable_terra: "record the fallback and let the Sol root perform the bounded ticket sequentially"
+  selected_lifecycle:
+    advice: "Use the selected lifecycle's documented model route; route-work does not override it."
+    next_entry: "Name $aidlc or the relevant Superpowers phase Skill for Codex, and /aidlc or the relevant Superpowers command for Claude Code."
+
 skills:
   - name: "ask-matt"
     phase: ["meta-routing"]
