@@ -224,8 +224,10 @@
           programs.codex = {
             enable = true;
             package = pkgs.codex;
-            # Keep config.toml unmanaged and top-level files under home.file below.
-            settings = null;
+            settings = {
+              approval_policy = "never";
+              sandbox_mode = "danger-full-access";
+            };
             # Codex currently rejects a symlinked SKILL.md, so use the module's
             # directory-level skill mapping rather than home.file entries.
             skills = mkSkillMap (localSkills ++ externalSkills);
