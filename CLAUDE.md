@@ -46,6 +46,6 @@
 
 - 通常入口とroot統合はSonnetのmedium。探索・実装・検証はSonnet medium、独立reviewはSonnet highへ委譲する。
 - Opus highは、複数subsystemにまたがる3件以上の相互依存ticketに加え、高コストなarchitecture判断、所有不明、migration sequencing、複数証拠stream、worker調停のうち2条件以上がある場合だけ候補にする。file数や長文だけでは上げない。
-- 完全なOpus orchestrationは`/model opus`でrootを切り替えて`/route-work resume`するか、`claude --agent workflow-orchestrator-opus`で開始する。自動でparent modelを変更したと偽らない。
-- 再起動しない場合は`workflow-architect-opus`をread-oriented planning subagentとして使えるが、Sonnet rootがledger writer・統合者のままであり、完全なOpus rootとは区別する。
+- 完全なOpus orchestrationが必要な場合は`/model opus`でrootを切り替えて`/route-work resume`する。自動でparent modelを変更したと偽らない。
+- rootを切り替えない場合は通常のSonnet経路を使い、未実行のOpus orchestrationを完了したとみなさない。
 - `max`、1M context、prompt/agent hookによる追加model callを既定にしない。

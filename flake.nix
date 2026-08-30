@@ -79,54 +79,11 @@
           }) skills
         );
 
-      mkFileEntries =
-        target: sourceDir: names:
-        builtins.listToAttrs (
-          map (name: {
-            name = "${target}/${name}";
-            value.source = "${self}/${sourceDir}/${name}";
-          }) names
-        );
-
-      # Keep the initializer's source tree in the Nix store. Its manifest and
-      # project-local Skill templates are resolved relative to __file__ by the
-      # Python implementation, so a copied standalone script is insufficient.
-      mkAgentWorkflowInit =
-        pkgs:
-        pkgs.writeShellApplication {
-          name = "agent-workflow-init";
-          runtimeInputs = [
-            pkgs.git
-            pkgs.python3
-          ];
-          text = ''
-            exec ${pkgs.python3}/bin/python ${self}/scripts/agent-workflow-init.py "$@"
-          '';
-        };
     in
     {
       inherit aiHeroSkillNames sharedSkillNames;
       aiHeroSkillManifest = aiHeroManifest;
       workflowCutoverManifest = cutoverManifest;
-
-      packages = forAllSystems (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          "agent-workflow-init" = mkAgentWorkflowInit pkgs;
-        }
-      );
-
-      apps = forAllSystems (
-        system: {
-          "agent-workflow-init" = {
-            type = "app";
-            program = "${self.packages.${system}.agent-workflow-init}/bin/agent-workflow-init";
-          };
-        }
-      );
 
       checks = forAllSystems (
         system:
@@ -193,24 +150,9 @@
               )
             )
           );
-          agentWorkflowInit = mkAgentWorkflowInit pkgs;
           workLedgerHook = pkgs.writeShellScript "work-ledger-hook" ''
             exec ${pkgs.python3}/bin/python ${self}/hooks/work-ledger-hook.py "$@"
           '';
-          claudeAgentNames = [
-            "workflow-orchestrator-opus.md"
-            "workflow-architect-opus.md"
-            "workflow-explorer.md"
-            "workflow-worker.md"
-            "workflow-reviewer.md"
-            "workflow-verifier.md"
-          ];
-          codexAgentNames = [
-            "workflow-explorer.toml"
-            "workflow-worker.toml"
-            "workflow-reviewer.toml"
-            "workflow-verifier.toml"
-          ];
         in
         assert builtins.length aiHeroSkills == expectedAiHeroCount;
         assert aiHeroSkillNames == upstreamPluginSkillNames;
@@ -234,9 +176,7 @@
           };
 
           # AI-DLC requires bun in the interactive Home Manager environment.
-          # The initializer retains its own per-selection prerequisite check.
           home.packages = [
-            agentWorkflowInit
             pkgs.bun
           ];
 
@@ -263,18 +203,12 @@
             };
             ".claude/hooks/work-ledger-hook".source = workLedgerHook;
 
-            ".codex/AGENTS.md".source = "${self}/codex/AGENTS.md";
-            ".codex/hooks.json".source = "${self}/codex/hooks.json";
-            ".codex/hooks/work-ledger-hook".source = workLedgerHook;
-
             ".local/share/licenses/mattpocock-skills/LICENSE".source = "${aihero-skills}/LICENSE";
             ".local/share/agent-skills/mattpocock-skills/manifest.json".source =
               "${self}/manifests/aihero-skills.json";
           }
           // mkSkillEntries ".claude/skills" (localSkills ++ externalSkills)
-          // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills)
-          // mkFileEntries ".claude/agents" "agents" claudeAgentNames
-          // mkFileEntries ".codex/agents" "codex/agents" codexAgentNames;
+          // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills);
         };
     };
 }

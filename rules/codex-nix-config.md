@@ -6,10 +6,10 @@ Claude Code and Codex share semantic workflow Skills and private ledger state, b
 
 | Purpose | Claude Code | Codex |
 | --- | --- | --- |
-| Global instructions | `~/.claude/CLAUDE.md` | `~/.codex/AGENTS.md` |
+| Global instructions | `~/.claude/CLAUDE.md` | Codex-native configuration (not managed here) |
 | Shared user Skills | `~/.claude/skills/<name>/` | `~/.agents/skills/<name>/` |
-| Custom agents | `~/.claude/agents/*.md` | `~/.codex/agents/*.toml` |
-| Hooks | `~/.claude/settings.json` | `~/.codex/hooks.json` |
+| Custom agents | `~/.claude/agents/*.md` | Codex-native configuration (not managed here) |
+| Hooks | `~/.claude/settings.json` | Not managed here |
 | Mutable user config | Claude settings above | `~/.codex/config.toml`, kept outside Home Manager |
 | Repository state | `.local/agent/` | the same `.local/agent/` |
 
