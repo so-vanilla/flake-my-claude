@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B3",
+  "contract_name": "classify-scope",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/classify-scope/SKILL.md",
+    "digest": "sha256:91e211fcf23ff8152145efdf45f151a66717dfccb4ee0629a9c592e3e48f2124"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B3_ClassifyScopeTests"
+  },
+  "status": "passed"
+}

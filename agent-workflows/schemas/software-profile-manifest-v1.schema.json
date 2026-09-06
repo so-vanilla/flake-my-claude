@@ -1,0 +1,1674 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "software-profile-manifest-v1.schema.json",
+  "title": "Strict physical software-profile step manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile_id",
+    "profile",
+    "implementation_kind",
+    "contracts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "software-profile-manifest/v1"
+    },
+    "profile_id": {
+      "enum": [
+        "agent-workflows.profile.feature",
+        "agent-workflows.profile.bug-fix",
+        "agent-workflows.profile.improvement"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "feature",
+        "bug-fix",
+        "improvement"
+      ]
+    },
+    "implementation_kind": {
+      "const": "workflow-profile-step"
+    },
+    "contracts": {
+      "type": "array",
+      "uniqueItems": true
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "profile_id": {
+          "const": "agent-workflows.profile.feature"
+        },
+        "profile": {
+          "const": "feature"
+        },
+        "contracts": {
+          "minItems": 8,
+          "maxItems": 8,
+          "contains": {
+            "properties": {
+              "qualified_id": {
+                "const": "profile.feature.F1"
+              }
+            },
+            "required": [
+              "qualified_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1,
+          "items": {
+            "$ref": "#/$defs/feature_contract"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "profile_id": {
+          "const": "agent-workflows.profile.bug-fix"
+        },
+        "profile": {
+          "const": "bug-fix"
+        },
+        "contracts": {
+          "minItems": 8,
+          "maxItems": 8,
+          "contains": {
+            "properties": {
+              "qualified_id": {
+                "const": "profile.bug-fix.BGF1"
+              }
+            },
+            "required": [
+              "qualified_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1,
+          "items": {
+            "$ref": "#/$defs/bug_fix_contract"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "profile_id": {
+          "const": "agent-workflows.profile.improvement"
+        },
+        "profile": {
+          "const": "improvement"
+        },
+        "contracts": {
+          "minItems": 7,
+          "maxItems": 7,
+          "contains": {
+            "properties": {
+              "qualified_id": {
+                "const": "profile.improvement.I1"
+              }
+            },
+            "required": [
+              "qualified_id"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1,
+          "items": {
+            "$ref": "#/$defs/improvement_contract"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "contract_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "qualified_id",
+        "local_id",
+        "contract_name",
+        "order",
+        "host_selector",
+        "status",
+        "template_ref",
+        "selector_ref",
+        "evidence_ref"
+      ],
+      "properties": {
+        "qualified_id": {
+          "enum": [
+            "profile.feature.F1",
+            "profile.feature.F2",
+            "profile.feature.F3",
+            "profile.feature.F4",
+            "profile.feature.F5",
+            "profile.feature.F6",
+            "profile.feature.F7",
+            "profile.feature.F8",
+            "profile.bug-fix.BGF1",
+            "profile.bug-fix.BGF2",
+            "profile.bug-fix.BGF3",
+            "profile.bug-fix.BGF4",
+            "profile.bug-fix.BGF5",
+            "profile.bug-fix.BGF6",
+            "profile.bug-fix.BGF7",
+            "profile.bug-fix.BGF8",
+            "profile.improvement.I1",
+            "profile.improvement.I2",
+            "profile.improvement.I3",
+            "profile.improvement.I4",
+            "profile.improvement.I5",
+            "profile.improvement.I6",
+            "profile.improvement.I7"
+          ]
+        },
+        "local_id": {
+          "enum": [
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "BGF1",
+            "BGF2",
+            "BGF3",
+            "BGF4",
+            "BGF5",
+            "BGF6",
+            "BGF7",
+            "BGF8",
+            "I1",
+            "I2",
+            "I3",
+            "I4",
+            "I5",
+            "I6",
+            "I7"
+          ]
+        },
+        "contract_name": {
+          "enum": [
+            "user-behavior",
+            "acceptance-examples",
+            "ux-api-contract",
+            "architecture-fit",
+            "vertical-slice",
+            "behavior-tdd",
+            "integration",
+            "acceptance-e2e",
+            "symptom",
+            "reproduce",
+            "evidence",
+            "hypotheses",
+            "root-cause",
+            "fix-options",
+            "regression",
+            "verify-impact",
+            "baseline",
+            "hypothesis",
+            "guardrails",
+            "change-design",
+            "execute",
+            "compare",
+            "decide"
+          ]
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "host_selector": {
+          "enum": [
+            "group.D.D4",
+            "group.D.D6",
+            "group.E.E3",
+            "group.E.E9",
+            "group.D.D2",
+            "group.D.D5"
+          ]
+        },
+        "status": {
+          "const": "candidate-source"
+        },
+        "template_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^agent-workflows/templates/profiles/[a-z-]+\\.json$"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "selector_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest",
+            "selector"
+          ],
+          "properties": {
+            "path": {
+              "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            },
+            "selector": {
+              "type": "string",
+              "pattern": "^SoftwareProfileV1\\.compile\\(profile\\.(feature|bug-fix|improvement)\\.[A-Z0-9]+\\)$"
+            }
+          }
+        },
+        "evidence_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^agent-workflows/evidence/profiles/(feature|bug-fix|improvement)/[A-Z0-9]+\\.json$"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        }
+      }
+    },
+    "feature_contract": {
+      "oneOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F1"
+                },
+                "local_id": {
+                  "const": "F1"
+                },
+                "contract_name": {
+                  "const": "user-behavior"
+                },
+                "order": {
+                  "const": 1
+                },
+                "host_selector": {
+                  "const": "group.D.D4"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F1)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F1.json"
+                    },
+                    "digest": {
+                      "const": "sha256:01b76679fc7bfd45391fc0cacbb955e96086c52ac8f53dbb353d35834c8d0f41"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F2"
+                },
+                "local_id": {
+                  "const": "F2"
+                },
+                "contract_name": {
+                  "const": "acceptance-examples"
+                },
+                "order": {
+                  "const": 2
+                },
+                "host_selector": {
+                  "const": "group.D.D4"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F2)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F2.json"
+                    },
+                    "digest": {
+                      "const": "sha256:1a1deba5055dc841fd3f6e4948e1c34d9b996bd7c9a095d5d97fe2c3773dc4ba"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F3"
+                },
+                "local_id": {
+                  "const": "F3"
+                },
+                "contract_name": {
+                  "const": "ux-api-contract"
+                },
+                "order": {
+                  "const": 3
+                },
+                "host_selector": {
+                  "const": "group.D.D4"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F3)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F3.json"
+                    },
+                    "digest": {
+                      "const": "sha256:bfc2359ff05402c1b1ebd37fe116f15b7ac98077233b3cee7098ec86186989ef"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F4"
+                },
+                "local_id": {
+                  "const": "F4"
+                },
+                "contract_name": {
+                  "const": "architecture-fit"
+                },
+                "order": {
+                  "const": 4
+                },
+                "host_selector": {
+                  "const": "group.D.D6"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F4)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F4.json"
+                    },
+                    "digest": {
+                      "const": "sha256:8623b63234e1fc90f151b8772768226b9d91c2ae7ae45ff764cfe2d999b0b5a9"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F5"
+                },
+                "local_id": {
+                  "const": "F5"
+                },
+                "contract_name": {
+                  "const": "vertical-slice"
+                },
+                "order": {
+                  "const": 5
+                },
+                "host_selector": {
+                  "const": "group.E.E3"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F5)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F5.json"
+                    },
+                    "digest": {
+                      "const": "sha256:5cf25c4f0a77308bfd58bea5cb4e8ec66d0655296debd044446263a25335715f"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F6"
+                },
+                "local_id": {
+                  "const": "F6"
+                },
+                "contract_name": {
+                  "const": "behavior-tdd"
+                },
+                "order": {
+                  "const": 6
+                },
+                "host_selector": {
+                  "const": "group.E.E3"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F6)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F6.json"
+                    },
+                    "digest": {
+                      "const": "sha256:2f5c01de525270705eb687247106ae144cdf787f828bb19d0a4f80bc40cb52d2"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F7"
+                },
+                "local_id": {
+                  "const": "F7"
+                },
+                "contract_name": {
+                  "const": "integration"
+                },
+                "order": {
+                  "const": 7
+                },
+                "host_selector": {
+                  "const": "group.E.E3"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F7)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F7.json"
+                    },
+                    "digest": {
+                      "const": "sha256:b38e56200c10352dbb8c3d420d5b4e12fbc4fcee4d43949cf6b1505902fec587"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.feature.F8"
+                },
+                "local_id": {
+                  "const": "F8"
+                },
+                "contract_name": {
+                  "const": "acceptance-e2e"
+                },
+                "order": {
+                  "const": 8
+                },
+                "host_selector": {
+                  "const": "group.E.E9"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/feature.json"
+                    },
+                    "digest": {
+                      "const": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.feature.F8)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/feature/F8.json"
+                    },
+                    "digest": {
+                      "const": "sha256:2ea37b07973020b97cca5b8490b50bdd013502b433cff7628e6e72436dd6ee37"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "bug_fix_contract": {
+      "oneOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF1"
+                },
+                "local_id": {
+                  "const": "BGF1"
+                },
+                "contract_name": {
+                  "const": "symptom"
+                },
+                "order": {
+                  "const": 1
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF1)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF1.json"
+                    },
+                    "digest": {
+                      "const": "sha256:0079f32182d186351318d4b8519192a7eefd64c59569a624f4958adde2d0b29e"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF2"
+                },
+                "local_id": {
+                  "const": "BGF2"
+                },
+                "contract_name": {
+                  "const": "reproduce"
+                },
+                "order": {
+                  "const": 2
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF2)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF2.json"
+                    },
+                    "digest": {
+                      "const": "sha256:dab1341fdd8c8345c7a2d01b1f30e25d90a63912f46e43f0bc65bb4742faa880"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF3"
+                },
+                "local_id": {
+                  "const": "BGF3"
+                },
+                "contract_name": {
+                  "const": "evidence"
+                },
+                "order": {
+                  "const": 3
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF3)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF3.json"
+                    },
+                    "digest": {
+                      "const": "sha256:cb0e6bf8814676875bfcc34ebe80c6155e895e9c3374502491f0fd6607e5e23c"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF4"
+                },
+                "local_id": {
+                  "const": "BGF4"
+                },
+                "contract_name": {
+                  "const": "hypotheses"
+                },
+                "order": {
+                  "const": 4
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF4)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF4.json"
+                    },
+                    "digest": {
+                      "const": "sha256:029363d90fef1312224dcb30ec2fcff06d61692c86e69a3e8f7d54d25ca1eb95"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF5"
+                },
+                "local_id": {
+                  "const": "BGF5"
+                },
+                "contract_name": {
+                  "const": "root-cause"
+                },
+                "order": {
+                  "const": 5
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF5)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF5.json"
+                    },
+                    "digest": {
+                      "const": "sha256:40e3717d11e5f995d388b5f6bac4112f0fa1ec0b75259c2aecd6397cc96300ea"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF6"
+                },
+                "local_id": {
+                  "const": "BGF6"
+                },
+                "contract_name": {
+                  "const": "fix-options"
+                },
+                "order": {
+                  "const": 6
+                },
+                "host_selector": {
+                  "const": "group.D.D5"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF6)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF6.json"
+                    },
+                    "digest": {
+                      "const": "sha256:4bc99919ba740fd52d71bafaf4f751560007a490bd558b307daaffb06509fe8f"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF7"
+                },
+                "local_id": {
+                  "const": "BGF7"
+                },
+                "contract_name": {
+                  "const": "regression"
+                },
+                "order": {
+                  "const": 7
+                },
+                "host_selector": {
+                  "const": "group.E.E3"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF7)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF7.json"
+                    },
+                    "digest": {
+                      "const": "sha256:fe9af1197b79204d03f000a716016790255bf9203196bf5194d83194abe539ea"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.bug-fix.BGF8"
+                },
+                "local_id": {
+                  "const": "BGF8"
+                },
+                "contract_name": {
+                  "const": "verify-impact"
+                },
+                "order": {
+                  "const": 8
+                },
+                "host_selector": {
+                  "const": "group.E.E9"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/bug-fix.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.bug-fix.BGF8)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/bug-fix/BGF8.json"
+                    },
+                    "digest": {
+                      "const": "sha256:d9cf3fa3401d17489e810b5dfa0788c534e0eba53a8b7a8338e0a453b7a3d0c3"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "improvement_contract": {
+      "oneOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I1"
+                },
+                "local_id": {
+                  "const": "I1"
+                },
+                "contract_name": {
+                  "const": "baseline"
+                },
+                "order": {
+                  "const": 1
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I1)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I1.json"
+                    },
+                    "digest": {
+                      "const": "sha256:1e09fecd33033fcaa63c8f8c81c2bf43d1bd41d74a7c26acfeb40cd151d30f4f"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I2"
+                },
+                "local_id": {
+                  "const": "I2"
+                },
+                "contract_name": {
+                  "const": "hypothesis"
+                },
+                "order": {
+                  "const": 2
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I2)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I2.json"
+                    },
+                    "digest": {
+                      "const": "sha256:b1acf35cde40f65c9086525e6cf5f9af4dfec01c4415d7a2e4d757fbfa926349"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I3"
+                },
+                "local_id": {
+                  "const": "I3"
+                },
+                "contract_name": {
+                  "const": "guardrails"
+                },
+                "order": {
+                  "const": 3
+                },
+                "host_selector": {
+                  "const": "group.D.D2"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I3)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I3.json"
+                    },
+                    "digest": {
+                      "const": "sha256:2f7abdaa753de3c1150e0716bd53356b757b977ebf99b870b81a0b6c8f31e120"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I4"
+                },
+                "local_id": {
+                  "const": "I4"
+                },
+                "contract_name": {
+                  "const": "change-design"
+                },
+                "order": {
+                  "const": 4
+                },
+                "host_selector": {
+                  "const": "group.D.D6"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I4)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I4.json"
+                    },
+                    "digest": {
+                      "const": "sha256:43853bc6e0d866a102f3facf09f85f4f087d1740b6afef535b06aa221f5e1d50"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I5"
+                },
+                "local_id": {
+                  "const": "I5"
+                },
+                "contract_name": {
+                  "const": "execute"
+                },
+                "order": {
+                  "const": 5
+                },
+                "host_selector": {
+                  "const": "group.E.E3"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I5)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I5.json"
+                    },
+                    "digest": {
+                      "const": "sha256:8379b9a5fb3269e0ec321e16b05ee3e7e6e7b611070a601ae879c0e1475b07a1"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I6"
+                },
+                "local_id": {
+                  "const": "I6"
+                },
+                "contract_name": {
+                  "const": "compare"
+                },
+                "order": {
+                  "const": 6
+                },
+                "host_selector": {
+                  "const": "group.E.E9"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I6)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I6.json"
+                    },
+                    "digest": {
+                      "const": "sha256:03045879f28030f1a8228a5a599e92e5ad68a411a10bd465413c2f3cb8a35b04"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "profile.improvement.I7"
+                },
+                "local_id": {
+                  "const": "I7"
+                },
+                "contract_name": {
+                  "const": "decide"
+                },
+                "order": {
+                  "const": 7
+                },
+                "host_selector": {
+                  "const": "group.E.E9"
+                },
+                "template_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/templates/profiles/improvement.json"
+                    },
+                    "digest": {
+                      "const": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+                    },
+                    "selector": {
+                      "const": "SoftwareProfileV1.compile(profile.improvement.I7)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/profiles/improvement/I7.json"
+                    },
+                    "digest": {
+                      "const": "sha256:dc0127fbfd26897ddae294efb3732ba9baa38102215ac3c0d305a41a8476c4ca"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

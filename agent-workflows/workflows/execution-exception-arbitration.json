@@ -1,0 +1,41 @@
+{
+  "schema": "workflow-manifest/v1",
+  "workflow_id": "execution-exception-arbitration",
+  "title": "Resume and arbitrate a bounded execution exception",
+  "intent_class": "execution-exception",
+  "entry_mode": "exception-resume",
+  "profile": null,
+  "risk_class": "protected",
+  "source_only": true,
+  "planned_effect": "none",
+  "required_human_gates": [
+    "risk-acceptance",
+    "replacement-budget-approval"
+  ],
+  "stages": [
+    {
+      "stage_id": "resume",
+      "kind": "resume",
+      "scope": "resume",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F8"
+      ]
+    },
+    {
+      "stage_id": "arbitrate-exception",
+      "kind": "exception",
+      "scope": "execution-exception",
+      "mode": "serial",
+      "host_selector": "group.F.F8",
+      "selectors": [
+        "group.E.E10"
+      ]
+    }
+  ],
+  "completion": {
+    "mode": "advisory-stop",
+    "terminal_selector": "group.E.E10"
+  }
+}

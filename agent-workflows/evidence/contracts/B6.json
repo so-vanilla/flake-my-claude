@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B6",
+  "contract_name": "assess-feasibility-and-constraints",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/assess-feasibility-and-constraints/SKILL.md",
+    "digest": "sha256:b6c2156c422db1cbbc53847834a510720c0dceed6fd6230e8e4307a6a19c1d9a"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B6_FeasibilityTests"
+  },
+  "status": "passed"
+}

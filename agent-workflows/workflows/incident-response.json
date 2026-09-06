@@ -1,0 +1,305 @@
+{
+  "schema": "workflow-manifest/v1",
+  "workflow_id": "incident-response",
+  "title": "Protected Incident Response",
+  "intent_class": "incident",
+  "entry_mode": "new",
+  "profile": "bug-fix",
+  "risk_class": "protected",
+  "source_only": true,
+  "planned_effect": "local-change",
+  "required_human_gates": [
+    "objective-approval",
+    "incident-authority",
+    "fix-option-approval",
+    "risk-acceptance",
+    "execution-approval",
+    "decision-promotion-approval",
+    "run-outcome-approval"
+  ],
+  "stages": [
+    {
+      "stage_id": "purpose",
+      "kind": "common",
+      "scope": "B",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.B.B1",
+        "group.B.B2",
+        "group.B.B3",
+        "group.B.B4",
+        "group.B.B5",
+        "group.B.B6",
+        "group.B.B7"
+      ]
+    },
+    {
+      "stage_id": "close-purpose",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "stage_id": "outcomes",
+      "kind": "common",
+      "scope": "C",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.C.C1",
+        "group.C.C2",
+        "group.C.C3",
+        "group.C.C4",
+        "group.C.C5",
+        "group.C.C6"
+      ]
+    },
+    {
+      "stage_id": "close-outcomes",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "stage_id": "planning-current-system",
+      "kind": "common",
+      "scope": "D",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.D.D1",
+        "group.D.D2"
+      ]
+    },
+    {
+      "stage_id": "bug-diagnosis",
+      "kind": "profile",
+      "scope": "bug-fix",
+      "mode": "serial",
+      "host_selector": "group.D.D2",
+      "selectors": [
+        "profile.bug-fix.BGF1",
+        "profile.bug-fix.BGF2",
+        "profile.bug-fix.BGF3",
+        "profile.bug-fix.BGF4",
+        "profile.bug-fix.BGF5"
+      ]
+    },
+    {
+      "stage_id": "planning-fix-options",
+      "kind": "common",
+      "scope": "D",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.D.D3",
+        "group.D.D4",
+        "group.D.D5"
+      ]
+    },
+    {
+      "stage_id": "bug-fix-options",
+      "kind": "profile",
+      "scope": "bug-fix",
+      "mode": "serial",
+      "host_selector": "group.D.D5",
+      "selectors": [
+        "profile.bug-fix.BGF6"
+      ]
+    },
+    {
+      "stage_id": "planning-readiness",
+      "kind": "common",
+      "scope": "D",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.D.D6",
+        "group.D.D7",
+        "group.D.D8",
+        "group.D.D9",
+        "group.D.D10",
+        "group.D.D11",
+        "group.D.D12"
+      ]
+    },
+    {
+      "stage_id": "close-planning",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "stage_id": "execution-loop",
+      "kind": "common",
+      "scope": "E",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.E.E1",
+        "group.E.E2",
+        "group.E.E3"
+      ]
+    },
+    {
+      "stage_id": "bug-regression",
+      "kind": "profile",
+      "scope": "bug-fix",
+      "mode": "serial",
+      "host_selector": "group.E.E3",
+      "selectors": [
+        "profile.bug-fix.BGF7"
+      ]
+    },
+    {
+      "stage_id": "execution-review",
+      "kind": "common",
+      "scope": "E",
+      "mode": "parallel",
+      "host_selector": null,
+      "selectors": [
+        "group.E.E4",
+        "group.E.E5"
+      ]
+    },
+    {
+      "stage_id": "execution-convergence",
+      "kind": "common",
+      "scope": "E",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.E.E6",
+        "group.E.E7",
+        "group.E.E8",
+        "group.E.E9"
+      ]
+    },
+    {
+      "stage_id": "bug-impact",
+      "kind": "profile",
+      "scope": "bug-fix",
+      "mode": "serial",
+      "host_selector": "group.E.E9",
+      "selectors": [
+        "profile.bug-fix.BGF8"
+      ]
+    },
+    {
+      "stage_id": "close-execution",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "stage_id": "decisions",
+      "kind": "common",
+      "scope": "G",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.G.G1",
+        "group.G.G2",
+        "group.G.G3",
+        "group.G.G4",
+        "group.G.G5",
+        "group.G.G6"
+      ]
+    },
+    {
+      "stage_id": "close-decisions",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "stage_id": "run-outcome",
+      "kind": "common",
+      "scope": "H",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.H.H1",
+        "group.H.H2",
+        "group.H.H3"
+      ]
+    },
+    {
+      "stage_id": "close-run-outcome",
+      "kind": "closure",
+      "scope": "shared-closure",
+      "mode": "serial",
+      "host_selector": null,
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    }
+  ],
+  "execution_policy": {
+    "schema": "workflow-execution-policy-ref/v1",
+    "version": "v1",
+    "path": "agent-workflows/groups/required-only-feedback-execution-policy-v1.json",
+    "digest": "sha256:0ba45de33e42ab7b7127f62b35f04e168e2cb43300dcbcda8012c6f615f55c34"
+  },
+  "completion": {
+    "mode": "closed",
+    "terminal_selector": "group.F.F7"
+  }
+}

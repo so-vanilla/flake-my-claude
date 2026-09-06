@@ -1,0 +1,43 @@
+{
+  "schema": "shared-closure-cases/v1",
+  "F1": {"selector": "group.F.F1", "unsafe": "missing-objective", "control": "aligned"},
+  "F2": {
+    "required_artifact_ids": ["result", "review", "finding"],
+    "classifications": ["canonical", "partial", "unverified"]
+  },
+  "F3": {"selector": "group.F.F3", "unsafe": "promote-unapproved", "control": "approved-decision-only"},
+  "F4": {
+    "selector": "group.F.F4",
+    "unsafe": ["missing-dag", "malformed-dag", "stale-dag", "frontier-node-absent", "invalid-graph-order", "rewrite-accepted-history"],
+    "control": {
+      "accepted_plan": {"objective": "keep", "scope": "fixed", "risk": "low", "budget": 8, "owner": "root", "accepted_history": ["done-a"], "future_frontier": ["old"]},
+      "proposed_plan": {"objective": "keep", "scope": "fixed", "risk": "low", "budget": 8, "owner": "root", "accepted_history": ["done-a"], "future_frontier": ["next-a", "next-b"]},
+      "group_result": {"digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888"},
+      "dag": {
+        "schema": "artifact-task-dag/v1",
+        "digest": "sha256:323a3db7348896f48cea732c3ea73973c4d851de99bcbb1ca32c73e445c3fd76",
+        "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+        "nodes": [{"id": "done-a", "order": 0}, {"id": "old", "order": 1}, {"id": "next-a", "order": 2}, {"id": "next-b", "order": 3}],
+        "edges": [{"from": "done-a", "to": "next-a"}, {"from": "next-a", "to": "next-b"}],
+        "accepted_history": ["done-a"]
+      }
+    }
+  },
+  "F5": {
+    "selector": "group.F.F5",
+    "unsafe": ["stale-head", "workflow-mismatch", "state-mismatch", "checkpoint-mismatch", "input-mismatch", "clear-boundary-mismatch", "future-plan-mismatch", "next-group-mismatch"],
+    "control": {
+      "workflow_ref": {"id": "workflow-main", "digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "object_type": "workflow", "path": "objects/9999999999999999999999999999999999999999999999999999999999999999.json"},
+      "state_ref": {"revision": 8, "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "object_type": "dag-state", "path": "objects/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json"},
+      "checkpoint_ref": {"digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "object_type": "checkpoint", "path": "objects/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json", "state_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}},
+      "input_refs": [{"id": "input-1", "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "object_type": "artifact", "path": "objects/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.json"}],
+      "clear_boundary": true,
+      "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+      "future_plan_ref": {"id": "future-analysis-next", "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "object_type": "future-plan", "path": "objects/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.json", "workflow_digest": "sha256:9999999999999999999999999999999999999999999999999999999999999999", "state_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "checkpoint_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "input_digests": ["sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"], "clear_boundary": true, "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}, "next_group": "analysis-next"},
+      "next_group": "analysis-next"
+    }
+  },
+  "F6": {"selector": "group.F.F6", "unsafe": "incomplete-closure-refs", "control": "close-epoch-command-only"},
+  "F7": {"selector": "group.F.F7", "unsafe": "preclose-or-stale-receipt", "control": "close-group-command-only"},
+  "F8": {"selector": "group.F.F8", "unsafe": "corrupt-canonical-chain", "control": "s0-resume-read-only"}
+}

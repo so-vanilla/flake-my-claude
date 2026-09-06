@@ -1,0 +1,2756 @@
+{
+  "schema": "source-evidence-index/v1",
+  "owner": {
+    "id": "source-release/v1",
+    "path": "agent-workflows/manifests/source-release.json",
+    "compiler": "ai_agent_workflow.source_release.SourceReleaseV1"
+  },
+  "ordering": "catalog-groups-then-catalog-profiles-then-surface-manifest",
+  "entry_count": 94,
+  "entries": [
+    {
+      "id": "group.A.A1",
+      "name": "bootstrap-classify-environment",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-classify-environment/SKILL.md",
+        "digest": "sha256:de13657f7209eaafad3373d812b37465206fa235416abfb8ea21dcc94147f103"
+      },
+      "test_selector": "agent-workflows/tests/test_bootstrap_contracts.py::A1_EnvironmentInventoryTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A1.json",
+        "digest": "sha256:dcbaf44748733eb38737d16100c53caeafd5527e0e00758d09bc1c1eac43f996",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A2",
+      "name": "bootstrap-isolate-workspace",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-isolate-workspace/SKILL.md",
+        "digest": "sha256:0a6063bd56e10aba2d3262a9cc7de5c2d0dc1be153798364843139c7f033b39d"
+      },
+      "test_selector": "agent-workflows/tests/test_bootstrap_contracts.py::A2_WorkspaceIsolationTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A2.json",
+        "digest": "sha256:88c53406f109cbba0985e441c50aac5992ee70fa363e76c5b5cba1fe172771ef",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A3",
+      "name": "bootstrap-design-rollback",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-design-rollback/SKILL.md",
+        "digest": "sha256:48960aba99b7f3bb34cb3f56dfa7625519d7ca064ab917f65703d2043d4e16a8"
+      },
+      "test_selector": "agent-workflows/tests/test_bootstrap_contracts.py::A3_RollbackDesignTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A3.json",
+        "digest": "sha256:b88688bf3d44516bebde8d57c224cb8b0499255a3059fa97dc3e2078e42934b9",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A4",
+      "name": "bootstrap-initialize-run",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-initialize-run/SKILL.md",
+        "digest": "sha256:35d81f9f2ed377e593ed37ffae464f5ed95e0e9286fcceb9d6b7b54b6b19007d"
+      },
+      "test_selector": "agent-workflows/tests/test_bootstrap_contracts.py::A4_RunInitializationTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A4.json",
+        "digest": "sha256:04f2e50ea9fa219d4ebab4cb22ef4110769635e30a596126200358516c7b6765",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A5",
+      "name": "bootstrap-detach-legacy-owner",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-detach-legacy-owner/SKILL.md",
+        "digest": "sha256:2b6828daa2789cf310231cb34f9fee9a6b21b12b5d266be8ed0fdab764dbd4ce"
+      },
+      "test_selector": "agent-workflows/tests/test_bootstrap_contracts.py::A5_LegacyDetachTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A5.json",
+        "digest": "sha256:cb6b81710bf90a736fb760e227040810530657f47096ba14a8b45041c8fb22bf",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A6",
+      "name": "bootstrap-build-walking-skeleton",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md",
+        "digest": "sha256:5746e91d41ac3297cbb30bf88fe7c9846aa278c798763dba13167826c47bb133"
+      },
+      "test_selector": "agent-workflows/tests/test_walking_skeleton.py::A6_WalkingSkeletonTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A6.json",
+        "digest": "sha256:7366d75dea974847f82fb1a4d9dd23761a56bea78a2b7b11a38dea7c3bd6cbc2",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A6R",
+      "name": "bootstrap-migrate-control-kernel",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md",
+        "digest": "sha256:6301f4adeff6cbdc4d49e25bcce0e647fd8f05ce3adc278eaf86decde96fed59"
+      },
+      "test_selector": "agent-workflows/tests/test_a6r_evidence.py::A6R_EvidenceTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A6R.json",
+        "digest": "sha256:1eb28fc0dffed9e3eb8f764853a6096f5910129d185ebf66f42fdc576c31cf5e",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.A.A7",
+      "name": "bootstrap-self-host-handoff",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md",
+        "digest": "sha256:e2b061ee152163b2a3cd5659d240aaa3e28afe3d1af8bedede70a8257722c2fa"
+      },
+      "test_selector": "agent-workflows/tests/test_a7_self_host_handoff.py::A7_SelfHostHandoffTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/A7.json",
+        "digest": "sha256:0cb555c81965fefafa07acbd95c049c8d6b8df972d5f5b2d7ce3041f3c59aa67",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.A",
+          "path": "agent-workflows/groups/bootstrap.json",
+          "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B1",
+      "name": "entry",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/entry/SKILL.md",
+        "digest": "sha256:ac63ecc28254cb743c48b509b01a849f497c3f5e7e81c057dfdb404a50ce863f"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B1_EntryTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B1.json",
+        "digest": "sha256:2592f88637ba12f976249d02fbdffb12c765d3d3ccd0ec4c2bdd155785088bf9",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B2",
+      "name": "discover-context",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/discover-context/SKILL.md",
+        "digest": "sha256:5c3a83e384834f36921c6e47b5af984c74060a33a8dd6b3a88badfdb5afc23cd"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B2_DiscoverContextTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B2.json",
+        "digest": "sha256:f07b1225d6f123f78ca33616b0d6e2174b50ef2456444c3d3e092fd6c511ca45",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B3",
+      "name": "classify-scope",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/classify-scope/SKILL.md",
+        "digest": "sha256:91e211fcf23ff8152145efdf45f151a66717dfccb4ee0629a9c592e3e48f2124"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B3_ClassifyScopeTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B3.json",
+        "digest": "sha256:5c33cc9ac54b606fe3332784802c008174c89e7a3bb576f01376d13ba084b829",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B4",
+      "name": "grill-purpose",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/grill-purpose/SKILL.md",
+        "digest": "sha256:c9daab882f160dcb52fa78827facd6e28185e08095e510c9fe1c4ee2388c10b8"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B4_GrillPurposeTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B4.json",
+        "digest": "sha256:5de764dcc1ad2bf2afe4fe5cd97f9ed8be1a18c43f60e087a440247f7a04726b",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B5",
+      "name": "propose-true-purpose",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/propose-true-purpose/SKILL.md",
+        "digest": "sha256:bd8382f6c4b4ec053299cdc59835308d781bc7067d92e897db478a77c416d837"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B5_ProposePurposeTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B5.json",
+        "digest": "sha256:5a16c6feb02a38ea7f228893888a5e424cb3d2d6c169ca57f5733a5bf7f004ca",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B6",
+      "name": "assess-feasibility-and-constraints",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/assess-feasibility-and-constraints/SKILL.md",
+        "digest": "sha256:b6c2156c422db1cbbc53847834a510720c0dceed6fd6230e8e4307a6a19c1d9a"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B6_FeasibilityTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B6.json",
+        "digest": "sha256:8f9cec5777dfb527cd8f5c612e3aca73b731ae4ef99c4ffe75c18a305b9de26b",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.B.B7",
+      "name": "approve-objective",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/approve-objective/SKILL.md",
+        "digest": "sha256:4085e4beb592c1d58dda0b018cfbfd50b2f09e8349e3a024e37488ca9dfc6258"
+      },
+      "test_selector": "agent-workflows/tests/test_objective_system.py::B7_ApproveObjectiveTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/B7.json",
+        "digest": "sha256:59cc3a08a7b8e969990c56aaf99e1313387e97daf28dba77ce6d986f1785320e",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.B",
+          "path": "agent-workflows/groups/objective.json",
+          "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "purpose"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C1",
+      "name": "decompose-outcomes",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/decompose-outcomes/SKILL.md",
+        "digest": "sha256:d1123ab04f0e62a779a160ab7639a077c87aa719fcf48ba6011f8bba2a49428c"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C1_DecomposeOutcomesTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C1.json",
+        "digest": "sha256:3787365b559958b23637c86f908cd5ed33c6ac2a1667bd9a106a4da3ba3d5643",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C2",
+      "name": "build-outcome-dependency-graph",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/build-outcome-dependency-graph/SKILL.md",
+        "digest": "sha256:17662a7ec8bf4c4ad88876b860b46b7805c1a68e1d7127df82220f630a8c4102"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C2_OutcomeDAGTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C2.json",
+        "digest": "sha256:7c973c918a1c38ba6f53682e0d6e44abb52b9a0db322fe2149b47edca87ce55c",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C3",
+      "name": "design-measurement",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/design-measurement/SKILL.md",
+        "digest": "sha256:1f5ca9907f2eda66ea614ca7b6393164d23ddc9234f39597ef56af46fccd1550"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C3_MeasurementDesignTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C3.json",
+        "digest": "sha256:55cecc3b573d4e9262b5d9de0d208875de52c4573568edb4aea17ebf42131838",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C4",
+      "name": "define-targets",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/define-targets/SKILL.md",
+        "digest": "sha256:c998e6fc27f4dba0efcea2a5fbfe42a77403eba0d56d43b85de10debedad9c22"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C4_TargetDefinitionTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C4.json",
+        "digest": "sha256:0ddb30dc326fe8c6107f90956d18f781d1411556873f641995ed223eea5fe245",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C5",
+      "name": "capture-baseline",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/capture-baseline/SKILL.md",
+        "digest": "sha256:55d8d9ea927b29d5127edac7e5dcbdb654c7e48da13c070b7121acdd1c4de32c"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C5_BaselineTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C5.json",
+        "digest": "sha256:7dabe4a44f73f5b1a9304a143c2308e5c7e81dcd4f3911d8827b5b749a6488b4",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.C.C6",
+      "name": "validate-outcome-system",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/validate-outcome-system/SKILL.md",
+        "digest": "sha256:f6dae0381f1e851fa4359e1c7317988d01a7b60068c666c8e6144a63ee147482"
+      },
+      "test_selector": "agent-workflows/tests/test_outcome_system.py::C6_OutcomeValidationTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/C6.json",
+        "digest": "sha256:e0f4ea521f495f113bf4f3c85173c2b31dd84c2b230f5345df3e1fbfe35a1364",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.C",
+          "path": "agent-workflows/groups/outcomes.json",
+          "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "outcomes"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D1",
+      "name": "select-workflow-profile",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/select-workflow-profile/SKILL.md",
+        "digest": "sha256:6984f401d8267a09f6f869f3aadc40f7cf053b5cfca3cdac6ac6996058b62a69"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D1_ProfileSelectionTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D1.json",
+        "digest": "sha256:784edc36c93f864d1fef5c07379f9ec4a420ad69176af20fbfe8b185782747cc",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-current-system"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D2",
+      "name": "reverse-engineer-current-system",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/reverse-engineer-current-system/SKILL.md",
+        "digest": "sha256:c56ed8dc28ab50b3058008f9d17ea8ed06d4c3aa106843ff0d6a1bce0cb6194a"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D2_CurrentSystemTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D2.json",
+        "digest": "sha256:65d245127bc3ed006027d331a139cdb2a3f15afe9de8e99e1a547b28d0497f77",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-current-system"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D3",
+      "name": "discover-practices",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/discover-practices/SKILL.md",
+        "digest": "sha256:3aa355560f824d3b402b4ad512d0e49f24412364050740499f36213b735bac4a"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D3_PracticeDiscoveryTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D3.json",
+        "digest": "sha256:658432f9185d2986d46dbbe5b37f6933f1847f4416aa7404ba45b55e95caab33",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-fix-options"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D4",
+      "name": "specify-what-and-why",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/specify-what-and-why/SKILL.md",
+        "digest": "sha256:a3d50529489d125cd7ce804ad9ffb34c015c33cc8bc023ff21ec630f4ae20ff2"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D4_SpecificationTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D4.json",
+        "digest": "sha256:7e0a43254d898a98db61d110e4f277bb8f33ffc45ecf3a226e793238d6515707",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-fix-options"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D5",
+      "name": "explore-options",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/explore-options/SKILL.md",
+        "digest": "sha256:17aee22a52295db1ba1e0c5f81a58283c1657be6a986f208b374d66ad11cc419"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D5_OptionExplorationTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D5.json",
+        "digest": "sha256:c0815dee9e5a9bf2c092950a0a251ffbf6f26075564acea272c2dc58d87d2131",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-fix-options"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D6",
+      "name": "design-solution",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/design-solution/SKILL.md",
+        "digest": "sha256:3f06cc85ec86c1a3e1417e1559e952bfb880504acd68414faaf1385ebab34860"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D6_SolutionDesignTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D6.json",
+        "digest": "sha256:973958d75d1f9c9e0f876001f6355da2f28fc8614e92ba73afe3dfe1cd25ffa4",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D7",
+      "name": "design-contracts",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/design-contracts/SKILL.md",
+        "digest": "sha256:58db8f8b06b3ee7b99fe4382ab72f66c71057d70f65806c3d1b7ad3f9b0f8782"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D7_ContractDesignTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D7.json",
+        "digest": "sha256:cb24955f879cfda496daf1022c23f81907c04d739316f44ac4e1b040cff479d1",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D8",
+      "name": "decompose-tasks",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/decompose-tasks/SKILL.md",
+        "digest": "sha256:a99b8945bf564d1828216cb734f24dc4c541fffbfd07fe2d7645386d88ddff61"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D8_TaskDecompositionTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D8.json",
+        "digest": "sha256:12c4444d759fac8b72c7cd3e3e66aa8e81fec512cc2ebb40c24f08405df1cd5f",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D9",
+      "name": "sequence-and-parallelize",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/sequence-and-parallelize/SKILL.md",
+        "digest": "sha256:3f9046dd9353966c5f5b4233362b0914cdbde4fc54bd7a0dd265f7b26ce6b241"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D9_ExecutionDAGTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D9.json",
+        "digest": "sha256:d00c6d368310810770a29efacc22cd6cc3c3f06b93e64ef64f8c24ec13b703ce",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D10",
+      "name": "prepare-worker-briefs",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/prepare-worker-briefs/SKILL.md",
+        "digest": "sha256:6d7b1762eb81e9487f6c4e6863d4fd2cf3c517cc04bd44ba5dddc3d0b679bdca"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D10_WorkerBriefTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D10.json",
+        "digest": "sha256:1e13175468cfd35b54d7c2d12a153568f5e1727dee28decd71d845b2e82cbb87",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D11",
+      "name": "plan-verification-and-recovery",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/plan-verification-and-recovery/SKILL.md",
+        "digest": "sha256:ed4be1a86b88855cad3e25da1ba4af7971a0b866402c3df3a3c2c96bb4f21d71"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D11_VerificationRecoveryTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D11.json",
+        "digest": "sha256:49a18ddc9ff667943eb9b4d34493ad3161467d41f90fcbd16c960dad3e3f2157",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.D.D12",
+      "name": "implementation-readiness-review",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/implementation-readiness-review/SKILL.md",
+        "digest": "sha256:cf282401e7a18508a35ce83233e923239ee56515281d696e52641e2e1bda4ef3"
+      },
+      "test_selector": "agent-workflows/tests/test_planning_system.py::D12_ReadinessReviewTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/D12.json",
+        "digest": "sha256:91fd3d3638e11f2ac36e8110e28cd4be506af89da08072ee9b2e7562eb0f8b22",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.D",
+          "path": "agent-workflows/groups/planning.json",
+          "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "planning-readiness"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E1",
+      "name": "execution-preflight",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/execution-preflight/SKILL.md",
+        "digest": "sha256:4167e97b6a17b95be76c8bcacee7ad334612b34c0a3cba47b4c49b7355b9861b"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E1_ExecutionPreflightTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E1.json",
+        "digest": "sha256:c2bfdbf6030a087e69a65411096fb1776ca4d58be75fbf8ac5c47db69cc39fb0",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-loop"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E2",
+      "name": "dispatch-task",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/dispatch-task/SKILL.md",
+        "digest": "sha256:04074a6bedecb4fdf46a203be68201bd11fd2876b5d0e5483a84264d427bd9fe"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E2_DispatchTaskTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E2.json",
+        "digest": "sha256:b5c3787ac23e1864c25d2d49a4d999e1af8108dff20001867b8bca066b41c91c",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-loop"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E3",
+      "name": "execute-small-loop",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/execute-small-loop/SKILL.md",
+        "digest": "sha256:83403841296cd68b2c1403147f2f19a9e4009257f832be18e36b76f57e29d818"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E3_ExecuteSmallLoopTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E3.json",
+        "digest": "sha256:021dcea0d06d6e4996e3ef1570a884f77b2278d003e631d2217397df2c422036",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-loop"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E4",
+      "name": "review-task-spec",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/review-task-spec/SKILL.md",
+        "digest": "sha256:dbf862f00f62e363dfa934f52131e92b448ddfe3066d3b9d8e8d4ddef858383b"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E4_ReviewTaskSpecTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E4.json",
+        "digest": "sha256:8aaacf13344f086142d664484f550e0f875511da40a391f246697691f9eef280",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-review"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E5",
+      "name": "review-task-quality",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/review-task-quality/SKILL.md",
+        "digest": "sha256:2e9ee45215681541de8f6ba027b17893f4295c9cf34529ac67f4a87a5f94d2d4"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E5_ReviewTaskQualityTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E5.json",
+        "digest": "sha256:11e41147334cf54b6fa85837e9771c445c80fc1531df883361c19c04eda1b7fb",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-review"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E6",
+      "name": "validate-review-findings",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/validate-review-findings/SKILL.md",
+        "digest": "sha256:341b3df8c299b332cefed9b2bd70b008507be3a640b4bf4dcf3204eff6836347"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E6_ValidateReviewFindingsTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E6.json",
+        "digest": "sha256:c443ff817ed71d504ece46f53024b231abfeea35d397f0c759abb33277e58e72",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-convergence"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E7",
+      "name": "fix-and-rereview",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/fix-and-rereview/SKILL.md",
+        "digest": "sha256:0e53eba0302d3b77aeddf451fa76ef0d89da40006d238a161c0df9984ce61280"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E7_FixAndRereviewTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E7.json",
+        "digest": "sha256:e1a0fc7b5401c2f07ec3a2c945282fbf87e35a87fac72194e7329359bbd51f02",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-convergence"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E8",
+      "name": "converge-parallel-batch",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/converge-parallel-batch/SKILL.md",
+        "digest": "sha256:cbc67ecbc056e46164df80b5a4d2f234d5249960998f1952a82c25fb3c49d3ad"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E8_ConvergeParallelBatchTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E8.json",
+        "digest": "sha256:7a494e67ceb560927c5ba5b434432d12e0e5293997018e59df3a4550d26559f7",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-convergence"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E9",
+      "name": "verify-whole-change",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/verify-whole-change/SKILL.md",
+        "digest": "sha256:3f7723eab488f433083097ac73caf755fd14c6c51304bbe829cff30202a2530d"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E9_VerifyWholeChangeTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E9.json",
+        "digest": "sha256:279a767a70fd203e041711f8e420f177e4e7bb83e157a8ace39f7fed02598a9a",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "execution-convergence"
+        }
+      ]
+    },
+    {
+      "id": "group.E.E10",
+      "name": "arbitrate-exception",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/arbitrate-exception/SKILL.md",
+        "digest": "sha256:677b15b0959d86c9ec015bfbd2e992c9d27739f0c22b90f297bd9a29f3e7be42"
+      },
+      "test_selector": "agent-workflows/tests/test_execution_group.py::E10_ArbitrateExceptionTests",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/E10.json",
+        "digest": "sha256:ecece5b5505918b763f749315d74607b70abafba33a4c251c6d49c4da251825e",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.E",
+          "path": "agent-workflows/groups/execution.json",
+          "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"
+        },
+        {
+          "kind": "workflow",
+          "id": "execution-exception-arbitration",
+          "path": "agent-workflows/workflows/execution-exception-arbitration.json",
+          "digest": "sha256:aa0500c243777dd8f9e624577bee199cf23f87653613b32748aff41573efe001",
+          "stage_id": "arbitrate-exception"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F1",
+      "name": "audit-group-purpose",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f1_audit_group_purpose_requires_bound_objective_evidence",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F1.json",
+        "digest": "sha256:ee0bb219054f4137823080e2288ba73de73e01f4446c0111a66d4dafc8e49934",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F2",
+      "name": "collect-group-artifacts",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f2_collect_group_artifacts_keeps_all_classifications_and_required_entries",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F2.json",
+        "digest": "sha256:ba05b8cdf2fa4518c0a1630eb0d26fd9e4da95e64d762a675105ee7c543648bd",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F3",
+      "name": "extract-decision-candidates",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f3_extract_decision_candidates_never_promotes_unapproved_material",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F3.json",
+        "digest": "sha256:6a178a7d23f3f3fa0861ef7deee3687c008e6e36298e3d2e496c395ac89742f9",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F4",
+      "name": "replan-future",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f4_replan_future_changes_only_the_future_frontier",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F4.json",
+        "digest": "sha256:096af5986a1e5364e71b8a0ec285c20946769d1314086c933f7941e3b6d600a4",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F5",
+      "name": "advise-next-group",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f5_advise_next_group_binds_all_prerequisites",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F5.json",
+        "digest": "sha256:5ddcc12682825dba89f2e3356b35de9a0fe059285d8324d5db434d2356d804fe",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F6",
+      "name": "write-checkpoint",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f6_write_checkpoint_compiles_only_a_complete_close_epoch_command",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F6.json",
+        "digest": "sha256:55fc196a63d6f1240cf7940ba778d1fa331ce9e147bb892d728124d740b34906",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F7",
+      "name": "clear-boundary",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f7_clear_boundary_refuses_preclose_or_stale_receipts",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F7.json",
+        "digest": "sha256:db51db403fbb5f3cd4db04d4e4563cb3b7300ed35edeba48ccd45d5f4fc08202",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "bootstrap-new-workflow",
+          "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+          "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1",
+          "stage_id": "close-bootstrap"
+        }
+      ]
+    },
+    {
+      "id": "group.F.F8",
+      "name": "resume",
+      "kind": "shared-protocol-operation",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82"
+      },
+      "test_selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f8_resume_reads_only_a_valid_s0_resume_head_chain",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/F8.json",
+        "digest": "sha256:4eb9aec1eef1eef10bb2b264f70fed7b3dc8a2a1a94dd801695bd2b999acdf8e",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.F",
+          "path": "agent-workflows/groups/shared-closure.json",
+          "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+        },
+        {
+          "kind": "workflow",
+          "id": "execution-exception-arbitration",
+          "path": "agent-workflows/workflows/execution-exception-arbitration.json",
+          "digest": "sha256:aa0500c243777dd8f9e624577bee199cf23f87653613b32748aff41573efe001",
+          "stage_id": "resume"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G1",
+      "name": "scan-decision-evidence",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/scan-decision-evidence/SKILL.md",
+        "digest": "sha256:8a40892b412ea7e3de8ecfa8e84817e80d0e68345423c7596c093e2e9d88c9ef"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g1_scan_decision_evidence",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G1.json",
+        "digest": "sha256:1af5c15300b90eb32cac45a3487faf95227acefe421a00693334e80cc4245a15",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G2",
+      "name": "classify-decision-status",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/classify-decision-status/SKILL.md",
+        "digest": "sha256:c09da4a0c6f1df6963e1acac216be33074f3c2b2b4901bc1827fbf2178d99a26"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g2_classify_decision_status",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G2.json",
+        "digest": "sha256:5f81728a415b3a2774d31fc1ea37c7ec68b06ebc19e2fa18307674e24a4c2762",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G3",
+      "name": "deduplicate-and-link",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/deduplicate-and-link/SKILL.md",
+        "digest": "sha256:dde08da45b2d3088d5b2b757ab9e3c318aa9213e6a5af4bec4aa476899752f41"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g3_deduplicate_and_link",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G3.json",
+        "digest": "sha256:8adc0604dbe985833c54a32819e5abfb86733e47abe905197aef5ae7ddfd0126",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G4",
+      "name": "draft-durable-records",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/draft-durable-records/SKILL.md",
+        "digest": "sha256:371d82657aa9be0b03943fb451ec930b23dedffad96d955cf1b9e27a6179e2a1"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g4_draft_durable_records",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G4.json",
+        "digest": "sha256:ede457b57d64f9138d8107ca1260b0d49b3e52c0094e5ef44fa14730876c9451",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G5",
+      "name": "approve-promotion",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/approve-promotion/SKILL.md",
+        "digest": "sha256:630f4783f3a14c3601ba5ce90c81496bdd24645bbacf3c1472ad70e39069d539"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g5_approve_promotion",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G5.json",
+        "digest": "sha256:7e8ba858df9881161b6d06977c70eb26a279e20b1b252242853d0639cf679cbe",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.G.G6",
+      "name": "promote-and-backlink",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/promote-and-backlink/SKILL.md",
+        "digest": "sha256:496a3030bdf3cf82a1dc12176bfb9b9703f4ef7519f2027b75616783833ce779"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g6_promote_and_backlink",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/G6.json",
+        "digest": "sha256:0121fc1bb0d6faba78c99f8731904f71529007eb46305f04f1a8f54a9f3101f1",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.G",
+          "path": "agent-workflows/groups/decisions.json",
+          "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "decisions"
+        }
+      ]
+    },
+    {
+      "id": "group.H.H1",
+      "name": "audit-objective",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/audit-objective/SKILL.md",
+        "digest": "sha256:afca708f1be6f4ab96f163631c4bdc5d7556ccdb3eaa0d2966afbbd83902f8cc"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h1_audit_objective",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/H1.json",
+        "digest": "sha256:ad9323fe4dc4b3a234aea15dd900c17e8b8bddd8f887e268cace98a9546e497d",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.H",
+          "path": "agent-workflows/groups/completion.json",
+          "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "run-outcome"
+        }
+      ]
+    },
+    {
+      "id": "group.H.H2",
+      "name": "decide-run-outcome",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/decide-run-outcome/SKILL.md",
+        "digest": "sha256:3f190fa4dd4f0f94ad079f7834de2b08b8d7b784494d46d870f8ad6bf3042418"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h2_decide_run_outcome",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/H2.json",
+        "digest": "sha256:7a3513e455331454c35301bfb303e251156d8eb9695560d59accf90b567c1be8",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.H",
+          "path": "agent-workflows/groups/completion.json",
+          "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "run-outcome"
+        }
+      ]
+    },
+    {
+      "id": "group.H.H3",
+      "name": "archive-or-continue",
+      "kind": "skill",
+      "source": {
+        "path": "agent-workflows/skills/archive-or-continue/SKILL.md",
+        "digest": "sha256:55ff582ef75b159bf850da1108a39bec64aee20b744dccb1a8226244a7353fc6"
+      },
+      "test_selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h3_archive_or_continue",
+      "evidence": {
+        "path": "agent-workflows/evidence/contracts/H3.json",
+        "digest": "sha256:04612c390e2203cb399ccd62d330daf51577a29d170669bbb1819c45c3c1390b",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "group-composition",
+          "id": "agent-workflows.group.H",
+          "path": "agent-workflows/groups/completion.json",
+          "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "run-outcome"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F1",
+      "name": "user-behavior",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f1",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F1.json",
+        "digest": "sha256:01b76679fc7bfd45391fc0cacbb955e96086c52ac8f53dbb353d35834c8d0f41",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-contract"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F2",
+      "name": "acceptance-examples",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f2",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F2.json",
+        "digest": "sha256:1a1deba5055dc841fd3f6e4948e1c34d9b996bd7c9a095d5d97fe2c3773dc4ba",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-contract"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F3",
+      "name": "ux-api-contract",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f3",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F3.json",
+        "digest": "sha256:bfc2359ff05402c1b1ebd37fe116f15b7ac98077233b3cee7098ec86186989ef",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-contract"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F4",
+      "name": "architecture-fit",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f4",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F4.json",
+        "digest": "sha256:8623b63234e1fc90f151b8772768226b9d91c2ae7ae45ff764cfe2d999b0b5a9",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-architecture"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F5",
+      "name": "vertical-slice",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f5",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F5.json",
+        "digest": "sha256:5cf25c4f0a77308bfd58bea5cb4e8ec66d0655296debd044446263a25335715f",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-build"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F6",
+      "name": "behavior-tdd",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f6",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F6.json",
+        "digest": "sha256:2f5c01de525270705eb687247106ae144cdf787f828bb19d0a4f80bc40cb52d2",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-build"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F7",
+      "name": "integration",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f7",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F7.json",
+        "digest": "sha256:b38e56200c10352dbb8c3d420d5b4e12fbc4fcee4d43949cf6b1505902fec587",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-build"
+        }
+      ]
+    },
+    {
+      "id": "profile.feature.F8",
+      "name": "acceptance-e2e",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f8",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/feature/F8.json",
+        "digest": "sha256:2ea37b07973020b97cca5b8490b50bdd013502b433cff7628e6e72436dd6ee37",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.feature",
+          "path": "agent-workflows/profiles/feature.json",
+          "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+        },
+        {
+          "kind": "workflow",
+          "id": "feature-architectural",
+          "path": "agent-workflows/workflows/feature-architectural.json",
+          "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+          "stage_id": "feature-acceptance"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF1",
+      "name": "symptom",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf1",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF1.json",
+        "digest": "sha256:0079f32182d186351318d4b8519192a7eefd64c59569a624f4958adde2d0b29e",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-diagnosis"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF2",
+      "name": "reproduce",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf2",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF2.json",
+        "digest": "sha256:dab1341fdd8c8345c7a2d01b1f30e25d90a63912f46e43f0bc65bb4742faa880",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-diagnosis"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF3",
+      "name": "evidence",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf3",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF3.json",
+        "digest": "sha256:cb0e6bf8814676875bfcc34ebe80c6155e895e9c3374502491f0fd6607e5e23c",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-diagnosis"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF4",
+      "name": "hypotheses",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf4",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF4.json",
+        "digest": "sha256:029363d90fef1312224dcb30ec2fcff06d61692c86e69a3e8f7d54d25ca1eb95",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-diagnosis"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF5",
+      "name": "root-cause",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf5",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF5.json",
+        "digest": "sha256:40e3717d11e5f995d388b5f6bac4112f0fa1ec0b75259c2aecd6397cc96300ea",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-diagnosis"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF6",
+      "name": "fix-options",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf6",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF6.json",
+        "digest": "sha256:4bc99919ba740fd52d71bafaf4f751560007a490bd558b307daaffb06509fe8f",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-fix-options"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF7",
+      "name": "regression",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf7",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF7.json",
+        "digest": "sha256:fe9af1197b79204d03f000a716016790255bf9203196bf5194d83194abe539ea",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-regression"
+        }
+      ]
+    },
+    {
+      "id": "profile.bug-fix.BGF8",
+      "name": "verify-impact",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf8",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF8.json",
+        "digest": "sha256:d9cf3fa3401d17489e810b5dfa0788c534e0eba53a8b7a8338e0a453b7a3d0c3",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.bug-fix",
+          "path": "agent-workflows/profiles/bug-fix.json",
+          "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b"
+        },
+        {
+          "kind": "workflow",
+          "id": "bug-fix-hotfix",
+          "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+          "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+          "stage_id": "bug-impact"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I1",
+      "name": "baseline",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i1",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I1.json",
+        "digest": "sha256:1e09fecd33033fcaa63c8f8c81c2bf43d1bd41d74a7c26acfeb40cd151d30f4f",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-baseline"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I2",
+      "name": "hypothesis",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i2",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I2.json",
+        "digest": "sha256:b1acf35cde40f65c9086525e6cf5f9af4dfec01c4415d7a2e4d757fbfa926349",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-baseline"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I3",
+      "name": "guardrails",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i3",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I3.json",
+        "digest": "sha256:2f7abdaa753de3c1150e0716bd53356b757b977ebf99b870b81a0b6c8f31e120",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-baseline"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I4",
+      "name": "change-design",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i4",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I4.json",
+        "digest": "sha256:43853bc6e0d866a102f3facf09f85f4f087d1740b6afef535b06aa221f5e1d50",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-design"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I5",
+      "name": "execute",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i5",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I5.json",
+        "digest": "sha256:8379b9a5fb3269e0ec321e16b05ee3e7e6e7b611070a601ae879c0e1475b07a1",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-execution"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I6",
+      "name": "compare",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i6",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I6.json",
+        "digest": "sha256:03045879f28030f1a8228a5a599e92e5ad68a411a10bd465413c2f3cb8a35b04",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-decision"
+        }
+      ]
+    },
+    {
+      "id": "profile.improvement.I7",
+      "name": "decide",
+      "kind": "workflow-profile-step",
+      "source": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555"
+      },
+      "test_selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i7",
+      "evidence": {
+        "path": "agent-workflows/evidence/profiles/improvement/I7.json",
+        "digest": "sha256:dc0127fbfd26897ddae294efb3732ba9baa38102215ac3c0d305a41a8476c4ca",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "profile-composition",
+          "id": "agent-workflows.profile.improvement",
+          "path": "agent-workflows/profiles/improvement.json",
+          "digest": "sha256:48bf85cc950241978e341bb3c4238735f70ee0857cb70e61fc7f21a5d53276e9"
+        },
+        {
+          "kind": "workflow",
+          "id": "improvement-measured",
+          "path": "agent-workflows/workflows/improvement-measured.json",
+          "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+          "stage_id": "improvement-decision"
+        }
+      ]
+    },
+    {
+      "id": "surface.model-policy",
+      "name": "model-policy",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/manifests/model-policy.json",
+        "digest": "sha256:eb7e45733239472c05158bc4611bb120a1fa60930a075ef08f6b0003c5060b50"
+      },
+      "test_selector": "agent-workflows/tests/test_s7_personal_surfaces.py::S7PersonalSurfaceTests.test_model_policy_surface",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/personal/model-policy.json",
+        "digest": "sha256:8b013ca2fd9e0cc1feb7de9d325ebd953bf01d18e55d415e9fb987931d43cf2c",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.config-installer-guardrail",
+      "name": "config-installer-guardrail",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/config-installer.py",
+        "digest": "sha256:e3b06c6768755654d119d8c60d17ac96ed3f005bb84d47be033064f42c3a9f17"
+      },
+      "test_selector": "agent-workflows/tests/test_s7_personal_surfaces.py::S7PersonalSurfaceTests.test_config_installer_surface",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/personal/config-installer-guardrail.json",
+        "digest": "sha256:43307f7db8352d180368d1c976b5014a4140cf6783d02ad0f3c01c541f60ade9",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.owner-distribution-manifest",
+      "name": "owner-distribution-manifest",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/manifests/distribution.json",
+        "digest": "sha256:2c15773ddc924ac721dae4ec077fa77462b2779f34037a5034fe810d8fed2ee1"
+      },
+      "test_selector": "agent-workflows/tests/test_s7_personal_surfaces.py::S7PersonalSurfaceTests.test_distribution_manifest_surface",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/personal/owner-distribution-manifest.json",
+        "digest": "sha256:725752972d6486aeeb6af48d6d5f36934f9052d71f9cb85d0a25e48ee811b42f",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.provider-projection",
+      "name": "provider-projection",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/provider-projection.py",
+        "digest": "sha256:cc918dd759d4a5c33a5aaab2239646fc9f507bca1a34de7f3095011bd4890504"
+      },
+      "test_selector": "agent-workflows/tests/test_s7_personal_surfaces.py::S7PersonalSurfaceTests.test_provider_projection_surface",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/personal/provider-projection.json",
+        "digest": "sha256:dd5dbe0121540655f0f23e393db3459ac9b3c4ef67eafbb82eff19e6a3956baa",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.classify-data",
+      "name": "classify-data",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/classify-data.py",
+        "digest": "sha256:96d3f1bea4cc0a8c274a806682fb371af929b5b341b3da3cf019cfc61111e12b"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/classify-data.json",
+        "digest": "sha256:bc3d500b0819ac1f6970c8acd412e1f5c164a6d2c0e374eec3f5c790c202f05c",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.resolve-identity",
+      "name": "resolve-identity",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/resolve-identity.py",
+        "digest": "sha256:41370c752859f9ed5262123ffcee59ebc3d89de9578c9a88473529da1b730b38"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/resolve-identity.json",
+        "digest": "sha256:31b36896f8f40f503cf532d2c418d7512b80a6f6b7161777c8dbc16277574fab",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.authorize-tools",
+      "name": "authorize-tools",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/authorize-tools.py",
+        "digest": "sha256:2529c3fa8591c1e298ab68ce1a080fc637df871a3e9af16858b5ba9783715e2a"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/authorize-tools.json",
+        "digest": "sha256:202d2436ad5264e379f8491ce3e836517b27688d56565ca7e4e1aaa80f505559",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.approve-catalog",
+      "name": "approve-catalog",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/approve-catalog.py",
+        "digest": "sha256:c38fbf8fb5a16f371168c7577490709b8ac76dea2a5dbad4b5c739e2f8429758"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/approve-catalog.json",
+        "digest": "sha256:5f8ffedd4836bbccf929965effe8cf6e1ab81e24819b6d21cd05d839a709736d",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.evaluate-change",
+      "name": "evaluate-change",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/evaluate-change.py",
+        "digest": "sha256:7760c6b6cdcc48c9c7e8c28fe0bea902e41fb3f95bcac888668cbc98fea72e56"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/evaluate-change.json",
+        "digest": "sha256:bb899d8bcf79c84a9666192cb81b377d9ae6cd88e1de74cf4701a6c5659259ae",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.release-workflow",
+      "name": "release-workflow",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/release-workflow.py",
+        "digest": "sha256:4ef93aabfb6ed5f7d518f77ffc3d0f480f1c348abe883b521c9fac5f1bbaa710"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/release-workflow.json",
+        "digest": "sha256:115f22da274381d3d3b926f62551239759e854a7e673452239327623a8578a88",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    },
+    {
+      "id": "surface.company.audit-operation",
+      "name": "audit-operation",
+      "kind": "required-surface",
+      "source": {
+        "path": "agent-workflows/company/audit-operation.py",
+        "digest": "sha256:eb865164e896e4e638d0dd510564b0e8211566b018f7ed59f2035463e158ae00"
+      },
+      "test_selector": "agent-workflows/tests/test_company_governance.py::CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+      "evidence": {
+        "path": "agent-workflows/evidence/surfaces/company/audit-operation.json",
+        "digest": "sha256:2eabb349aad5e5e055a8fe0750c0dc2b7fb18fbde87927ef16dc58ce236a4a94",
+        "result": "passed"
+      },
+      "reachability": [
+        {
+          "kind": "surface-composition",
+          "id": "additional-required-surfaces/v1",
+          "path": "agent-workflows/manifests/additional-required-surfaces.json",
+          "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b"
+        }
+      ]
+    }
+  ],
+  "entries_digest": "sha256:39e48865032d7e931dd04b288747bfa324091dd5a62801e4d2e657bf00ae488b"
+}

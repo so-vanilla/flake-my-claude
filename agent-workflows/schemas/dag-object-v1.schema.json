@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dag-object-v1.schema.json",
+  "title": "Immutable content-addressed DAG object",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "object_type", "payload", "digest"],
+  "properties": {
+    "schema": {"const": "dag-object/v1"},
+    "object_type": {"type": "string", "minLength": 1},
+    "payload": {},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

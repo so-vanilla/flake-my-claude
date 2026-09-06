@@ -1,36 +1,15 @@
 {
-  description = "Claude Code and Codex workflow configuration";
+  description = "File-backed AI agent workflow configuration";
 
-  inputs.aihero-skills = {
-    url = "github:mattpocock/skills/8b78b531ab965735c5dc74f6f7a219e1e37326df";
-    flake = false;
-  };
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   outputs =
     {
       self,
-      aihero-skills,
       nixpkgs,
       ...
     }:
     let
-      aiHeroManifest = builtins.fromJSON (builtins.readFile ./manifests/aihero-skills.json);
-      cutoverManifest = builtins.fromJSON (builtins.readFile ./manifests/workflow-cutover.json);
-      upstreamPluginManifest = builtins.fromJSON (
-        builtins.readFile (aihero-skills + "/.claude-plugin/plugin.json")
-      );
-      aiHeroSkills = aiHeroManifest.skills;
-      aiHeroSkillNames = map (skill: skill.name) aiHeroSkills;
-      upstreamPluginSkillNames = map builtins.baseNameOf upstreamPluginManifest.skills;
-      localSkillNames = [
-        "route-work"
-        "work-ledger"
-        "record-decision"
-        "self-verification"
-        "use-repo-local-workspace"
-      ];
-      sharedSkillNames = localSkillNames ++ aiHeroSkillNames;
       supportedSystems = [
         "aarch64-darwin"
         "x86_64-linux"
@@ -43,90 +22,158 @@
             value = function system;
           }) supportedSystems
         );
-
-      localSkills = map (name: {
-        inherit name;
-        source = "${self}/skills/${name}";
-      }) localSkillNames;
-
-      externalSkills = map (skill: {
-        inherit (skill) name files;
-        source = builtins.path {
-          path = aihero-skills + "/${skill.subdir}";
-          name = "aihero-${skill.name}";
-          sha256 = skill.nar_hash;
-        };
-      }) aiHeroSkills;
-
-      mkSkillEntries =
-        target: skills:
+      skillDirectory = builtins.readDir ./agent-workflows/skills;
+      workflowSkillNames = builtins.attrNames (
+        nixpkgs.lib.filterAttrs (_: type: type == "directory") skillDirectory
+      );
+      workflowSkills = builtins.listToAttrs (
+        map (name: {
+          inherit name;
+          value = "${self}/agent-workflows/skills/${name}";
+        }) workflowSkillNames
+      );
+      ownerManifest = builtins.fromJSON (
+        builtins.readFile ./agent-workflows/manifests/owner-manifest.json
+      );
+      distributionManifest = builtins.fromJSON (
+        builtins.readFile ./agent-workflows/manifests/distribution.json
+      );
+      implementationStatus = builtins.fromJSON (
+        builtins.readFile ./agent-workflows/manifests/implementation-status.json
+      );
+      sourceRelease = builtins.fromJSON (
+        builtins.readFile ./agent-workflows/manifests/source-release.json
+      );
+      portableManifestFiles = distributionManifest.managed_child_sets.portable_manifest_files;
+      implementationPlanDigest = "sha256:${builtins.hashFile "sha256" ./docs/plans/ai-agent-workflow-full-implementation-plan.md}";
+      catalogDigest = "sha256:${builtins.hashFile "sha256" ./docs/plans/ai-agent-workflow-step-catalog.md}";
+      portableManifestEntries = builtins.listToAttrs (
+        map (name: {
+          name = ".local/share/agent-workflows/${name}";
+          value.source = "${self}/agent-workflows/manifests/${name}";
+        }) portableManifestFiles
+      );
+      mkHomeSkillEntries =
+        root:
         builtins.listToAttrs (
-          map (skill: {
-            name = "${target}/${skill.name}";
+          map (name: {
+            name = "${root}/${name}";
             value = {
-              inherit (skill) source;
+              source = workflowSkills.${name};
               recursive = true;
             };
-          }) skills
+          }) workflowSkillNames
         );
-
-      mkSkillMap =
-        skills:
-        builtins.listToAttrs (
-          map (skill: {
-            name = skill.name;
-            value = skill.source;
-          }) skills
-        );
-
+      mkWorkflowCli =
+        pkgs:
+        let
+          python = pkgs.python3;
+          workflowCli = pkgs.writeShellApplication {
+            name = "agent-workflow";
+            runtimeInputs = [ python ];
+            text = ''
+              export PYTHONPATH="${self}/agent-workflows/src''${PYTHONPATH:+:$PYTHONPATH}"
+              export AGENT_WORKFLOW_IMPLEMENTATION_MANIFEST="${self}/agent-workflows/manifests/implementation-status.json"
+              export AGENT_WORKFLOW_SOURCE_ROOT="${self}"
+              exec python -m ai_agent_workflow "$@"
+            '';
+          };
+          configCli = pkgs.writeShellApplication {
+            name = "agent-workflow-config";
+            runtimeInputs = [ python ];
+            text = ''
+              export PYTHONPATH="${self}/agent-workflows/src''${PYTHONPATH:+:$PYTHONPATH}"
+              exec python -m ai_agent_workflow.config_cli \
+                --policy ${self}/agent-workflows/manifests/model-policy.json "$@"
+            '';
+          };
+          implementationStatusCli = pkgs.writeShellApplication {
+            name = "agent-workflow-implementation-status";
+            runtimeInputs = [ python ];
+            text = ''
+              export PYTHONPATH="${self}/agent-workflows/src''${PYTHONPATH:+:$PYTHONPATH}"
+              exec python -m ai_agent_workflow.implementation_status \
+                --manifest ${self}/agent-workflows/manifests/implementation-status.json \
+                --source-root ${self} \
+                --check-html ${self}/docs/ai-agent-workflow-usage.html "$@"
+            '';
+          };
+        in
+        pkgs.symlinkJoin {
+          name = "agent-workflow-cli";
+          paths = [ workflowCli configCli implementationStatusCli ];
+        };
     in
     {
-      inherit aiHeroSkillNames sharedSkillNames;
-      aiHeroSkillManifest = aiHeroManifest;
-      workflowCutoverManifest = cutoverManifest;
+      inherit ownerManifest workflowSkillNames;
+
+      packages = forAllSystems (system: {
+        agent-workflow = mkWorkflowCli nixpkgs.legacyPackages.${system};
+        default = self.packages.${system}.agent-workflow;
+      });
 
       checks = forAllSystems (
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
           module = self.homeManagerModules.default { inherit pkgs; };
-          files = module.home.file;
+          homeFiles = module.home.file;
           codexSkills = module.programs.codex.skills;
-          names = builtins.attrNames files;
-          claudeSkillCount = builtins.length (
-            builtins.filter (name: builtins.match "[.]claude/skills/.*" name != null) names
+          expectedTargets = map (entry: entry.root) ownerManifest.managed_targets;
+          installedPortableManifestFiles = builtins.filter (
+            name: builtins.match "[.]local/share/agent-workflows/.*[.]json" name != null
+          ) (builtins.attrNames homeFiles);
+          modelPolicy = builtins.fromJSON (
+            builtins.readFile ./agent-workflows/manifests/model-policy.json
           );
-          sharedSkillCount = builtins.length (
-            builtins.filter (name: builtins.match "[.]agents/skills/.*" name != null) names
-          );
-          codexSkillCount = builtins.length (builtins.attrNames codexSkills);
-          allSourcesExist = builtins.all (
-            name:
-            !(files.${name} ? source)
-            || builtins.isAttrs files.${name}.source
-            || builtins.pathExists files.${name}.source
-          ) names;
-          codexSourcesExist = builtins.all (
-            name: builtins.pathExists codexSkills.${name}
-          ) (builtins.attrNames codexSkills);
         in
         {
           workflow-contract =
-            assert claudeSkillCount == 30;
-            assert sharedSkillCount == 30;
-            assert codexSkillCount == 30;
-            assert allSourcesExist;
-            assert codexSourcesExist;
-            pkgs.runCommand "flake-my-claude-workflow-contract"
+            assert implementationStatus.source_authority.plan_ref.digest == implementationPlanDigest;
+            assert implementationStatus.source_authority.catalog_ref.digest == catalogDigest;
+            assert implementationStatus.completion_claim.source_wide_integration_complete;
+            assert !implementationStatus.completion_claim.full_workflow_ready;
+            assert sourceRelease.coverage.named_contracts.complete;
+            assert sourceRelease.coverage.profile_steps.complete;
+            assert sourceRelease.coverage.additional_required_surfaces.complete;
+            assert workflowSkillNames == distributionManifest.managed_child_sets.workflow_skill_directories;
+            assert builtins.length workflowSkillNames == builtins.length (builtins.attrNames workflowSkills);
+            assert builtins.attrNames codexSkills == workflowSkillNames;
+            assert builtins.length installedPortableManifestFiles == builtins.length portableManifestFiles;
+            assert builtins.all (
+              name: builtins.elem ".local/share/agent-workflows/${name}" installedPortableManifestFiles
+            ) portableManifestFiles;
+            assert !(module.programs.codex ? settings);
+            assert !(homeFiles ? ".codex");
+            assert !(homeFiles ? ".codex/config.toml");
+            assert !(module ? xdg) || !(module.xdg ? configFile);
+            assert modelPolicy.default.model == "gpt-5.6-luna";
+            assert modelPolicy.default.reasoning_effort == "max";
+            assert modelPolicy.automatic_fallback == false;
+            assert modelPolicy.config_apply == "explicit-user-command-only";
+            assert builtins.elem ".codex/skills" expectedTargets;
+            assert builtins.elem ".claude/skills" expectedTargets;
+            assert builtins.elem ".agents/skills" expectedTargets;
+            pkgs.runCommand "agent-workflow-contract"
               {
-                nativeBuildInputs = [
-                  pkgs.git
-                  pkgs.python3
-                ];
+                nativeBuildInputs = [ pkgs.python3 ];
               }
               ''
-                python ${self}/checks/validate-workflow.py
-                python -m unittest discover -s ${self}/hooks/tests -v
+                python -m json.tool ${self}/agent-workflows/manifests/owner-manifest.json >/dev/null
+                python -m json.tool ${self}/agent-workflows/manifests/model-policy.json >/dev/null
+                python -m json.tool ${self}/agent-workflows/manifests/implementation-status.json >/dev/null
+                PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=${self}/agent-workflows/src \
+                  python -B -m ai_agent_workflow.implementation_status \
+                    --manifest ${self}/agent-workflows/manifests/implementation-status.json \
+                    --source-root ${self} \
+                    --check-html ${self}/docs/ai-agent-workflow-usage.html >/dev/null
+                PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=${self}/agent-workflows/src \
+                  python -B -m unittest discover -s ${self}/agent-workflows/tests -v
+                ${mkWorkflowCli pkgs}/bin/agent-workflow --help >/dev/null
+                ${mkWorkflowCli pkgs}/bin/agent-workflow-config --help >/dev/null
+                ${mkWorkflowCli pkgs}/bin/agent-workflow-implementation-status \
+                  > implementation-evaluation.json
+                python -m json.tool implementation-evaluation.json >/dev/null
                 touch "$out"
               '';
         }
@@ -134,81 +181,20 @@
 
       homeManagerModules.default =
         { pkgs, ... }:
-        let
-          expectedAiHeroCount = aiHeroManifest.upstream.release_boundary.expected_skill_count;
-          expectedAiHeroFileCount = aiHeroManifest.upstream.release_boundary.expected_file_count;
-          manifestAiHeroFileCount = builtins.foldl' (
-            total: skill: total + builtins.length skill.files
-          ) 0 aiHeroSkills;
-          uniqueSharedSkillCount = builtins.length (
-            builtins.attrNames (
-              builtins.listToAttrs (
-                map (name: {
-                  inherit name;
-                  value = true;
-                }) sharedSkillNames
-              )
-            )
-          );
-          workLedgerHook = pkgs.writeShellScript "work-ledger-hook" ''
-            exec ${pkgs.python3}/bin/python ${self}/hooks/work-ledger-hook.py "$@"
-          '';
-        in
-        assert builtins.length aiHeroSkills == expectedAiHeroCount;
-        assert aiHeroSkillNames == upstreamPluginSkillNames;
-        assert manifestAiHeroFileCount == expectedAiHeroFileCount;
-        assert builtins.all (
-          skill: builtins.all (file: builtins.pathExists "${skill.source}/${file}") skill.files
-        ) externalSkills;
-        assert builtins.length sharedSkillNames == uniqueSharedSkillCount;
         {
           programs.claude-code.enable = true;
           programs.codex = {
             enable = true;
             package = pkgs.codex;
-            settings = {
-              approval_policy = "never";
-              sandbox_mode = "danger-full-access";
-            };
-            # Codex currently rejects a symlinked SKILL.md, so use the module's
-            # directory-level skill mapping rather than home.file entries.
-            skills = mkSkillMap (localSkills ++ externalSkills);
+            skills = workflowSkills;
           };
 
-          # AI-DLC requires bun in the interactive Home Manager environment.
-          home.packages = [
-            pkgs.bun
-          ];
+          home.packages = [ (mkWorkflowCli pkgs) ];
 
-          home.file = {
-            ".claude/CLAUDE.md".source = "${self}/CLAUDE.md";
-            ".claude/settings.json".source = "${self}/settings.json";
-
-            ".claude/rules/output-style.md".source = "${self}/rules/output-style.md";
-            ".claude/rules/operation-safety.md".source = "${self}/rules/operation-safety.md";
-            ".claude/rules/nix-devenv.md".source = "${self}/rules/nix-devenv.md";
-            ".claude/rules/codex-nix-config.md".source = "${self}/rules/codex-nix-config.md";
-
-            ".claude/statusline.sh" = {
-              source = "${self}/statusline.sh";
-              executable = true;
-            };
-            ".claude/log-permission-request.sh" = {
-              source = "${self}/log-permission-request.sh";
-              executable = true;
-            };
-            ".claude/session-status.sh" = {
-              source = "${self}/session-status.sh";
-              executable = true;
-            };
-            ".claude/hooks/work-ledger-hook".source = workLedgerHook;
-
-            ".local/share/licenses/mattpocock-skills/LICENSE".source = "${aihero-skills}/LICENSE";
-            ".local/share/agent-skills/mattpocock-skills/manifest.json".source =
-              "${self}/manifests/aihero-skills.json";
-          }
-          // mkSkillEntries ".claude/skills" (localSkills ++ externalSkills)
-          // mkSkillEntries ".agents/skills" (localSkills ++ externalSkills);
+          home.file =
+            portableManifestEntries
+            // mkHomeSkillEntries ".claude/skills"
+            // mkHomeSkillEntries ".agents/skills";
         };
     };
 }

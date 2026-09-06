@@ -1,0 +1,21 @@
+projection: objective-system-artifact/v1
+qualified_id: group.B.B3
+canonical_source: "{{schema}}"
+display_only: true
+scope:
+  depth:
+    source: "{{candidate.candidate_ref.selector}}"
+  operation:
+    source: "{{inputs[0].selector}}"
+  personal_company:
+    source: "{{authority.source_refs[0].selector}}"
+  reversibility:
+    source: "{{expected_head.revision}}"
+  omission_reason:
+    source: "{{expected_head.transaction_digest}}"
+interpretation:
+  source: "{{candidate.candidate_ref.path}}"
+assumption:
+  source: "{{authority.source_refs[0].path}}"
+unknown:
+  source: "{{inputs[0].path}}"

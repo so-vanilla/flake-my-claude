@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dag-state-v1.schema.json",
+  "title": "Reducer state reconstructed from the canonical DAG",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "workflow_version", "graph_version", "revision", "state_revision", "graph_revision", "status", "objective_ref", "objective_history", "objective_approvals", "objective_events", "authority", "group", "epoch", "epoch_contexts", "context_budget", "review_budget", "budget_terminal", "terminal_history", "object_refs", "artifacts", "tasks", "reviews", "findings", "verdicts", "finding_validations", "edges", "leases", "idempotency", "nodes", "metadata", "updated_at"],
+  "properties": {
+    "schema": {"const": "dag-state/v1"},
+    "run_id": {"type": "string"},
+    "workflow_version": {"type": "string"},
+    "graph_version": {"const": "artifact-task-dag/v1"},
+    "revision": {"type": "integer", "minimum": 1},
+    "state_revision": {"type": "integer", "minimum": 1},
+    "graph_revision": {"type": "integer", "minimum": 1},
+    "status": {"type": "string", "minLength": 1},
+    "objective_ref": {"type": "object", "minProperties": 1},
+    "objective_history": {"type": "array", "items": {"type": "object", "minProperties": 1}},
+    "objective_approvals": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["approval_ref", "candidate_ref", "approved_ref", "event_ref"], "properties": {"approval_ref": {"$ref": "#/$defs/objectRef"}, "candidate_ref": {"$ref": "#/$defs/objectRef"}, "approved_ref": {"$ref": "#/$defs/objectRef"}, "event_ref": {"$ref": "#/$defs/objectRef"}}}},
+    "objective_events": {"type": "array", "items": {"type": "object", "minProperties": 1}},
+    "authority": {"type": "object", "minProperties": 1},
+    "group": {"type": "object", "additionalProperties": false, "required": ["id", "status"], "properties": {"id": {"type": "string", "minLength": 1}, "status": {"enum": ["open", "closed"]}, "next_group": {"type": ["string", "null"]}, "clear_required": {"type": "boolean"}, "bundle_ref": {"type": "object"}, "checkpoint_ref": {"type": "object"}, "closed_at_revision": {"type": "integer", "minimum": 1}}},
+    "epoch": {"type": "object", "additionalProperties": false, "required": ["id", "group_id", "status", "boundary_reason", "clear_before_next"], "properties": {"id": {"type": "string", "minLength": 1}, "group_id": {"type": "string", "minLength": 1}, "status": {"enum": ["open", "closed"]}, "boundary_reason": {"type": "string", "minLength": 1}, "clear_before_next": {"type": "boolean"}, "input_bundle": {"type": "object"}, "bundle_ref": {"type": "object"}, "checkpoint_ref": {"type": "object"}, "closed_at_revision": {"type": "integer", "minimum": 1}}},
+    "epoch_contexts": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["id", "group_id", "status", "boundary_reason", "started_at_revision"], "properties": {"id": {"type": "string", "minLength": 1}, "group_id": {"type": "string", "minLength": 1}, "status": {"enum": ["open", "reviewed", "closed"]}, "boundary_reason": {"type": "string", "minLength": 1}, "started_at_revision": {"type": "integer", "minimum": 1}, "input_ref": {"type": ["object", "null"]}, "reviewer_assignment_id": {"type": ["string", "null"]}, "candidate_task_id": {"type": ["string", "null"]}, "finding_id": {"type": ["string", "null"]}, "review_id": {"type": ["string", "null"]}, "clear_before_next": {"type": "boolean"}, "closed_at_revision": {"type": "integer", "minimum": 1}, "bundle_ref": {"type": "object"}, "checkpoint_ref": {"type": "object"}}}},
+    "context_budget": {"type": "object", "required": ["target", "normal_limit", "absolute_limit", "token_status", "token_count"], "properties": {"target": {"const": 200000}, "normal_limit": {"const": 300000}, "absolute_limit": {"const": 500000}, "token_status": {"enum": ["exact", "estimated", "unavailable"]}, "token_count": {"type": ["integer", "null"], "minimum": 0}}},
+    "review_budget": {"type": "object"},
+    "budget_terminal": {"type": ["object", "null"]},
+    "terminal_history": {"type": "array"},
+    "object_refs": {"type": "object"},
+    "nodes": {"type": "object", "additionalProperties": {"enum": ["objective", "artifact", "task", "work-product", "review", "finding", "authority", "approval"]}},
+    "artifacts": {"type": "object"},
+    "tasks": {"type": "object"},
+    "reviews": {"type": "object"},
+    "findings": {"type": "object"},
+    "verdicts": {"type": "object"},
+    "finding_validations": {"type": "object"},
+    "edges": {"type": "array", "items": {"$ref": "dag-edge-v1.schema.json"}},
+    "leases": {"type": "object"},
+    "idempotency": {"type": "object"},
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "section_control": {
+          "type": "object",
+          "properties": {
+            "section_history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["position", "section_id", "accepted_receipt_ref", "bundle_ref", "checkpoint_ref"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "kernel_version": {"type": "string", "minLength": 1},
+    "entry_object_ref": {"type": "object"},
+    "migration": {"type": "object"},
+    "updated_at": {"type": "string", "minLength": 1}
+  },
+  "$defs": {"objectRef": {"type": "object", "additionalProperties": false, "required": ["digest", "object_type", "path"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"enum": ["objective-candidate", "objective-approval", "approved-objective", "objective-approval-event"]}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}}}}
+}

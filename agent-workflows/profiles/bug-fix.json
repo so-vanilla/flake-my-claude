@@ -1,0 +1,176 @@
+{
+  "schema": "software-profile-manifest/v1",
+  "profile_id": "agent-workflows.profile.bug-fix",
+  "profile": "bug-fix",
+  "implementation_kind": "workflow-profile-step",
+  "contracts": [
+    {
+      "qualified_id": "profile.bug-fix.BGF1",
+      "local_id": "BGF1",
+      "contract_name": "symptom",
+      "order": 1,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF1)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF1.json",
+        "digest": "sha256:0079f32182d186351318d4b8519192a7eefd64c59569a624f4958adde2d0b29e"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF2",
+      "local_id": "BGF2",
+      "contract_name": "reproduce",
+      "order": 2,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF2)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF2.json",
+        "digest": "sha256:dab1341fdd8c8345c7a2d01b1f30e25d90a63912f46e43f0bc65bb4742faa880"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF3",
+      "local_id": "BGF3",
+      "contract_name": "evidence",
+      "order": 3,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF3)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF3.json",
+        "digest": "sha256:cb0e6bf8814676875bfcc34ebe80c6155e895e9c3374502491f0fd6607e5e23c"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF4",
+      "local_id": "BGF4",
+      "contract_name": "hypotheses",
+      "order": 4,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF4)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF4.json",
+        "digest": "sha256:029363d90fef1312224dcb30ec2fcff06d61692c86e69a3e8f7d54d25ca1eb95"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF5",
+      "local_id": "BGF5",
+      "contract_name": "root-cause",
+      "order": 5,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF5)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF5.json",
+        "digest": "sha256:40e3717d11e5f995d388b5f6bac4112f0fa1ec0b75259c2aecd6397cc96300ea"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF6",
+      "local_id": "BGF6",
+      "contract_name": "fix-options",
+      "order": 6,
+      "host_selector": "group.D.D5",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF6)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF6.json",
+        "digest": "sha256:4bc99919ba740fd52d71bafaf4f751560007a490bd558b307daaffb06509fe8f"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF7",
+      "local_id": "BGF7",
+      "contract_name": "regression",
+      "order": 7,
+      "host_selector": "group.E.E3",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF7)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF7.json",
+        "digest": "sha256:fe9af1197b79204d03f000a716016790255bf9203196bf5194d83194abe539ea"
+      }
+    },
+    {
+      "qualified_id": "profile.bug-fix.BGF8",
+      "local_id": "BGF8",
+      "contract_name": "verify-impact",
+      "order": 8,
+      "host_selector": "group.E.E9",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/bug-fix.json",
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF8)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF8.json",
+        "digest": "sha256:d9cf3fa3401d17489e810b5dfa0788c534e0eba53a8b7a8338e0a453b7a3d0c3"
+      }
+    }
+  ]
+}

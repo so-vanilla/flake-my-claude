@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "checkpoint-v1.schema.json",
+  "title": "Run-bound closed Epoch or Group checkpoint",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "checkpoint_id", "run_id", "workflow_version", "group_id",
+    "epoch_id", "state_revision", "closure_revision", "state_ref",
+    "bundle_ref", "clear_before_start"
+  ],
+  "properties": {
+    "schema": {"const": "checkpoint/v1"},
+    "checkpoint_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "workflow_version": {"type": "string", "minLength": 1},
+    "group_id": {"type": "string", "minLength": 1},
+    "epoch_id": {"type": "string", "minLength": 1},
+    "state_revision": {"type": "integer", "minimum": 1},
+    "closure_revision": {"type": "integer", "minimum": 1},
+    "state_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "revision", "state_revision"],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "revision": {"type": "integer", "minimum": 1},
+        "state_revision": {"type": "integer", "minimum": 1}
+      }
+    },
+    "bundle_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest"],
+      "properties": {
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "object_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "object_type": {"const": "artifact-bundle"},
+        "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"}
+      }
+    },
+    "clear_before_start": {"type": "boolean"}
+  }
+}

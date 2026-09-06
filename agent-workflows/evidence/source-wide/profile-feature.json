@@ -1,0 +1,550 @@
+{
+  "claim_boundary": {
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "objective_outcome_claimed": false,
+    "run_completion_claimed": false,
+    "source_candidate_only": true
+  },
+  "common_implementation_refs": [
+    {
+      "group": "B",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:e2aa018cc9e48438ad181b53cc9fa8346809583f43abaae951c6dcb67165ed09",
+          "path": "agent-workflows/src/ai_agent_workflow/objective_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36",
+        "path": "agent-workflows/groups/objective.json",
+        "version": "group-b-manifest/v1"
+      },
+      "selectors": [
+        "group.B.B1",
+        "group.B.B2",
+        "group.B.B3",
+        "group.B.B4",
+        "group.B.B5",
+        "group.B.B6",
+        "group.B.B7"
+      ]
+    },
+    {
+      "group": "C",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:e4ab3113da334ad15c842aa656fae52a5c84e3b4ce5f90f1b39aacb83989d646",
+          "path": "agent-workflows/src/ai_agent_workflow/outcome_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a",
+        "path": "agent-workflows/groups/outcomes.json",
+        "version": "group-c-manifest/v1"
+      },
+      "selectors": [
+        "group.C.C1",
+        "group.C.C2",
+        "group.C.C3",
+        "group.C.C4",
+        "group.C.C5",
+        "group.C.C6"
+      ]
+    },
+    {
+      "group": "D",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:de58f4a6fdd813e40b51e8a99e9989feeb313729e675d446b4e4c45101ff2a36",
+          "path": "agent-workflows/src/ai_agent_workflow/planning_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2",
+        "path": "agent-workflows/groups/planning.json",
+        "version": "group-d-manifest/v1"
+      },
+      "selectors": [
+        "group.D.D1",
+        "group.D.D2",
+        "group.D.D3",
+        "group.D.D4",
+        "group.D.D5",
+        "group.D.D6",
+        "group.D.D7",
+        "group.D.D8",
+        "group.D.D9",
+        "group.D.D10",
+        "group.D.D11",
+        "group.D.D12"
+      ]
+    },
+    {
+      "group": "E",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:9c8de590e1b266ba3ab12b89875cdc53d5b7893f90322a71ba263c2c39f3b82e",
+          "path": "agent-workflows/src/ai_agent_workflow/execution_group.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255",
+        "path": "agent-workflows/groups/execution.json",
+        "version": "group-e-manifest/v1"
+      },
+      "selectors": [
+        "group.E.E1",
+        "group.E.E2",
+        "group.E.E3",
+        "group.E.E4",
+        "group.E.E5",
+        "group.E.E6",
+        "group.E.E7",
+        "group.E.E8",
+        "group.E.E9"
+      ]
+    },
+    {
+      "group": "F",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+          "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f",
+        "path": "agent-workflows/groups/shared-closure.json",
+        "version": "shared-closure-manifest/v1"
+      },
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "group": "G",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db",
+          "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09",
+        "path": "agent-workflows/groups/decisions.json",
+        "version": "group-g-manifest/v1"
+      },
+      "selectors": [
+        "group.G.G1",
+        "group.G.G2",
+        "group.G.G3",
+        "group.G.G4",
+        "group.G.G5",
+        "group.G.G6"
+      ]
+    },
+    {
+      "group": "H",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db",
+          "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb",
+        "path": "agent-workflows/groups/completion.json",
+        "version": "group-h-manifest/v1"
+      },
+      "selectors": [
+        "group.H.H1",
+        "group.H.H2",
+        "group.H.H3"
+      ]
+    }
+  ],
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "fixture_id": "s8-profile-feature",
+  "profile": "feature",
+  "profile_contract_refs": [
+    {
+      "evidence_ref": {
+        "digest": "sha256:01b76679fc7bfd45391fc0cacbb955e96086c52ac8f53dbb353d35834c8d0f41",
+        "path": "agent-workflows/evidence/profiles/feature/F1.json"
+      },
+      "host_selector": "group.D.D4",
+      "qualified_id": "profile.feature.F1",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F1)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:1a1deba5055dc841fd3f6e4948e1c34d9b996bd7c9a095d5d97fe2c3773dc4ba",
+        "path": "agent-workflows/evidence/profiles/feature/F2.json"
+      },
+      "host_selector": "group.D.D4",
+      "qualified_id": "profile.feature.F2",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F2)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:bfc2359ff05402c1b1ebd37fe116f15b7ac98077233b3cee7098ec86186989ef",
+        "path": "agent-workflows/evidence/profiles/feature/F3.json"
+      },
+      "host_selector": "group.D.D4",
+      "qualified_id": "profile.feature.F3",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F3)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:8623b63234e1fc90f151b8772768226b9d91c2ae7ae45ff764cfe2d999b0b5a9",
+        "path": "agent-workflows/evidence/profiles/feature/F4.json"
+      },
+      "host_selector": "group.D.D6",
+      "qualified_id": "profile.feature.F4",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F4)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:5cf25c4f0a77308bfd58bea5cb4e8ec66d0655296debd044446263a25335715f",
+        "path": "agent-workflows/evidence/profiles/feature/F5.json"
+      },
+      "host_selector": "group.E.E3",
+      "qualified_id": "profile.feature.F5",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F5)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:2f5c01de525270705eb687247106ae144cdf787f828bb19d0a4f80bc40cb52d2",
+        "path": "agent-workflows/evidence/profiles/feature/F6.json"
+      },
+      "host_selector": "group.E.E3",
+      "qualified_id": "profile.feature.F6",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F6)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:b38e56200c10352dbb8c3d420d5b4e12fbc4fcee4d43949cf6b1505902fec587",
+        "path": "agent-workflows/evidence/profiles/feature/F7.json"
+      },
+      "host_selector": "group.E.E3",
+      "qualified_id": "profile.feature.F7",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F7)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:2ea37b07973020b97cca5b8490b50bdd013502b433cff7628e6e72436dd6ee37",
+        "path": "agent-workflows/evidence/profiles/feature/F8.json"
+      },
+      "host_selector": "group.E.E9",
+      "qualified_id": "profile.feature.F8",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F8)"
+      },
+      "template_ref": {
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703",
+        "path": "agent-workflows/templates/profiles/feature.json"
+      }
+    }
+  ],
+  "profile_manifest_ref": {
+    "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4",
+    "path": "agent-workflows/profiles/feature.json",
+    "version": "software-profile-manifest/v1"
+  },
+  "result_digest": "sha256:0c4f43b12628dd7e57064997fe7737b4ae4d22ebc936003e6c5d9840879aadcd",
+  "result_kind": "profile-source-execution",
+  "review_execution": {
+    "fix_waves": [],
+    "fix_waves_used": 0,
+    "guard_order": [
+      "review-validity",
+      "materiality",
+      "fingerprint-deduplication",
+      "fix-eligibility"
+    ],
+    "open_required_finding_count": 0,
+    "rounds": [
+      {
+        "candidate_revision": 0,
+        "deduplicated_finding_count": 0,
+        "finding_validation": {
+          "advisory_only": true,
+          "candidate_digest": "sha256:b96f48691b86cc6a71fb9e6d6fe63e535a18e6681a26a277ab65fabe49fc3b1b",
+          "disposition_digest": "sha256:c8e993620f5287abe70fcd0ce8fab178775bb9275c8102f5417ec99a08344941",
+          "dispositions": [],
+          "observed_budget": {
+            "product_fix_attempt": 0,
+            "remaining_seconds": 1,
+            "review_round": 1
+          },
+          "receipt_aggregate_digest": "sha256:5ce7da30dcca74f41f10822493fb0e6fdd3af30452657c681d4db20317834033",
+          "review_refs": [
+            {
+              "digest": "sha256:2dda10db65c404ef374b92f0493cb05d9fa14d7a2b9b57148ee0743c668cbc51",
+              "id": "s8-profile-feature-r1-architecture-safety"
+            },
+            {
+              "digest": "sha256:29b47bbfdab63970528e840f4e8835432e32c758054164dba05433eab4c52424",
+              "id": "s8-profile-feature-r1-integration-operability"
+            }
+          ],
+          "schema": "finding-disposition/v1",
+          "source_finding_ids": []
+        },
+        "raw_finding_count": 0,
+        "required_fingerprints": [],
+        "round": 1,
+        "route": "accepted"
+      }
+    ],
+    "rounds_used": 1,
+    "shared_budget": {
+      "maximum_fix_waves": 1,
+      "maximum_review_rounds": 2
+    },
+    "terminal": "source-candidate-accepted",
+    "trace": [
+      {
+        "axis": "architecture-safety",
+        "kind": "review",
+        "round": 1
+      },
+      {
+        "axis": "integration-operability",
+        "kind": "review",
+        "round": 1
+      },
+      {
+        "kind": "finding-validation",
+        "round": 1
+      },
+      {
+        "kind": "converge",
+        "round": 1
+      }
+    ]
+  },
+  "s7_surface_manifest_ref": {
+    "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b",
+    "path": "agent-workflows/manifests/additional-required-surfaces.json",
+    "version": "additional-required-surfaces/v1"
+  },
+  "schema": "source-wide-fixture-result/v1",
+  "source_order": {
+    "profile_selectors": [
+      "profile.feature.F1",
+      "profile.feature.F2",
+      "profile.feature.F3",
+      "profile.feature.F4",
+      "profile.feature.F5",
+      "profile.feature.F6",
+      "profile.feature.F7",
+      "profile.feature.F8"
+    ],
+    "selectors": [
+      "group.B.B1",
+      "group.B.B2",
+      "group.B.B3",
+      "group.B.B4",
+      "group.B.B5",
+      "group.B.B6",
+      "group.B.B7",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.C.C1",
+      "group.C.C2",
+      "group.C.C3",
+      "group.C.C4",
+      "group.C.C5",
+      "group.C.C6",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.D.D1",
+      "group.D.D2",
+      "group.D.D3",
+      "group.D.D4",
+      "profile.feature.F1",
+      "profile.feature.F2",
+      "profile.feature.F3",
+      "group.D.D5",
+      "group.D.D6",
+      "profile.feature.F4",
+      "group.D.D7",
+      "group.D.D8",
+      "group.D.D9",
+      "group.D.D10",
+      "group.D.D11",
+      "group.D.D12",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.E.E1",
+      "group.E.E2",
+      "group.E.E3",
+      "profile.feature.F5",
+      "profile.feature.F6",
+      "profile.feature.F7",
+      "group.E.E4",
+      "group.E.E5",
+      "group.E.E6",
+      "group.E.E7",
+      "group.E.E8",
+      "group.E.E9",
+      "profile.feature.F8",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.G.G1",
+      "group.G.G2",
+      "group.G.G3",
+      "group.G.G4",
+      "group.G.G5",
+      "group.G.G6",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.H.H1",
+      "group.H.H2",
+      "group.H.H3",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7"
+    ],
+    "stage_ids": [
+      "purpose",
+      "close-purpose",
+      "outcomes",
+      "close-outcomes",
+      "planning-specification",
+      "feature-contract",
+      "planning-options",
+      "feature-architecture",
+      "planning-readiness",
+      "close-planning",
+      "execution-loop",
+      "feature-build",
+      "execution-review",
+      "execution-convergence",
+      "feature-acceptance",
+      "close-execution",
+      "decisions",
+      "close-decisions",
+      "run-outcome",
+      "close-run-outcome"
+    ]
+  },
+  "status": "source-candidate",
+  "workflow_id": "feature-architectural",
+  "workflow_manifest_ref": {
+    "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+    "path": "agent-workflows/workflows/feature-architectural.json",
+    "version": "workflow-manifest/v1"
+  }
+}

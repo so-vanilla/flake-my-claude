@@ -1,0 +1,107 @@
+{
+  "canonical_inputs": [
+    {
+      "digest": "sha256:f4e71ef2c587d12df19dd13affdb929ac8995269448a2218656927694ed966b3",
+      "path": "docs/plans/ai-agent-workflow-rebuild.md",
+      "role": "rebuild-plan"
+    },
+    {
+      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "path": "docs/plans/ai-agent-workflow-step-catalog.md",
+      "role": "step-catalog"
+    },
+    {
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524",
+      "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md",
+      "role": "full-implementation-plan"
+    }
+  ],
+  "corrected_candidate": {
+    "aggregate": "sha256:06a8020960bd25112feba3d89be26d2f6cda898e18ec1c7be49c054ff8bdf90b",
+    "records": [
+      {
+        "digest": "sha256:4f00c57d5763fa95d86c9bffd3c8e82d3896ff2e127469a1a57ce3d539b5a2b4",
+        "path": "agent-workflows/schemas/command-receipt-v1.schema.json"
+      },
+      {
+        "digest": "sha256:44629eabe4406ab41ac7321c8f16cfbc5558d4d0d5680523d8ac8086d9fb13e6",
+        "path": "agent-workflows/schemas/distribution-preview-v1.schema.json"
+      },
+      {
+        "digest": "sha256:dd585c65e02605b8e3090ef6eca18d3c944246d59916707610abe991aba78e49",
+        "path": "agent-workflows/schemas/evidence-finalization-v1.schema.json"
+      },
+      {
+        "digest": "sha256:6f2f239417d940f66265bba06970cc3694c213f35ce8eb44df13e31a7371d462",
+        "path": "agent-workflows/schemas/execution-package-closure-v2.schema.json"
+      },
+      {
+        "digest": "sha256:b0aa491e47200e4f78783f612c0f6002521eca3cf7b501c3fb84369eed513a84",
+        "path": "agent-workflows/schemas/native-projection-plan-v1.schema.json"
+      },
+      {
+        "digest": "sha256:3e9c29302be2ca897b2b35f68c43730abfc7640bc2b8538bd0fcadde7296a0f6",
+        "path": "agent-workflows/schemas/receipt-aggregate-v1.schema.json"
+      },
+      {
+        "digest": "sha256:63775a3a8f489582b51fb030d0a9db834f34b317d4ea27596efa6693a307aa9c",
+        "path": "agent-workflows/schemas/regression-shard-plan-v1.schema.json"
+      },
+      {
+        "digest": "sha256:8227e64c9ec787dc7008cf685f2e275670b7e49c5f725e90cbf8b7531ac62201",
+        "path": "agent-workflows/schemas/supervision-policy-v1.schema.json"
+      },
+      {
+        "digest": "sha256:5213f99760e438848922db5473c5975c9e118d9e8bc8b6b0997dc6c750d98a1c",
+        "path": "agent-workflows/schemas/workflow-cutover-v1.schema.json"
+      },
+      {
+        "digest": "sha256:7ace5e347d100b42e867d9244ce7d75aa9be1249ee4068add8762bc06252492d",
+        "path": "agent-workflows/scripts/run-persistent-receipt.py"
+      },
+      {
+        "digest": "sha256:d1f3a312c486e268b2b3a452d56eceb5b493c3a692a5f17d1723512348db185b",
+        "path": "agent-workflows/src/ai_agent_workflow/distribution_planning.py"
+      },
+      {
+        "digest": "sha256:6dda9f347c4866a4da86d5b23102eecae7895f899f094be5f310d358edd92f9d",
+        "path": "agent-workflows/src/ai_agent_workflow/execution_v2.py"
+      },
+      {
+        "digest": "sha256:bcad30294a8cd3f0f5ba9eb8124f04585c5223e665fc4a9c8481d5ee9e1da673",
+        "path": "agent-workflows/src/ai_agent_workflow/execution_v2_orchestrator.py"
+      },
+      {
+        "digest": "sha256:e4674457f7f5a0f350234a23be79f6b2dca38b3944ffa31cbfaf72d7c8e413d3",
+        "path": "agent-workflows/src/ai_agent_workflow/persistent_receipts.py"
+      },
+      {
+        "digest": "sha256:8260b3a10287769327e9b814b606c4a1b438f628b727b91c5bb78d549d9b57a8",
+        "path": "agent-workflows/tests/test_distribution_planning.py"
+      },
+      {
+        "digest": "sha256:1f529accbed422f5d0b4a62357a3cbf8fc9672671ac1d90cebf146c43de713a5",
+        "path": "agent-workflows/tests/test_execution_v2.py"
+      },
+      {
+        "digest": "sha256:383f6ceb5d3f5ee5b07963d88fd3feb3770a00dafc3cf7f52fa0079a728ec9c9",
+        "path": "agent-workflows/tests/test_execution_v2_orchestrator.py"
+      },
+      {
+        "digest": "sha256:b41c9d73774534fa86b7e770600c248b531ebfc2f48f1e772e71b88192d8cccc",
+        "path": "agent-workflows/tests/test_persistent_receipts.py"
+      }
+    ]
+  },
+  "implementation_status": {
+    "digest": "sha256:463387fcb0c95fff8d6b02808332d47ee692528297c4b17c8e8ac7bf375f5470",
+    "path": "agent-workflows/manifests/implementation-status.json"
+  },
+  "lineage_id": "ai-agent-workflow-current-canonical-lineage-v2",
+  "predecessor_authority": {
+    "digest": "sha256:ac46857a453bca782e41f8f332ce42016338a685376de5b43c2a702d019014ae",
+    "path": "agent-workflows/manifests/section-transition-compatibility-authority.json"
+  },
+  "schema": "current-canonical-lineage/v1",
+  "version": "v2"
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "source-wide-h-skeleton-input/v1",
+  "fixture_id": "s8-h1-h2-h3-source-skeleton",
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "completion_manifest_ref": {
+    "path": "agent-workflows/groups/completion.json",
+    "version": "group-h-manifest/v1",
+    "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb"
+  },
+  "lifecycle_interface_ref": {
+    "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+    "version": "python-source/v1",
+    "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db"
+  }
+}

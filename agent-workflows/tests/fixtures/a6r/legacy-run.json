@@ -1,0 +1,22 @@
+{
+  "schema": "ai-agent-run-state/v1",
+  "run_id": "legacy-a6",
+  "workflow_version": "manual-bootstrap/v1",
+  "state_revision": 11,
+  "objective_ref": {
+    "path": "objectives/v001.md",
+    "version": "v001",
+    "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "current_group": {"id": "bootstrap", "status": "closed"},
+  "current_epoch": {"id": "epoch-0002", "status": "closed", "clear_before_next": true},
+  "artifacts": {
+    "a6-result": {
+      "path": "artifacts/a6-result.json",
+      "version": "v1",
+      "digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  },
+  "authority": {"approved": ["isolated fixture"], "not_approved": ["activation"]},
+  "last_checkpoint": {"path": "checkpoints/006.json", "state_revision": 11}
+}

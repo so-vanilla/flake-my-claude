@@ -1,0 +1,1 @@
+{"schema":"s2-source-authority/v1","mutation":"graph.entries[0].ref.path=agent-workflows/manifests/s2-source-authority.json","expected":"authority self reference rejected"}

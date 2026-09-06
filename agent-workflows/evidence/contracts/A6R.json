@@ -1,0 +1,16 @@
+{
+  "schema": "agent-workflow-contract-acceptance/v1",
+  "contract_id": "A6R",
+  "contract_name": "bootstrap-migrate-control-kernel",
+  "coverage_kind": "named-skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md",
+    "digest": "sha256:6301f4adeff6cbdc4d49e25bcce0e647fd8f05ce3adc278eaf86decde96fed59"
+  },
+  "test_ref": {
+    "path": "agent-workflows/tests/test_a6r_evidence.py",
+    "digest": "sha256:392374e45f3ee39342005526c5c26af9a5a835c35acbba8baebc4c380922a128",
+    "selector": "A6R_EvidenceTests"
+  },
+  "status": "passed"
+}

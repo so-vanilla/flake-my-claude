@@ -1,0 +1,22 @@
+{
+  "schema": "section-plan/v1",
+  "section": {"id": "S0", "workflow_id": "workflow-main", "version": "v1"},
+  "groups": [
+    {"id": "Planning", "depends_on": ["Bootstrap"], "first_epoch": "S0-E2", "first_frontier": ["S0.D1"]}
+  ],
+  "closed_bootstrap": {
+    "run_id": "run-fixture", "workflow_version": "workflow/v1", "group_id": "Bootstrap",
+    "status": "paused_after_group", "ready": [], "next_group": "Planning", "clear_boundary": true,
+    "plan_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "catalog_digest": "sha256:6bfb4230ec46f09f09ec16e578197911f58b6b5d5031292076e5345499f777c4",
+    "checkpoint_ref": {"checkpoint_id": "checkpoint-s4", "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+    "bundle_ref": {"digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"},
+    "lifecycle_prerequisite": {"kind": "accepted-section", "section_id": "S0", "receipt_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    "closed_group_receipt": {"group_id": "Bootstrap", "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"}
+  },
+  "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "authority": {"approved": true, "scopes": ["source", "open_section", "open_group"], "protected_fields": ["section", "group", "epoch", "ready"], "human_receipt": "receipt-fixture", "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}, "execution_class": "candidate-generic"},
+  "plan": {"digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "catalog": {"digest": "sha256:6bfb4230ec46f09f09ec16e578197911f58b6b5d5031292076e5345499f777c4", "tasks": [{"id": "S0.D1", "section_id": "S0", "group_id": "Planning", "epoch_id": "S0-E2"}]},
+  "idempotency_key": "open-s0-planning"
+}

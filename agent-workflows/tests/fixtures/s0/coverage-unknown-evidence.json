@@ -1,0 +1,1 @@
+{"contract_id":"Z1","implementation_ref":{"path":"agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md","digest":"sha256:5746e91d41ac3297cbb30bf88fe7c9846aa278c798763dba13167826c47bb133"},"test_ref":{"selector":"Z1_Test"},"status":"passed"}

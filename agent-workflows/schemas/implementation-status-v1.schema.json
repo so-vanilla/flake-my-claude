@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "implementation-status-v1.schema.json",
+  "title": "Evidence-referenced source-wide implementation status",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "product_id",
+    "source_authority",
+    "source_gates",
+    "operational_gates",
+    "completion_claim",
+    "activation_policy"
+  ],
+  "properties": {
+    "schema": {"const": "agent-workflow-implementation-status/v1"},
+    "product_id": {"const": "personal-ai-agent-workflow-v1"},
+    "source_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_ref",
+        "catalog_ref",
+        "source_release_ref",
+        "source_evidence_index_ref",
+        "plan_coverage_ref",
+        "source_fixture_refs"
+      ],
+      "properties": {
+        "plan_ref": {"$ref": "#/$defs/contentRef"},
+        "catalog_ref": {"$ref": "#/$defs/contentRef"},
+        "source_release_ref": {"$ref": "#/$defs/contentRef"},
+        "source_evidence_index_ref": {"$ref": "#/$defs/contentRef"},
+        "plan_coverage_ref": {"$ref": "#/$defs/contentRef"},
+        "source_fixture_refs": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {"$ref": "#/$defs/contentRef"}
+        }
+      }
+    },
+    "source_gates": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {"$ref": "#/$defs/sourceGate"}
+    },
+    "operational_gates": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": {"$ref": "#/$defs/operationalGate"}
+    },
+    "completion_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overall_status",
+        "source_wide_integration_complete",
+        "full_workflow_ready"
+      ],
+      "properties": {
+        "overall_status": {"const": "source-complete-operationally-pending"},
+        "source_wide_integration_complete": {"const": true},
+        "full_workflow_ready": {"const": false}
+      }
+    },
+    "activation_policy": {
+      "const": "separate-explicit-user-approval-required"
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "contentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(agent-workflows|docs)/"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "gateEvidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "schema", "path", "digest"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "schema": {"type": "string", "pattern": "^agent-workflow-source-gate-evidence/.+/v1$"},
+        "path": {"type": "string", "pattern": "^agent-workflows/evidence/.+\\.json$"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "sourceGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "evidence_refs"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["pending", "passed"]},
+        "evidence_refs": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {"$ref": "#/$defs/gateEvidenceRef"}
+        }
+      }
+    },
+    "operationalGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "evidence_refs"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"const": "pending"},
+        "evidence_refs": {"const": []}
+      }
+    }
+  }
+}

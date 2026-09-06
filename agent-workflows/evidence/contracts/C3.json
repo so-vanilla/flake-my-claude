@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.C.C3",
+  "contract_name": "design-measurement",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/design-measurement/SKILL.md",
+    "digest": "sha256:1f5ca9907f2eda66ea614ca7b6393164d23ddc9234f39597ef56af46fccd1550"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_outcome_system.py::C3_MeasurementDesignTests"
+  },
+  "status": "passed"
+}

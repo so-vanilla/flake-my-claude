@@ -1,0 +1,32 @@
+{
+  "schema": "company-governance-surface-evidence/v1",
+  "surface_id": "surface.company.evaluate-change",
+  "canonical_source": {
+    "path": "agent-workflows/company/evaluate-change.py",
+    "digest": "sha256:7760c6b6cdcc48c9c7e8c28fe0bea902e41fb3f95bcac888668cbc98fea72e56"
+  },
+  "acceptance": {
+    "selector": "surface.company.evaluate-change",
+    "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+    "result": "passed"
+  },
+  "claim_boundary": {
+    "source_fixture_only": true,
+    "personal_state_used": false,
+    "credentials_used": false,
+    "live_company_system_used": false,
+    "live_identity_used": false,
+    "live_policy_used": false,
+    "live_catalog_used": false,
+    "live_evaluation_used": false,
+    "live_release_used": false,
+    "live_audit_used": false,
+    "approval_minted": false
+  },
+  "proof": {
+    "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+    "result_kind": "comparative-evaluation-candidate",
+    "dimensions": ["quality", "cost", "latency", "failure", "rollback"],
+    "adoption_status": "not-decided"
+  }
+}

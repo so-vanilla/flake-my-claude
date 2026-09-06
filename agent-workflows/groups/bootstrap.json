@@ -1,0 +1,55 @@
+{
+  "schema": "group-manifest/v1",
+  "group_id": "agent-workflows.group.A",
+  "implementation_kind": "skill",
+  "contracts": [
+    {
+      "qualified_id": "group.A.A1", "local_id": "A1", "status": "candidate-source",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-classify-environment/SKILL.md", "digest": "sha256:de13657f7209eaafad3373d812b37465206fa235416abfb8ea21dcc94147f103"},
+      "selector_ref": {"path": "agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py", "digest": "sha256:290e3117140cc9b7e8167472f8ef201b7434246e40d40304a207cba3000c2411", "selector": "BootstrapContractsV1.classify_environment"},
+      "receipt_ref": null
+    },
+    {
+      "qualified_id": "group.A.A2", "local_id": "A2", "status": "candidate-source",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-isolate-workspace/SKILL.md", "digest": "sha256:0a6063bd56e10aba2d3262a9cc7de5c2d0dc1be153798364843139c7f033b39d"},
+      "selector_ref": {"path": "agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py", "digest": "sha256:290e3117140cc9b7e8167472f8ef201b7434246e40d40304a207cba3000c2411", "selector": "BootstrapContractsV1.plan_workspace"},
+      "receipt_ref": null
+    },
+    {
+      "qualified_id": "group.A.A3", "local_id": "A3", "status": "candidate-source",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-design-rollback/SKILL.md", "digest": "sha256:48960aba99b7f3bb34cb3f56dfa7625519d7ca064ab917f65703d2043d4e16a8"},
+      "selector_ref": {"path": "agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py", "digest": "sha256:290e3117140cc9b7e8167472f8ef201b7434246e40d40304a207cba3000c2411", "selector": "BootstrapContractsV1.design_rollback"},
+      "receipt_ref": null
+    },
+    {
+      "qualified_id": "group.A.A4", "local_id": "A4", "status": "candidate-source",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-initialize-run/SKILL.md", "digest": "sha256:35d81f9f2ed377e593ed37ffae464f5ed95e0e9286fcceb9d6b7b54b6b19007d"},
+      "selector_ref": {"path": "agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py", "digest": "sha256:290e3117140cc9b7e8167472f8ef201b7434246e40d40304a207cba3000c2411", "selector": "BootstrapContractsV1.initialize_run_plan"},
+      "receipt_ref": null
+    },
+    {
+      "qualified_id": "group.A.A5", "local_id": "A5", "status": "candidate-source",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-detach-legacy-owner/SKILL.md", "digest": "sha256:2b6828daa2789cf310231cb34f9fee9a6b21b12b5d266be8ed0fdab764dbd4ce"},
+      "selector_ref": {"path": "agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py", "digest": "sha256:290e3117140cc9b7e8167472f8ef201b7434246e40d40304a207cba3000c2411", "selector": "BootstrapContractsV1.plan_legacy_detach"},
+      "receipt_ref": null
+    },
+    {
+      "qualified_id": "group.A.A6", "local_id": "A6", "status": "retained-accepted",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md", "digest": "sha256:5746e91d41ac3297cbb30bf88fe7c9846aa278c798763dba13167826c47bb133"},
+      "selector_ref": {"path": "agent-workflows/tests/test_walking_skeleton.py", "digest": "sha256:d0bbc9b2d3ad1600b08f40c09d71cf051f9f993628af63b002a890aedd8b7e07", "selector": "A6_WalkingSkeletonTests"},
+      "receipt_ref": {"path": "agent-workflows/evidence/contracts/A6.json", "digest": "sha256:7366d75dea974847f82fb1a4d9dd23761a56bea78a2b7b11a38dea7c3bd6cbc2"}
+    },
+    {
+      "qualified_id": "group.A.A6R", "local_id": "A6R", "status": "retained-accepted",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md", "digest": "sha256:6301f4adeff6cbdc4d49e25bcce0e647fd8f05ce3adc278eaf86decde96fed59"},
+      "selector_ref": {"path": "agent-workflows/tests/test_a6r_evidence.py", "digest": "sha256:392374e45f3ee39342005526c5c26af9a5a835c35acbba8baebc4c380922a128", "selector": "A6R_EvidenceTests"},
+      "receipt_ref": {"path": "agent-workflows/evidence/contracts/A6R.json", "digest": "sha256:1eb28fc0dffed9e3eb8f764853a6096f5910129d185ebf66f42fdc576c31cf5e"}
+    },
+    {
+      "qualified_id": "group.A.A7", "local_id": "A7", "status": "retained-accepted",
+      "source_ref": {"path": "agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md", "digest": "sha256:e2b061ee152163b2a3cd5659d240aaa3e28afe3d1af8bedede70a8257722c2fa"},
+      "selector_ref": {"path": "agent-workflows/tests/test_a7_self_host_handoff.py", "digest": "sha256:aeabdde5b5a5d0e411d3db8e18eba75231e263744219a6cfa7217329ea2bd9db", "selector": "A7_SelfHostHandoffTests"},
+      "receipt_ref": {"path": "agent-workflows/evidence/contracts/A7.json", "digest": "sha256:0cb555c81965fefafa07acbd95c049c8d6b8df972d5f5b2d7ce3041f3c59aa67"}
+    }
+  ]
+}

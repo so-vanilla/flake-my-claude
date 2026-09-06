@@ -1,0 +1,195 @@
+{
+  "activation_policy": "separate-explicit-user-approval-required",
+  "completion_claim": {
+    "full_workflow_ready": false,
+    "overall_status": "source-complete-operationally-pending",
+    "source_wide_integration_complete": true
+  },
+  "operational_gates": [
+    {
+      "evidence_refs": [],
+      "id": "actual-a7-handoff-complete",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "current-objective-approved",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "current-run-objective-achieved",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "personal-profile-pilots-completed",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "objective-audit-completed",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "run-outcome-decided",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "archive-or-continue-completed",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "live-runtime-verified",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "nix-generation-build-verified",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "nix-rebuild-verified",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "migration-complete",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "activation-complete",
+      "status": "pending"
+    },
+    {
+      "evidence_refs": [],
+      "id": "full-workflow-operational-adoption-approved",
+      "status": "pending"
+    }
+  ],
+  "product_id": "personal-ai-agent-workflow-v1",
+  "schema": "agent-workflow-implementation-status/v1",
+  "source_authority": {
+    "catalog_ref": {
+      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "path": "docs/plans/ai-agent-workflow-step-catalog.md"
+    },
+    "plan_coverage_ref": {
+      "digest": "sha256:2ce335c4c27b2ca3e93a32cb114234f2b9b255a16961ec462db4db9a9f79b679",
+      "path": "agent-workflows/manifests/plan-coverage.json"
+    },
+    "plan_ref": {
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524",
+      "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md"
+    },
+    "source_evidence_index_ref": {
+      "digest": "sha256:39c3621a5f9856c672ef1188a9bfb66da95a9f6911ed25bcfc21bee310c91eaf",
+      "path": "agent-workflows/manifests/source-evidence-index.json"
+    },
+    "source_fixture_refs": [
+      {
+        "digest": "sha256:7e7c1051fb1ce8cc20496a54ad5e7c267290d6fa63fd02a57be4dae3ef96a2a9",
+        "path": "agent-workflows/evidence/source-wide/profile-feature.json"
+      },
+      {
+        "digest": "sha256:f535d88b6c7ec45c5fa2dc724a6ca66b7fc985fa9a90acc599060b9088a8d4c3",
+        "path": "agent-workflows/evidence/source-wide/profile-bug-fix.json"
+      },
+      {
+        "digest": "sha256:94fd1564142adbda565843f8c218ce6a9ae2aa744546bde53bfec75e49c86fc2",
+        "path": "agent-workflows/evidence/source-wide/profile-improvement.json"
+      },
+      {
+        "digest": "sha256:2bd95a6e684353e5e60268d282066a48e758f4d286b340aff197153cfd42d30c",
+        "path": "agent-workflows/evidence/source-wide/cold-resume.json"
+      },
+      {
+        "digest": "sha256:74e2f92046deb4e7217f53b24b4ac95fd8f25776d4d64a70124aa44cfa5ef472",
+        "path": "agent-workflows/evidence/source-wide/h1-h2-h3-skeleton.json"
+      }
+    ],
+    "source_release_ref": {
+      "digest": "sha256:0ef51a87df311c79b3ee063f66e6044f6fa981044bfcee74c46032ee3a0801ba",
+      "path": "agent-workflows/manifests/source-release.json"
+    }
+  },
+  "source_gates": [
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:e79d317db479c63812316a0950aa6e3ee970f297784cbef9c0e67e004f88cead",
+          "kind": "compiled-catalog-present",
+          "path": "agent-workflows/evidence/compiled-catalog-present.json",
+          "schema": "agent-workflow-source-gate-evidence/compiled-catalog-present/v1"
+        }
+      ],
+      "id": "compiled-catalog-present",
+      "status": "passed"
+    },
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:54623f335e021ae4cdf66b29c681455526bedb18a482474982153dae6692e0bf",
+          "kind": "group-manifests-implemented",
+          "path": "agent-workflows/evidence/group-manifests-implemented.json",
+          "schema": "agent-workflow-source-gate-evidence/group-manifests-implemented/v1"
+        }
+      ],
+      "id": "group-manifests-implemented",
+      "status": "passed"
+    },
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:1c83304cdd3d0f11d884041a16ea9b23d47dbdca22d738b35d19ab17277acb08",
+          "kind": "workflow-profiles-implemented",
+          "path": "agent-workflows/evidence/workflow-profiles-implemented.json",
+          "schema": "agent-workflow-source-gate-evidence/workflow-profiles-implemented/v1"
+        }
+      ],
+      "id": "workflow-profiles-implemented",
+      "status": "passed"
+    },
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:f3bdf9458b1b2e1447edd245a110004b6a7d76daf3036643d26a3cf66614f18e",
+          "kind": "two-stage-review-integrated-across-workflows",
+          "path": "agent-workflows/evidence/two-stage-review-integrated-across-workflows.json",
+          "schema": "agent-workflow-source-gate-evidence/two-stage-review-integrated-across-workflows/v1"
+        }
+      ],
+      "id": "two-stage-review-integrated-across-workflows",
+      "status": "passed"
+    },
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:854336e4df120d65697c114f31e9b1ab023618dc925431becc7e719cf73a44d0",
+          "kind": "release-readiness-review-completed",
+          "path": "agent-workflows/evidence/release-readiness-review-completed.json",
+          "schema": "agent-workflow-source-gate-evidence/release-readiness-review-completed/v1"
+        }
+      ],
+      "id": "release-readiness-review-completed",
+      "status": "passed"
+    },
+    {
+      "evidence_refs": [
+        {
+          "digest": "sha256:90675209636ccb09e6b0e92d4db9bae62f4d5ea25a2c7f03d991a5a79249adf4",
+          "kind": "source-wide-integration-completed",
+          "path": "agent-workflows/evidence/source-wide-integration-completed.json",
+          "schema": "agent-workflow-source-gate-evidence/source-wide-integration-completed/v1"
+        }
+      ],
+      "id": "source-wide-integration-completed",
+      "status": "passed"
+    }
+  ]
+}

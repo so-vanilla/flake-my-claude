@@ -1,0 +1,407 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "s7-personal-surface-result-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "surface_id",
+    "canonical_source",
+    "acceptance",
+    "claim_boundary",
+    "proof"
+  ],
+  "properties": {
+    "schema": {
+      "const": "s7-personal-surface-result/v1"
+    },
+    "surface_id": {
+      "enum": [
+        "surface.model-policy",
+        "surface.config-installer-guardrail",
+        "surface.owner-distribution-manifest",
+        "surface.provider-projection"
+      ]
+    },
+    "canonical_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "acceptance": {
+      "type": "object"
+    },
+    "claim_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_fixture_only",
+        "live_apply",
+        "build",
+        "runtime_compatibility"
+      ],
+      "properties": {
+        "source_fixture_only": {
+          "const": true
+        },
+        "live_apply": {
+          "const": false
+        },
+        "build": {
+          "const": false
+        },
+        "runtime_compatibility": {
+          "const": "unverified"
+        }
+      }
+    },
+    "proof": {
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "surface_id",
+        "acceptance",
+        "proof"
+      ],
+      "properties": {
+        "surface_id": {
+          "const": "surface.model-policy"
+        },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selector",
+            "command",
+            "result"
+          ],
+          "properties": {
+            "selector": {
+              "const": "S7PersonalSurfaceTests.test_model_policy_surface"
+            },
+            "command": {
+              "const": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_model_policy_surface -v"
+            },
+            "result": {
+              "const": "passed"
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "receipt_schema",
+            "model",
+            "reasoning_effort",
+            "automatic_fallback",
+            "config_apply",
+            "unsupported_value_action",
+            "runtime_compatibility"
+          ],
+          "properties": {
+            "receipt_schema": {
+              "const": "effective-model-fixture-receipt/v1"
+            },
+            "model": {
+              "const": "gpt-5.6-luna"
+            },
+            "reasoning_effort": {
+              "const": "max"
+            },
+            "automatic_fallback": {
+              "const": false
+            },
+            "config_apply": {
+              "const": "explicit-user-command-only"
+            },
+            "unsupported_value_action": {
+              "const": "stop-without-substitution"
+            },
+            "runtime_compatibility": {
+              "const": "unverified"
+            }
+          }
+        }
+      }
+    },
+    {
+      "required": [
+        "surface_id",
+        "acceptance",
+        "proof"
+      ],
+      "properties": {
+        "surface_id": {
+          "const": "surface.config-installer-guardrail"
+        },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selector",
+            "command",
+            "result"
+          ],
+          "properties": {
+            "selector": {
+              "const": "S7PersonalSurfaceTests.test_config_installer_surface"
+            },
+            "command": {
+              "const": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_config_installer_surface -v"
+            },
+            "result": {
+              "const": "passed"
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "managed_keys",
+            "temporary_paths_only",
+            "actual_user_config_accessed",
+            "unknown_app_owned_bytes_preserved",
+            "output_redacted",
+            "secret_output",
+            "backup",
+            "doctor",
+            "rollback",
+            "refusals"
+          ],
+          "properties": {
+            "managed_keys": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "model",
+                  "model_reasoning_effort"
+                ]
+              }
+            },
+            "temporary_paths_only": {
+              "const": true
+            },
+            "actual_user_config_accessed": {
+              "const": false
+            },
+            "unknown_app_owned_bytes_preserved": {
+              "const": true
+            },
+            "output_redacted": {
+              "const": true
+            },
+            "secret_output": {
+              "const": false
+            },
+            "backup": {
+              "const": "verified-fixture"
+            },
+            "doctor": {
+              "const": "verified-fixture"
+            },
+            "rollback": {
+              "const": "verified-fixture"
+            },
+            "refusals": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "concurrent-change",
+                  "stale-identity",
+                  "symlink"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "required": [
+        "surface_id",
+        "acceptance",
+        "proof"
+      ],
+      "properties": {
+        "surface_id": {
+          "const": "surface.owner-distribution-manifest"
+        },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selector",
+            "command",
+            "result"
+          ],
+          "properties": {
+            "selector": {
+              "const": "S7PersonalSurfaceTests.test_distribution_manifest_surface"
+            },
+            "command": {
+              "const": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_distribution_manifest_surface -v"
+            },
+            "result": {
+              "const": "passed"
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "lifecycle_owner",
+            "ownership_classes",
+            "exact_managed_children",
+            "provider_roots_app_owned",
+            "required_operations",
+            "live_installation_claimed"
+          ],
+          "properties": {
+            "lifecycle_owner": {
+              "const": "flake-my-claude.agent-workflows"
+            },
+            "ownership_classes": {
+              "type": "array",
+              "minItems": 7,
+              "maxItems": 7,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "portable_source",
+                  "generated_projection",
+                  "managed_destination",
+                  "unmanaged_user_state",
+                  "app_owned_runtime",
+                  "secret_bearing_state",
+                  "cache"
+                ]
+              }
+            },
+            "exact_managed_children": {
+              "const": true
+            },
+            "provider_roots_app_owned": {
+              "const": true
+            },
+            "required_operations": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "backup",
+                  "doctor",
+                  "rollback",
+                  "uninstall"
+                ]
+              }
+            },
+            "live_installation_claimed": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "required": [
+        "surface_id",
+        "acceptance",
+        "proof"
+      ],
+      "properties": {
+        "surface_id": {
+          "const": "surface.provider-projection"
+        },
+        "acceptance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "selector",
+            "command",
+            "result"
+          ],
+          "properties": {
+            "selector": {
+              "const": "S7PersonalSurfaceTests.test_provider_projection_surface"
+            },
+            "command": {
+              "const": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_provider_projection_surface -v"
+            },
+            "result": {
+              "const": "passed"
+            }
+          }
+        },
+        "proof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "deep_interface",
+            "staged_artifact_required",
+            "digest_bound",
+            "compatibility",
+            "semantic_parity",
+            "unsupported_semantics",
+            "provider_state_written"
+          ],
+          "properties": {
+            "deep_interface": {
+              "const": "ai_agent_workflow.distribution_planning.NativeProjectionAdapter"
+            },
+            "staged_artifact_required": {
+              "const": true
+            },
+            "digest_bound": {
+              "const": true
+            },
+            "compatibility": {
+              "const": "partial"
+            },
+            "semantic_parity": {
+              "const": false
+            },
+            "unsupported_semantics": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "provider_state_written": {
+              "const": false
+            }
+          }
+        }
+      }
+    }
+  ]
+}

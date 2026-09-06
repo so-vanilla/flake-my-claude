@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B7",
+  "contract_name": "approve-objective",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/approve-objective/SKILL.md",
+    "digest": "sha256:4085e4beb592c1d58dda0b018cfbfd50b2f09e8349e3a024e37488ca9dfc6258"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B7_ApproveObjectiveTests"
+  },
+  "status": "passed"
+}

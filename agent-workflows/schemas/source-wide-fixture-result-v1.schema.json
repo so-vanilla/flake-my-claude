@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "source-wide-fixture-result-v1.schema.json",
+  "title": "Source-wide deterministic fixture result",
+  "oneOf": [
+    {"$ref": "#/$defs/profile_result"},
+    {"$ref": "#/$defs/cold_resume_result"},
+    {"$ref": "#/$defs/h_skeleton_result"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nonempty": {"type": "string", "minLength": 1},
+    "git_head": {"const": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7"},
+    "physical_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "version", "digest"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(agent-workflows|docs)/"},
+        "version": {"$ref": "#/$defs/nonempty"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "source_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(agent-workflows|docs)/"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "selector_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "digest", "selector"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^agent-workflows/"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "selector": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "claim_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_candidate_only",
+        "current_run_evidence",
+        "live_runtime_evidence",
+        "grants_approval",
+        "objective_outcome_claimed",
+        "run_completion_claimed",
+        "full_workflow_ready"
+      ],
+      "properties": {
+        "source_candidate_only": {"const": true},
+        "current_run_evidence": {"const": false},
+        "live_runtime_evidence": {"const": false},
+        "grants_approval": {"const": false},
+        "objective_outcome_claimed": {"const": false},
+        "run_completion_claimed": {"const": false},
+        "full_workflow_ready": {"const": false}
+      }
+    },
+    "common_implementation_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "manifest_ref", "selectors", "interface_refs", "implementation_embedded"],
+      "properties": {
+        "group": {"enum": ["B", "C", "D", "E", "F", "G", "H"]},
+        "manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "selectors": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^group\\.[B-H]\\.[A-Z0-9]+$"}
+        },
+        "interface_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/physical_ref"}
+        },
+        "implementation_embedded": {"const": false}
+      }
+    },
+    "profile_contract_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["qualified_id", "host_selector", "template_ref", "selector_ref", "evidence_ref"],
+      "properties": {
+        "qualified_id": {"type": "string", "pattern": "^profile\\.(feature|bug-fix|improvement)\\.[A-Z0-9]+$"},
+        "host_selector": {"type": "string", "pattern": "^group\\.[DE]\\.[A-Z0-9]+$"},
+        "template_ref": {"$ref": "#/$defs/source_ref"},
+        "selector_ref": {"$ref": "#/$defs/selector_ref"},
+        "evidence_ref": {"$ref": "#/$defs/source_ref"}
+      }
+    },
+    "source_order": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage_ids", "selectors", "profile_selectors"],
+      "properties": {
+        "stage_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "selectors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "profile_selectors": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/nonempty"}}
+      }
+    },
+    "review_execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shared_budget", "rounds_used", "fix_waves_used", "rounds", "fix_waves", "trace", "guard_order", "open_required_finding_count", "terminal"],
+      "properties": {
+        "shared_budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maximum_review_rounds", "maximum_fix_waves"],
+          "properties": {
+            "maximum_review_rounds": {"type": "integer", "minimum": 1},
+            "maximum_fix_waves": {"type": "integer", "minimum": 1}
+          }
+        },
+        "rounds_used": {"type": "integer", "minimum": 1},
+        "fix_waves_used": {"type": "integer", "minimum": 0},
+        "rounds": {"type": "array", "minItems": 1, "items": {"type": "object", "minProperties": 7}},
+        "fix_waves": {"type": "array", "items": {"type": "object", "minProperties": 4}},
+        "trace": {"type": "array", "minItems": 4, "items": {"type": "object", "minProperties": 2}},
+        "guard_order": {
+          "const": ["review-validity", "materiality", "fingerprint-deduplication", "fix-eligibility"]
+        },
+        "open_required_finding_count": {"const": 0},
+        "terminal": {"const": "source-candidate-accepted"}
+      }
+    },
+    "profile_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "result_kind", "fixture_id", "status", "profile", "workflow_id", "expected_git_head", "workflow_manifest_ref", "profile_manifest_ref", "s7_surface_manifest_ref", "source_order", "common_implementation_refs", "profile_contract_refs", "review_execution", "claim_boundary", "result_digest"],
+      "properties": {
+        "schema": {"const": "source-wide-fixture-result/v1"},
+        "result_kind": {"const": "profile-source-execution"},
+        "fixture_id": {"$ref": "#/$defs/nonempty"},
+        "status": {"const": "source-candidate"},
+        "profile": {"enum": ["feature", "bug-fix", "improvement"]},
+        "workflow_id": {"enum": ["feature-architectural", "bug-fix-standard", "improvement-measured"]},
+        "expected_git_head": {"$ref": "#/$defs/git_head"},
+        "workflow_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "profile_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "s7_surface_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "source_order": {"$ref": "#/$defs/source_order"},
+        "common_implementation_refs": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/common_implementation_ref"}},
+        "profile_contract_refs": {"type": "array", "minItems": 7, "maxItems": 8, "items": {"$ref": "#/$defs/profile_contract_ref"}},
+        "review_execution": {"$ref": "#/$defs/review_execution"},
+        "claim_boundary": {"$ref": "#/$defs/claim_boundary"},
+        "result_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "next_action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "stage_id", "kind", "mode", "selectors"],
+      "properties": {
+        "action": {"const": "compile-source-stage"},
+        "stage_id": {"$ref": "#/$defs/nonempty"},
+        "kind": {"enum": ["common", "profile", "closure"]},
+        "mode": {"enum": ["serial", "parallel"]},
+        "selectors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}}
+      }
+    },
+    "cold_resume_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "result_kind", "fixture_id", "status", "checkpoint_ref", "checkpoint_id", "expected_git_head", "observed_head", "history_mode", "workflow_manifest_ref", "profile_manifest_ref", "group_manifest_refs", "s7_surface_manifest_ref", "completed_stage_ids", "next_action", "claim_boundary", "result_digest"],
+      "properties": {
+        "schema": {"const": "source-wide-fixture-result/v1"},
+        "result_kind": {"const": "cold-source-resume"},
+        "fixture_id": {"$ref": "#/$defs/nonempty"},
+        "status": {"const": "source-candidate"},
+        "checkpoint_ref": {"$ref": "#/$defs/physical_ref"},
+        "checkpoint_id": {"$ref": "#/$defs/nonempty"},
+        "expected_git_head": {"$ref": "#/$defs/git_head"},
+        "observed_head": {"$ref": "#/$defs/head"},
+        "history_mode": {"const": "history-free"},
+        "workflow_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "profile_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "group_manifest_refs": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/physical_ref"}},
+        "s7_surface_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "completed_stage_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "next_action": {"$ref": "#/$defs/next_action"},
+        "claim_boundary": {"$ref": "#/$defs/claim_boundary"},
+        "result_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "current_run_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objective_audit_completed", "run_outcome_decided", "archive_or_continue_executed", "live_runtime_observed", "current_head_advanced"],
+      "properties": {
+        "objective_audit_completed": {"const": false},
+        "run_outcome_decided": {"const": false},
+        "archive_or_continue_executed": {"const": false},
+        "live_runtime_observed": {"const": false},
+        "current_head_advanced": {"const": false}
+      }
+    },
+    "h_skeleton_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "result_kind", "fixture_id", "status", "expected_git_head", "completion_manifest_ref", "lifecycle_interface_ref", "selectors", "source_capabilities", "current_run_gates", "cannot_satisfy_current_run_live_gates", "claim_boundary", "result_digest"],
+      "properties": {
+        "schema": {"const": "source-wide-fixture-result/v1"},
+        "result_kind": {"const": "h1-h2-h3-source-skeleton"},
+        "fixture_id": {"$ref": "#/$defs/nonempty"},
+        "status": {"const": "source-candidate"},
+        "expected_git_head": {"$ref": "#/$defs/git_head"},
+        "completion_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "lifecycle_interface_ref": {"$ref": "#/$defs/physical_ref"},
+        "selectors": {"const": ["group.H.H1", "group.H.H2", "group.H.H3"]},
+        "source_capabilities": {
+          "const": ["compile-objective-audit-candidate", "compile-run-outcome-validation-candidate", "compile-archive-or-continue-candidate"]
+        },
+        "current_run_gates": {"$ref": "#/$defs/current_run_gates"},
+        "cannot_satisfy_current_run_live_gates": {"const": true},
+        "claim_boundary": {"$ref": "#/$defs/claim_boundary"},
+        "result_digest": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

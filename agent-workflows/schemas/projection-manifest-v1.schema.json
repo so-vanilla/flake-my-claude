@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "projection-manifest-v1.schema.json",
+  "title": "Atomic marker for a complete disposable projection set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "run_id", "source_head", "files", "digest"],
+  "properties": {
+    "schema": {"const": "projection-manifest/v1"},
+    "version": {"const": "v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "source_head": {"type": "object", "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "files": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

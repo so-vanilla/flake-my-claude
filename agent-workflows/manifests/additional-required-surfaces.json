@@ -1,0 +1,225 @@
+{
+  "schema": "additional-required-surfaces/v1",
+  "surfaces": [
+    {
+      "id": "surface.model-policy",
+      "canonical_source": "agent-workflows/manifests/model-policy.json",
+      "canonical_source_digest": "sha256:eb7e45733239472c05158bc4611bb120a1fa60930a075ef08f6b0003c5060b50",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "effective-model receipt",
+      "acceptance_selector": "model-policy",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.model-policy",
+        "source": "agent-workflows/manifests/model-policy.json",
+        "source_digest": "sha256:eb7e45733239472c05158bc4611bb120a1fa60930a075ef08f6b0003c5060b50",
+        "evidence": "agent-workflows/evidence/surfaces/personal/model-policy.json",
+        "evidence_digest": "sha256:8b013ca2fd9e0cc1feb7de9d325ebd953bf01d18e55d415e9fb987931d43cf2c",
+        "selector": "S7PersonalSurfaceTests.test_model_policy_surface",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.config-installer-guardrail",
+      "canonical_source": "agent-workflows/config-installer.py",
+      "canonical_source_digest": "sha256:e3b06c6768755654d119d8c60d17ac96ed3f005bb84d47be033064f42c3a9f17",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "managed config merge",
+      "acceptance_selector": "config-installer-guardrail",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.config-installer-guardrail",
+        "source": "agent-workflows/config-installer.py",
+        "source_digest": "sha256:e3b06c6768755654d119d8c60d17ac96ed3f005bb84d47be033064f42c3a9f17",
+        "evidence": "agent-workflows/evidence/surfaces/personal/config-installer-guardrail.json",
+        "evidence_digest": "sha256:43307f7db8352d180368d1c976b5014a4140cf6783d02ad0f3c01c541f60ade9",
+        "selector": "S7PersonalSurfaceTests.test_config_installer_surface",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.owner-distribution-manifest",
+      "canonical_source": "agent-workflows/manifests/distribution.json",
+      "canonical_source_digest": "sha256:2c15773ddc924ac721dae4ec077fa77462b2779f34037a5034fe810d8fed2ee1",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "owner manifest",
+      "acceptance_selector": "owner-distribution-manifest",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.owner-distribution-manifest",
+        "source": "agent-workflows/manifests/distribution.json",
+        "source_digest": "sha256:2c15773ddc924ac721dae4ec077fa77462b2779f34037a5034fe810d8fed2ee1",
+        "evidence": "agent-workflows/evidence/surfaces/personal/owner-distribution-manifest.json",
+        "evidence_digest": "sha256:725752972d6486aeeb6af48d6d5f36934f9052d71f9cb85d0a25e48ee811b42f",
+        "selector": "S7PersonalSurfaceTests.test_distribution_manifest_surface",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.provider-projection",
+      "canonical_source": "agent-workflows/provider-projection.py",
+      "canonical_source_digest": "sha256:cc918dd759d4a5c33a5aaab2239646fc9f507bca1a34de7f3095011bd4890504",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "provider projection",
+      "acceptance_selector": "provider-projection",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.provider-projection",
+        "source": "agent-workflows/provider-projection.py",
+        "source_digest": "sha256:cc918dd759d4a5c33a5aaab2239646fc9f507bca1a34de7f3095011bd4890504",
+        "evidence": "agent-workflows/evidence/surfaces/personal/provider-projection.json",
+        "evidence_digest": "sha256:dd5dbe0121540655f0f23e393db3459ac9b3c4ef67eafbb82eff19e6a3956baa",
+        "selector": "S7PersonalSurfaceTests.test_provider_projection_surface",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.classify-data",
+      "canonical_source": "agent-workflows/company/classify-data.py",
+      "canonical_source_digest": "sha256:96d3f1bea4cc0a8c274a806682fb371af929b5b341b3da3cf019cfc61111e12b",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "data policy",
+      "acceptance_selector": "classify-data",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.classify-data",
+        "source": "agent-workflows/company/classify-data.py",
+        "source_digest": "sha256:96d3f1bea4cc0a8c274a806682fb371af929b5b341b3da3cf019cfc61111e12b",
+        "evidence": "agent-workflows/evidence/surfaces/company/classify-data.json",
+        "evidence_digest": "sha256:bc3d500b0819ac1f6970c8acd412e1f5c164a6d2c0e374eec3f5c790c202f05c",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.resolve-identity",
+      "canonical_source": "agent-workflows/company/resolve-identity.py",
+      "canonical_source_digest": "sha256:41370c752859f9ed5262123ffcee59ebc3d89de9578c9a88473529da1b730b38",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "identity receipt",
+      "acceptance_selector": "resolve-identity",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.resolve-identity",
+        "source": "agent-workflows/company/resolve-identity.py",
+        "source_digest": "sha256:41370c752859f9ed5262123ffcee59ebc3d89de9578c9a88473529da1b730b38",
+        "evidence": "agent-workflows/evidence/surfaces/company/resolve-identity.json",
+        "evidence_digest": "sha256:31b36896f8f40f503cf532d2c418d7512b80a6f6b7161777c8dbc16277574fab",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.authorize-tools",
+      "canonical_source": "agent-workflows/company/authorize-tools.py",
+      "canonical_source_digest": "sha256:2529c3fa8591c1e298ab68ce1a080fc637df871a3e9af16858b5ba9783715e2a",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "effective policy readback",
+      "acceptance_selector": "authorize-tools",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.authorize-tools",
+        "source": "agent-workflows/company/authorize-tools.py",
+        "source_digest": "sha256:2529c3fa8591c1e298ab68ce1a080fc637df871a3e9af16858b5ba9783715e2a",
+        "evidence": "agent-workflows/evidence/surfaces/company/authorize-tools.json",
+        "evidence_digest": "sha256:202d2436ad5264e379f8491ce3e836517b27688d56565ca7e4e1aaa80f505559",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.approve-catalog",
+      "canonical_source": "agent-workflows/company/approve-catalog.py",
+      "canonical_source_digest": "sha256:c38fbf8fb5a16f371168c7577490709b8ac76dea2a5dbad4b5c739e2f8429758",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "approved manifest",
+      "acceptance_selector": "approve-catalog",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.approve-catalog",
+        "source": "agent-workflows/company/approve-catalog.py",
+        "source_digest": "sha256:c38fbf8fb5a16f371168c7577490709b8ac76dea2a5dbad4b5c739e2f8429758",
+        "evidence": "agent-workflows/evidence/surfaces/company/approve-catalog.json",
+        "evidence_digest": "sha256:5f8ffedd4836bbccf929965effe8cf6e1ab81e24819b6d21cd05d839a709736d",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.evaluate-change",
+      "canonical_source": "agent-workflows/company/evaluate-change.py",
+      "canonical_source_digest": "sha256:7760c6b6cdcc48c9c7e8c28fe0bea902e41fb3f95bcac888668cbc98fea72e56",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "comparative eval",
+      "acceptance_selector": "evaluate-change",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.evaluate-change",
+        "source": "agent-workflows/company/evaluate-change.py",
+        "source_digest": "sha256:7760c6b6cdcc48c9c7e8c28fe0bea902e41fb3f95bcac888668cbc98fea72e56",
+        "evidence": "agent-workflows/evidence/surfaces/company/evaluate-change.json",
+        "evidence_digest": "sha256:bb899d8bcf79c84a9666192cb81b377d9ae6cd88e1de74cf4701a6c5659259ae",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.release-workflow",
+      "canonical_source": "agent-workflows/company/release-workflow.py",
+      "canonical_source_digest": "sha256:4ef93aabfb6ed5f7d518f77ffc3d0f480f1c348abe883b521c9fac5f1bbaa710",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "release receipt",
+      "acceptance_selector": "release-workflow",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.release-workflow",
+        "source": "agent-workflows/company/release-workflow.py",
+        "source_digest": "sha256:4ef93aabfb6ed5f7d518f77ffc3d0f480f1c348abe883b521c9fac5f1bbaa710",
+        "evidence": "agent-workflows/evidence/surfaces/company/release-workflow.json",
+        "evidence_digest": "sha256:115f22da274381d3d3b926f62551239759e854a7e673452239327623a8578a88",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    },
+    {
+      "id": "surface.company.audit-operation",
+      "canonical_source": "agent-workflows/company/audit-operation.py",
+      "canonical_source_digest": "sha256:eb865164e896e4e638d0dd510564b0e8211566b018f7ed59f2035463e158ae00",
+      "owner_module": "agent-workflows",
+      "section_owner": "S7",
+      "interface_ref": "audit report",
+      "acceptance_selector": "audit-operation",
+      "evidence": {
+        "schema": "coverage-receipt/v1",
+        "subject_id": "surface.company.audit-operation",
+        "source": "agent-workflows/company/audit-operation.py",
+        "source_digest": "sha256:eb865164e896e4e638d0dd510564b0e8211566b018f7ed59f2035463e158ae00",
+        "evidence": "agent-workflows/evidence/surfaces/company/audit-operation.json",
+        "evidence_digest": "sha256:2eabb349aad5e5e055a8fe0750c0dc2b7fb18fbde87927ef16dc58ce236a4a94",
+        "selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+        "result": "passed"
+      },
+      "state": "accepted"
+    }
+  ]
+}

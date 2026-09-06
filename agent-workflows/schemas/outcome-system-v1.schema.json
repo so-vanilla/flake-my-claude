@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "outcome-system-v1.schema.json",
+  "title": "Strict OutcomeSystemV1 compile artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "qualified_id", "objective_ref", "authority", "expected_head", "output"],
+  "properties": {
+    "schema": {"const": "outcome-system-artifact/v1"},
+    "qualified_id": {"enum": ["group.C.C1", "group.C.C2", "group.C.C3", "group.C.C4", "group.C.C5", "group.C.C6"]},
+    "objective_ref": {"$ref": "#/$defs/ref"},
+    "authority": {"$ref": "#/$defs/authority"},
+    "expected_head": {"$ref": "#/$defs/head"},
+    "output": {"$ref": "#/$defs/output"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"},
+    "ref": {"type": "object", "additionalProperties": false, "required": ["path", "version", "digest"], "properties": {"path": {"type": "string", "minLength": 1}, "version": {"$ref": "#/$defs/id"}, "digest": {"$ref": "#/$defs/digest"}}},
+    "owner": {"type": "object", "additionalProperties": false, "required": ["kind", "stable_id", "role", "path", "digest"], "properties": {"kind": {"enum": ["human", "team", "system", "fixture"]}, "stable_id": {"$ref": "#/$defs/id"}, "role": {"type": "string", "minLength": 1}, "path": {"type": "string", "minLength": 1}, "digest": {"$ref": "#/$defs/digest"}}},
+    "authority": {"type": "object", "additionalProperties": false, "required": ["namespace", "scope", "owner_ref"], "properties": {"namespace": {"type": "string", "minLength": 1}, "scope": {"enum": ["candidate-generic", "fixture-only"]}, "owner_ref": {"$ref": "#/$defs/owner"}}},
+    "head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"$ref": "#/$defs/digest"}}},
+    "outcome": {"type": "object", "additionalProperties": false, "required": ["outcome_id", "achieved_state", "why_required", "objective_contribution", "exclusion_conditions", "owner_ref", "acceptance_predicate_refs"], "properties": {"outcome_id": {"$ref": "#/$defs/id"}, "achieved_state": {"type": "string", "minLength": 1}, "why_required": {"type": "string", "minLength": 1}, "objective_contribution": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "exclusion_conditions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}, "owner_ref": {"$ref": "#/$defs/owner"}, "acceptance_predicate_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/ref"}}}},
+    "outcome_map": {"type": "object", "additionalProperties": false, "required": ["schema", "outcomes", "coverage_refs"], "properties": {"schema": {"const": "outcome-map/v1"}, "outcomes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/outcome"}}, "coverage_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/ref"}}}},
+    "edge": {"type": "object", "additionalProperties": false, "required": ["prerequisite", "dependent"], "properties": {"prerequisite": {"$ref": "#/$defs/id"}, "dependent": {"$ref": "#/$defs/id"}}},
+    "join": {"type": "object", "additionalProperties": false, "required": ["outcome_id", "incoming", "owner_ref"], "properties": {"outcome_id": {"$ref": "#/$defs/id"}, "incoming": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "owner_ref": {"$ref": "#/$defs/owner"}}},
+    "dependency_graph": {"type": "object", "additionalProperties": false, "required": ["schema", "node_ids", "edges", "joins", "runtime_checks"], "properties": {"schema": {"const": "outcome-dependency-graph/v1"}, "node_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}, "edges": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/edge"}}, "joins": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/join"}}, "runtime_checks": {"const": ["unknown_endpoint", "orphan", "cycle", "ownerless_join"]}}},
+    "measurement_plan": {"type": "object", "additionalProperties": false, "required": ["schema", "outcome_id", "strategy", "rationale"], "properties": {"schema": {"const": "measurement-plan/v1"}, "outcome_id": {"$ref": "#/$defs/id"}, "strategy": {"enum": ["direct_metric", "proxy", "qualitative_rubric", "not_measured"]}, "rationale": {"type": "string", "minLength": 1}}},
+    "target_set": {"type": "object", "additionalProperties": false, "required": ["schema", "outcome_id", "target_ref"], "properties": {"schema": {"const": "target-set/v1"}, "outcome_id": {"$ref": "#/$defs/id"}, "target_ref": {"$ref": "#/$defs/ref"}}},
+    "baseline": {"type": "object", "additionalProperties": false, "required": ["schema", "target_ref", "availability", "value", "reason"], "properties": {"schema": {"const": "baseline/v1"}, "target_ref": {"$ref": "#/$defs/ref"}, "availability": {"enum": ["available", "unavailable"]}, "value": {"type": ["number", "null"]}, "reason": {"type": ["null", "string"], "enum": [null, "access_denied", "stale_source", "measurement_side_effect", "incomparable_condition", "source_missing", "intentionally_unmeasured"]}}},
+    "validation": {"type": "object", "additionalProperties": false, "required": ["schema", "status", "upstream_owner_ref"], "properties": {"schema": {"const": "outcome-validation/v1"}, "status": {"enum": ["valid", "needs_user", "unavailable", "refused"]}, "upstream_owner_ref": {"$ref": "#/$defs/owner"}}},
+    "candidate_base": {"type": "object", "additionalProperties": false, "required": ["schema", "kind", "payload"], "properties": {"schema": {"const": "outcome-system-output/v1"}, "kind": {"enum": ["outcome_map", "dependency_graph", "measurement_plan", "target_set", "baseline", "validation"]}, "payload": {}}},
+    "candidate": {"oneOf": [{"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "outcome_map"}, "payload": {"$ref": "#/$defs/outcome_map"}}}]}, {"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "dependency_graph"}, "payload": {"$ref": "#/$defs/dependency_graph"}}}]}, {"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "measurement_plan"}, "payload": {"$ref": "#/$defs/measurement_plan"}}}]}, {"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "target_set"}, "payload": {"$ref": "#/$defs/target_set"}}}]}, {"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "baseline"}, "payload": {"$ref": "#/$defs/baseline"}}}]}, {"allOf": [{"$ref": "#/$defs/candidate_base"}, {"properties": {"kind": {"const": "validation"}, "payload": {"$ref": "#/$defs/validation"}}}]}]},
+    "refusal": {"type": "object", "additionalProperties": false, "required": ["schema", "kind", "code", "owner_ref"], "properties": {"schema": {"const": "outcome-system-refusal/v1"}, "kind": {"const": "refusal"}, "code": {"enum": ["outcome_is_implementation_task", "coverage_hole", "unknown_dependency_endpoint", "orphan_outcome", "dependency_cycle", "ownerless_join", "blocked_stale_input", "needs_user"]}, "owner_ref": {"$ref": "#/$defs/owner"}}},
+    "output": {"oneOf": [{"$ref": "#/$defs/candidate"}, {"$ref": "#/$defs/refusal"}]}
+  }
+}

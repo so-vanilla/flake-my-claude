@@ -1,0 +1,45 @@
+{
+  "cannot_satisfy_current_run_live_gates": true,
+  "claim_boundary": {
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "objective_outcome_claimed": false,
+    "run_completion_claimed": false,
+    "source_candidate_only": true
+  },
+  "completion_manifest_ref": {
+    "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb",
+    "path": "agent-workflows/groups/completion.json",
+    "version": "group-h-manifest/v1"
+  },
+  "current_run_gates": {
+    "archive_or_continue_executed": false,
+    "current_head_advanced": false,
+    "live_runtime_observed": false,
+    "objective_audit_completed": false,
+    "run_outcome_decided": false
+  },
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "fixture_id": "s8-h1-h2-h3-source-skeleton",
+  "lifecycle_interface_ref": {
+    "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db",
+    "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+    "version": "python-source/v1"
+  },
+  "result_digest": "sha256:976841a69e5e5b886ef3469fd9fb7cada57e9db8a0d0b6e792bf02d1c7a1e8a8",
+  "result_kind": "h1-h2-h3-source-skeleton",
+  "schema": "source-wide-fixture-result/v1",
+  "selectors": [
+    "group.H.H1",
+    "group.H.H2",
+    "group.H.H3"
+  ],
+  "source_capabilities": [
+    "compile-objective-audit-candidate",
+    "compile-run-outcome-validation-candidate",
+    "compile-archive-or-continue-candidate"
+  ],
+  "status": "source-candidate"
+}

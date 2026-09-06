@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "s0-source-transition-current-authority-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "authority_id",
+    "predecessor_authority",
+    "current_canonical_lineage",
+    "current_sources"
+  ],
+  "properties": {
+    "schema": {
+      "const": "s0-source-transition-current-authority/v1"
+    },
+    "authority_id": {
+      "const": "ai-agent-workflow-s0-current-source-transition-v1"
+    },
+    "predecessor_authority": {
+      "$ref": "#/$defs/predecessor"
+    },
+    "current_canonical_lineage": {
+      "$ref": "#/$defs/lineage"
+    },
+    "current_sources": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/fullPlan"
+        },
+        {
+          "$ref": "#/$defs/stepCatalog"
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "path": {
+          "const": "agent-workflows/manifests/s0-source-transition-authority.json"
+        },
+        "digest": {
+          "const": "sha256:673114ec3e1ea69fcd9580805b7f872895062253a0a1ccc352f40f281ccc3070"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "path": {
+          "const": "agent-workflows/evidence/current-canonical-lineage.json"
+        },
+        "digest": {
+          "const": "sha256:347c4aa1ec8961fa820bf3122895172c041bfc1a86a4d91e783b99c3f989bdf4"
+        }
+      }
+    },
+    "fullPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "role": {
+          "const": "full-implementation-plan"
+        },
+        "path": {
+          "const": "docs/plans/ai-agent-workflow-full-implementation-plan.md"
+        },
+        "digest": {
+          "const": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524"
+        }
+      }
+    },
+    "stepCatalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "path",
+        "digest"
+      ],
+      "properties": {
+        "role": {
+          "const": "step-catalog"
+        },
+        "path": {
+          "const": "docs/plans/ai-agent-workflow-step-catalog.md"
+        },
+        "digest": {
+          "const": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d"
+        }
+      }
+    }
+  }
+}

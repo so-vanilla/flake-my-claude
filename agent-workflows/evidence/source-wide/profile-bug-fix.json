@@ -1,0 +1,628 @@
+{
+  "claim_boundary": {
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "objective_outcome_claimed": false,
+    "run_completion_claimed": false,
+    "source_candidate_only": true
+  },
+  "common_implementation_refs": [
+    {
+      "group": "B",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:e2aa018cc9e48438ad181b53cc9fa8346809583f43abaae951c6dcb67165ed09",
+          "path": "agent-workflows/src/ai_agent_workflow/objective_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36",
+        "path": "agent-workflows/groups/objective.json",
+        "version": "group-b-manifest/v1"
+      },
+      "selectors": [
+        "group.B.B1",
+        "group.B.B2",
+        "group.B.B3",
+        "group.B.B4",
+        "group.B.B5",
+        "group.B.B6",
+        "group.B.B7"
+      ]
+    },
+    {
+      "group": "C",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:e4ab3113da334ad15c842aa656fae52a5c84e3b4ce5f90f1b39aacb83989d646",
+          "path": "agent-workflows/src/ai_agent_workflow/outcome_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a",
+        "path": "agent-workflows/groups/outcomes.json",
+        "version": "group-c-manifest/v1"
+      },
+      "selectors": [
+        "group.C.C1",
+        "group.C.C2",
+        "group.C.C3",
+        "group.C.C4",
+        "group.C.C5",
+        "group.C.C6"
+      ]
+    },
+    {
+      "group": "D",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:de58f4a6fdd813e40b51e8a99e9989feeb313729e675d446b4e4c45101ff2a36",
+          "path": "agent-workflows/src/ai_agent_workflow/planning_system.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2",
+        "path": "agent-workflows/groups/planning.json",
+        "version": "group-d-manifest/v1"
+      },
+      "selectors": [
+        "group.D.D1",
+        "group.D.D2",
+        "group.D.D3",
+        "group.D.D4",
+        "group.D.D5",
+        "group.D.D6",
+        "group.D.D7",
+        "group.D.D8",
+        "group.D.D9",
+        "group.D.D10",
+        "group.D.D11",
+        "group.D.D12"
+      ]
+    },
+    {
+      "group": "E",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:9c8de590e1b266ba3ab12b89875cdc53d5b7893f90322a71ba263c2c39f3b82e",
+          "path": "agent-workflows/src/ai_agent_workflow/execution_group.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255",
+        "path": "agent-workflows/groups/execution.json",
+        "version": "group-e-manifest/v1"
+      },
+      "selectors": [
+        "group.E.E1",
+        "group.E.E2",
+        "group.E.E3",
+        "group.E.E4",
+        "group.E.E5",
+        "group.E.E6",
+        "group.E.E7",
+        "group.E.E8",
+        "group.E.E9"
+      ]
+    },
+    {
+      "group": "F",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+          "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f",
+        "path": "agent-workflows/groups/shared-closure.json",
+        "version": "shared-closure-manifest/v1"
+      },
+      "selectors": [
+        "group.F.F1",
+        "group.F.F2",
+        "group.F.F3",
+        "group.F.F4",
+        "group.F.F5",
+        "group.F.F6",
+        "group.F.F7"
+      ]
+    },
+    {
+      "group": "G",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db",
+          "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09",
+        "path": "agent-workflows/groups/decisions.json",
+        "version": "group-g-manifest/v1"
+      },
+      "selectors": [
+        "group.G.G1",
+        "group.G.G2",
+        "group.G.G3",
+        "group.G.G4",
+        "group.G.G5",
+        "group.G.G6"
+      ]
+    },
+    {
+      "group": "H",
+      "implementation_embedded": false,
+      "interface_refs": [
+        {
+          "digest": "sha256:a27f5ebe7f8cfb4a8981a233f00e0297b7a0c80efc64642b67947c9d8af2e8db",
+          "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+          "version": "python-source/v1"
+        }
+      ],
+      "manifest_ref": {
+        "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb",
+        "path": "agent-workflows/groups/completion.json",
+        "version": "group-h-manifest/v1"
+      },
+      "selectors": [
+        "group.H.H1",
+        "group.H.H2",
+        "group.H.H3"
+      ]
+    }
+  ],
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "fixture_id": "s8-profile-bug-fix",
+  "profile": "bug-fix",
+  "profile_contract_refs": [
+    {
+      "evidence_ref": {
+        "digest": "sha256:0079f32182d186351318d4b8519192a7eefd64c59569a624f4958adde2d0b29e",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF1.json"
+      },
+      "host_selector": "group.D.D2",
+      "qualified_id": "profile.bug-fix.BGF1",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF1)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:dab1341fdd8c8345c7a2d01b1f30e25d90a63912f46e43f0bc65bb4742faa880",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF2.json"
+      },
+      "host_selector": "group.D.D2",
+      "qualified_id": "profile.bug-fix.BGF2",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF2)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:cb0e6bf8814676875bfcc34ebe80c6155e895e9c3374502491f0fd6607e5e23c",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF3.json"
+      },
+      "host_selector": "group.D.D2",
+      "qualified_id": "profile.bug-fix.BGF3",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF3)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:029363d90fef1312224dcb30ec2fcff06d61692c86e69a3e8f7d54d25ca1eb95",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF4.json"
+      },
+      "host_selector": "group.D.D2",
+      "qualified_id": "profile.bug-fix.BGF4",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF4)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:40e3717d11e5f995d388b5f6bac4112f0fa1ec0b75259c2aecd6397cc96300ea",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF5.json"
+      },
+      "host_selector": "group.D.D2",
+      "qualified_id": "profile.bug-fix.BGF5",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF5)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:4bc99919ba740fd52d71bafaf4f751560007a490bd558b307daaffb06509fe8f",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF6.json"
+      },
+      "host_selector": "group.D.D5",
+      "qualified_id": "profile.bug-fix.BGF6",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF6)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:fe9af1197b79204d03f000a716016790255bf9203196bf5194d83194abe539ea",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF7.json"
+      },
+      "host_selector": "group.E.E3",
+      "qualified_id": "profile.bug-fix.BGF7",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF7)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    },
+    {
+      "evidence_ref": {
+        "digest": "sha256:d9cf3fa3401d17489e810b5dfa0788c534e0eba53a8b7a8338e0a453b7a3d0c3",
+        "path": "agent-workflows/evidence/profiles/bug-fix/BGF8.json"
+      },
+      "host_selector": "group.E.E9",
+      "qualified_id": "profile.bug-fix.BGF8",
+      "selector_ref": {
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF8)"
+      },
+      "template_ref": {
+        "digest": "sha256:d5e4cdb48f290f89c0d2b24346048048a6da60b82662036e1b752889ab5d6b25",
+        "path": "agent-workflows/templates/profiles/bug-fix.json"
+      }
+    }
+  ],
+  "profile_manifest_ref": {
+    "digest": "sha256:fa5f3c9e2eb20b6dd3fde92559ff04339671f62e4fd8f0b08eb63ec27ef9e46b",
+    "path": "agent-workflows/profiles/bug-fix.json",
+    "version": "software-profile-manifest/v1"
+  },
+  "result_digest": "sha256:b29141ce2a0c9574f613ac551dfce4530944a368f615bfec2a51fde3c9d2daf4",
+  "result_kind": "profile-source-execution",
+  "review_execution": {
+    "fix_waves": [
+      {
+        "after_round": 1,
+        "fresh_rereview_round": 2,
+        "required_fingerprints": [
+          "bug-regression-gap"
+        ],
+        "wave": 1
+      }
+    ],
+    "fix_waves_used": 1,
+    "guard_order": [
+      "review-validity",
+      "materiality",
+      "fingerprint-deduplication",
+      "fix-eligibility"
+    ],
+    "open_required_finding_count": 0,
+    "rounds": [
+      {
+        "candidate_revision": 0,
+        "deduplicated_finding_count": 1,
+        "finding_validation": {
+          "advisory_only": true,
+          "candidate_digest": "sha256:e86febb4d387b8c514f683e88f10189022368ca6f8eeab5f6a914b9ee2173335",
+          "disposition_digest": "sha256:bef19d06760815be266715d308b449861fa4beca2d189f8cf208fa1db92be1fa",
+          "dispositions": [
+            {
+              "classification": "required",
+              "fingerprint": "bug-regression-gap",
+              "materiality": "material",
+              "proposed_scope": [
+                "agent-workflows/tests/fixtures/s8"
+              ],
+              "source_finding_ids": [
+                "bug-arch-regression-gap",
+                "bug-ops-regression-gap"
+              ]
+            }
+          ],
+          "observed_budget": {
+            "product_fix_attempt": 0,
+            "remaining_seconds": 1,
+            "review_round": 1
+          },
+          "receipt_aggregate_digest": "sha256:f040da13ea48f155f6cff1123468300775560ab1829ff2aecd3b7e836e4a22ad",
+          "review_refs": [
+            {
+              "digest": "sha256:1e5369db71576d4eebdcb054f123127f69ce30253c38af1c0786c8ee227279be",
+              "id": "s8-profile-bug-fix-r1-architecture-safety"
+            },
+            {
+              "digest": "sha256:236b0a8233bf0902e346b052638dca479f2338429e4f688c8e113dc8ab1b8a4a",
+              "id": "s8-profile-bug-fix-r1-integration-operability"
+            }
+          ],
+          "schema": "finding-disposition/v1",
+          "source_finding_ids": [
+            "bug-arch-regression-gap",
+            "bug-ops-regression-gap"
+          ]
+        },
+        "raw_finding_count": 2,
+        "required_fingerprints": [
+          "bug-regression-gap"
+        ],
+        "round": 1,
+        "route": "fix"
+      },
+      {
+        "candidate_revision": 1,
+        "deduplicated_finding_count": 0,
+        "finding_validation": {
+          "advisory_only": true,
+          "candidate_digest": "sha256:84c0edb81cc2c9019b5d618a4ae0bb0795099289572fe6c7ff60aef70a092bf1",
+          "disposition_digest": "sha256:a31603dd0f74f16b1fe5854b4745886d671eb834da6de4851778e0e043ff8638",
+          "dispositions": [],
+          "observed_budget": {
+            "product_fix_attempt": 1,
+            "remaining_seconds": 0,
+            "review_round": 2
+          },
+          "receipt_aggregate_digest": "sha256:b2b08bedcff2937787c8f199eb77f764f73c2ed3891dbf381dfab755e562678a",
+          "review_refs": [
+            {
+              "digest": "sha256:7dab9ecbcadaa4129e991d23e5033703b3b2063b8256d0a639d80b5d69f11bbd",
+              "id": "s8-profile-bug-fix-r2-architecture-safety"
+            },
+            {
+              "digest": "sha256:913a554f1f3e84f94878cf6b299d6353f5dbf6210781144f17e28db76149512d",
+              "id": "s8-profile-bug-fix-r2-integration-operability"
+            }
+          ],
+          "schema": "finding-disposition/v1",
+          "source_finding_ids": []
+        },
+        "raw_finding_count": 0,
+        "required_fingerprints": [],
+        "round": 2,
+        "route": "accepted"
+      }
+    ],
+    "rounds_used": 2,
+    "shared_budget": {
+      "maximum_fix_waves": 1,
+      "maximum_review_rounds": 2
+    },
+    "terminal": "source-candidate-accepted",
+    "trace": [
+      {
+        "axis": "architecture-safety",
+        "kind": "review",
+        "round": 1
+      },
+      {
+        "axis": "integration-operability",
+        "kind": "review",
+        "round": 1
+      },
+      {
+        "kind": "finding-validation",
+        "round": 1
+      },
+      {
+        "kind": "fix",
+        "round": 1,
+        "wave": 1
+      },
+      {
+        "axis": "architecture-safety",
+        "kind": "review",
+        "round": 2
+      },
+      {
+        "axis": "integration-operability",
+        "kind": "review",
+        "round": 2
+      },
+      {
+        "kind": "finding-validation",
+        "round": 2
+      },
+      {
+        "kind": "converge",
+        "round": 2
+      }
+    ]
+  },
+  "s7_surface_manifest_ref": {
+    "digest": "sha256:05d56c883dcf14c7d5f43dbcd343e762a9a1826a054cd5c273e7ac7d19f1db2b",
+    "path": "agent-workflows/manifests/additional-required-surfaces.json",
+    "version": "additional-required-surfaces/v1"
+  },
+  "schema": "source-wide-fixture-result/v1",
+  "source_order": {
+    "profile_selectors": [
+      "profile.bug-fix.BGF1",
+      "profile.bug-fix.BGF2",
+      "profile.bug-fix.BGF3",
+      "profile.bug-fix.BGF4",
+      "profile.bug-fix.BGF5",
+      "profile.bug-fix.BGF6",
+      "profile.bug-fix.BGF7",
+      "profile.bug-fix.BGF8"
+    ],
+    "selectors": [
+      "group.B.B1",
+      "group.B.B2",
+      "group.B.B3",
+      "group.B.B4",
+      "group.B.B5",
+      "group.B.B6",
+      "group.B.B7",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.C.C1",
+      "group.C.C2",
+      "group.C.C3",
+      "group.C.C4",
+      "group.C.C5",
+      "group.C.C6",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.D.D1",
+      "group.D.D2",
+      "profile.bug-fix.BGF1",
+      "profile.bug-fix.BGF2",
+      "profile.bug-fix.BGF3",
+      "profile.bug-fix.BGF4",
+      "profile.bug-fix.BGF5",
+      "group.D.D3",
+      "group.D.D4",
+      "group.D.D5",
+      "profile.bug-fix.BGF6",
+      "group.D.D6",
+      "group.D.D7",
+      "group.D.D8",
+      "group.D.D9",
+      "group.D.D10",
+      "group.D.D11",
+      "group.D.D12",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.E.E1",
+      "group.E.E2",
+      "group.E.E3",
+      "profile.bug-fix.BGF7",
+      "group.E.E4",
+      "group.E.E5",
+      "group.E.E6",
+      "group.E.E7",
+      "group.E.E8",
+      "group.E.E9",
+      "profile.bug-fix.BGF8",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.G.G1",
+      "group.G.G2",
+      "group.G.G3",
+      "group.G.G4",
+      "group.G.G5",
+      "group.G.G6",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7",
+      "group.H.H1",
+      "group.H.H2",
+      "group.H.H3",
+      "group.F.F1",
+      "group.F.F2",
+      "group.F.F3",
+      "group.F.F4",
+      "group.F.F5",
+      "group.F.F6",
+      "group.F.F7"
+    ],
+    "stage_ids": [
+      "purpose",
+      "close-purpose",
+      "outcomes",
+      "close-outcomes",
+      "planning-current-system",
+      "bug-diagnosis",
+      "planning-fix-options",
+      "bug-fix-options",
+      "planning-readiness",
+      "close-planning",
+      "execution-loop",
+      "bug-regression",
+      "execution-review",
+      "execution-convergence",
+      "bug-impact",
+      "close-execution",
+      "decisions",
+      "close-decisions",
+      "run-outcome",
+      "close-run-outcome"
+    ]
+  },
+  "status": "source-candidate",
+  "workflow_id": "bug-fix-standard",
+  "workflow_manifest_ref": {
+    "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151",
+    "path": "agent-workflows/workflows/bug-fix-standard.json",
+    "version": "workflow-manifest/v1"
+  }
+}

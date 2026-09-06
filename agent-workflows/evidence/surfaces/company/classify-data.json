@@ -1,0 +1,31 @@
+{
+  "schema": "company-governance-surface-evidence/v1",
+  "surface_id": "surface.company.classify-data",
+  "canonical_source": {
+    "path": "agent-workflows/company/classify-data.py",
+    "digest": "sha256:96d3f1bea4cc0a8c274a806682fb371af929b5b341b3da3cf019cfc61111e12b"
+  },
+  "acceptance": {
+    "selector": "surface.company.classify-data",
+    "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+    "result": "passed"
+  },
+  "claim_boundary": {
+    "source_fixture_only": true,
+    "personal_state_used": false,
+    "credentials_used": false,
+    "live_company_system_used": false,
+    "live_identity_used": false,
+    "live_policy_used": false,
+    "live_catalog_used": false,
+    "live_evaluation_used": false,
+    "live_release_used": false,
+    "live_audit_used": false,
+    "approval_minted": false
+  },
+  "proof": {
+    "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+    "result_kind": "data-classification-candidate",
+    "raw_secret_output": false
+  }
+}

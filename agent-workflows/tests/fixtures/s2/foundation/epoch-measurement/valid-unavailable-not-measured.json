@@ -1,0 +1,1 @@
+{"schema":"measurement-observation/v1","observation_id":"not-measured-baseline","status":"unavailable","value":null,"reason":{"code":"not-measured","decision_ref":{"path":"fixtures/decision.json","digest":"sha256:5555555555555555555555555555555555555555555555555555555555555555"}}}

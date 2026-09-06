@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B2",
+  "contract_name": "discover-context",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/discover-context/SKILL.md",
+    "digest": "sha256:5c3a83e384834f36921c6e47b5af984c74060a33a8dd6b3a88badfdb5afc23cd"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B2_DiscoverContextTests"
+  },
+  "status": "passed"
+}

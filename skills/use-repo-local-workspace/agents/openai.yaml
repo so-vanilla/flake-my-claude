@@ -1,4 +1,0 @@
-interface:
-  display_name: "Use Repo Local Workspace"
-  short_description: "Keep private repo artifacts under .local/"
-  default_prompt: "Use $use-repo-local-workspace to place this workplan safely in the repository."

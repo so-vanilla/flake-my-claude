@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B4",
+  "contract_name": "grill-purpose",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/grill-purpose/SKILL.md",
+    "digest": "sha256:c9daab882f160dcb52fa78827facd6e28185e08095e510c9fe1c4ee2388c10b8"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B4_GrillPurposeTests"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "decision-outcome-lifecycle-v1.schema.json",
+  "title": "Pure Group G and H decision/outcome lifecycle result",
+  "oneOf": [
+    {"$ref": "#/$defs/candidate"},
+    {"$ref": "#/$defs/composition"},
+    {"$ref": "#/$defs/refusal"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nonempty": {"type": "string", "minLength": 1},
+    "head": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "physical_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "version", "digest"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonempty"},
+        "version": {"$ref": "#/$defs/nonempty"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "nullable_ref": {"anyOf": [{"$ref": "#/$defs/physical_ref"}, {"type": "null"}]},
+    "source_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {"path": {"$ref": "#/$defs/nonempty"}, "digest": {"$ref": "#/$defs/digest"}}
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority_ref", "namespace", "scope", "owner_ref"],
+      "properties": {
+        "authority_ref": {"$ref": "#/$defs/physical_ref"},
+        "namespace": {"$ref": "#/$defs/nonempty"},
+        "scope": {"enum": ["decision-outcome-candidate", "candidate-generic", "fixture-only"]},
+        "owner_ref": {"$ref": "#/$defs/physical_ref"}
+      }
+    },
+    "source_interfaces": {
+      "type": "object", "additionalProperties": false,
+      "required": ["catalog", "objective_system", "outcome_system", "closure_protocol", "software_profiles", "feature_profile", "bug_fix_profile", "improvement_profile", "objective_manifest", "outcomes_manifest"],
+      "properties": {
+        "catalog": {"$ref": "#/$defs/source_ref"},
+        "objective_system": {"$ref": "#/$defs/source_ref"},
+        "outcome_system": {"$ref": "#/$defs/source_ref"},
+        "closure_protocol": {"$ref": "#/$defs/source_ref"},
+        "software_profiles": {"$ref": "#/$defs/source_ref"},
+        "feature_profile": {"$ref": "#/$defs/source_ref"},
+        "bug_fix_profile": {"$ref": "#/$defs/source_ref"},
+        "improvement_profile": {"$ref": "#/$defs/source_ref"},
+        "objective_manifest": {"$ref": "#/$defs/source_ref"},
+        "outcomes_manifest": {"$ref": "#/$defs/source_ref"}
+      }
+    },
+    "selector": {"enum": ["group.G.G1", "group.G.G2", "group.G.G3", "group.G.G4", "group.G.G5", "group.G.G6", "group.H.H1", "group.H.H2", "group.H.H3"]},
+    "result_kind": {"enum": ["decision-source-inventory-candidate", "decision-classification-candidate", "decision-graph-candidate", "durable-decision-record-preview-candidate", "decision-promotion-approval-validation-candidate", "decision-promotion-transaction-candidate", "objective-audit-candidate", "run-outcome-validation-candidate", "archive-or-continue-candidate"]},
+    "string_array": {"type": "array", "items": {"$ref": "#/$defs/nonempty"}},
+    "ref_array": {"type": "array", "items": {"$ref": "#/$defs/physical_ref"}},
+    "g1_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["run_id", "period", "groups", "source_refs", "searched_scopes", "unreadable_scopes", "excluded_scopes", "coverage_status"],
+      "properties": {
+        "run_id": {"$ref": "#/$defs/nonempty"}, "period": {"$ref": "#/$defs/nonempty"},
+        "groups": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "searched_scopes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "unreadable_scopes": {"$ref": "#/$defs/string_array"}, "excluded_scopes": {"$ref": "#/$defs/string_array"},
+        "coverage_status": {"enum": ["complete", "partial"]}
+      }
+    },
+    "classification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["candidate_ref", "status", "evidence_refs", "authority_ref", "approval_receipt_ref", "confidence"],
+      "properties": {
+        "candidate_ref": {"$ref": "#/$defs/physical_ref"},
+        "status": {"enum": ["observation", "assumption", "proposal", "temporary-ruling", "approved-decision", "superseding-candidate"]},
+        "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "authority_ref": {"$ref": "#/$defs/nullable_ref"}, "approval_receipt_ref": {"$ref": "#/$defs/nullable_ref"},
+        "confidence": {"type": "number", "minimum": 0}
+      }
+    },
+    "g2_payload": {"type": "object", "additionalProperties": false, "required": ["classifications"], "properties": {"classifications": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/classification"}}}},
+    "graph_node": {"type": "object", "additionalProperties": false, "required": ["candidate_ref", "disposition", "chronology"], "properties": {"candidate_ref": {"$ref": "#/$defs/physical_ref"}, "disposition": {"enum": ["new", "duplicate", "conflict", "superseding"]}, "chronology": {"type": "integer", "minimum": 0}}},
+    "graph_edge": {"type": "object", "additionalProperties": false, "required": ["source_ref", "target_ref", "kind"], "properties": {"source_ref": {"$ref": "#/$defs/physical_ref"}, "target_ref": {"$ref": "#/$defs/physical_ref"}, "kind": {"enum": ["duplicate-of", "conflicts-with", "supersedes"]}}},
+    "g3_payload": {"type": "object", "additionalProperties": false, "required": ["nodes", "relationships"], "properties": {"nodes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/graph_node"}}, "relationships": {"type": "array", "items": {"$ref": "#/$defs/graph_edge"}}}},
+    "record": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "graph_candidate_ref", "record_kind", "context", "decision", "drivers", "options", "rationale_evidence_refs", "rejected_alternatives", "consequences", "owner", "revisit_trigger", "source_refs", "historical_rule_refs"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/nonempty"}, "graph_candidate_ref": {"$ref": "#/$defs/physical_ref"},
+        "record_kind": {"enum": ["current-candidate", "superseding-candidate"]}, "context": {"$ref": "#/$defs/nonempty"},
+        "decision": {"$ref": "#/$defs/nonempty"}, "drivers": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "options": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "rationale_evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "rejected_alternatives": {"$ref": "#/$defs/string_array"}, "consequences": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}},
+        "owner": {"$ref": "#/$defs/nonempty"}, "revisit_trigger": {"$ref": "#/$defs/nonempty"},
+        "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}}, "historical_rule_refs": {"$ref": "#/$defs/ref_array"}
+      }
+    },
+    "g4_payload": {"type": "object", "additionalProperties": false, "required": ["records"], "properties": {"records": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/record"}}}},
+    "target": {"type": "object", "additionalProperties": false, "required": ["path", "version"], "properties": {"path": {"$ref": "#/$defs/nonempty"}, "version": {"$ref": "#/$defs/nonempty"}}},
+    "promotion_action": {"type": "object", "additionalProperties": false, "required": ["record_id", "decision", "target", "diff_digest"], "properties": {"record_id": {"$ref": "#/$defs/nonempty"}, "decision": {"enum": ["adopt", "modify", "hold", "reject"]}, "target": {"$ref": "#/$defs/target"}, "diff_digest": {"$ref": "#/$defs/digest"}}},
+    "g5_payload": {"type": "object", "additionalProperties": false, "required": ["candidate_ref", "actions"], "properties": {"candidate_ref": {"$ref": "#/$defs/physical_ref"}, "actions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/promotion_action"}}}},
+    "promotion_transaction": {
+      "type": "object", "additionalProperties": false,
+      "required": ["record_id", "decision", "source_event_refs", "candidate_ref", "approval_event_ref", "durable_target", "validation_refs", "backlinks", "supersedes_ref"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/nonempty"}, "decision": {"enum": ["adopt", "modify"]},
+        "source_event_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "candidate_ref": {"$ref": "#/$defs/physical_ref"}, "approval_event_ref": {"$ref": "#/$defs/physical_ref"},
+        "durable_target": {"$ref": "#/$defs/target"}, "validation_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "backlinks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/backlink"}}, "supersedes_ref": {"$ref": "#/$defs/nullable_ref"}
+      }
+    },
+    "backlink": {"type": "object", "additionalProperties": false, "required": ["source_ref", "durable_target"], "properties": {"source_ref": {"$ref": "#/$defs/physical_ref"}, "durable_target": {"$ref": "#/$defs/target"}}},
+    "g6_payload": {"type": "object", "additionalProperties": false, "required": ["transactions", "write_requested", "source_events_immutable", "overwrite_existing"], "properties": {"transactions": {"type": "array", "items": {"$ref": "#/$defs/promotion_transaction"}}, "write_requested": {"const": false}, "source_events_immutable": {"const": true}, "overwrite_existing": {"const": false}}},
+    "audit_claim": {"type": "object", "additionalProperties": false, "required": ["status", "evidence_refs"], "properties": {"status": {"$ref": "#/$defs/nonempty"}, "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}}}},
+    "unverified": {"type": "object", "additionalProperties": false, "required": ["item_id", "material", "reason"], "properties": {"item_id": {"$ref": "#/$defs/nonempty"}, "material": {"type": "boolean"}, "reason": {"$ref": "#/$defs/nonempty"}}},
+    "h1_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["objective_ref", "outcome_system_ref", "closure_ref", "profile_ref", "decision_promotion_ref", "delivery", "trajectory", "objective_state", "unverified_items"],
+      "properties": {
+        "objective_ref": {"$ref": "#/$defs/physical_ref"}, "outcome_system_ref": {"$ref": "#/$defs/physical_ref"},
+        "closure_ref": {"$ref": "#/$defs/physical_ref"}, "profile_ref": {"$ref": "#/$defs/physical_ref"},
+        "decision_promotion_ref": {"$ref": "#/$defs/nullable_ref"}, "delivery": {"$ref": "#/$defs/audit_claim"},
+        "trajectory": {"$ref": "#/$defs/audit_claim"}, "objective_state": {"$ref": "#/$defs/audit_claim"},
+        "unverified_items": {"type": "array", "items": {"$ref": "#/$defs/unverified"}}
+      }
+    },
+    "h2_payload": {"type": "object", "additionalProperties": false, "required": ["audit_ref", "outcome", "reason", "remaining_tasks"], "properties": {"audit_ref": {"$ref": "#/$defs/physical_ref"}, "outcome": {"enum": ["achieved", "partially-achieved", "not-achieved", "superseded", "abandoned"]}, "reason": {"$ref": "#/$defs/nonempty"}, "remaining_tasks": {"$ref": "#/$defs/string_array"}}},
+    "retention": {"type": "object", "additionalProperties": false, "required": ["artifact_ref", "retain", "rationale"], "properties": {"artifact_ref": {"$ref": "#/$defs/physical_ref"}, "retain": {"type": "boolean"}, "rationale": {"$ref": "#/$defs/nonempty"}}},
+    "cleanup": {"type": "object", "additionalProperties": false, "required": ["path", "reason", "requires_human_approval", "executed"], "properties": {"path": {"$ref": "#/$defs/nonempty"}, "reason": {"$ref": "#/$defs/nonempty"}, "requires_human_approval": {"const": true}, "executed": {"const": false}}},
+    "important_decision": {"type": "object", "additionalProperties": false, "required": ["candidate_ref", "promoted", "promotion_ref"], "properties": {"candidate_ref": {"$ref": "#/$defs/physical_ref"}, "promoted": {"const": true}, "promotion_ref": {"$ref": "#/$defs/physical_ref"}}},
+    "h3_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["outcome_ref", "mode", "retention", "cleanup_candidates", "decision_candidates", "important_decisions", "rollback_artifact_refs", "next_run_handoff_ref"],
+      "properties": {
+        "outcome_ref": {"$ref": "#/$defs/physical_ref"}, "mode": {"enum": ["archive", "continue"]},
+        "retention": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/retention"}},
+        "cleanup_candidates": {"type": "array", "items": {"$ref": "#/$defs/cleanup"}},
+        "decision_candidates": {"$ref": "#/$defs/ref_array"}, "important_decisions": {"type": "array", "items": {"$ref": "#/$defs/important_decision"}},
+        "rollback_artifact_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "next_run_handoff_ref": {"$ref": "#/$defs/nullable_ref"}
+      }
+    },
+    "candidate_base": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "group", "step_id", "result_kind", "status", "expected_head", "authority", "authority_digest", "predecessor_artifact_refs", "evidence_refs", "payload", "human_event_ref", "source_interfaces", "non_mutating", "grants_approval", "performs_promotion", "performs_archive", "performs_cleanup", "objective_outcome_claimed", "candidate_digest"],
+      "properties": {
+        "schema": {"const": "decision-outcome-candidate/v1"}, "qualified_id": {"$ref": "#/$defs/selector"},
+        "group": {"enum": ["G", "H"]}, "step_id": {"enum": ["G1", "G2", "G3", "G4", "G5", "G6", "H1", "H2", "H3"]},
+        "result_kind": {"$ref": "#/$defs/result_kind"}, "status": {"const": "candidate"},
+        "expected_head": {"$ref": "#/$defs/head"}, "authority": {"$ref": "#/$defs/authority"}, "authority_digest": {"$ref": "#/$defs/digest"},
+        "predecessor_artifact_refs": {"$ref": "#/$defs/ref_array"}, "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "payload": {}, "human_event_ref": {"$ref": "#/$defs/nullable_ref"}, "source_interfaces": {"$ref": "#/$defs/source_interfaces"},
+        "non_mutating": {"const": true}, "grants_approval": {"const": false}, "performs_promotion": {"const": false},
+        "performs_archive": {"const": false}, "performs_cleanup": {"const": false}, "objective_outcome_claimed": {"const": false},
+        "candidate_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "candidate": {
+      "allOf": [
+        {"$ref": "#/$defs/candidate_base"},
+        {"oneOf": [
+          {"properties": {"qualified_id": {"const": "group.G.G1"}, "result_kind": {"const": "decision-source-inventory-candidate"}, "payload": {"$ref": "#/$defs/g1_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.G.G2"}, "result_kind": {"const": "decision-classification-candidate"}, "payload": {"$ref": "#/$defs/g2_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.G.G3"}, "result_kind": {"const": "decision-graph-candidate"}, "payload": {"$ref": "#/$defs/g3_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.G.G4"}, "result_kind": {"const": "durable-decision-record-preview-candidate"}, "payload": {"$ref": "#/$defs/g4_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.G.G5"}, "result_kind": {"const": "decision-promotion-approval-validation-candidate"}, "payload": {"$ref": "#/$defs/g5_payload"}, "human_event_ref": {"$ref": "#/$defs/physical_ref"}}},
+          {"properties": {"qualified_id": {"const": "group.G.G6"}, "result_kind": {"const": "decision-promotion-transaction-candidate"}, "payload": {"$ref": "#/$defs/g6_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.H.H1"}, "result_kind": {"const": "objective-audit-candidate"}, "payload": {"$ref": "#/$defs/h1_payload"}, "human_event_ref": {"type": "null"}}},
+          {"properties": {"qualified_id": {"const": "group.H.H2"}, "result_kind": {"const": "run-outcome-validation-candidate"}, "payload": {"$ref": "#/$defs/h2_payload"}, "human_event_ref": {"$ref": "#/$defs/physical_ref"}}},
+          {"properties": {"qualified_id": {"const": "group.H.H3"}, "result_kind": {"const": "archive-or-continue-candidate"}, "payload": {"$ref": "#/$defs/h3_payload"}, "human_event_ref": {"type": "null"}}}
+        ]}
+      ]
+    },
+    "composition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "status", "g_artifact_refs", "h_artifact_refs", "selectors", "expected_head", "authority", "authority_digest", "source_interfaces", "non_mutating", "grants_approval", "performs_promotion", "performs_archive", "performs_cleanup", "objective_outcome_claimed", "composition_digest"],
+      "properties": {
+        "schema": {"const": "decision-outcome-lifecycle-composition/v1"}, "status": {"const": "candidate"},
+        "g_artifact_refs": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"$ref": "#/$defs/physical_ref"}},
+        "h_artifact_refs": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"$ref": "#/$defs/physical_ref"}},
+        "selectors": {"type": "array", "minItems": 9, "maxItems": 9, "items": {"$ref": "#/$defs/selector"}},
+        "expected_head": {"$ref": "#/$defs/head"}, "authority": {"$ref": "#/$defs/authority"}, "authority_digest": {"$ref": "#/$defs/digest"},
+        "source_interfaces": {"$ref": "#/$defs/source_interfaces"}, "non_mutating": {"const": true}, "grants_approval": {"const": false},
+        "performs_promotion": {"const": false}, "performs_archive": {"const": false}, "performs_cleanup": {"const": false},
+        "objective_outcome_claimed": {"const": false}, "composition_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "refusal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "group", "reason", "expected_head", "non_mutating", "grants_approval", "performs_promotion", "performs_archive", "performs_cleanup", "objective_outcome_claimed"],
+      "properties": {
+        "schema": {"const": "decision-outcome-refusal/v1"}, "qualified_id": {"$ref": "#/$defs/nonempty"}, "group": {"enum": [null, "G", "H"]},
+        "reason": {"$ref": "#/$defs/nonempty"}, "expected_head": {"anyOf": [{"$ref": "#/$defs/head"}, {"type": "null"}]},
+        "non_mutating": {"const": true}, "grants_approval": {"const": false}, "performs_promotion": {"const": false},
+        "performs_archive": {"const": false}, "performs_cleanup": {"const": false}, "objective_outcome_claimed": {"const": false}
+      }
+    }
+  }
+}

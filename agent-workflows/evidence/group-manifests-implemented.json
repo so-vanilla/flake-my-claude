@@ -1,0 +1,60 @@
+{
+  "claim_boundary": {
+    "build_or_rebuild_claimed": false,
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "migration_or_activation_claimed": false,
+    "objective_outcome_claimed": false,
+    "operational_adoption_claimed": false,
+    "run_completion_claimed": false
+  },
+  "gate_id": "group-manifests-implemented",
+  "required_source_findings": [],
+  "schema": "agent-workflow-source-gate-evidence/group-manifests-implemented/v1",
+  "scope": "source-only",
+  "status": "passed",
+  "subject_refs": [
+    {
+      "digest": "sha256:0ef51a87df311c79b3ee063f66e6044f6fa981044bfcee74c46032ee3a0801ba",
+      "path": "agent-workflows/manifests/source-release.json"
+    },
+    {
+      "digest": "sha256:39c3621a5f9856c672ef1188a9bfb66da95a9f6911ed25bcfc21bee310c91eaf",
+      "path": "agent-workflows/manifests/source-evidence-index.json"
+    },
+    {
+      "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52",
+      "path": "agent-workflows/groups/bootstrap.json"
+    },
+    {
+      "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36",
+      "path": "agent-workflows/groups/objective.json"
+    },
+    {
+      "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a",
+      "path": "agent-workflows/groups/outcomes.json"
+    },
+    {
+      "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2",
+      "path": "agent-workflows/groups/planning.json"
+    },
+    {
+      "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255",
+      "path": "agent-workflows/groups/execution.json"
+    },
+    {
+      "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f",
+      "path": "agent-workflows/groups/shared-closure.json"
+    },
+    {
+      "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09",
+      "path": "agent-workflows/groups/decisions.json"
+    },
+    {
+      "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb",
+      "path": "agent-workflows/groups/completion.json"
+    }
+  ]
+}

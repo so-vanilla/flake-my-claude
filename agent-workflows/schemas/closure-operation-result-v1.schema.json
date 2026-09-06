@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "closure-operation-result/v1",
+  "title": "Pure shared-closure protocol result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "selector", "status", "expected_head", "input_refs", "result"],
+  "properties": {
+    "schema": {"const": "closure-operation-result/v1"},
+    "selector": {"enum": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7", "group.F.F8"]},
+    "status": {"const": "compiled"},
+    "expected_head": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "input_refs": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "digest"],
+        "properties": {
+          "kind": {"type": "string", "minLength": 1},
+          "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "alignment": {"enum": ["aligned", "uncertain"]},
+        "artifact_inventory": {
+          "type": "array",
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["id", "digest", "classification"],
+            "properties": {
+              "id": {"type": "string", "minLength": 1},
+              "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+              "classification": {"enum": ["canonical", "partial", "unverified"]}
+            }
+          }
+        },
+        "decision_candidates": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "digest", "kind", "approved"], "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kind": {"const": "decision"}, "approved": {"const": true}}}},
+        "unapproved_items": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "digest", "kind", "approved"], "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kind": {"enum": ["proposal", "observation", "assumption"]}, "approved": {"const": false}}}},
+        "future_frontier": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "advice": {
+          "type": "object", "additionalProperties": false,
+          "required": ["schema", "workflow_ref", "state_ref", "checkpoint_ref", "input_refs", "clear_boundary", "expected_head", "future_plan_ref", "next_group"],
+          "properties": {
+            "schema": {"const": "next-group-advice/v1"},
+            "workflow_ref": {"type": "object", "additionalProperties": false, "required": ["id", "digest", "object_type", "path"], "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "workflow"}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}}},
+            "state_ref": {"type": "object", "additionalProperties": false, "required": ["revision", "digest", "object_type", "path"], "properties": {"revision": {"type": "integer", "minimum": 0}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "dag-state"}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}}},
+            "checkpoint_ref": {"type": "object", "additionalProperties": false, "required": ["digest", "object_type", "path", "state_digest", "expected_head"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "checkpoint"}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}, "state_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}}},
+            "input_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "object", "additionalProperties": false, "required": ["id", "digest", "object_type", "path"], "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "artifact"}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}}}},
+            "clear_boundary": {"const": true},
+            "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+            "future_plan_ref": {"type": "object", "additionalProperties": false, "required": ["id", "digest", "object_type", "path", "workflow_digest", "state_digest", "checkpoint_digest", "input_digests", "clear_boundary", "expected_head", "next_group"], "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "future-plan"}, "path": {"type": "string", "pattern": "^objects/[0-9a-f]{64}\\.json$"}, "workflow_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "state_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "checkpoint_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "input_digests": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}, "clear_boundary": {"const": true}, "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}, "next_group": {"type": "string", "minLength": 1}}},
+            "next_group": {"type": "string", "minLength": 1}
+          }
+        },
+        "command": {
+          "type": "object", "additionalProperties": false,
+          "required": ["schema", "command_id", "command_type", "run_id", "expected_head", "workflow_version", "graph_version", "actor", "authority_ref", "input_refs", "idempotency_key", "protected_fields", "scope", "payload"],
+          "properties": {
+            "schema": {"const": "dag-command/v1"},
+            "command_id": {"type": "string", "minLength": 1},
+            "command_type": {"enum": ["close_epoch", "close_group"]},
+            "run_id": {"type": "string", "minLength": 1},
+            "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+            "workflow_version": {"type": "string", "minLength": 1},
+            "graph_version": {"const": "artifact-task-dag/v1"},
+            "actor": {"type": "object", "additionalProperties": false, "required": ["role", "assignment_id"], "properties": {"role": {"const": "orchestrator"}, "assignment_id": {"const": "shared-closure-protocol"}}},
+            "authority_ref": {
+              "type": "object", "additionalProperties": false,
+              "required": ["approved", "scopes", "write_scopes", "protected_fields", "human_receipt", "expected_head", "assignment_id", "run_id", "workflow_version"],
+              "properties": {
+                "approved": {"const": true},
+                "scopes": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+                "write_scopes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+                "protected_fields": {"type": "array", "minItems": 4, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+                "human_receipt": {"type": "string", "minLength": 1},
+                "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+                "assignment_id": {"const": "shared-closure-protocol"},
+                "run_id": {"type": "string", "minLength": 1},
+                "workflow_version": {"type": "string", "minLength": 1}
+              }
+            },
+            "input_refs": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["kind", "digest"], "properties": {"kind": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}},
+            "idempotency_key": {"type": "string", "minLength": 1},
+            "protected_fields": {"type": "array", "minItems": 4, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "scope": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "payload": {"type": "object", "additionalProperties": false, "properties": {"acceptance_evidence": {"type": "array"}, "approved_decisions": {"type": "array"}, "unresolved_items": {"type": "array"}, "invalidated_artifacts": {"type": "array"}, "next_inputs": {"type": "array"}, "context_budget": {"type": "object", "additionalProperties": false, "required": ["target", "normal_limit", "absolute_limit", "token_status", "token_count"], "properties": {"target": {"const": 200000}, "normal_limit": {"const": 300000}, "absolute_limit": {"const": 500000}, "token_status": {"const": "unavailable"}, "token_count": {"const": null}}}, "clear_before_next": {"type": "boolean"}, "next_group": {"type": "null"}, "boundary_reason": {"type": "string", "minLength": 1}}}
+          }
+        },
+        "resume": {"type": "object", "additionalProperties": false, "required": ["identifier", "head", "section_id", "status"], "properties": {"identifier": {"type": "string", "minLength": 1}, "head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}, "section_id": {"type": "string", "pattern": "^S[0-9]+$"}, "status": {"type": "string", "minLength": 1}}}
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "selector": {"const": "group.F.F1"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["alignment"], "properties": {"alignment": {}}}
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F2"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["artifact_inventory"], "properties": {"artifact_inventory": {}}}
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F3"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["decision_candidates", "unapproved_items"], "properties": {"decision_candidates": {}, "unapproved_items": {}}}
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F4"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["future_frontier"], "properties": {"future_frontier": {}}}
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F5"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["advice"], "properties": {"advice": {}}}
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F6"},
+        "result": {
+          "type": "object", "additionalProperties": false, "required": ["command"],
+          "properties": {"command": {"properties": {"command_type": {"const": "close_epoch"}, "payload": {"required": ["acceptance_evidence", "approved_decisions", "unresolved_items", "invalidated_artifacts", "next_inputs", "context_budget", "clear_before_next", "boundary_reason"]}}}}
+        }
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F7"},
+        "result": {
+          "type": "object", "additionalProperties": false, "required": ["command"],
+          "properties": {"command": {"properties": {"command_type": {"const": "close_group"}, "payload": {"required": ["acceptance_evidence", "approved_decisions", "unresolved_items", "invalidated_artifacts", "next_inputs", "next_group", "boundary_reason"]}}}}
+        }
+      }
+    },
+    {
+      "properties": {
+        "selector": {"const": "group.F.F8"},
+        "result": {"type": "object", "additionalProperties": false, "required": ["resume"], "properties": {"resume": {}}}
+      }
+    }
+  ]
+}

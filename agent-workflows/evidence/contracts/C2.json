@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.C.C2",
+  "contract_name": "build-outcome-dependency-graph",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/build-outcome-dependency-graph/SKILL.md",
+    "digest": "sha256:17662a7ec8bf4c4ad88876b860b46b7805c1a68e1d7127df82220f630a8c4102"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_outcome_system.py::C2_OutcomeDAGTests"
+  },
+  "status": "passed"
+}

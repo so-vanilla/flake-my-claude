@@ -1,0 +1,155 @@
+{
+  "schema": "software-profile-manifest/v1",
+  "profile_id": "agent-workflows.profile.improvement",
+  "profile": "improvement",
+  "implementation_kind": "workflow-profile-step",
+  "contracts": [
+    {
+      "qualified_id": "profile.improvement.I1",
+      "local_id": "I1",
+      "contract_name": "baseline",
+      "order": 1,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I1)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I1.json",
+        "digest": "sha256:1e09fecd33033fcaa63c8f8c81c2bf43d1bd41d74a7c26acfeb40cd151d30f4f"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I2",
+      "local_id": "I2",
+      "contract_name": "hypothesis",
+      "order": 2,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I2)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I2.json",
+        "digest": "sha256:b1acf35cde40f65c9086525e6cf5f9af4dfec01c4415d7a2e4d757fbfa926349"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I3",
+      "local_id": "I3",
+      "contract_name": "guardrails",
+      "order": 3,
+      "host_selector": "group.D.D2",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I3)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I3.json",
+        "digest": "sha256:2f7abdaa753de3c1150e0716bd53356b757b977ebf99b870b81a0b6c8f31e120"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I4",
+      "local_id": "I4",
+      "contract_name": "change-design",
+      "order": 4,
+      "host_selector": "group.D.D6",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I4)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I4.json",
+        "digest": "sha256:43853bc6e0d866a102f3facf09f85f4f087d1740b6afef535b06aa221f5e1d50"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I5",
+      "local_id": "I5",
+      "contract_name": "execute",
+      "order": 5,
+      "host_selector": "group.E.E3",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I5)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I5.json",
+        "digest": "sha256:8379b9a5fb3269e0ec321e16b05ee3e7e6e7b611070a601ae879c0e1475b07a1"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I6",
+      "local_id": "I6",
+      "contract_name": "compare",
+      "order": 6,
+      "host_selector": "group.E.E9",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I6)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I6.json",
+        "digest": "sha256:03045879f28030f1a8228a5a599e92e5ad68a411a10bd465413c2f3cb8a35b04"
+      }
+    },
+    {
+      "qualified_id": "profile.improvement.I7",
+      "local_id": "I7",
+      "contract_name": "decide",
+      "order": 7,
+      "host_selector": "group.E.E9",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/improvement.json",
+        "digest": "sha256:76090893ce6bbaad517566c908b94ad95d401e877fca7d3825acc74acc60f82f"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.improvement.I7)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/improvement/I7.json",
+        "digest": "sha256:dc0127fbfd26897ddae294efb3732ba9baa38102215ac3c0d305a41a8476c4ca"
+      }
+    }
+  ]
+}

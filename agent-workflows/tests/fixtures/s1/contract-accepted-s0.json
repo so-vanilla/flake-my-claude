@@ -1,0 +1,28 @@
+{
+  "schema": "section-plan/v1",
+  "section": {"id": "S1", "workflow_id": "workflow-main", "version": "v1"},
+  "groups": [
+    {"id": "analysis", "depends_on": [], "first_epoch": "S1-E1", "first_frontier": ["S1.A1"]}
+  ],
+  "accepted_section": {
+    "run_id": "run-fixture",
+    "workflow_version": "workflow/v1",
+    "section_id": "S0",
+    "status": "paused_after_group",
+    "ready": [],
+    "next_section": "S1",
+    "clear_boundary": true,
+    "plan_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "catalog_digest": "sha256:d3115b272f73bc6cf6ecae3531511e74c857b36a5d24c2e35688591e3814533a",
+    "checkpoint_ref": {"digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "object_type": "checkpoint", "path": "objects/dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd.json"},
+    "bundle_ref": {"digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "object_type": "artifact-bundle", "path": "objects/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.json"},
+    "lifecycle_prerequisite": {"kind": "accepted-section", "section_id": "S0", "receipt_digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    "accepted_section_receipt": {"digest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "object_type": "artifact", "path": "objects/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff.json"},
+    "section_history": []
+  },
+  "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "authority": {"approved": true, "scopes": ["source", "open_section", "open_group"], "protected_fields": ["section", "group", "epoch", "ready"], "human_receipt": "receipt-fixture", "expected_head": {"revision": 8, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}, "execution_class": "candidate-generic"},
+  "plan": {"digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "catalog": {"digest": "sha256:d3115b272f73bc6cf6ecae3531511e74c857b36a5d24c2e35688591e3814533a", "tasks": [{"id": "S1.A1", "section_id": "S1", "group_id": "analysis", "epoch_id": "S1-E1"}]},
+  "idempotency_key": "open-s1-analysis"
+}

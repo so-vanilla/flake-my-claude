@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "task-package-v1.schema.json",
+  "title": "Scoped immutable Task package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["task_id", "attempt_id", "assignment", "input_refs", "write_scope", "acceptance", "freshness", "stop_conditions", "invalidated", "stop_requested", "output_path", "status"],
+  "properties": {
+    "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "attempt_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "assignment": {"type": "object", "additionalProperties": false, "required": ["role", "assignment_id"], "properties": {"role": {"const": "worker"}, "assignment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}}},
+    "input_refs": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "external": {"type": "boolean"}, "node_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "artifact_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "object_type": {"type": "string", "minLength": 1}, "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"}}}},
+    "write_scope": {"type": "array", "items": {"oneOf": [{"const": "*"}, {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*).+$"}, {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//).+/\\*$"}]}},
+    "acceptance": {"type": "array"},
+    "stop_conditions": {"type": "array"},
+    "freshness": {"type": "object", "additionalProperties": false, "required": ["epoch_id", "created_at_revision"], "properties": {"epoch_id": {"type": "string", "minLength": 1}, "created_at_revision": {"type": "integer", "minimum": 1}, "stale": {"type": "boolean"}, "invalidated": {"type": "boolean"}}},
+    "invalidated": {"type": "boolean"},
+    "stop_requested": {"type": "boolean"},
+    "output_path": {"type": ["string", "null"], "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"},
+    "status": {"const": "ready"}
+  }
+}

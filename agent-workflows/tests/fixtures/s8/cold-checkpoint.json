@@ -1,0 +1,43 @@
+{
+  "schema": "source-wide-cold-checkpoint/v1",
+  "checkpoint_id": "s8-feature-after-build",
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "expected_head": {
+    "revision": 17,
+    "transaction_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "profile": "feature",
+  "workflow_manifest_ref": {
+    "path": "agent-workflows/workflows/feature-architectural.json",
+    "version": "workflow-manifest/v1",
+    "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e"
+  },
+  "profile_manifest_ref": {
+    "path": "agent-workflows/profiles/feature.json",
+    "version": "software-profile-manifest/v1",
+    "digest": "sha256:8e5cd6c0bb9df1de672acc1a85d40b3bb0ec4f68badfde9bfcd51c98f68578d4"
+  },
+  "group_manifest_refs": [
+    {"path": "agent-workflows/groups/objective.json", "version": "group-b-manifest/v1", "digest": "sha256:572091b7a39c4b5bd7b0bbb77827cf9e5e089fdea9799d051826804ba055af36"},
+    {"path": "agent-workflows/groups/outcomes.json", "version": "group-c-manifest/v1", "digest": "sha256:fc717686363fa35eac25eb7885e3027f3bb7169faa1ce5e84234faf2a68d346a"},
+    {"path": "agent-workflows/groups/planning.json", "version": "group-d-manifest/v1", "digest": "sha256:d61cefa5ed1905c0afe86e4bac4f51006d5a0ba16e246e80a219814a4172f6a2"},
+    {"path": "agent-workflows/groups/execution.json", "version": "group-e-manifest/v1", "digest": "sha256:0ab31676e431c1c8713c7b891890b48337867bd50127fefb695cae9b51e72255"},
+    {"path": "agent-workflows/groups/shared-closure.json", "version": "shared-closure-manifest/v1", "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"},
+    {"path": "agent-workflows/groups/decisions.json", "version": "group-g-manifest/v1", "digest": "sha256:40e19149b3f2d895c28628087fb2305993b6e7268d4420847c6951f567a93d09"},
+    {"path": "agent-workflows/groups/completion.json", "version": "group-h-manifest/v1", "digest": "sha256:45d1c721d6495f348a950acd6b088685c266f0462f321377cf4b5f89e36a0edb"}
+  ],
+  "completed_stage_ids": [
+    "purpose",
+    "close-purpose",
+    "outcomes",
+    "close-outcomes",
+    "planning-specification",
+    "feature-contract",
+    "planning-options",
+    "feature-architecture",
+    "planning-readiness",
+    "close-planning",
+    "execution-loop",
+    "feature-build"
+  ]
+}

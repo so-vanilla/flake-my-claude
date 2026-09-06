@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.A.A3",
+  "contract_name": "bootstrap-design-rollback",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/bootstrap-design-rollback/SKILL.md",
+    "digest": "sha256:48960aba99b7f3bb34cb3f56dfa7625519d7ca064ab917f65703d2043d4e16a8"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A3_RollbackDesignTests"
+  },
+  "status": "passed"
+}

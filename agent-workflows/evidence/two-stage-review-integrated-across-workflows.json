@@ -1,0 +1,32 @@
+{
+  "claim_boundary": {
+    "build_or_rebuild_claimed": false,
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "migration_or_activation_claimed": false,
+    "objective_outcome_claimed": false,
+    "operational_adoption_claimed": false,
+    "run_completion_claimed": false
+  },
+  "gate_id": "two-stage-review-integrated-across-workflows",
+  "required_source_findings": [],
+  "schema": "agent-workflow-source-gate-evidence/two-stage-review-integrated-across-workflows/v1",
+  "scope": "source-only",
+  "status": "passed",
+  "subject_refs": [
+    {
+      "digest": "sha256:7e7c1051fb1ce8cc20496a54ad5e7c267290d6fa63fd02a57be4dae3ef96a2a9",
+      "path": "agent-workflows/evidence/source-wide/profile-feature.json"
+    },
+    {
+      "digest": "sha256:f535d88b6c7ec45c5fa2dc724a6ca66b7fc985fa9a90acc599060b9088a8d4c3",
+      "path": "agent-workflows/evidence/source-wide/profile-bug-fix.json"
+    },
+    {
+      "digest": "sha256:94fd1564142adbda565843f8c218ce6a9ae2aa744546bde53bfec75e49c86fc2",
+      "path": "agent-workflows/evidence/source-wide/profile-improvement.json"
+    }
+  ]
+}

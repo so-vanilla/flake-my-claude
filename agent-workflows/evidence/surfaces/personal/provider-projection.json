@@ -1,0 +1,30 @@
+{
+  "schema": "s7-personal-surface-result/v1",
+  "surface_id": "surface.provider-projection",
+  "canonical_source": {
+    "path": "agent-workflows/provider-projection.py",
+    "digest": "sha256:cc918dd759d4a5c33a5aaab2239646fc9f507bca1a34de7f3095011bd4890504"
+  },
+  "acceptance": {
+    "selector": "S7PersonalSurfaceTests.test_provider_projection_surface",
+    "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_provider_projection_surface -v",
+    "result": "passed"
+  },
+  "claim_boundary": {
+    "source_fixture_only": true,
+    "live_apply": false,
+    "build": false,
+    "runtime_compatibility": "unverified"
+  },
+  "proof": {
+    "deep_interface": "ai_agent_workflow.distribution_planning.NativeProjectionAdapter",
+    "staged_artifact_required": true,
+    "digest_bound": true,
+    "compatibility": "partial",
+    "semantic_parity": false,
+    "unsupported_semantics": [
+      "hooks"
+    ],
+    "provider_state_written": false
+  }
+}

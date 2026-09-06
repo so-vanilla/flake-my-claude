@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.A.A4",
+  "contract_name": "bootstrap-initialize-run",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/bootstrap-initialize-run/SKILL.md",
+    "digest": "sha256:35d81f9f2ed377e593ed37ffae464f5ed95e0e9286fcceb9d6b7b54b6b19007d"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A4_RunInitializationTests"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "planning-system-v1.schema.json",
+  "title": "Pure Group D planning candidates and typed refusals",
+  "oneOf": [{"$ref": "#/$defs/artifact"}, {"$ref": "#/$defs/refusal"}],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {"type": "object", "additionalProperties": true, "required": ["path", "version", "digest"], "properties": {"path": {"type": "string", "minLength": 1}, "version": {"type": "string", "minLength": 1}, "digest": {"$ref": "#/$defs/digest"}}},
+    "authority": {"type": "object", "additionalProperties": false, "required": ["authority_ref", "namespace", "scope", "owner_ref"], "properties": {"authority_ref": {"$ref": "#/$defs/ref"}, "namespace": {"type": "string", "minLength": 1}, "scope": {"enum": ["candidate-generic", "fixture-only"]}, "owner_ref": {"$ref": "#/$defs/ref"}}},
+    "head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"$ref": "#/$defs/digest"}}},
+    "qualifiedId": {"enum": ["group.D.D1", "group.D.D2", "group.D.D3", "group.D.D4", "group.D.D5", "group.D.D6", "group.D.D7", "group.D.D8", "group.D.D9", "group.D.D10", "group.D.D11", "group.D.D12"]},
+    "artifact": {"type": "object", "additionalProperties": false, "required": ["schema", "qualified_id", "authority", "expected_head", "input_refs", "output"], "properties": {"schema": {"const": "planning-system-artifact/v1"}, "qualified_id": {"$ref": "#/$defs/qualifiedId"}, "authority": {"$ref": "#/$defs/authority"}, "expected_head": {"$ref": "#/$defs/head"}, "input_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "output": {"type": "object", "required": ["kind"], "properties": {"kind": {"type": "string", "minLength": 1}}}}},
+    "refusal": {"type": "object", "additionalProperties": false, "required": ["schema", "qualified_id", "reason", "authority", "expected_head", "upstream_route"], "properties": {"schema": {"const": "planning-system-refusal/v1"}, "qualified_id": {"$ref": "#/$defs/qualifiedId"}, "reason": {"type": "string", "minLength": 1}, "authority": {"$ref": "#/$defs/authority"}, "expected_head": {"$ref": "#/$defs/head"}, "upstream_route": {"type": "string", "minLength": 1}}}
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cutover-pointer-v1.schema.json",
+  "title": "Approval-bound pointer-only migration cutover",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "active", "old_pointer", "new_pointer", "source_digests", "history_preserved", "proposal_digest", "approval_ref", "authority", "reader_pointers", "pointer_digest"],
+  "properties": {
+    "schema": {"const": "cutover-pointer/v1"},
+    "active": {"enum": ["old", "new"]},
+    "old_pointer": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "additionalProperties": false, "required": ["revision", "digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["revision", "digest", "schema", "run_id", "workflow_version", "graph_version", "role", "state_revision", "transaction_digest", "kernel_path", "status", "source_digests", "source_revision", "group_id", "epoch_id", "aliases"],
+          "properties": {
+            "revision": {"type": "integer", "minimum": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "schema": {"const": "dag-head/v1"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "workflow_version": {"type": "string", "minLength": 1}, "graph_version": {"const": "artifact-task-dag/v1"}, "role": {"const": "orchestrator"}, "state_revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kernel_path": {"type": "string", "pattern": "^/(?!.*//)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*\\\\)(?!.*\\/$).+$"}, "status": {"enum": ["active", "paused_after_epoch", "paused_after_group"]},
+            "source_digests": {"type": "object", "additionalProperties": false, "required": ["run", "bundle", "worker_report"], "properties": {"run": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "bundle": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "worker_report": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}, "source_revision": {"type": "integer", "minimum": 1}, "group_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "epoch_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "aliases": {"type": "array", "items": {"type": "string", "minLength": 1}}
+          }
+        }
+      ]
+    },
+    "new_pointer": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "run_id", "workflow_version", "graph_version", "role", "revision", "state_revision", "transaction_digest", "digest", "kernel_path"],
+      "properties": {
+        "schema": {"const": "dag-head/v1"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "workflow_version": {"type": "string", "minLength": 1}, "graph_version": {"const": "artifact-task-dag/v1"}, "role": {"const": "orchestrator"}, "revision": {"type": "integer", "minimum": 1}, "state_revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kernel_path": {"type": "string", "pattern": "^/(?!.*//)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*\\\\)(?!.*\\/$).+$"}
+      }
+    },
+    "source_digests": {
+      "type": "object", "additionalProperties": false,
+      "required": ["run", "bundle", "worker_report"],
+      "properties": {"run": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "bundle": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "worker_report": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+    },
+    "history_preserved": {"const": true},
+    "proposal_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "approval_ref": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "scopes", "migration_approval", "approval_ref", "proposal_digest", "run_id", "role", "assignment_id"],
+      "properties": {"status": {"enum": ["approved", "authorized", "granted"]}, "scopes": {"type": "array", "items": {"type": "string", "minLength": 1}}, "migration_approval": {"const": true}, "approval_ref": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "proposal_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "role": {"const": "orchestrator"}, "assignment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}}
+    },
+    "reader_pointers": {
+      "type": "object", "additionalProperties": false, "required": ["old", "new"],
+      "properties": {
+        "old": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "object", "additionalProperties": false, "required": ["revision", "digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+            {
+              "type": "object", "additionalProperties": false,
+              "required": ["revision", "digest", "schema", "run_id", "workflow_version", "graph_version", "role", "state_revision", "transaction_digest", "kernel_path", "status", "source_digests", "source_revision", "group_id", "epoch_id", "aliases"],
+              "properties": {"revision": {"type": "integer", "minimum": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "schema": {"const": "dag-head/v1"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "workflow_version": {"type": "string", "minLength": 1}, "graph_version": {"const": "artifact-task-dag/v1"}, "role": {"const": "orchestrator"}, "state_revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kernel_path": {"type": "string", "pattern": "^/(?!.*//)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*\\\\)(?!.*\\/$).+$"}, "status": {"enum": ["active", "paused_after_epoch", "paused_after_group"]}, "source_digests": {"type": "object", "additionalProperties": false, "required": ["run", "bundle", "worker_report"], "properties": {"run": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "bundle": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "worker_report": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}}, "source_revision": {"type": "integer", "minimum": 1}, "group_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "epoch_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "aliases": {"type": "array", "items": {"type": "string", "minLength": 1}}}
+            }
+          ]
+        },
+        "new": {
+          "type": "object", "additionalProperties": false,
+          "required": ["schema", "run_id", "workflow_version", "graph_version", "role", "revision", "state_revision", "transaction_digest", "digest", "kernel_path"],
+          "properties": {"schema": {"const": "dag-head/v1"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "workflow_version": {"type": "string", "minLength": 1}, "graph_version": {"const": "artifact-task-dag/v1"}, "role": {"const": "orchestrator"}, "revision": {"type": "integer", "minimum": 1}, "state_revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kernel_path": {"type": "string", "pattern": "^/(?!.*//)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*\\\\)(?!.*\\/$).+$"}}
+        }
+      }
+    },
+    "rollback_preserved_candidate": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["schema", "run_id", "workflow_version", "graph_version", "role", "revision", "state_revision", "transaction_digest", "digest", "kernel_path"],
+      "properties": {"schema": {"const": "dag-head/v1"}, "run_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "workflow_version": {"type": "string", "minLength": 1}, "graph_version": {"const": "artifact-task-dag/v1"}, "role": {"const": "orchestrator"}, "revision": {"type": "integer", "minimum": 1}, "state_revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "kernel_path": {"type": "string", "pattern": "^/(?!.*//)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*\\\\)(?!.*\\/$).+$"}}
+    },
+    "rollback_approval_ref": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "pointer_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

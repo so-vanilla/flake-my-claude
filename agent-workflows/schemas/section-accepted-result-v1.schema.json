@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "section-accepted-result-v1.schema.json",
+  "title": "S0, S1, or S2 accepted section result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "run_id", "section_id", "group_id", "result", "artifact_refs", "result_refs", "review_ref", "finding_validation_ref"],
+  "properties": {
+    "schema": {"const": "section-accepted-result/v1"},
+    "run_id": {"type": "string", "minLength": 1},
+    "section_id": {"enum": ["S0", "S1", "S2"]},
+    "group_id": {"type": "string", "minLength": 1},
+    "result": {"const": "passed"},
+    "artifact_refs": {},
+    "result_refs": {},
+    "review_ref": {"$ref": "#/$defs/digestRef"},
+    "finding_validation_ref": {"$ref": "#/$defs/digestRef"}
+  },
+  "oneOf": [
+    {
+      "required": ["section_id", "artifact_refs", "result_refs"],
+      "properties": {
+        "section_id": {"const": "S0"},
+        "artifact_refs": {"$ref": "#/$defs/sliceRefs"},
+        "result_refs": {"$ref": "#/$defs/sliceRefs"}
+      }
+    },
+    {
+      "required": ["section_id", "artifact_refs", "result_refs"],
+      "properties": {
+        "section_id": {"const": "S1"},
+        "artifact_refs": {"$ref": "#/$defs/s1SliceRefs"},
+        "result_refs": {"$ref": "#/$defs/s1SliceRefs"}
+      }
+    },
+    {
+      "required": ["section_id", "artifact_refs", "result_refs"],
+      "properties": {
+        "section_id": {"const": "S2"},
+        "artifact_refs": {"$ref": "#/$defs/s2SliceRefs"},
+        "result_refs": {"$ref": "#/$defs/s2SliceRefs"}
+      }
+    }
+  ],
+  "$defs": {
+    "digestRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest"],
+      "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+    },
+    "sliceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["S0-A", "S0-B", "S0-C", "S0-D"],
+      "properties": {
+        "S0-A": {"$ref": "#/$defs/digestRef"},
+        "S0-B": {"$ref": "#/$defs/digestRef"},
+        "S0-C": {"$ref": "#/$defs/digestRef"},
+        "S0-D": {"$ref": "#/$defs/digestRef"}
+      }
+    },
+    "s1SliceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["S1-A", "S1-B", "S1-C", "S1-D"],
+      "properties": {
+        "S1-A": {"$ref": "#/$defs/digestRef"},
+        "S1-B": {"$ref": "#/$defs/digestRef"},
+        "S1-C": {"$ref": "#/$defs/digestRef"},
+        "S1-D": {"$ref": "#/$defs/digestRef"}
+      }
+    },
+    "s2SliceRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["S2-0", "S2-A", "S2-B", "S2-C", "S2-D"],
+      "properties": {
+        "S2-0": {"$ref": "#/$defs/digestRef"},
+        "S2-A": {"$ref": "#/$defs/digestRef"},
+        "S2-B": {"$ref": "#/$defs/digestRef"},
+        "S2-C": {"$ref": "#/$defs/digestRef"},
+        "S2-D": {"$ref": "#/$defs/digestRef"}
+      }
+    }
+  }
+}

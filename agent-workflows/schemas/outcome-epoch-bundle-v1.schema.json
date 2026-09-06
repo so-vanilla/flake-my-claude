@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "outcome-epoch-bundle-v1.schema.json",
+  "title": "Closed C-01 or C-02 outcome context epoch bundle",
+  "oneOf": [
+    {"$ref": "#/$defs/c01"},
+    {"$ref": "#/$defs/c02"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "path", "digest"],
+      "properties": {
+        "identity": {"type": "string", "minLength": 1},
+        "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/).+"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "commit"],
+      "properties": {
+        "identity": {"const": "git-head"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target", "normal_limit", "absolute_limit"],
+      "properties": {
+        "target": {"const": 200000},
+        "normal_limit": {"const": 300000},
+        "absolute_limit": {"const": 500000}
+      }
+    },
+    "base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "bundle_id", "epoch_id", "epoch_order", "approved_objective_ref",
+        "approval_event_ref", "current_objective_ref", "git_head", "accepted_refs",
+        "unresolved_refs", "invalidated_refs", "next_refs", "context_budget"
+      ],
+      "properties": {
+        "schema": {"const": "outcome-epoch-bundle/v1"},
+        "bundle_id": {"type": "string", "minLength": 1},
+        "epoch_id": {"enum": ["C-01", "C-02"]},
+        "epoch_order": {"enum": [1, 2]},
+        "approved_objective_ref": {"$ref": "#/$defs/ref"},
+        "approval_event_ref": {"$ref": "#/$defs/ref"},
+        "current_objective_ref": {"$ref": "#/$defs/ref"},
+        "git_head": {"$ref": "#/$defs/head"},
+        "accepted_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+        "unresolved_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+        "invalidated_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}},
+        "next_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ref"}},
+        "context_budget": {"$ref": "#/$defs/budget"}
+      }
+    },
+    "c01": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema", "bundle_id", "epoch_id", "epoch_order", "approved_objective_ref", "approval_event_ref", "current_objective_ref", "git_head", "accepted_refs", "unresolved_refs", "invalidated_refs", "next_refs", "context_budget", "outcome_map_ref", "outcome_dag_ref", "review_ref", "validation_ref"],
+          "properties": {
+            "schema": {"const": "outcome-epoch-bundle/v1"}, "bundle_id": {"type": "string", "minLength": 1},
+            "epoch_id": {"const": "C-01"}, "epoch_order": {"const": 1},
+            "approved_objective_ref": {"$ref": "#/$defs/ref"}, "approval_event_ref": {"$ref": "#/$defs/ref"}, "current_objective_ref": {"$ref": "#/$defs/ref"}, "git_head": {"$ref": "#/$defs/head"},
+            "accepted_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "unresolved_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "invalidated_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "next_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ref"}}, "context_budget": {"$ref": "#/$defs/budget"},
+            "outcome_map_ref": {"$ref": "#/$defs/ref"}, "outcome_dag_ref": {"$ref": "#/$defs/ref"}, "review_ref": {"$ref": "#/$defs/ref"}, "validation_ref": {"$ref": "#/$defs/ref"}
+          }
+    },
+    "c02": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema", "bundle_id", "epoch_id", "epoch_order", "approved_objective_ref", "approval_event_ref", "current_objective_ref", "git_head", "accepted_refs", "unresolved_refs", "invalidated_refs", "next_refs", "context_budget", "c01_bundle_ref", "measurement_plan_ref", "measurement_targets_ref", "baseline_receipt_ref", "validation_ref"],
+          "properties": {
+            "schema": {"const": "outcome-epoch-bundle/v1"}, "bundle_id": {"type": "string", "minLength": 1},
+            "epoch_id": {"const": "C-02"}, "epoch_order": {"const": 2},
+            "approved_objective_ref": {"$ref": "#/$defs/ref"}, "approval_event_ref": {"$ref": "#/$defs/ref"}, "current_objective_ref": {"$ref": "#/$defs/ref"}, "git_head": {"$ref": "#/$defs/head"},
+            "accepted_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "unresolved_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "invalidated_refs": {"type": "array", "items": {"$ref": "#/$defs/ref"}}, "next_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ref"}}, "context_budget": {"$ref": "#/$defs/budget"},
+            "c01_bundle_ref": {
+              "type": "object", "additionalProperties": false, "required": ["identity", "path", "digest"],
+              "properties": {"identity": {"const": "C-01"}, "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/).+"}, "digest": {"$ref": "#/$defs/digest"}}
+            },
+            "measurement_plan_ref": {"$ref": "#/$defs/ref"}, "measurement_targets_ref": {"$ref": "#/$defs/ref"}, "baseline_receipt_ref": {"$ref": "#/$defs/ref"}, "validation_ref": {"$ref": "#/$defs/ref"}
+          }
+    }
+  }
+}

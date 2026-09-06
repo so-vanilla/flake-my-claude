@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A6R Artifact DAG Control Kernel のコードベースモデルと検証状況">
+  <title>A6R Codebase Model — Artifact DAG Control Kernel</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07110f;
+      --surface: #0d1b18;
+      --surface-2: #12231f;
+      --surface-3: #172c26;
+      --line: #29443b;
+      --line-bright: #3a6658;
+      --text: #edf6f1;
+      --muted: #9db3aa;
+      --green: #67e8a5;
+      --green-soft: #183f30;
+      --cyan: #65d9e8;
+      --amber: #ffc66d;
+      --amber-soft: #3a2c16;
+      --red: #ff8b8b;
+      --ink: #08110e;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --radius: 18px;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% -10%, rgba(101, 217, 232, .11), transparent 36rem),
+        radial-gradient(circle at 95% 12%, rgba(103, 232, 165, .09), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.65;
+    }
+
+    a { color: var(--cyan); text-underline-offset: 3px; }
+    a:hover { color: var(--green); }
+    code, .mono { font-family: var(--mono); }
+    code {
+      padding: .08em .35em;
+      border: 1px solid rgba(101, 217, 232, .16);
+      border-radius: 6px;
+      background: rgba(101, 217, 232, .06);
+      font-size: .88em;
+      overflow-wrap: anywhere;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 8px;
+      left: 8px;
+      padding: .7rem 1rem;
+      transform: translateY(-150%);
+      border-radius: 8px;
+      background: var(--green);
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 250px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 2rem 1.25rem;
+      border-right: 1px solid var(--line);
+      background: rgba(7, 17, 15, .84);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 2rem;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line-bright);
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--green-soft), var(--surface-2));
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: .84rem;
+      box-shadow: inset 0 0 24px rgba(103, 232, 165, .08);
+    }
+
+    nav a {
+      display: block;
+      margin: .14rem 0;
+      padding: .55rem .7rem;
+      border-left: 2px solid transparent;
+      border-radius: 0 9px 9px 0;
+      color: var(--muted);
+      font-size: .88rem;
+      text-decoration: none;
+    }
+    nav a:hover, nav a[aria-current="true"] {
+      border-left-color: var(--green);
+      background: rgba(103, 232, 165, .07);
+      color: var(--text);
+    }
+
+    .nav-meta {
+      margin-top: 2rem;
+      padding: .85rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    main { min-width: 0; }
+    .content {
+      width: min(1180px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding-bottom: 7rem;
+    }
+
+    .hero {
+      min-height: 76vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 0 4rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 1rem;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { line-height: 1.18; letter-spacing: -.035em; }
+    h1 {
+      max-width: 960px;
+      margin: 0;
+      font-size: clamp(2.7rem, 7vw, 6.5rem);
+      font-weight: 800;
+    }
+    h1 span { color: var(--green); }
+    .lede {
+      max-width: 790px;
+      margin: 1.6rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.25rem);
+    }
+
+    .status-row, .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-top: 1.8rem;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .48rem;
+      min-height: 32px;
+      padding: .35rem .72rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: .76rem;
+    }
+    .pill::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+    .pill.pass { border-color: rgba(103, 232, 165, .4); color: var(--green); }
+    .pill.warn { border-color: rgba(255, 198, 109, .4); color: var(--amber); }
+    .pill.info { border-color: rgba(101, 217, 232, .4); color: var(--cyan); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 3.5rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .metric { padding: 1.3rem 1.4rem; background: var(--surface); }
+    .metric strong {
+      display: block;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      line-height: 1.1;
+    }
+    .metric span { color: var(--muted); font-size: .8rem; }
+
+    section { scroll-margin-top: 1rem; padding: 5rem 0 0; }
+    section > header { max-width: 780px; margin-bottom: 2rem; }
+    h2 { margin: 0 0 .65rem; font-size: clamp(1.9rem, 4vw, 3.35rem); }
+    h3 { margin: 0 0 .55rem; font-size: 1.12rem; }
+    .section-copy { margin: 0; color: var(--muted); }
+    .kicker { color: var(--green); font-family: var(--mono); font-size: .75rem; }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      padding: 1.35rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(150deg, rgba(23, 44, 38, .88), rgba(13, 27, 24, .88));
+      box-shadow: 0 12px 36px rgba(0, 0, 0, .14);
+    }
+    .card p { margin: .45rem 0 0; color: var(--muted); }
+    .card .num {
+      display: inline-grid;
+      width: 28px;
+      height: 28px;
+      margin-bottom: .8rem;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--green);
+      color: var(--ink);
+      font: 800 .76rem var(--mono);
+    }
+
+    .callout {
+      padding: 1.2rem 1.35rem;
+      border-left: 3px solid var(--green);
+      border-radius: 0 14px 14px 0;
+      background: rgba(103, 232, 165, .07);
+    }
+    .callout.warning { border-left-color: var(--amber); background: rgba(255, 198, 109, .07); }
+    .callout strong { color: var(--text); }
+    .callout p { margin: .25rem 0 0; color: var(--muted); }
+
+    .diagram {
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(rgba(41, 68, 59, .12) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 68, 59, .12) 1px, transparent 1px),
+        rgba(8, 19, 16, .78);
+      background-size: 28px 28px;
+      overflow-x: auto;
+    }
+    .flow {
+      display: flex;
+      min-width: 850px;
+      align-items: stretch;
+      gap: .75rem;
+    }
+    .flow-node {
+      position: relative;
+      flex: 1;
+      min-width: 130px;
+      padding: 1rem;
+      border: 1px solid var(--line-bright);
+      border-radius: 12px;
+      background: var(--surface-2);
+    }
+    .flow-node:not(:last-child)::after {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      right: -.67rem;
+      color: var(--green);
+      content: "→";
+      transform: translate(50%, -50%);
+      font-weight: 900;
+    }
+    .flow-node small { display: block; color: var(--green); font-family: var(--mono); }
+    .flow-node b { display: block; margin-top: .25rem; font-size: .92rem; }
+    .flow-node p { margin: .4rem 0 0; color: var(--muted); font-size: .75rem; }
+    .flow-node.accent { border-color: var(--green); box-shadow: inset 0 0 24px rgba(103, 232, 165, .06); }
+
+    .layers { display: grid; gap: .75rem; }
+    .layer {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+    .layer-label { color: var(--green); font: 800 .82rem var(--mono); }
+    .layer p { margin: 0; color: var(--muted); }
+
+    .review-track {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: .65rem;
+      min-width: 980px;
+    }
+    .review-step {
+      padding: .85rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-2);
+      font-size: .78rem;
+    }
+    .review-step b { display: block; color: var(--text); }
+    .review-step span { color: var(--muted); }
+    .review-step.required { border-color: var(--amber); }
+    .review-step.pass { border-color: var(--green); }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+    table { width: 100%; border-collapse: collapse; background: rgba(13, 27, 24, .78); }
+    th, td { padding: .9rem 1rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font: 700 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+    td { font-size: .88rem; }
+    tr:last-child td { border-bottom: 0; }
+    .status {
+      display: inline-block;
+      padding: .18rem .48rem;
+      border-radius: 999px;
+      font: 700 .7rem var(--mono);
+      white-space: nowrap;
+    }
+    .status.pass { background: var(--green-soft); color: var(--green); }
+    .status.limit { background: var(--amber-soft); color: var(--amber); }
+
+    .filters { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    button {
+      padding: .48rem .75rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: .78rem;
+      cursor: pointer;
+    }
+    button:hover, button[aria-pressed="true"] { border-color: var(--green); color: var(--green); background: rgba(103, 232, 165, .07); }
+    [hidden] { display: none !important; }
+
+    .tree {
+      margin: 0;
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #07100e;
+      color: #cbe0d6;
+      font: .83rem/1.8 var(--mono);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .tree .hot { color: var(--green); }
+    .tree .view { color: var(--cyan); }
+    .tree .warn { color: var(--amber); }
+
+    .module-card { display: flex; flex-direction: column; min-height: 230px; }
+    .module-card .path { color: var(--cyan); font: .72rem var(--mono); overflow-wrap: anywhere; }
+    .module-card ul { margin: .8rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: .86rem; }
+    .module-card .spacer { flex: 1; }
+    .module-card a { margin-top: 1rem; font-size: .8rem; }
+
+    .digest {
+      display: grid;
+      grid-template-columns: 135px minmax(0, 1fr);
+      gap: .65rem 1rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      font-size: .8rem;
+    }
+    .digest dt { color: var(--muted); }
+    .digest dd { margin: 0; font-family: var(--mono); overflow-wrap: anywhere; }
+
+    .boundary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .boundary ul { margin: .7rem 0 0; padding-left: 1.15rem; color: var(--muted); }
+    .allowed { border-color: rgba(103, 232, 165, .4); }
+    .blocked { border-color: rgba(255, 198, 109, .4); }
+
+    .footer {
+      margin-top: 5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    :focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+
+    @media (max-width: 900px) {
+      .shell { display: block; }
+      aside {
+        position: sticky;
+        z-index: 20;
+        height: auto;
+        padding: .75rem 1rem;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { margin: 0; }
+      .brand-mark { width: 34px; height: 34px; }
+      nav { display: flex; gap: .2rem; margin-top: .55rem; overflow-x: auto; }
+      nav a { flex: 0 0 auto; border-left: 0; border-bottom: 2px solid transparent; border-radius: 7px; }
+      nav a[aria-current="true"] { border-left: 0; border-bottom-color: var(--green); }
+      .nav-meta { display: none; }
+      .content { width: min(100% - 2rem, 760px); }
+      .hero { min-height: auto; padding-top: 4.5rem; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .content { width: min(100% - 1.25rem, 760px); }
+      .metrics, .grid.two, .grid.three, .boundary { grid-template-columns: 1fr; }
+      .layer { grid-template-columns: 1fr; gap: .25rem; }
+      .digest { grid-template-columns: 1fr; }
+      section { padding-top: 4rem; }
+      th, td { padding: .7rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+
+    @media print {
+      :root { color-scheme: light; --bg: #fff; --surface: #fff; --surface-2: #f7faf8; --surface-3: #eef4f1; --line: #c8d2cd; --line-bright: #82958c; --text: #102019; --muted: #50635a; --green: #087a46; --cyan: #086d7a; --amber: #8b5500; --ink: #fff; }
+      aside { display: none; }
+      .shell { display: block; }
+      .content { width: 100%; }
+      .hero { min-height: auto; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <div class="shell">
+    <aside aria-label="セクションナビゲーション">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">A6R</span>
+        <span>Codebase model</span>
+      </a>
+      <nav aria-label="目次">
+        <a href="#summary">要約</a>
+        <a href="#context">コンテキスト</a>
+        <a href="#kernel">コミット核</a>
+        <a href="#model">ドメインモデル</a>
+        <a href="#review">二段階レビュー</a>
+        <a href="#migration">移行と復旧</a>
+        <a href="#modules">モジュール</a>
+        <a href="#gates">G1–G8</a>
+        <a href="#evidence">検証証跡</a>
+        <a href="#boundary">完了境界</a>
+      </nav>
+      <div class="nav-meta">
+        Revision 45<br>
+        Source digest<br>
+        <span class="mono">1a9aa444…50b84a</span>
+      </div>
+    </aside>
+
+    <main id="main">
+      <div class="content">
+        <header class="hero" id="top">
+          <p class="eyebrow">Artifact DAG Control Kernel · control-kernel/v3</p>
+          <h1>会話ではなく、<span>物理状態</span>から仕事を再開する。</h1>
+          <p class="lede">
+            A6Rは、AIエージェントの作業をコンテンツアドレスされたObjectとTransactionのDAGに落とし、
+            OrchestratorだけがatomicなHEADを進めるファイルベース制御核です。この文書は、
+            revision 45で受け入れたコード45ファイルをもとに、その設計・実行モデル・検証境界を可視化しています。
+          </p>
+          <div class="status-row" aria-label="現在の状態">
+            <span class="pill pass">A6R SOURCE-ONLY COMPLETE</span>
+            <span class="pill pass">FINAL REREVIEW: 0 CANDIDATES</span>
+            <span class="pill warn">OPERATIONAL ADOPTION: NOT STARTED</span>
+          </div>
+          <div class="metrics" aria-label="コードベース指標">
+            <div class="metric"><strong>45</strong><span>accepted source files</span></div>
+            <div class="metric"><strong>21</strong><span>JSON schemas</span></div>
+            <div class="metric"><strong>97/97</strong><span>full regression passed</span></div>
+            <div class="metric"><strong>2 axes</strong><span>Standards + Spec rereview</span></div>
+          </div>
+        </header>
+
+        <section id="summary">
+          <header>
+            <span class="kicker">01 / Executive model</span>
+            <h2>要約</h2>
+            <p class="section-copy">このシステムの中心は「一つの可変ポインタ」と「それ以外の不変な証拠」です。</p>
+          </header>
+          <div class="grid three">
+            <article class="card">
+              <span class="num">01</span>
+              <h3>正本はHEADから辿る</h3>
+              <p>ObjectとTransactionはdigestで識別され、canonical stateはHEADが指すTransaction chainから復元します。表示用ファイルは正本ではありません。</p>
+            </article>
+            <article class="card">
+              <span class="num">02</span>
+              <h3>書き込み主体を分離する</h3>
+              <p>WorkerとReviewerはinboxへ提出するだけです。権限・scope・expected HEADを検証したOrchestratorだけがstate transitionをcommitします。</p>
+            </article>
+            <article class="card">
+              <span class="num">03</span>
+              <h3>レビューは有限に収束する</h3>
+              <p>候補抽出と必要性判定を別主体に分け、requiredだけを修正します。fingerprint重複、軽微事項、意図的選択を無限ループの燃料にしません。</p>
+            </article>
+          </div>
+          <div class="callout warning" style="margin-top:1rem">
+            <strong>完了の意味</strong>
+            <p>A6Rはsource-onlyとisolated rehearsalの範囲で完了しています。実Runの移行、pointer cutover、A7、activation、Git操作は実施していません。</p>
+          </div>
+        </section>
+
+        <section id="context">
+          <header>
+            <span class="kicker">02 / Context map</span>
+            <h2>誰が、何を決めるか</h2>
+            <p class="section-copy">実装は能力を混ぜません。判断、提出、検証、状態遷移を物理的な境界で分けます。</p>
+          </header>
+          <div class="layers" role="list" aria-label="主体と責務">
+            <div class="layer" role="listitem">
+              <div class="layer-label">Human authority</div>
+              <p>目的、重要な設計判断、reopen、移行/cutoverなどのmaterial decisionを承認する。承認はOperation・Run・budget・expected HEADへbindされる。</p>
+            </div>
+            <div class="layer" role="listitem">
+              <div class="layer-label">Orchestrator</div>
+              <p>command envelope、authority、assignment、scope、input digest、CASを検証し、唯一HEADを進める。Run stateのsingle writer。</p>
+            </div>
+            <div class="layer" role="listitem">
+              <div class="layer-label">Worker</div>
+              <p>Task Packageにbindされた入力とwrite scopeで作業し、結果またはstop reasonをinboxへ提出する。自分でstateをacceptしない。</p>
+            </div>
+            <div class="layer" role="listitem">
+              <div class="layer-label">Reviewer</div>
+              <p>fresh Epochとobject-bound Review Packageから候補Findingを作る。修正や「必要」の判定は行わない。</p>
+            </div>
+            <div class="layer" role="listitem">
+              <div class="layer-label">Finding Validator</div>
+              <p>Reviewerとは別のfresh assignmentで、全候補をrequired / defer / reject / needs-userへ分類する。</p>
+            </div>
+            <div class="layer" role="listitem">
+              <div class="layer-label">Fresh reader</div>
+              <p>会話履歴を使わず、HEAD・Transaction・Object・Bundle・Checkpointから現在地と次の一手を復元する。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="kernel">
+          <header>
+            <span class="kicker">03 / Atomic commit</span>
+            <h2>一回の状態遷移</h2>
+            <p class="section-copy">失敗はHEADの手前で止まり、成功だけが一つのatomic pointer swapとして見えます。</p>
+          </header>
+          <div class="diagram" aria-label="コミットフロー">
+            <div class="flow">
+              <div class="flow-node"><small>01</small><b>Command</b><p>versioned envelope + idempotency key</p></div>
+              <div class="flow-node"><small>02</small><b>Validate</b><p>authority · scope · CAS · durable payload</p></div>
+              <div class="flow-node"><small>03</small><b>Stage</b><p>new Objects + Transaction in temp tree</p></div>
+              <div class="flow-node"><small>04</small><b>Publish</b><p>content-addressed immutable files + fsync</p></div>
+              <div class="flow-node accent"><small>05 · COMMIT</small><b>Atomic HEAD</b><p>the only mutable canonical pointer</p></div>
+              <div class="flow-node"><small>06</small><b>Project</b><p>rebuild disposable human-facing views</p></div>
+            </div>
+          </div>
+          <div class="grid two" style="margin-top:1rem">
+            <article class="card">
+              <h3>HEADより前に落ちた場合</h3>
+              <p>stagingをquarantineへ移し、publish済みTransactionはorphan evidenceとして記録します。recoveryはHEADを勝手に進めません。</p>
+            </article>
+            <article class="card">
+              <h3>HEADより後に落ちた場合</h3>
+              <p>canonical commitは成立済みです。fresh readerがHEADから状態を検証し、欠損・不一致のprojectionを決定的に再構築します。</p>
+            </article>
+          </div>
+          <div class="callout" style="margin-top:1rem">
+            <strong>IdempotencyとCASは別の役割</strong>
+            <p>同じkey・同じcommandは既存結果へ収束しますが、異なるcommandでのkey再利用は拒否されます。expected HEADは、最初のpublicationが古い状態へ適用されるのを防ぎます。</p>
+          </div>
+        </section>
+
+        <section id="model">
+          <header>
+            <span class="kicker">04 / Domain model</span>
+            <h2>Object・Edge・Lifecycle</h2>
+            <p class="section-copy">TaskからTaskへ直接つなげず、成果物を介した依存にすることで「何を受け取って次へ進んだか」を残します。</p>
+          </header>
+          <div class="grid three">
+            <article class="card">
+              <h3>Plan & authority</h3>
+              <p><code>objective</code>、<code>authority</code>、<code>approval</code>、<code>task-package</code>。目的と許可範囲、assignment、入力digest、停止条件を固定します。</p>
+              <div class="tag-row"><span class="pill info">authorizes</span><span class="pill info">requires</span></div>
+            </article>
+            <article class="card">
+              <h3>Work & evidence</h3>
+              <p><code>artifact</code>、<code>work-product</code>、<code>worker-report</code>。成果物と報告をimmutableな参照として残します。</p>
+              <div class="tag-row"><span class="pill info">produces</span><span class="pill info">converges</span></div>
+            </article>
+            <article class="card">
+              <h3>Review & verdict</h3>
+              <p><code>review-package</code>、<code>finding</code>、<code>finding-validation</code>、<code>finding-resolution</code>。候補・判定・修正・閉鎖を別記録にします。</p>
+              <div class="tag-row"><span class="pill info">verdict-for</span><span class="pill info">produces</span></div>
+            </article>
+            <article class="card">
+              <h3>Boundary</h3>
+              <p><code>artifact-bundle</code>と<code>checkpoint</code>がEpoch/Group終了時の入力・決定・未解決・無効化・次入力を束ねます。</p>
+            </article>
+            <article class="card">
+              <h3>Finite terminal</h3>
+              <p><code>review-budget</code>と<code>budget-terminal</code>が時間・round・attempt消費を正本化し、自動延長を防ぎます。</p>
+            </article>
+            <article class="card">
+              <h3>Migration</h3>
+              <p><code>legacy-run</code>、<code>legacy-bundle</code>、<code>legacy-worker-report</code>をsource digest付きで変換し、旧正本を変更しません。</p>
+            </article>
+          </div>
+          <div class="diagram" style="margin-top:1rem" aria-label="Task dependency model">
+            <div class="flow">
+              <div class="flow-node"><small>AUTHORITY</small><b>Approval</b><p>operation + scope + HEAD</p></div>
+              <div class="flow-node"><small>TASK</small><b>Task Package</b><p>inputs + assignment + stop rules</p></div>
+              <div class="flow-node"><small>OUTPUT</small><b>Work Product</b><p>accepted evidence</p></div>
+              <div class="flow-node"><small>DEPENDENCY</small><b>Artifact</b><p>content-bound handoff</p></div>
+              <div class="flow-node"><small>NEXT TASK</small><b>Task Package</b><p>requires artifact, not prior chat</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="review">
+          <header>
+            <span class="kicker">05 / Review convergence</span>
+            <h2>候補抽出と必要性判定を分ける</h2>
+            <p class="section-copy">Reviewerが見つけたものを即修正対象にせず、別Validatorが必要性を判定してからrequired-onlyの権限を発行します。</p>
+          </header>
+          <div class="diagram" aria-label="二段階レビューと収束フロー">
+            <div class="review-track">
+              <div class="review-step"><b>1. Candidate review</b><span>Standards / Specを別軸で確認</span></div>
+              <div class="review-step"><b>2. Candidate set</b><span>修正せずFinding候補だけを固定</span></div>
+              <div class="review-step required"><b>3. Fresh Validator</b><span>required / defer / reject / needs-user</span></div>
+              <div class="review-step"><b>4. Required-only fix</b><span>admitted FindingだけをTDDで修正</span></div>
+              <div class="review-step"><b>5. Resolution claim</b><span>Workerは閉鎖できず証拠を提出</span></div>
+              <div class="review-step pass"><b>6. Fresh rereview</b><span>別assignmentが解消と新規候補を確認</span></div>
+              <div class="review-step pass"><b>7. Close / terminal</b><span>解消、または有限停止を正本化</span></div>
+            </div>
+          </div>
+          <div class="grid two" style="margin-top:1rem">
+            <article class="card">
+              <h3>ループ防止</h3>
+              <p>同じfingerprintはFinding IDが違ってもduplicate dispositionとなり、新規Findingやreview round消費を起こしません。軽微・意図的選択はdefer/rejectに留められます。</p>
+            </article>
+            <article class="card">
+              <h3>reopenの条件</h3>
+              <p>genericな承認IDだけでは再開できません。承認はreopen operation、対象Run、置換budget、現在HEAD、assignmentへ正確にbindされます。</p>
+            </article>
+          </div>
+          <div class="table-wrap" style="margin-top:1rem">
+            <table>
+              <thead><tr><th scope="col">今回の経路</th><th scope="col">結果</th><th scope="col">意味</th></tr></thead>
+              <tbody>
+                <tr><td>Initial Standards</td><td><span class="status pass">0 candidates</span></td><td>リポジトリ規約軸はpass</td></tr>
+                <tr><td>Initial Spec</td><td>S-001 / S-002</td><td>duplicate fingerprintとreopen bindingを候補化</td></tr>
+                <tr><td>Fresh Validator</td><td><span class="status limit">2 required</span></td><td>両方を独立再現し、requiredとしてadmit</td></tr>
+                <tr><td>Required-only fix</td><td><span class="status pass">11/11 focused</span></td><td>runtime/schema/test/fixtureを同一attempt内で整合</td></tr>
+                <tr><td>Final Standards + Spec</td><td><span class="status pass">resolved · 0 new</span></td><td>両軸がS-001/S-002解消を確認。追加ループなし</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="migration">
+          <header>
+            <span class="kicker">06 / Migration & recovery</span>
+            <h2>旧stateを壊さずに切り替える</h2>
+            <p class="section-copy">変換とcutoverを分離し、読み比べ可能な候補を先に作ります。切替はpointerだけ、rollbackも物理的に有効な旧targetへだけ行えます。</p>
+          </header>
+          <div class="diagram" aria-label="移行と切り戻しフロー">
+            <div class="flow">
+              <div class="flow-node"><small>READ-ONLY</small><b>LegacyReader</b><p>raw bytes + source digest</p></div>
+              <div class="flow-node"><small>ISOLATED</small><b>LegacyConverter</b><p>sanitize durable fields + attest</p></div>
+              <div class="flow-node"><small>COMPARE</small><b>Old / New Reader</b><p>same meaning, different storage</p></div>
+              <div class="flow-node"><small>REBUILD</small><b>Projection</b><p>recover from canonical HEAD</p></div>
+              <div class="flow-node accent"><small>CAS</small><b>PointerCutover</b><p>approval + expected pointer</p></div>
+              <div class="flow-node"><small>RECOVERY</small><b>Rollback</b><p>validate and restore old target</p></div>
+            </div>
+          </div>
+          <div class="grid three" style="margin-top:1rem">
+            <article class="card"><h3>Source binding</h3><p>入力ファイルのraw digest、logical source identity、変換attestationを保持し、別revisionの取り違えを拒否します。</p></article>
+            <article class="card"><h3>Path safety</h3><p>pointer pathはcanonical absolute pathだけを許可し、traversal、二重separator、symlink等のredirectを検証します。</p></article>
+            <article class="card"><h3>Rollback truth</h3><p>保存された文字列だけでなく、旧targetのHEADとRun identityが物理的に正しい場合にだけrollbackします。</p></article>
+          </div>
+          <div class="callout warning" style="margin-top:1rem">
+            <strong>ここで確認したのはisolated copyのrehearsalです。</strong>
+            <p>実際のBootstrap Runは変換・cutoverしていません。pointerも変更されておらず、旧stateはそのままです。</p>
+          </div>
+        </section>
+
+        <section id="modules">
+          <header>
+            <span class="kicker">07 / Module map</span>
+            <h2>コードの配置と責務</h2>
+            <p class="section-copy">実装はPython標準ライブラリだけで動作します。A6 walking skeletonとA6R kernelは役割を分けて残っています。</p>
+          </header>
+          <div class="grid three">
+            <article class="card module-card">
+              <span class="path">src/ai_agent_workflow/control_kernel.py</span>
+              <h3>ControlKernel</h3>
+              <ul><li>command/authority/schema validation</li><li>Object・Transaction・HEAD commit</li><li>DAG、review、budget、recovery</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/src/ai_agent_workflow/control_kernel.py">ソースを開く</a>
+            </article>
+            <article class="card module-card">
+              <span class="path">src/ai_agent_workflow/migration.py</span>
+              <h3>Migration boundary</h3>
+              <ul><li>LegacyReader / NewReader</li><li>copy-only LegacyConverter</li><li>PointerCutover / rollback</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/src/ai_agent_workflow/migration.py">ソースを開く</a>
+            </article>
+            <article class="card module-card">
+              <span class="path">src/ai_agent_workflow/schema_validation.py</span>
+              <h3>Internal schema validator</h3>
+              <ul><li>repository-local JSON Schema subset</li><li>runtime output parity checks</li><li>unsupported shapeを明示拒否</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/src/ai_agent_workflow/schema_validation.py">ソースを開く</a>
+            </article>
+            <article class="card module-card">
+              <span class="path">src/ai_agent_workflow/core.py · cli.py</span>
+              <h3>A6 walking skeleton</h3>
+              <ul><li>entry → artifact → epoch/group close</li><li>revision CAS + append-only event</li><li>既存CLIはこの小さなstoreを操作</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/src/ai_agent_workflow/core.py">ソースを開く</a>
+            </article>
+            <article class="card module-card">
+              <span class="path">schemas/*.schema.json</span>
+              <h3>21 physical contracts</h3>
+              <ul><li>command・object・transaction・HEAD</li><li>task/review/finding/validation</li><li>migration・projection・budget</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/schemas/dag-command-v1.schema.json">command schemaを開く</a>
+            </article>
+            <article class="card module-card">
+              <span class="path">tests/ · tests/fixtures/a6r/</span>
+              <h3>Executable evidence</h3>
+              <ul><li>97 regression tests</li><li>negative / fault / fresh-process cases</li><li>G1–G8とreview convergence</li></ul>
+              <div class="spacer"></div><a href="../agent-workflows/tests/test_a6r_rev34_convergence.py">収束テストを開く</a>
+            </article>
+          </div>
+          <pre class="tree" aria-label="ControlKernelの物理レイアウト" style="margin-top:1rem">kernel/&lt;run-id&gt;/
+├── <span class="hot">HEAD.json</span>                 # 唯一のmutable canonical pointer
+├── objects/                  # digest-named immutable Objects
+├── transactions/             # parent-linked immutable state snapshots
+├── inbox/
+│   ├── commands/             # worker/reviewerの未accept envelope
+│   └── results/
+├── staging/                  # commit途中の一時領域
+├── <span class="warn">quarantine/</span>               # crash residue / orphan evidence
+└── <span class="view">projection/</span>               # 再生成可能なrun/status/ready/events views
+    └── projection-manifest.json</pre>
+        </section>
+
+        <section id="gates">
+          <header>
+            <span class="kicker">08 / Acceptance gates</span>
+            <h2>G1–G8の現在値</h2>
+            <p class="section-copy">全gateでsource fixtureはpass。運用環境でしか立証できない項目は、passへ読み替えず制限として残しています。</p>
+          </header>
+          <div class="filters" role="group" aria-label="gate表示フィルター">
+            <button type="button" data-filter="all" aria-pressed="true">すべて</button>
+            <button type="button" data-filter="source-pass" aria-pressed="false">source pass</button>
+            <button type="button" data-filter="operational-limit" aria-pressed="false">運用確認が残るもの</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Gate</th><th scope="col">守るもの</th><th scope="col">Source / fixture</th><th scope="col">Operational adoption</th></tr></thead>
+              <tbody>
+                <tr data-gate="source-pass"><td><b>G1</b></td><td>目的・重要判断はhuman authority</td><td><span class="status pass">PASS</span></td><td>未採用のため未実行</td></tr>
+                <tr data-gate="source-pass operational-limit"><td><b>G2</b></td><td>Run state transitionのsingle owner</td><td><span class="status pass">PASS</span></td><td><span class="status limit">multi-actor未検証</span></td></tr>
+                <tr data-gate="source-pass"><td><b>G3</b></td><td>物理artifactだけでfresh resume</td><td><span class="status pass">PASS</span></td><td>source fixture pass</td></tr>
+                <tr data-gate="source-pass operational-limit"><td><b>G4</b></td><td>blocking reviewを独立主体が閉じる</td><td><span class="status pass">PASS</span></td><td><span class="status limit">self-host未検証</span></td></tr>
+                <tr data-gate="source-pass operational-limit"><td><b>G5</b></td><td>secret/private contextを永続化しない</td><td><span class="status pass">PASS</span></td><td><span class="status limit">外部adapter未検証</span></td></tr>
+                <tr data-gate="source-pass"><td><b>G6</b></td><td>one-offとmanaged lifecycleを分離</td><td><span class="status pass">PASS</span></td><td>source fixture pass</td></tr>
+                <tr data-gate="source-pass"><td><b>G7</b></td><td>token budgetとsemantic boundary</td><td><span class="status pass">PASS</span></td><td>source fixture pass</td></tr>
+                <tr data-gate="source-pass operational-limit"><td><b>G8</b></td><td>crash時にsilent advanceしない</td><td><span class="status pass">FAULT PASS</span></td><td><span class="status limit">物理電断未検証</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="evidence">
+          <header>
+            <span class="kicker">09 / Evidence ledger</span>
+            <h2>何を根拠に完了としたか</h2>
+            <p class="section-copy">Git commitではなく、untracked isolated source packageの決定的な45-file content digestをfixed pointにしました。</p>
+          </header>
+          <div class="grid two">
+            <article class="card"><h3>Full regression</h3><p><span class="status pass">97 / 97</span> 全テスト成功。bytecode residueなし。</p></article>
+            <article class="card"><h3>Focused convergence</h3><p><span class="status pass">11 / 11</span> duplicate、budget、reopen、fresh-processの境界。</p></article>
+            <article class="card"><h3>Gate evidence</h3><p><span class="status pass">9 / 9</span> authority、single writer、resume、routing、budget。</p></article>
+            <article class="card"><h3>Remediation/schema</h3><p><span class="status pass">13 / 13</span> durable exclusion、review provenance、closure。</p></article>
+            <article class="card"><h3>Migration rehearsal</h3><p><span class="status pass">7 / 7</span> convert、dual reader、projection、cutover、rollback。</p></article>
+            <article class="card"><h3>Frozen A6 baseline</h3><p><span class="status pass">11 / 11</span> source hashes unchanged。</p></article>
+          </div>
+          <dl class="digest" style="margin-top:1rem">
+            <dt>Source package</dt><dd>sha256:1a9aa444b9aafffee83a9626997a4b04f3cfe96f0e83acaba5b67f263a50b84a</dd>
+            <dt>Evidence manifest</dt><dd><a href="../.local/agent/runs/2026-09-01-ai-agent-workflow-rebuild/bootstrap/a6r-completion-evidence-manifest.yaml">c0b8a7d9…12d8c80</a></dd>
+            <dt>Closure record</dt><dd><a href="../.local/agent/runs/2026-09-01-ai-agent-workflow-rebuild/artifacts/a6r-source-only-closure.yaml">ce66f308…cc5fee</a></dd>
+            <dt>Checkpoint 040</dt><dd><a href="../.local/agent/runs/2026-09-01-ai-agent-workflow-rebuild/checkpoints/040-a6r-source-only-complete.md">487048f3…9b83e5</a></dd>
+            <dt>Final Standards</dt><dd><a href="../.local/agent/reports/a6r-completion/rereview-001-standards.md">ba52148f…78152d</a></dd>
+            <dt>Final Spec</dt><dd><a href="../.local/agent/reports/a6r-completion/rereview-001-spec.md">f2da8da9…3af6c</a></dd>
+          </dl>
+          <div class="callout warning" style="margin-top:1rem">
+            <strong>明示的に未検証</strong>
+            <p>第三者JSON Schema実装によるsemantic validationは依存がなく未実行です。repository-local parserとruntime/schema parityはpassしています。</p>
+          </div>
+        </section>
+
+        <section id="boundary">
+          <header>
+            <span class="kicker">10 / Acceptance boundary</span>
+            <h2>ここまで完了。ここから先は別承認。</h2>
+            <p class="section-copy">source implementationの完成と、運用環境へのadoptionは別の状態です。</p>
+          </header>
+          <div class="boundary">
+            <article class="card allowed">
+              <h3 style="color:var(--green)">完了したもの</h3>
+              <ul>
+                <li>A6R Control Kernel source implementation</li>
+                <li>二段階review + fresh Validator + required-only fix</li>
+                <li>最終Standards / Spec rereview</li>
+                <li>G1–G8 source fixture evidence</li>
+                <li>isolated migration/cutover/rollback rehearsal</li>
+                <li>source-only closure at revision 45</li>
+              </ul>
+            </article>
+            <article class="card blocked">
+              <h3 style="color:var(--amber)">実施していないもの</h3>
+              <ul>
+                <li>実Bootstrap Runのmigration / pointer cutover</li>
+                <li>A7 self-host handoff</li>
+                <li>Home Manager / nix-darwin activation</li>
+                <li>app-owned config / credentialへの変更</li>
+                <li>Git stage / commit / push</li>
+                <li>G2/G4/G5の運用実証、G8物理電断試験</li>
+              </ul>
+            </article>
+          </div>
+          <div class="callout" style="margin-top:1rem">
+            <strong>次のgate</strong>
+            <p>このHTMLで成果物を確認した後、実Run migrationとA7へ進める場合は、その時点の対象・rollback・operational evidenceにbindした別の明示承認が必要です。</p>
+          </div>
+        </section>
+
+        <footer class="footer">
+          <p>Generated from the revision 45 accepted package · 2026-09-03 · Standalone document, no external assets or network dependencies.</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const navLinks = [...document.querySelectorAll('nav a')];
+      const sections = navLinks.map(link => document.querySelector(link.hash)).filter(Boolean);
+      const setCurrent = id => navLinks.forEach(link => link.setAttribute('aria-current', String(link.hash === `#${id}`)));
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => {
+          const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (visible) setCurrent(visible.target.id);
+        }, { rootMargin: '-12% 0px -68% 0px', threshold: [0, .1, .35] });
+        sections.forEach(section => observer.observe(section));
+      }
+
+      const buttons = [...document.querySelectorAll('[data-filter]')];
+      const rows = [...document.querySelectorAll('[data-gate]')];
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        rows.forEach(row => { row.hidden = filter !== 'all' && !row.dataset.gate.split(' ').includes(filter); });
+      }));
+    })();
+  </script>
+</body>
+</html>

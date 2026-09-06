@@ -1,0 +1,512 @@
+{
+  "acceptance_test": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s agent-workflows/tests -p 'test_*.py'",
+    "exit_status": 0,
+    "status": "passed",
+    "tests_run": 329
+  },
+  "accepted_s1_plan": {
+    "digest": "sha256:66613b6aeb3739d62f34c20b3732191dd1cd60aaa8ee49b15f3e845eb5d73dbc",
+    "path": "docs/plans/ai-agent-workflow-s1-section-plan.md"
+  },
+  "allowed_next_input": {
+    "identity": "next-S2",
+    "ref": {
+      "digest": "sha256:4846db980aa630bb45461c00f6d6f611038bd9e91a07d6d8d6b075aea6142a45",
+      "path": "agent-workflows/evidence/sections/S1/next-S2.json"
+    }
+  },
+  "authority_version": "S1-source-authority/v1",
+  "canonical_findings": [
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "S1/contract-map/missing-per-contract-binding-and-noncanonical-retained-skill-paths/v1",
+      "id": "S1-CSR-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "s1-open-section|s0-only-transition-command|general-section-close-missing|single-owner",
+      "id": "S1-LIFE-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "shared-protocol-operation|implementation-status-skill-only|qualified-F-selector|16-of-60",
+      "id": "S1-LIFE-002",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "s1-fixed-authority-unspecified|self-redigest|external-anchor|close-graph",
+      "id": "S1-LIFE-003",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "bootstrap-public-seam-authority-head-provenance-not-representable",
+      "id": "S1-A-BR-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "bootstrap-operation-completion-omits-canonical-required-bindings",
+      "id": "S1-A-BR-002",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "bootstrap-schema-cross-field-operation-outcome-artifact-mismatch",
+      "id": "S1-A-BR-003",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "bootstrap-invalid-input-digest-raises-untyped-exception",
+      "id": "S1-A-BR-004",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "F6/F7 result-schema authority and existing Kernel authority have no valid intersection.",
+      "id": "S1-SC-KERNEL-AUTHORITY-DISJOINT",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "F5 treats caller booleans as proof and emits advice whose workflow, state, checkpoint, inputs, and next group have no freshness or cross-binding to expected_head or one another.",
+      "id": "S1-SC-F5-STALE-ADVICE-ACCEPTED",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "F4 accepts and ignores a DAG input, so a proposed future frontier need not exist in or follow the declared graph.",
+      "id": "S1-SC-F4-DAG-BYPASS",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "strict closure-operation-result/v1 accepts an empty result and does not couple selector F1-F8 to its required result member.",
+      "id": "S1-SC-RESULT-EMPTY-VALID",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "F8 converts malformed returned documents to ClosureProtocolError but lets actual Kernel integrity-chain exceptions escape the shared-closure public seam.",
+      "id": "S1-SC-F8-INTEGRITY-ERROR-ESCAPES",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "section-control-plane-open-group-receipt-kind-uses-section-position-without-operation",
+      "id": "S1-C-UPSTREAM-OPEN-GROUP-ADAPTER-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "control-kernel-open-group-reducer-omits-prior-section-history",
+      "id": "S1-C-UPSTREAM-OPEN-GROUP-HISTORY-002",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "test_s1_lifecycle_integration.py|direct-current-byte-binding|upstream-compatibility-authority|downstream-edit-invalidates-fixed-close-set",
+      "id": "S1-C-COMPAT-DOWNSTREAM-TEST-BINDING-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "S0-SOURCE-TRANSITION-AUTHORITY/CURRENT-PLAN-CATALOG-ROTATION",
+      "id": "FV-S1D-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "S1-D-STATUS-NAMED-COUNT/STALE-S0-EXPECTATION",
+      "id": "FV-S1D-002",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "html-projection-omits-s0-live-claims-and-static-a7-text-claims-current-pointer",
+      "id": "FV-S1D-003",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "SECTION-TRANSITION-COMPATIBILITY/HISTORICAL-CURRENT-TRUST-ADAPTER-STALE-NEGATIVES",
+      "id": "C-S1D-PF-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1
+      ],
+      "fingerprint": "s1-e/section-close-protocols-encode-s0-instance-identity/v1",
+      "id": "C-S1E-SCHEMA-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "s1-e/caller-root-and-path-component-symlinks-are-followed/v1",
+      "id": "S1E-CLOSE-ROOT-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [
+        1,
+        2
+      ],
+      "fingerprint": "s1-e/terminal-finding-and-authority-attempt-history-is-not-exact/v1",
+      "id": "S1E-FINDING-HISTORY-001",
+      "state": "closed"
+    },
+    {
+      "attempts": [],
+      "fingerprint": "s1-e/close-schema-bytes-come-from-module-root-not-caller-root/v1",
+      "id": "S1E-CLOSE-ROOT-002",
+      "state": "reject"
+    },
+    {
+      "attempts": [],
+      "fingerprint": "s1-e/bundle-materialization-is-not-an-exact-role-correlated-ref-set/v1",
+      "id": "S1E-CLOSE-GRAPH-001",
+      "state": "defer"
+    }
+  ],
+  "checkpoint": {
+    "checkpoint_id": "s1-source-closure-cp-2026-09-05",
+    "digest": "sha256:b38d1c83652018d5f7d7a07ded040890e00e596367ee4d02c1438dec25262468"
+  },
+  "claim_vector": {
+    "activation_complete": false,
+    "actual_a7_handoff_complete": false,
+    "full_workflow_ready": false,
+    "migration_complete": false,
+    "named_contracts": {
+      "accepted": 16,
+      "total": 60
+    },
+    "profile_steps": {
+      "accepted": 0,
+      "total": 23
+    },
+    "s0_registry_ready": true,
+    "s1_bootstrap_shared_lifecycle_source_complete": true,
+    "source_transition_fixture_passed": true,
+    "source_wide_integration_complete": false
+  },
+  "close_index": {
+    "digest": "sha256:0dc2ec887d8df553791abad69b6fc84186d114f01e7d13886bce015b732988c6",
+    "path": "agent-workflows/evidence/sections/S1/index.json"
+  },
+  "compatibility": {
+    "authority": {
+      "digest": "sha256:ac46857a453bca782e41f8f332ce42016338a685376de5b43c2a702d019014ae",
+      "path": "agent-workflows/manifests/section-transition-compatibility-authority.json"
+    },
+    "evidence": {
+      "digest": "sha256:5bc6f3588a4602d00bbcbfe45a9d36461d59f09d8166274c4a76b6a352904eea",
+      "path": "agent-workflows/evidence/compatibility/S0-S1-transition.json"
+    },
+    "manifest": {
+      "digest": "sha256:ab8fb7fbb91b2c394d286354a260793c3ffe60d166477adbdcf0f5deb6908c9b",
+      "path": "agent-workflows/manifests/section-transition-compatibility.json"
+    },
+    "plan": {
+      "digest": "sha256:1e7673dfc6ac3d3d8912c6920320128d2ec2962f14c84957a7090e078e8a3c7b",
+      "path": "docs/plans/ai-agent-workflow-s0-s1-transition-compatibility-plan.md"
+    },
+    "verifier": {
+      "digest": "sha256:ca32bd6595f499c41c095921b4e1882992070bc147c09b784ba28952aa6f1c4a",
+      "path": "agent-workflows/src/ai_agent_workflow/section_transition_evidence.py"
+    }
+  },
+  "contracts": {
+    "group.A.A1": {
+      "evidence": {
+        "digest": "sha256:dcbaf44748733eb38737d16100c53caeafd5527e0e00758d09bc1c1eac43f996",
+        "path": "agent-workflows/evidence/contracts/A1.json"
+      },
+      "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A1_EnvironmentInventoryTests",
+      "source": {
+        "digest": "sha256:de13657f7209eaafad3373d812b37465206fa235416abfb8ea21dcc94147f103",
+        "path": "agent-workflows/skills/bootstrap-classify-environment/SKILL.md"
+      }
+    },
+    "group.A.A2": {
+      "evidence": {
+        "digest": "sha256:88c53406f109cbba0985e441c50aac5992ee70fa363e76c5b5cba1fe172771ef",
+        "path": "agent-workflows/evidence/contracts/A2.json"
+      },
+      "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A2_WorkspaceIsolationTests",
+      "source": {
+        "digest": "sha256:0a6063bd56e10aba2d3262a9cc7de5c2d0dc1be153798364843139c7f033b39d",
+        "path": "agent-workflows/skills/bootstrap-isolate-workspace/SKILL.md"
+      }
+    },
+    "group.A.A3": {
+      "evidence": {
+        "digest": "sha256:b88688bf3d44516bebde8d57c224cb8b0499255a3059fa97dc3e2078e42934b9",
+        "path": "agent-workflows/evidence/contracts/A3.json"
+      },
+      "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A3_RollbackDesignTests",
+      "source": {
+        "digest": "sha256:48960aba99b7f3bb34cb3f56dfa7625519d7ca064ab917f65703d2043d4e16a8",
+        "path": "agent-workflows/skills/bootstrap-design-rollback/SKILL.md"
+      }
+    },
+    "group.A.A4": {
+      "evidence": {
+        "digest": "sha256:04f2e50ea9fa219d4ebab4cb22ef4110769635e30a596126200358516c7b6765",
+        "path": "agent-workflows/evidence/contracts/A4.json"
+      },
+      "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A4_RunInitializationTests",
+      "source": {
+        "digest": "sha256:35d81f9f2ed377e593ed37ffae464f5ed95e0e9286fcceb9d6b7b54b6b19007d",
+        "path": "agent-workflows/skills/bootstrap-initialize-run/SKILL.md"
+      }
+    },
+    "group.A.A5": {
+      "evidence": {
+        "digest": "sha256:cb6b81710bf90a736fb760e227040810530657f47096ba14a8b45041c8fb22bf",
+        "path": "agent-workflows/evidence/contracts/A5.json"
+      },
+      "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A5_LegacyDetachTests",
+      "source": {
+        "digest": "sha256:2b6828daa2789cf310231cb34f9fee9a6b21b12b5d266be8ed0fdab764dbd4ce",
+        "path": "agent-workflows/skills/bootstrap-detach-legacy-owner/SKILL.md"
+      }
+    },
+    "group.A.A6": {
+      "evidence": {
+        "digest": "sha256:7366d75dea974847f82fb1a4d9dd23761a56bea78a2b7b11a38dea7c3bd6cbc2",
+        "path": "agent-workflows/evidence/contracts/A6.json"
+      },
+      "selector": "A6_WalkingSkeletonTests",
+      "source": {
+        "digest": "sha256:5746e91d41ac3297cbb30bf88fe7c9846aa278c798763dba13167826c47bb133",
+        "path": "agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md"
+      }
+    },
+    "group.A.A6R": {
+      "evidence": {
+        "digest": "sha256:1eb28fc0dffed9e3eb8f764853a6096f5910129d185ebf66f42fdc576c31cf5e",
+        "path": "agent-workflows/evidence/contracts/A6R.json"
+      },
+      "selector": "A6R_EvidenceTests",
+      "source": {
+        "digest": "sha256:6301f4adeff6cbdc4d49e25bcce0e647fd8f05ce3adc278eaf86decde96fed59",
+        "path": "agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md"
+      }
+    },
+    "group.A.A7": {
+      "evidence": {
+        "digest": "sha256:0cb555c81965fefafa07acbd95c049c8d6b8df972d5f5b2d7ce3041f3c59aa67",
+        "path": "agent-workflows/evidence/contracts/A7.json"
+      },
+      "selector": "A7_SelfHostHandoffTests",
+      "source": {
+        "digest": "sha256:e2b061ee152163b2a3cd5659d240aaa3e28afe3d1af8bedede70a8257722c2fa",
+        "path": "agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md"
+      }
+    },
+    "group.F.F1": {
+      "evidence": {
+        "digest": "sha256:ee0bb219054f4137823080e2288ba73de73e01f4446c0111a66d4dafc8e49934",
+        "path": "agent-workflows/evidence/contracts/F1.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f1_audit_group_purpose_requires_bound_objective_evidence",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F2": {
+      "evidence": {
+        "digest": "sha256:ba05b8cdf2fa4518c0a1630eb0d26fd9e4da95e64d762a675105ee7c543648bd",
+        "path": "agent-workflows/evidence/contracts/F2.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f2_collect_group_artifacts_keeps_all_classifications_and_required_entries",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F3": {
+      "evidence": {
+        "digest": "sha256:6a178a7d23f3f3fa0861ef7deee3687c008e6e36298e3d2e496c395ac89742f9",
+        "path": "agent-workflows/evidence/contracts/F3.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f3_extract_decision_candidates_never_promotes_unapproved_material",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F4": {
+      "evidence": {
+        "digest": "sha256:096af5986a1e5364e71b8a0ec285c20946769d1314086c933f7941e3b6d600a4",
+        "path": "agent-workflows/evidence/contracts/F4.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f4_replan_future_changes_only_the_future_frontier",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F5": {
+      "evidence": {
+        "digest": "sha256:5ddcc12682825dba89f2e3356b35de9a0fe059285d8324d5db434d2356d804fe",
+        "path": "agent-workflows/evidence/contracts/F5.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f5_advise_next_group_binds_all_prerequisites",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F6": {
+      "evidence": {
+        "digest": "sha256:55fc196a63d6f1240cf7940ba778d1fa331ce9e147bb892d728124d740b34906",
+        "path": "agent-workflows/evidence/contracts/F6.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f6_write_checkpoint_compiles_only_a_complete_close_epoch_command",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F7": {
+      "evidence": {
+        "digest": "sha256:db51db403fbb5f3cd4db04d4e4563cb3b7300ed35edeba48ccd45d5f4fc08202",
+        "path": "agent-workflows/evidence/contracts/F7.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f7_clear_boundary_refuses_preclose_or_stale_receipts",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    },
+    "group.F.F8": {
+      "evidence": {
+        "digest": "sha256:4eb9aec1eef1eef10bb2b264f70fed7b3dc8a2a1a94dd801695bd2b999acdf8e",
+        "path": "agent-workflows/evidence/contracts/F8.json"
+      },
+      "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f8_resume_reads_only_a_valid_s0_resume_head_chain",
+      "source": {
+        "digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "path": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"
+      }
+    }
+  },
+  "current_inputs": {
+    "full_implementation_plan": {
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524",
+      "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md"
+    },
+    "step_catalog": {
+      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "path": "docs/plans/ai-agent-workflow-step-catalog.md"
+    }
+  },
+  "expected_head": {
+    "revision": 19,
+    "transaction_digest": "sha256:aa469e0158a9e66e9921e1554f503968b0b4f05d9553a1298096898f48a99e1c"
+  },
+  "fixture": {
+    "execution_class": "source-only",
+    "group_id": "bootstrap-and-shared-closure",
+    "run_id": "s1-source-close-2026-09-05",
+    "section_id": "S1"
+  },
+  "issuer": "codex-root",
+  "s0_parent": {
+    "bundle": {
+      "digest": "sha256:0d2e2b0d9ddccf0779769e3208622a8e7aae51e73fd2b392c35b5a75e1932bf3",
+      "path": "agent-workflows/evidence/sections/S0/bundle.json"
+    },
+    "checkpoint": {
+      "digest": "sha256:6425cf29163434fc0282d15315ba684d97790c77918f4869636a66a76139f8de",
+      "path": "agent-workflows/evidence/sections/S0/checkpoint.json"
+    },
+    "index": {
+      "digest": "sha256:74b10d757ef188ae5d11cbc1ac476038a148702d184e5cef5389ea8a7ab1dde4",
+      "path": "agent-workflows/evidence/sections/S0/index.json"
+    },
+    "result": {
+      "digest": "sha256:4b0010abf9f7d78c4adbe8b8e2ed98d642688b685fe99552e926401eac4490ce",
+      "path": "agent-workflows/evidence/sections/S0/section-result.json"
+    }
+  },
+  "schema": "s1-source-authority/v1",
+  "trusted_schemas": {
+    "accepted_result": {
+      "digest": "sha256:883559b7e35922d103c8b4ab0b4a4fcc4e70428029102cd43dc984f583c4fd8e",
+      "path": "agent-workflows/schemas/section-accepted-result-v1.schema.json"
+    },
+    "finding_validation": {
+      "digest": "sha256:de7f57a8dd4aa99fe68a5532224eae0260308d49e12c598c0d4ccb88c9e4a4f4",
+      "path": "agent-workflows/schemas/finding-validation-set-v1.schema.json"
+    },
+    "s1_authority": {
+      "digest": "sha256:14d3817c5c42059de4a1d1fb861a9cb8ae5f5d3c57c9d868c5e106060ed83ea8",
+      "path": "agent-workflows/schemas/s1-source-authority-v1.schema.json"
+    },
+    "section_bundle": {
+      "digest": "sha256:2284955b1b08738ebb64fc8c7469e59e6bb782a5898d6b5653b345e0abe5a959",
+      "path": "agent-workflows/schemas/section-bundle-v1.schema.json"
+    },
+    "section_review": {
+      "digest": "sha256:55add26c45fcbe3bcd095a0d6c4cc94ced8b50f0b80aa269eeb7bb2240c3ce92",
+      "path": "agent-workflows/schemas/section-review-v1.schema.json"
+    }
+  }
+}

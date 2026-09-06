@@ -1,0 +1,35 @@
+{
+  "schema": "workflow-manifest/v1",
+  "workflow_id": "refactor-behavior-preserving",
+  "title": "Behavior-preserving refactor",
+  "intent_class": "refactor",
+  "entry_mode": "new",
+  "profile": null,
+  "risk_class": "standard",
+  "source_only": true,
+  "planned_effect": "local-change",
+  "required_human_gates": ["objective-approval", "decision-promotion-approval", "run-outcome-approval"],
+  "stages": [
+    {"stage_id": "understand-objective", "kind": "common", "scope": "B", "mode": "serial", "host_selector": null, "selectors": ["group.B.B1", "group.B.B2", "group.B.B3", "group.B.B4", "group.B.B5", "group.B.B6", "group.B.B7"]},
+    {"stage_id": "close-objective", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]},
+    {"stage_id": "define-outcomes", "kind": "common", "scope": "C", "mode": "serial", "host_selector": null, "selectors": ["group.C.C1", "group.C.C2", "group.C.C3", "group.C.C4", "group.C.C5", "group.C.C6"]},
+    {"stage_id": "close-outcomes", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]},
+    {"stage_id": "plan-refactor", "kind": "common", "scope": "D", "mode": "serial", "host_selector": null, "selectors": ["group.D.D1", "group.D.D2", "group.D.D3", "group.D.D4", "group.D.D5", "group.D.D6", "group.D.D7", "group.D.D8", "group.D.D9", "group.D.D10", "group.D.D11", "group.D.D12"]},
+    {"stage_id": "close-refactor-plan", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]},
+    {"stage_id": "execute-refactor", "kind": "common", "scope": "E", "mode": "serial", "host_selector": null, "selectors": ["group.E.E1", "group.E.E2", "group.E.E3"]},
+    {"stage_id": "review-refactor", "kind": "common", "scope": "E", "mode": "parallel", "host_selector": null, "selectors": ["group.E.E4", "group.E.E5"]},
+    {"stage_id": "validate-and-converge-refactor", "kind": "common", "scope": "E", "mode": "serial", "host_selector": null, "selectors": ["group.E.E6", "group.E.E7", "group.E.E8", "group.E.E9"]},
+    {"stage_id": "close-refactor-execution", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]},
+    {"stage_id": "consolidate-decisions", "kind": "common", "scope": "G", "mode": "serial", "host_selector": null, "selectors": ["group.G.G1", "group.G.G2", "group.G.G3", "group.G.G4", "group.G.G5", "group.G.G6"]},
+    {"stage_id": "close-decisions", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]},
+    {"stage_id": "audit-run-outcome", "kind": "common", "scope": "H", "mode": "serial", "host_selector": null, "selectors": ["group.H.H1", "group.H.H2", "group.H.H3"]},
+    {"stage_id": "close-run-outcome", "kind": "closure", "scope": "shared-closure", "mode": "serial", "host_selector": null, "selectors": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7"]}
+  ],
+  "execution_policy": {
+    "schema": "workflow-execution-policy-ref/v1",
+    "version": "v1",
+    "path": "agent-workflows/groups/required-only-feedback-execution-policy-v1.json",
+    "digest": "sha256:0ba45de33e42ab7b7127f62b35f04e168e2cb43300dcbcda8012c6f615f55c34"
+  },
+  "completion": {"mode": "closed", "terminal_selector": "group.F.F7"}
+}

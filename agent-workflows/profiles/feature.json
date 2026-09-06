@@ -1,0 +1,176 @@
+{
+  "schema": "software-profile-manifest/v1",
+  "profile_id": "agent-workflows.profile.feature",
+  "profile": "feature",
+  "implementation_kind": "workflow-profile-step",
+  "contracts": [
+    {
+      "qualified_id": "profile.feature.F1",
+      "local_id": "F1",
+      "contract_name": "user-behavior",
+      "order": 1,
+      "host_selector": "group.D.D4",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F1)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F1.json",
+        "digest": "sha256:01b76679fc7bfd45391fc0cacbb955e96086c52ac8f53dbb353d35834c8d0f41"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F2",
+      "local_id": "F2",
+      "contract_name": "acceptance-examples",
+      "order": 2,
+      "host_selector": "group.D.D4",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F2)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F2.json",
+        "digest": "sha256:1a1deba5055dc841fd3f6e4948e1c34d9b996bd7c9a095d5d97fe2c3773dc4ba"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F3",
+      "local_id": "F3",
+      "contract_name": "ux-api-contract",
+      "order": 3,
+      "host_selector": "group.D.D4",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F3)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F3.json",
+        "digest": "sha256:bfc2359ff05402c1b1ebd37fe116f15b7ac98077233b3cee7098ec86186989ef"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F4",
+      "local_id": "F4",
+      "contract_name": "architecture-fit",
+      "order": 4,
+      "host_selector": "group.D.D6",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F4)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F4.json",
+        "digest": "sha256:8623b63234e1fc90f151b8772768226b9d91c2ae7ae45ff764cfe2d999b0b5a9"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F5",
+      "local_id": "F5",
+      "contract_name": "vertical-slice",
+      "order": 5,
+      "host_selector": "group.E.E3",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F5)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F5.json",
+        "digest": "sha256:5cf25c4f0a77308bfd58bea5cb4e8ec66d0655296debd044446263a25335715f"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F6",
+      "local_id": "F6",
+      "contract_name": "behavior-tdd",
+      "order": 6,
+      "host_selector": "group.E.E3",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F6)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F6.json",
+        "digest": "sha256:2f5c01de525270705eb687247106ae144cdf787f828bb19d0a4f80bc40cb52d2"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F7",
+      "local_id": "F7",
+      "contract_name": "integration",
+      "order": 7,
+      "host_selector": "group.E.E3",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F7)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F7.json",
+        "digest": "sha256:b38e56200c10352dbb8c3d420d5b4e12fbc4fcee4d43949cf6b1505902fec587"
+      }
+    },
+    {
+      "qualified_id": "profile.feature.F8",
+      "local_id": "F8",
+      "contract_name": "acceptance-e2e",
+      "order": 8,
+      "host_selector": "group.E.E9",
+      "status": "candidate-source",
+      "template_ref": {
+        "path": "agent-workflows/templates/profiles/feature.json",
+        "digest": "sha256:6606f24aab98b9624e3fbd11cdcb5bf33613fbab7910198cda8654cc2c31d703"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "digest": "sha256:1e356025b34ab68dd7cc5730f59532de8620dbe87ddd35266109dee766dde555",
+        "selector": "SoftwareProfileV1.compile(profile.feature.F8)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/profiles/feature/F8.json",
+        "digest": "sha256:2ea37b07973020b97cca5b8490b50bdd013502b433cff7628e6e72436dd6ee37"
+      }
+    }
+  ]
+}

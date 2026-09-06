@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "orchestrator-transition-v2.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "transition_id", "kind", "contract_version", "expected_head", "source_disposition_ref", "derived_counters", "budget", "lease_action", "dispatch_authority", "reopen", "non_mutating", "transition_digest"],
+  "properties": {
+    "schema": {"const": "orchestrator-transition/v2"},
+    "transition_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["fix-dispatch", "reopen"]},
+    "contract_version": {"const": "workflow-execution/v2"},
+    "expected_head": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+    },
+    "source_disposition_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "digest"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+    },
+    "derived_counters": {
+      "type": "object", "additionalProperties": false,
+      "required": ["review_round", "product_fix_attempts", "non_product_retry_classes"],
+      "properties": {
+        "review_round": {"type": "integer", "minimum": 1, "maximum": 2},
+        "product_fix_attempts": {"type": "array", "uniqueItems": true, "items": {"type": "object", "additionalProperties": false, "required": ["fingerprint", "count"], "properties": {"fingerprint": {"type": "string", "minLength": 1}, "count": {"type": "integer", "minimum": 0, "maximum": 5}}}},
+        "non_product_retry_classes": {
+          "type": "object", "additionalProperties": false,
+          "required": ["test_fixture_correction", "command_or_capture_retry", "package_or_report_correction"],
+          "properties": {
+            "test_fixture_correction": {"type": "integer", "minimum": 0},
+            "command_or_capture_retry": {"type": "integer", "minimum": 0},
+            "package_or_report_correction": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["remaining_seconds", "required_seconds"],
+      "properties": {"remaining_seconds": {"type": "integer", "minimum": 0}, "required_seconds": {"type": "integer", "minimum": 0}}
+    },
+    "lease_action": {
+      "type": "object", "additionalProperties": false,
+      "required": ["lease_id", "status", "revoked_dispatch_ids"],
+      "properties": {"lease_id": {"type": "string", "minLength": 1}, "status": {"const": "active"}, "revoked_dispatch_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}}
+    },
+    "dispatch_authority": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["status", "task", "authority_digest"],
+      "properties": {
+        "status": {"const": "issued"},
+        "task": {
+          "type": "object", "additionalProperties": false,
+          "required": ["schema", "task_id", "finding_fingerprint", "source_finding_ids", "write_scope", "product_fix_attempt", "next_review_round", "budget_seconds", "allowances", "expected_head", "contract_version"],
+          "properties": {
+            "schema": {"const": "bounded-fix-task/v2"}, "task_id": {"type": "string", "minLength": 1}, "finding_fingerprint": {"type": "string", "minLength": 1},
+            "source_finding_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "write_scope": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "product_fix_attempt": {"type": "integer", "minimum": 1, "maximum": 5}, "next_review_round": {"type": "integer", "minimum": 1, "maximum": 2}, "budget_seconds": {"type": "integer", "minimum": 1},
+            "allowances": {"type": "object", "additionalProperties": false, "required": ["affected_regression_seconds", "command_timeout_seconds", "grace_seconds", "parent_seconds", "round_two_reviews_seconds", "terminal_publication_seconds", "validator_seconds"], "properties": {"affected_regression_seconds": {"type": "integer", "minimum": 0}, "command_timeout_seconds": {"type": "integer", "minimum": 0}, "grace_seconds": {"type": "integer", "minimum": 0}, "parent_seconds": {"type": "integer", "minimum": 0}, "round_two_reviews_seconds": {"type": "integer", "minimum": 0}, "terminal_publication_seconds": {"type": "integer", "minimum": 0}, "validator_seconds": {"type": "integer", "minimum": 0}}},
+            "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+            "contract_version": {"const": "workflow-execution/v2"}
+          }
+        },
+        "authority_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "reopen": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["prior_terminal_digest", "replacement_budget"],
+      "properties": {
+        "prior_terminal_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "replacement_budget": {"type": "object", "additionalProperties": false, "required": ["version", "value_seconds"], "properties": {"version": {"type": "string", "minLength": 1}, "value_seconds": {"type": "integer", "minimum": 1}}}
+      }
+    },
+    "non_mutating": {"const": true},
+    "transition_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

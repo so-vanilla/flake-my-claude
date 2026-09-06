@@ -1,0 +1,16 @@
+{
+  "schema": "agent-workflow-contract-acceptance/v1",
+  "contract_id": "A7",
+  "contract_name": "bootstrap-self-host-handoff",
+  "coverage_kind": "named-skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md",
+    "digest": "sha256:e2b061ee152163b2a3cd5659d240aaa3e28afe3d1af8bedede70a8257722c2fa"
+  },
+  "test_ref": {
+    "path": "agent-workflows/tests/test_a7_self_host_handoff.py",
+    "digest": "sha256:aeabdde5b5a5d0e411d3db8e18eba75231e263744219a6cfa7217329ea2bd9db",
+    "selector": "A7_SelfHostHandoffTests"
+  },
+  "status": "passed"
+}
