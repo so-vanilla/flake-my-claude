@@ -1,0 +1,71 @@
+{
+  "schema": "group-h-manifest/v1",
+  "group_id": "agent-workflows.group.H",
+  "group": "H",
+  "implementation_kind": "skill",
+  "contracts": [
+    {
+      "qualified_id": "group.H.H1",
+      "local_id": "H1",
+      "contract_name": "audit-objective",
+      "group": "H",
+      "order": 1,
+      "acceptance_class": "H1_AuditObjectiveTests",
+      "source_ref": {
+        "path": "agent-workflows/skills/audit-objective/SKILL.md",
+        "digest": "sha256:afca708f1be6f4ab96f163631c4bdc5d7556ccdb3eaa0d2966afbbd83902f8cc"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+        "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d",
+        "selector": "DecisionOutcomeLifecycleV1.compile(group.H.H1)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/contracts/H1.json",
+        "digest": "sha256:ad9323fe4dc4b3a234aea15dd900c17e8b8bddd8f887e268cace98a9546e497d"
+      }
+    },
+    {
+      "qualified_id": "group.H.H2",
+      "local_id": "H2",
+      "contract_name": "decide-run-outcome",
+      "group": "H",
+      "order": 2,
+      "acceptance_class": "H2_DecideRunOutcomeTests",
+      "source_ref": {
+        "path": "agent-workflows/skills/decide-run-outcome/SKILL.md",
+        "digest": "sha256:3f190fa4dd4f0f94ad079f7834de2b08b8d7b784494d46d870f8ad6bf3042418"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+        "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d",
+        "selector": "DecisionOutcomeLifecycleV1.compile(group.H.H2)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/contracts/H2.json",
+        "digest": "sha256:7a3513e455331454c35301bfb303e251156d8eb9695560d59accf90b567c1be8"
+      }
+    },
+    {
+      "qualified_id": "group.H.H3",
+      "local_id": "H3",
+      "contract_name": "archive-or-continue",
+      "group": "H",
+      "order": 3,
+      "acceptance_class": "H3_ArchiveOrContinueTests",
+      "source_ref": {
+        "path": "agent-workflows/skills/archive-or-continue/SKILL.md",
+        "digest": "sha256:55ff582ef75b159bf850da1108a39bec64aee20b744dccb1a8226244a7353fc6"
+      },
+      "selector_ref": {
+        "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+        "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d",
+        "selector": "DecisionOutcomeLifecycleV1.compile(group.H.H3)"
+      },
+      "evidence_ref": {
+        "path": "agent-workflows/evidence/contracts/H3.json",
+        "digest": "sha256:04612c390e2203cb399ccd62d330daf51577a29d170669bbb1819c45c3c1390b"
+      }
+    }
+  ]
+}

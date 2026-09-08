@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-agent-run-state/v1",
+  "title": "AI agent Workflow Run state",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema",
+    "run_id",
+    "workflow_version",
+    "state_revision",
+    "status",
+    "objective_ref",
+    "aliases",
+    "external_refs",
+    "authority",
+    "current_group",
+    "current_epoch",
+    "context_budget",
+    "artifacts",
+    "last_checkpoint",
+    "unresolved_items",
+    "invalidated_artifacts",
+    "next_inputs",
+    "updated_at"
+  ],
+  "properties": {
+    "schema": { "const": "ai-agent-run-state/v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "workflow_version": { "type": "string", "minLength": 1 },
+    "state_revision": { "type": "integer", "minimum": 0 },
+    "status": { "type": "string", "minLength": 1 },
+    "objective_ref": {
+      "type": "object",
+      "required": ["path", "version", "digest", "approval_status"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "minLength": 1 },
+        "approval_status": { "type": "string", "minLength": 1 }
+      }
+    },
+    "aliases": { "type": "array", "items": { "type": "string" } },
+    "external_refs": { "type": "array", "items": { "type": "string" } },
+    "authority": { "type": "object" },
+    "current_group": {
+      "type": "object",
+      "required": ["id", "status", "completed_skills", "next_skill"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "completed_skills": { "type": "array" },
+        "next_skill": { "type": ["string", "null"] }
+      }
+    },
+    "current_epoch": {
+      "type": "object",
+      "required": ["id", "group_id", "status", "started_at_revision", "clear_before_start"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "group_id": { "type": "string", "minLength": 1 },
+        "status": { "type": "string", "minLength": 1 },
+        "started_at_revision": { "type": "integer", "minimum": 0 },
+        "clear_before_start": { "type": "boolean" }
+      }
+    },
+    "context_budget": {
+      "type": "object",
+      "required": ["target", "normal_limit", "absolute_limit"],
+      "properties": {
+        "target": { "const": 200000 },
+        "normal_limit": { "const": 300000 },
+        "absolute_limit": { "const": 500000 },
+        "token_status": { "enum": ["exact", "estimated", "unavailable"] },
+        "token_count": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "artifacts": { "type": "object" },
+    "last_checkpoint": { "type": ["object", "null"] },
+    "unresolved_items": { "type": "array" },
+    "invalidated_artifacts": { "type": "array" },
+    "next_inputs": { "type": "array" },
+    "updated_at": { "type": "string", "minLength": 1 }
+  }
+}

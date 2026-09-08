@@ -1,0 +1,225 @@
+{
+  "schema": "agent-workflow-distribution/v1",
+  "lifecycle_owner": "flake-my-claude.agent-workflows",
+  "source_status": "source-candidate-only",
+  "live_installation_claimed": false,
+  "ownership_classes": [
+    {
+      "id": "portable_source",
+      "authority": "lifecycle_owner",
+      "mutation": "source-change-only"
+    },
+    {
+      "id": "generated_projection",
+      "authority": "lifecycle_owner",
+      "mutation": "generator-only"
+    },
+    {
+      "id": "managed_destination",
+      "authority": "lifecycle_owner",
+      "mutation": "explicit-child-transaction-only"
+    },
+    {
+      "id": "unmanaged_user_state",
+      "authority": "user",
+      "mutation": "refuse"
+    },
+    {
+      "id": "app_owned_runtime",
+      "authority": "provider-application",
+      "mutation": "refuse"
+    },
+    {
+      "id": "secret_bearing_state",
+      "authority": "credential-owner",
+      "mutation": "refuse"
+    },
+    {
+      "id": "cache",
+      "authority": "provider-application",
+      "mutation": "refuse"
+    }
+  ],
+  "portable_source_roots": [
+    "agent-workflows/manifests",
+    "agent-workflows/schemas",
+    "agent-workflows/scripts",
+    "agent-workflows/skills",
+    "agent-workflows/src"
+  ],
+  "generated_projection_roots": [
+    "agent-workflows/generated"
+  ],
+  "managed_child_sets": {
+    "portable_manifest_files": [
+      "additional-required-surfaces.json",
+      "catalog-contract-inventory.json",
+      "distribution.json",
+      "implementation-status.json",
+      "model-policy.json",
+      "owner-manifest.json",
+      "plan-coverage.json",
+      "project-local-inception-release.json",
+      "s0-source-transition-authority.json",
+      "s0-source-transition-current-authority.json",
+      "s1-source-authority.json",
+      "section-transition-compatibility-authority.json",
+      "section-transition-compatibility.json",
+      "source-evidence-index.json",
+      "source-release.json"
+    ],
+    "workflow_skill_directories": [
+      "approve-objective",
+      "approve-promotion",
+      "arbitrate-exception",
+      "archive-or-continue",
+      "assess-feasibility-and-constraints",
+      "audit-objective",
+      "bootstrap-build-walking-skeleton",
+      "bootstrap-classify-environment",
+      "bootstrap-design-rollback",
+      "bootstrap-detach-legacy-owner",
+      "bootstrap-initialize-run",
+      "bootstrap-isolate-workspace",
+      "bootstrap-migrate-control-kernel",
+      "bootstrap-self-host-handoff",
+      "build-outcome-dependency-graph",
+      "capture-baseline",
+      "classify-decision-status",
+      "classify-scope",
+      "converge-parallel-batch",
+      "decide-run-outcome",
+      "decompose-outcomes",
+      "decompose-tasks",
+      "deduplicate-and-link",
+      "define-targets",
+      "design-contracts",
+      "design-measurement",
+      "design-solution",
+      "discover-context",
+      "discover-practices",
+      "dispatch-task",
+      "draft-durable-records",
+      "entry",
+      "execute-small-loop",
+      "execution-preflight",
+      "explore-options",
+      "fix-and-rereview",
+      "grill-purpose",
+      "implementation-readiness-review",
+      "plan-verification-and-recovery",
+      "prepare-worker-briefs",
+      "promote-and-backlink",
+      "propose-true-purpose",
+      "reverse-engineer-current-system",
+      "review-task-quality",
+      "review-task-spec",
+      "scan-decision-evidence",
+      "select-workflow-profile",
+      "sequence-and-parallelize",
+      "specify-what-and-why",
+      "validate-outcome-system",
+      "validate-review-findings",
+      "verify-whole-change"
+    ]
+  },
+  "provider_roots": [
+    {
+      "path": ".agents/skills",
+      "root_class": "app_owned_runtime",
+      "managed_child_set": "workflow_skill_directories",
+      "mechanism": "home.file",
+      "unlisted_children_class": "unmanaged_user_state"
+    },
+    {
+      "path": ".claude/skills",
+      "root_class": "app_owned_runtime",
+      "managed_child_set": "workflow_skill_directories",
+      "mechanism": "home.file",
+      "unlisted_children_class": "unmanaged_user_state"
+    },
+    {
+      "path": ".codex/skills",
+      "root_class": "app_owned_runtime",
+      "managed_child_set": "workflow_skill_directories",
+      "mechanism": "programs.codex.skills",
+      "unlisted_children_class": "unmanaged_user_state"
+    }
+  ],
+  "portable_manifest_destination": {
+    "path": ".local/share/agent-workflows",
+    "root_class": "managed_destination",
+    "managed_child_set": "portable_manifest_files",
+    "mechanism": "home.file"
+  },
+  "exclusions": [
+    {
+      "path": ".agents/cache",
+      "class": "cache"
+    },
+    {
+      "path": ".claude/cache",
+      "class": "cache"
+    },
+    {
+      "path": ".codex/auth.json",
+      "class": "secret_bearing_state"
+    },
+    {
+      "path": ".codex/cache",
+      "class": "cache"
+    },
+    {
+      "path": ".codex/config.toml",
+      "class": "app_owned_runtime"
+    },
+    {
+      "path": ".codex/plugins",
+      "class": "app_owned_runtime"
+    },
+    {
+      "path": ".codex/sessions",
+      "class": "secret_bearing_state"
+    },
+    {
+      "path": ".codex/state",
+      "class": "app_owned_runtime"
+    }
+  ],
+  "config_exception": {
+    "path": ".codex/config.toml",
+    "owned_keys": [
+      "model",
+      "model_reasoning_effort"
+    ],
+    "owner": "config-installer",
+    "distribution_mutation": "refuse"
+  },
+  "lifecycle_operations": {
+    "backup": {
+      "required_before_replace": true,
+      "preserve_unknown_bytes": true
+    },
+    "doctor": {
+      "writes": false,
+      "checks": [
+        "exact-child-ownership",
+        "source-digest",
+        "destination-digest",
+        "exclusion-preservation"
+      ]
+    },
+    "uninstall": {
+      "scope": "previously-owned-exact-children-only",
+      "preserve_provider_roots": true
+    },
+    "rollback": {
+      "requires": [
+        "backup",
+        "expected-current-digest",
+        "expected-current-identity"
+      ],
+      "conflict_action": "stop"
+    }
+  }
+}

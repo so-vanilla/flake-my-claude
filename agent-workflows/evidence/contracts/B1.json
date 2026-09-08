@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.B.B1",
+  "contract_name": "entry",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/entry/SKILL.md",
+    "digest": "sha256:4ba4dd8396752c33780094a5121953271099f2c72c80ed4359ba63f2129eae16"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_objective_system.py::B1_EntryTests"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ordinary-review-report-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "report_id", "axis", "actor_id", "context_epoch_id", "package_digest", "candidate_digest", "aggregate_digest", "findings"],
+  "properties": {
+    "schema": {"const": "ordinary-review-report/v1"}, "report_id": {"type": "string", "minLength": 1},
+    "axis": {"enum": ["architecture-safety", "integration-operability"]}, "actor_id": {"type": "string", "minLength": 1}, "context_epoch_id": {"type": "string", "minLength": 1},
+    "package_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "candidate_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "aggregate_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "findings": {"type": "array", "uniqueItems": true, "items": {"type": "object", "additionalProperties": false, "required": ["finding_id", "fingerprint", "severity", "summary"], "properties": {"finding_id": {"type": "string", "minLength": 1}, "fingerprint": {"type": "string", "minLength": 1}, "severity": {"enum": ["critical", "major", "minor"]}, "summary": {"type": "string", "minLength": 1}}}}
+  }
+}

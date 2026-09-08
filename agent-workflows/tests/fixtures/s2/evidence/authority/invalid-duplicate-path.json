@@ -1,0 +1,1 @@
+{"schema":"s2-source-authority/v1","mutation":"graph.entries[1].ref.path=graph.entries[0].ref.path","expected":"duplicate graph path rejected"}

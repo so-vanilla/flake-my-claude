@@ -1,0 +1,392 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "required-surface-acceptance-v1.schema.json",
+  "title": "Exact source-only acceptance evidence for the eleven S7 additional surfaces",
+  "oneOf": [
+    {
+      "const": {
+        "schema": "s7-personal-surface-result/v1",
+        "surface_id": "surface.model-policy",
+        "canonical_source": {
+          "path": "agent-workflows/manifests/model-policy.json",
+          "digest": "sha256:eb7e45733239472c05158bc4611bb120a1fa60930a075ef08f6b0003c5060b50"
+        },
+        "acceptance": {
+          "selector": "S7PersonalSurfaceTests.test_model_policy_surface",
+          "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_model_policy_surface -v",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "live_apply": false,
+          "build": false,
+          "runtime_compatibility": "unverified"
+        },
+        "proof": {
+          "receipt_schema": "effective-model-fixture-receipt/v1",
+          "model": "gpt-5.6-luna",
+          "reasoning_effort": "max",
+          "automatic_fallback": false,
+          "config_apply": "explicit-user-command-only",
+          "unsupported_value_action": "stop-without-substitution",
+          "runtime_compatibility": "unverified"
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "s7-personal-surface-result/v1",
+        "surface_id": "surface.config-installer-guardrail",
+        "canonical_source": {
+          "path": "agent-workflows/config-installer.py",
+          "digest": "sha256:e3b06c6768755654d119d8c60d17ac96ed3f005bb84d47be033064f42c3a9f17"
+        },
+        "acceptance": {
+          "selector": "S7PersonalSurfaceTests.test_config_installer_surface",
+          "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_config_installer_surface -v",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "live_apply": false,
+          "build": false,
+          "runtime_compatibility": "unverified"
+        },
+        "proof": {
+          "managed_keys": [
+            "model",
+            "model_reasoning_effort"
+          ],
+          "temporary_paths_only": true,
+          "actual_user_config_accessed": false,
+          "unknown_app_owned_bytes_preserved": true,
+          "output_redacted": true,
+          "secret_output": false,
+          "backup": "verified-fixture",
+          "doctor": "verified-fixture",
+          "rollback": "verified-fixture",
+          "refusals": [
+            "concurrent-change",
+            "stale-identity",
+            "symlink"
+          ]
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "s7-personal-surface-result/v1",
+        "surface_id": "surface.owner-distribution-manifest",
+        "canonical_source": {
+          "path": "agent-workflows/manifests/distribution.json",
+          "digest": "sha256:3125fd7bcd7f759ae8f1106f79f1acfcc455483322acc5140a2a769cc566eb23"
+        },
+        "acceptance": {
+          "selector": "S7PersonalSurfaceTests.test_distribution_manifest_surface",
+          "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_distribution_manifest_surface -v",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "live_apply": false,
+          "build": false,
+          "runtime_compatibility": "unverified"
+        },
+        "proof": {
+          "lifecycle_owner": "flake-my-claude.agent-workflows",
+          "ownership_classes": [
+            "portable_source",
+            "generated_projection",
+            "managed_destination",
+            "unmanaged_user_state",
+            "app_owned_runtime",
+            "secret_bearing_state",
+            "cache"
+          ],
+          "exact_managed_children": true,
+          "provider_roots_app_owned": true,
+          "required_operations": [
+            "backup",
+            "doctor",
+            "uninstall",
+            "rollback"
+          ],
+          "live_installation_claimed": false
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "s7-personal-surface-result/v1",
+        "surface_id": "surface.provider-projection",
+        "canonical_source": {
+          "path": "agent-workflows/provider-projection.py",
+          "digest": "sha256:cc918dd759d4a5c33a5aaab2239646fc9f507bca1a34de7f3095011bd4890504"
+        },
+        "acceptance": {
+          "selector": "S7PersonalSurfaceTests.test_provider_projection_surface",
+          "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_provider_projection_surface -v",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "live_apply": false,
+          "build": false,
+          "runtime_compatibility": "unverified"
+        },
+        "proof": {
+          "deep_interface": "ai_agent_workflow.distribution_planning.NativeProjectionAdapter",
+          "staged_artifact_required": true,
+          "digest_bound": true,
+          "compatibility": "partial",
+          "semantic_parity": false,
+          "unsupported_semantics": [
+            "hooks"
+          ],
+          "provider_state_written": false
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.classify-data",
+        "canonical_source": {
+          "path": "agent-workflows/company/classify-data.py",
+          "digest": "sha256:96d3f1bea4cc0a8c274a806682fb371af929b5b341b3da3cf019cfc61111e12b"
+        },
+        "acceptance": {
+          "selector": "surface.company.classify-data",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "data-classification-candidate",
+          "raw_secret_output": false
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.resolve-identity",
+        "canonical_source": {
+          "path": "agent-workflows/company/resolve-identity.py",
+          "digest": "sha256:41370c752859f9ed5262123ffcee59ebc3d89de9578c9a88473529da1b730b38"
+        },
+        "acceptance": {
+          "selector": "surface.company.resolve-identity",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "identity-resolution-candidate",
+          "delegation_expiry": "validated-fixture"
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.authorize-tools",
+        "canonical_source": {
+          "path": "agent-workflows/company/authorize-tools.py",
+          "digest": "sha256:2529c3fa8591c1e298ab68ce1a080fc637df871a3e9af16858b5ba9783715e2a"
+        },
+        "acceptance": {
+          "selector": "surface.company.authorize-tools",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "tool-authorization-candidate",
+          "effective_policy_readback": "validated-fixture",
+          "least_privilege": true
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.approve-catalog",
+        "canonical_source": {
+          "path": "agent-workflows/company/approve-catalog.py",
+          "digest": "sha256:c38fbf8fb5a16f371168c7577490709b8ac76dea2a5dbad4b5c739e2f8429758"
+        },
+        "acceptance": {
+          "selector": "surface.company.approve-catalog",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "catalog-approval-validation-candidate",
+          "external_approval_receipt": "validated-fixture"
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.evaluate-change",
+        "canonical_source": {
+          "path": "agent-workflows/company/evaluate-change.py",
+          "digest": "sha256:7760c6b6cdcc48c9c7e8c28fe0bea902e41fb3f95bcac888668cbc98fea72e56"
+        },
+        "acceptance": {
+          "selector": "surface.company.evaluate-change",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "comparative-evaluation-candidate",
+          "dimensions": [
+            "quality",
+            "cost",
+            "latency",
+            "failure",
+            "rollback"
+          ],
+          "adoption_status": "not-decided"
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.release-workflow",
+        "canonical_source": {
+          "path": "agent-workflows/company/release-workflow.py",
+          "digest": "sha256:4ef93aabfb6ed5f7d518f77ffc3d0f480f1c348abe883b521c9fac5f1bbaa710"
+        },
+        "acceptance": {
+          "selector": "surface.company.release-workflow",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "release-workflow-candidate",
+          "external_release_authority": "validated-fixture",
+          "release_status": "not-executed"
+        }
+      }
+    },
+    {
+      "const": {
+        "schema": "company-governance-surface-evidence/v1",
+        "surface_id": "surface.company.audit-operation",
+        "canonical_source": {
+          "path": "agent-workflows/company/audit-operation.py",
+          "digest": "sha256:eb865164e896e4e638d0dd510564b0e8211566b018f7ed59f2035463e158ae00"
+        },
+        "acceptance": {
+          "selector": "surface.company.audit-operation",
+          "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+          "result": "passed"
+        },
+        "claim_boundary": {
+          "source_fixture_only": true,
+          "personal_state_used": false,
+          "credentials_used": false,
+          "live_company_system_used": false,
+          "live_identity_used": false,
+          "live_policy_used": false,
+          "live_catalog_used": false,
+          "live_evaluation_used": false,
+          "live_release_used": false,
+          "live_audit_used": false,
+          "approval_minted": false
+        },
+        "proof": {
+          "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+          "result_kind": "audit-operation-candidate",
+          "missing_unreadable_preserved_on_refusal": true,
+          "audit_source": "fixture-only"
+        }
+      }
+    }
+  ]
+}

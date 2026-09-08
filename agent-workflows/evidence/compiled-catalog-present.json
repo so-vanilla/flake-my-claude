@@ -1,0 +1,36 @@
+{
+  "claim_boundary": {
+    "build_or_rebuild_claimed": false,
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "migration_or_activation_claimed": false,
+    "objective_outcome_claimed": false,
+    "operational_adoption_claimed": false,
+    "run_completion_claimed": false
+  },
+  "gate_id": "compiled-catalog-present",
+  "required_source_findings": [],
+  "schema": "agent-workflow-source-gate-evidence/compiled-catalog-present/v1",
+  "scope": "source-only",
+  "status": "passed",
+  "subject_refs": [
+    {
+      "digest": "sha256:8450824b5f6dbe71e1cbc8e140d8298462534763c54cbeab3734d0913e2a27f0",
+      "path": "agent-workflows/manifests/source-release.json"
+    },
+    {
+      "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+      "path": "agent-workflows/manifests/source-evidence-index.json"
+    },
+    {
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524",
+      "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md"
+    },
+    {
+      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "path": "docs/plans/ai-agent-workflow-step-catalog.md"
+    }
+  ]
+}

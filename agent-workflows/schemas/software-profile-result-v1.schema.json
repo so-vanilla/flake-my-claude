@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "software-profile-result-v1.schema.json",
+  "title": "Pure software profile compiler result",
+  "oneOf": [
+    {"$ref": "#/$defs/candidate"},
+    {"$ref": "#/$defs/composition"},
+    {"$ref": "#/$defs/refusal"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "head": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "physical_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "version", "digest"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "source_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority_ref", "namespace", "scope", "owner_ref"],
+      "properties": {
+        "authority_ref": {"$ref": "#/$defs/physical_ref"},
+        "namespace": {"type": "string", "minLength": 1},
+        "scope": {"enum": ["software-profile-candidate", "candidate-generic", "fixture-only"]},
+        "owner_ref": {"$ref": "#/$defs/physical_ref"}
+      }
+    },
+    "interfaces": {
+      "type": "object", "additionalProperties": false,
+      "required": ["workflow_composition", "planning_system", "execution_group"],
+      "properties": {
+        "workflow_composition": {"$ref": "#/$defs/source_ref"},
+        "planning_system": {"$ref": "#/$defs/source_ref"},
+        "execution_group": {"$ref": "#/$defs/source_ref"}
+      }
+    },
+    "approval": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "actor_id", "scope", "decision", "receipt_ref", "granted"],
+      "properties": {
+        "status": {"enum": ["not-applicable", "validated-human-receipt"]},
+        "actor_id": {"type": ["string", "null"]},
+        "scope": {"type": ["string", "null"]},
+        "decision": {"type": ["string", "null"]},
+        "receipt_ref": {"anyOf": [{"$ref": "#/$defs/physical_ref"}, {"type": "null"}]},
+        "granted": {"const": false}
+      }
+    },
+    "selector": {
+      "enum": [
+        "profile.feature.F1", "profile.feature.F2", "profile.feature.F3", "profile.feature.F4",
+        "profile.feature.F5", "profile.feature.F6", "profile.feature.F7", "profile.feature.F8",
+        "profile.bug-fix.BGF1", "profile.bug-fix.BGF2", "profile.bug-fix.BGF3", "profile.bug-fix.BGF4",
+        "profile.bug-fix.BGF5", "profile.bug-fix.BGF6", "profile.bug-fix.BGF7", "profile.bug-fix.BGF8",
+        "profile.improvement.I1", "profile.improvement.I2", "profile.improvement.I3", "profile.improvement.I4",
+        "profile.improvement.I5", "profile.improvement.I6", "profile.improvement.I7"
+      ]
+    },
+    "result_kind": {
+      "enum": [
+        "feature-user-behavior-candidate", "feature-acceptance-examples-candidate", "feature-ux-api-contract-candidate",
+        "feature-architecture-fit-candidate", "feature-vertical-slice-candidate", "feature-behavior-tdd-candidate",
+        "feature-integration-candidate", "feature-acceptance-e2e-candidate", "bug-symptom-candidate",
+        "bug-reproduction-candidate", "bug-evidence-inventory-candidate", "bug-hypotheses-candidate",
+        "bug-root-cause-candidate", "bug-fix-options-candidate", "bug-regression-candidate",
+        "bug-impact-verification-candidate", "improvement-baseline-candidate", "improvement-hypothesis-candidate",
+        "improvement-guardrails-candidate", "improvement-change-design-candidate", "improvement-execution-receipt-candidate",
+        "improvement-comparison-candidate", "improvement-decision-candidate"
+      ]
+    },
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema", "qualified_id", "profile", "step_id", "host_selector", "result_kind", "status",
+        "expected_head", "authority", "authority_digest", "host_receipt_ref", "predecessor_artifact_refs",
+        "evidence_refs", "evidence", "approval", "source_interfaces", "non_mutating",
+        "common_lifecycle_embedded", "grants_approval", "objective_outcome_claimed", "candidate_digest"
+      ],
+      "properties": {
+        "schema": {"const": "software-profile-candidate/v1"},
+        "qualified_id": {"$ref": "#/$defs/selector"},
+        "profile": {"enum": ["feature", "bug-fix", "improvement"]},
+        "step_id": {"type": "string", "pattern": "^(F[1-8]|BGF[1-8]|I[1-7])$"},
+        "host_selector": {"enum": ["group.D.D2", "group.D.D4", "group.D.D5", "group.D.D6", "group.E.E3", "group.E.E9"]},
+        "result_kind": {"$ref": "#/$defs/result_kind"},
+        "status": {"const": "candidate"},
+        "expected_head": {"$ref": "#/$defs/head"},
+        "authority": {"$ref": "#/$defs/authority"},
+        "authority_digest": {"$ref": "#/$defs/digest"},
+        "host_receipt_ref": {"$ref": "#/$defs/physical_ref"},
+        "predecessor_artifact_refs": {"type": "array", "items": {"$ref": "#/$defs/physical_ref"}},
+        "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "evidence": {"type": "object", "minProperties": 1},
+        "approval": {"$ref": "#/$defs/approval"},
+        "source_interfaces": {"$ref": "#/$defs/interfaces"},
+        "non_mutating": {"const": true},
+        "common_lifecycle_embedded": {"const": false},
+        "grants_approval": {"const": false},
+        "objective_outcome_claimed": {"const": false},
+        "candidate_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "composition": {
+      "type": "object", "additionalProperties": false,
+      "required": [
+        "schema", "profile", "status", "workflow_manifest_ref", "workflow_composition_receipt",
+        "artifact_refs", "selectors", "result_kinds", "expected_head", "authority", "authority_digest",
+        "source_interfaces", "non_mutating", "common_lifecycle_embedded", "grants_approval",
+        "objective_outcome_claimed", "composition_digest"
+      ],
+      "properties": {
+        "schema": {"const": "software-profile-composition/v1"},
+        "profile": {"enum": ["feature", "bug-fix", "improvement"]},
+        "status": {"const": "candidate"},
+        "workflow_manifest_ref": {"$ref": "#/$defs/physical_ref"},
+        "workflow_composition_receipt": {"type": "object"},
+        "artifact_refs": {"type": "array", "minItems": 7, "maxItems": 8, "items": {"$ref": "#/$defs/physical_ref"}},
+        "selectors": {"type": "array", "minItems": 7, "maxItems": 8, "items": {"$ref": "#/$defs/selector"}},
+        "result_kinds": {"type": "array", "minItems": 7, "maxItems": 8, "items": {"$ref": "#/$defs/result_kind"}},
+        "expected_head": {"$ref": "#/$defs/head"},
+        "authority": {"$ref": "#/$defs/authority"},
+        "authority_digest": {"$ref": "#/$defs/digest"},
+        "source_interfaces": {"$ref": "#/$defs/interfaces"},
+        "non_mutating": {"const": true},
+        "common_lifecycle_embedded": {"const": false},
+        "grants_approval": {"const": false},
+        "objective_outcome_claimed": {"const": false},
+        "composition_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "refusal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "profile", "reason", "expected_head", "non_mutating", "grants_approval", "objective_outcome_claimed"],
+      "properties": {
+        "schema": {"const": "software-profile-refusal/v1"},
+        "qualified_id": {"type": "string", "minLength": 1},
+        "profile": {"enum": [null, "feature", "bug-fix", "improvement"]},
+        "reason": {"type": "string", "minLength": 1},
+        "expected_head": {"anyOf": [{"$ref": "#/$defs/head"}, {"type": "null"}]},
+        "non_mutating": {"const": true},
+        "grants_approval": {"const": false},
+        "objective_outcome_claimed": {"const": false}
+      }
+    }
+  }
+}

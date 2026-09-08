@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.C.C5",
+  "contract_name": "capture-baseline",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/capture-baseline/SKILL.md",
+    "digest": "sha256:5e9b837ca92d55705d5345983d211e7f9f8d2cd468c3a570f29e134729e5b496"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_outcome_system.py::C5_BaselineTests"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dag-edge-v1.schema.json",
+  "title": "Documented Artifact/Task DAG edge",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["from", "to", "type"],
+  "properties": {
+    "from": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:@/-]*$"},
+    "to": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:@/-]*$"},
+    "type": {"enum": ["requires", "produces", "authorizes", "verdict-for", "converges"]}
+  },
+  "oneOf": [
+    {"properties": {"from": {"type": "string", "pattern": "^(artifact|work-product):[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^task:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "requires"}}},
+    {"properties": {"from": {"type": "string", "pattern": "^task:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^(artifact|work-product):[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "produces"}}},
+    {"properties": {"from": {"type": "string", "pattern": "^review:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^finding:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "produces"}}},
+    {"properties": {"from": {"type": "string", "pattern": "^(authority|approval):[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^task:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "authorizes"}}},
+    {"properties": {"from": {"type": "string", "pattern": "^review:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^finding:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "verdict-for"}}},
+    {"properties": {"from": {"type": "string", "pattern": "^(artifact|work-product):[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "to": {"type": "string", "pattern": "^task:[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}, "type": {"const": "converges"}}}
+  ]
+}

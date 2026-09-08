@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "profile.feature.F1",
+  "contract_name": "user-behavior",
+  "implementation_kind": "workflow-profile-step",
+  "implementation_ref": {
+    "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+    "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f1"
+  },
+  "status": "passed"
+}

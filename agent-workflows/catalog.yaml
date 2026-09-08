@@ -1,0 +1,18 @@
+{
+  "schema": "catalog/v1",
+  "named_contracts": {
+    "A": [["A1", "bootstrap-classify-environment"], ["A2", "bootstrap-isolate-workspace"], ["A3", "bootstrap-design-rollback"], ["A4", "bootstrap-initialize-run"], ["A5", "bootstrap-detach-legacy-owner"], ["A6", "bootstrap-build-walking-skeleton"], ["A6R", "bootstrap-migrate-control-kernel"], ["A7", "bootstrap-self-host-handoff"]],
+    "B": [["B1", "entry"], ["B2", "discover-context"], ["B3", "classify-scope"], ["B4", "grill-purpose"], ["B5", "propose-true-purpose"], ["B6", "assess-feasibility-and-constraints"], ["B7", "approve-objective"]],
+    "C": [["C1", "decompose-outcomes"], ["C2", "build-outcome-dependency-graph"], ["C3", "design-measurement"], ["C4", "define-targets"], ["C5", "capture-baseline"], ["C6", "validate-outcome-system"]],
+    "D": [["D1", "select-workflow-profile"], ["D2", "reverse-engineer-current-system"], ["D3", "discover-practices"], ["D4", "specify-what-and-why"], ["D5", "explore-options"], ["D6", "design-solution"], ["D7", "design-contracts"], ["D8", "decompose-tasks"], ["D9", "sequence-and-parallelize"], ["D10", "prepare-worker-briefs"], ["D11", "plan-verification-and-recovery"], ["D12", "implementation-readiness-review"]],
+    "E": [["E1", "execution-preflight"], ["E2", "dispatch-task"], ["E3", "execute-small-loop"], ["E4", "review-task-spec"], ["E5", "review-task-quality"], ["E6", "validate-review-findings"], ["E7", "fix-and-rereview"], ["E8", "converge-parallel-batch"], ["E9", "verify-whole-change"], ["E10", "arbitrate-exception"]],
+    "F": [["F1", "audit-group-purpose"], ["F2", "collect-group-artifacts"], ["F3", "extract-decision-candidates"], ["F4", "replan-future"], ["F5", "advise-next-group"], ["F6", "write-checkpoint"], ["F7", "clear-boundary"], ["F8", "resume"]],
+    "G": [["G1", "scan-decision-evidence"], ["G2", "classify-decision-status"], ["G3", "deduplicate-and-link"], ["G4", "draft-durable-records"], ["G5", "approve-promotion"], ["G6", "promote-and-backlink"]],
+    "H": [["H1", "audit-objective"], ["H2", "decide-run-outcome"], ["H3", "archive-or-continue"]]
+  },
+  "profile_steps": {
+    "feature": [["F1", "user-behavior"], ["F2", "acceptance-examples"], ["F3", "ux-api-contract"], ["F4", "architecture-fit"], ["F5", "vertical-slice"], ["F6", "behavior-tdd"], ["F7", "integration"], ["F8", "acceptance-e2e"]],
+    "bug-fix": [["BGF1", "symptom"], ["BGF2", "reproduce"], ["BGF3", "evidence"], ["BGF4", "hypotheses"], ["BGF5", "root-cause"], ["BGF6", "fix-options"], ["BGF7", "regression"], ["BGF8", "verify-impact"]],
+    "improvement": [["I1", "baseline"], ["I2", "hypothesis"], ["I3", "guardrails"], ["I4", "change-design"], ["I5", "execute"], ["I6", "compare"], ["I7", "decide"]]
+  }
+}

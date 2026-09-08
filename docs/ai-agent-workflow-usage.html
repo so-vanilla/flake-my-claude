@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Agent Workflowへどのようなタスクで入り、どのように指示・承認・再開するかを利用者目線で説明する全体Usage">
+  <title>AI Agent Workflow — 全体 Usage</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07110f;
+      --surface: #0d1b18;
+      --surface-2: #12231f;
+      --surface-3: #172c26;
+      --line: #29443b;
+      --line-bright: #3a6658;
+      --text: #edf6f1;
+      --muted: #a6b9b1;
+      --green: #6ee7aa;
+      --green-soft: #153b2d;
+      --cyan: #6bd9e7;
+      --blue: #8eb8ff;
+      --amber: #ffc66d;
+      --amber-soft: #392c17;
+      --red: #ff9292;
+      --red-soft: #3b2020;
+      --ink: #07100d;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      --radius: 18px;
+      --shadow: 0 22px 60px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 5% -5%, rgba(107, 217, 231, .13), transparent 36rem),
+        radial-gradient(circle at 96% 12%, rgba(110, 231, 170, .10), transparent 31rem),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.68;
+    }
+
+    a { color: var(--cyan); text-underline-offset: 3px; }
+    a:hover { color: var(--green); }
+    button, input { font: inherit; }
+    code, .mono { font-family: var(--mono); }
+    code {
+      padding: .08em .35em;
+      border: 1px solid rgba(107, 217, 231, .16);
+      border-radius: 6px;
+      background: rgba(107, 217, 231, .06);
+      font-size: .88em;
+      overflow-wrap: anywhere;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: 8px;
+      left: 8px;
+      padding: .7rem 1rem;
+      transform: translateY(-150%);
+      border-radius: 8px;
+      background: var(--green);
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 255px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 2rem 1.25rem;
+      border-right: 1px solid var(--line);
+      background: rgba(7, 17, 15, .88);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 1.7rem;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 1px solid var(--line-bright);
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--green-soft), var(--surface-2));
+      color: var(--green);
+      font: 800 .82rem var(--mono);
+      box-shadow: inset 0 0 24px rgba(110, 231, 170, .08);
+    }
+
+    nav a {
+      display: block;
+      margin: .14rem 0;
+      padding: .54rem .7rem;
+      border-left: 2px solid transparent;
+      border-radius: 0 9px 9px 0;
+      color: var(--muted);
+      font-size: .86rem;
+      text-decoration: none;
+    }
+    nav a:hover, nav a[aria-current="true"] {
+      border-left-color: var(--green);
+      background: rgba(110, 231, 170, .07);
+      color: var(--text);
+    }
+
+    .nav-meta {
+      margin-top: 1.7rem;
+      padding: .85rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: .74rem;
+    }
+    .nav-meta strong { color: var(--green); }
+
+    main { min-width: 0; }
+    .content {
+      width: min(1180px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding-bottom: 7rem;
+    }
+
+    .hero {
+      min-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 0 4rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow, .kicker {
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: .77rem;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .eyebrow { margin: 0 0 1rem; }
+
+    h1, h2, h3 { line-height: 1.18; letter-spacing: -.035em; }
+    h1 {
+      max-width: 970px;
+      margin: 0;
+      font-size: clamp(2.8rem, 7vw, 6.4rem);
+      font-weight: 820;
+    }
+    h1 span { color: var(--green); }
+    h2 { margin: 0 0 .65rem; font-size: clamp(1.9rem, 4vw, 3.35rem); }
+    h3 { margin: 0 0 .55rem; font-size: 1.12rem; }
+
+    .lede {
+      max-width: 820px;
+      margin: 1.6rem 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 2vw, 1.24rem);
+    }
+
+    .hero-rule {
+      max-width: 850px;
+      margin-top: 2rem;
+      padding: 1.15rem 1.25rem;
+      border: 1px solid rgba(110, 231, 170, .34);
+      border-radius: 14px;
+      background: rgba(21, 59, 45, .62);
+    }
+    .hero-rule strong { color: var(--green); }
+
+    .status-row, .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+      margin-top: 1.7rem;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .48rem;
+      min-height: 32px;
+      padding: .35rem .72rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font: .75rem var(--mono);
+    }
+    .pill::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+    .pill.pass { border-color: rgba(110, 231, 170, .42); color: var(--green); }
+    .pill.warn { border-color: rgba(255, 198, 109, .42); color: var(--amber); }
+    .pill.info { border-color: rgba(107, 217, 231, .42); color: var(--cyan); }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 3.3rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--line);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .metric { padding: 1.3rem 1.4rem; background: var(--surface); }
+    .metric strong {
+      display: block;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: clamp(1.45rem, 3vw, 2.1rem);
+      line-height: 1.12;
+    }
+    .metric span { color: var(--muted); font-size: .8rem; }
+
+    section { scroll-margin-top: 1rem; padding: 5rem 0 0; }
+    section > header { max-width: 820px; margin-bottom: 2rem; }
+    .section-copy { margin: 0; color: var(--muted); }
+
+    .grid { display: grid; gap: 1rem; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      padding: 1.35rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(150deg, rgba(23, 44, 38, .88), rgba(13, 27, 24, .90));
+      box-shadow: 0 12px 36px rgba(0, 0, 0, .14);
+    }
+    .card p { margin: .45rem 0 0; color: var(--muted); }
+    .card ul { margin: .7rem 0 0; padding-left: 1.1rem; color: var(--muted); }
+    .card li + li { margin-top: .35rem; }
+    .card .num {
+      display: inline-grid;
+      min-width: 30px;
+      height: 30px;
+      padding: 0 .45rem;
+      margin-bottom: .8rem;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--green);
+      color: var(--ink);
+      font: 800 .76rem var(--mono);
+    }
+    .card[data-kind] { transition: opacity .18s ease, transform .18s ease; }
+    .card.is-dimmed { opacity: .22; transform: scale(.985); }
+
+    .callout {
+      padding: 1.25rem 1.35rem;
+      border: 1px solid var(--line-bright);
+      border-radius: var(--radius);
+      background: rgba(13, 27, 24, .78);
+    }
+    .callout strong { color: var(--green); }
+    .callout.warn { border-color: rgba(255, 198, 109, .42); background: rgba(57, 44, 23, .64); }
+    .callout.warn strong { color: var(--amber); }
+    .callout.danger { border-color: rgba(255, 146, 146, .4); background: rgba(59, 32, 32, .55); }
+    .callout.danger strong { color: var(--red); }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 1rem;
+    }
+    .segmented button, .copy-button {
+      border: 1px solid var(--line-bright);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .segmented button { padding: .55rem .85rem; }
+    .segmented button:hover, .segmented button[aria-pressed="true"] {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .example {
+      position: relative;
+      margin-top: .9rem;
+      padding: 1rem 3.5rem 1rem 1rem;
+      border: 1px solid rgba(107, 217, 231, .22);
+      border-radius: 12px;
+      background: #081511;
+      color: #dff9ee;
+      font: .86rem/1.6 var(--mono);
+      white-space: pre-wrap;
+    }
+    .copy-button {
+      position: absolute;
+      top: .55rem;
+      right: .55rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      padding: 0;
+      font-size: .8rem;
+    }
+    .copy-button:hover, .copy-button:focus-visible { border-color: var(--cyan); color: var(--cyan); }
+
+    .chooser {
+      display: grid;
+      grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr);
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .chooser-list { display: grid; gap: .55rem; }
+    .chooser-list button {
+      padding: .85rem 1rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer;
+    }
+    .chooser-list button:hover, .chooser-list button[aria-selected="true"] {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--text);
+    }
+    .chooser-result { min-height: 100%; }
+    .chooser-result h3 { color: var(--green); }
+    .chooser-result .grant { color: var(--muted); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: .75rem;
+      margin-top: 1.2rem;
+    }
+    .flow-step {
+      position: relative;
+      min-height: 142px;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+    .flow-step:not(:last-child)::after {
+      position: absolute;
+      z-index: 2;
+      top: 50%;
+      right: -.62rem;
+      color: var(--green);
+      content: "→";
+      transform: translateY(-50%);
+      font-weight: 900;
+    }
+    .flow-step small { display: block; margin-bottom: .55rem; color: var(--green); font: .72rem var(--mono); }
+    .flow-step p { margin: .4rem 0 0; color: var(--muted); font-size: .82rem; }
+
+    .timeline { position: relative; margin-left: .6rem; padding-left: 2rem; }
+    .timeline::before {
+      position: absolute;
+      top: .65rem;
+      bottom: .7rem;
+      left: .35rem;
+      width: 1px;
+      background: linear-gradient(var(--green), var(--cyan), var(--line));
+      content: "";
+    }
+    .timeline-item { position: relative; padding: 0 0 1.6rem; }
+    .timeline-item::before {
+      position: absolute;
+      top: .38rem;
+      left: -2rem;
+      width: 12px;
+      height: 12px;
+      border: 3px solid var(--bg);
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 1px var(--green);
+      content: "";
+    }
+    .timeline-item p { margin: .3rem 0 0; color: var(--muted); }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      box-shadow: 0 10px 34px rgba(0,0,0,.12);
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: .9rem 1rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface-2); color: var(--green); font-size: .8rem; }
+    td { background: rgba(13, 27, 24, .82); color: var(--muted); font-size: .88rem; }
+    tr:last-child td { border-bottom: 0; }
+    td strong { color: var(--text); }
+
+    .recipe-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .recipe { display: flex; flex-direction: column; }
+    .recipe .example { margin-top: auto; }
+    .label {
+      display: inline-flex;
+      width: fit-content;
+      margin-bottom: .65rem;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font: .7rem var(--mono);
+    }
+
+    .review-loop {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: .7rem;
+      align-items: center;
+    }
+    .review-node { min-height: 158px; padding: 1.1rem; border: 1px solid var(--line); border-radius: 15px; background: var(--surface); }
+    .review-node.active { border-color: rgba(110, 231, 170, .46); background: var(--green-soft); }
+    .review-node p { margin: .4rem 0 0; color: var(--muted); font-size: .85rem; }
+    .arrow { color: var(--green); font: 900 1.2rem var(--mono); }
+    .dispositions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; margin-top: .9rem; }
+    .disposition { padding: .8rem; border: 1px solid var(--line); border-radius: 12px; background: rgba(7, 17, 15, .58); }
+    .disposition strong { display: block; font: .78rem var(--mono); }
+    .disposition p { margin: .3rem 0 0; color: var(--muted); font-size: .78rem; }
+    .required strong { color: var(--red); }
+    .defer strong { color: var(--amber); }
+    .reject strong { color: var(--muted); }
+    .needs-user strong { color: var(--cyan); }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(13, 27, 24, .74);
+    }
+    details + details { margin-top: .75rem; }
+    summary { padding: 1rem 1.1rem; color: var(--text); cursor: pointer; font-weight: 750; }
+    details > div { padding: 0 1.1rem 1.1rem; color: var(--muted); }
+
+    .availability {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .availability .now { border-color: rgba(110, 231, 170, .42); }
+    .availability .target { border-color: rgba(255, 198, 109, .42); }
+    .availability h3 span { margin-left: .35rem; color: var(--muted); font: .68rem var(--mono); }
+
+    .source-list { margin: 0; padding-left: 1.2rem; color: var(--muted); }
+    .source-list li + li { margin-top: .45rem; }
+    .footer {
+      margin-top: 5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .82rem;
+    }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1050px) {
+      .grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .flow-step:nth-child(3)::after { display: none; }
+      .review-loop { grid-template-columns: 1fr; }
+      .review-loop .arrow { transform: rotate(90deg); justify-self: center; }
+      .dispositions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 780px) {
+      .shell { display: block; }
+      aside { position: static; width: auto; height: auto; padding: 1rem; border-right: 0; border-bottom: 1px solid var(--line); }
+      nav { display: flex; gap: .25rem; overflow-x: auto; padding-bottom: .25rem; }
+      nav a { flex: 0 0 auto; border-left: 0; border-bottom: 2px solid transparent; border-radius: 8px 8px 0 0; }
+      nav a:hover, nav a[aria-current="true"] { border-left-color: transparent; border-bottom-color: var(--green); }
+      .nav-meta { display: none; }
+      .content { width: min(100% - 1.5rem, 720px); }
+      .hero { min-height: auto; padding: 4.5rem 0 3rem; }
+      .metrics, .grid.two, .grid.three, .recipe-grid, .chooser, .availability { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after { top: auto; right: 50%; bottom: -.92rem; transform: translateX(50%) rotate(90deg); }
+      .flow-step:nth-child(3)::after { display: block; }
+    }
+
+    @media (max-width: 520px) {
+      h1 { font-size: 2.55rem; }
+      section { padding-top: 4rem; }
+      .grid.four, .dispositions { grid-template-columns: 1fr; }
+      .metric { padding: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <div class="shell">
+    <aside aria-label="ページ内ナビゲーション">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">USE</span>
+        <span>Workflow Usage</span>
+      </a>
+      <nav>
+        <a href="#quickstart">最短の使い方</a>
+        <a href="#task-types">タスクを選ぶ</a>
+        <a href="#entry">エントリー</a>
+        <a href="#instructions">指示の出し方</a>
+        <a href="#recipes">指示レシピ</a>
+        <a href="#lifecycle">全体フロー</a>
+        <a href="#review">二段階レビュー</a>
+        <a href="#authority">権限境界</a>
+        <a href="#continuity">長期作業と再開</a>
+        <a href="#inventory">実装一覧</a>
+        <a href="#availability">現在の実装範囲</a>
+        <a href="#glossary">用語</a>
+      </nav>
+      <div class="nav-meta">
+        <strong>利用者が覚えることは3つ</strong><br>
+        自然文で依頼する。<br>
+        境界を明示する。<br>
+        状態と停止理由を聞く。
+      </div>
+    </aside>
+
+    <main id="main">
+      <div class="content">
+        <header class="hero" id="top">
+          <p class="eyebrow">AI Agent Workflow / User Guide</p>
+          <h1>会話で入り、<br><span>境界だけ握る。</span></h1>
+          <p class="lede">まず「何を達成したいか」「どこまで任せるか」を伝える。目的・成果・計画を固めるInceptionでは、Skillを1つ実行して成果を保存し、clear後に提示された次の呼び出し文で進む。実装段階ではWorkflowが作業をオーケストレーションする。</p>
+          <div class="hero-rule"><strong>最重要：</strong> <code>Go</code> や <code>続けて</code> は、すでに承認した範囲内を継続する指示。Git操作、実generationのactivation、外部操作、秘密の取扱いなど、別に区切られた権限まで自動で広げない。</div>
+          <div class="status-row" aria-label="ガイドの対象">
+            <span class="pill pass">自然文が標準入口</span>
+            <span class="pill info">状態は物理ファイルから復旧</span>
+            <span class="pill warn">高リスク操作は別承認</span>
+          </div>
+          <div class="metrics" aria-label="利用者が意識する3段階">
+            <div class="metric"><strong>01 / 依頼</strong><span>やりたいことと期待結果</span></div>
+            <div class="metric"><strong>02 / 境界</strong><span>含む・除外・停止点</span></div>
+            <div class="metric"><strong>03 / 進行</strong><span>続行・確認・再開・承認</span></div>
+          </div>
+        </header>
+
+        <section id="quickstart">
+          <header>
+            <span class="kicker">Quick start</span>
+            <h2>最短の使い方</h2>
+            <p class="section-copy">最初から完璧な仕様を書く必要はない。次の4点があれば、Workflow側が不足を調べ、結果を変える質問だけを返す。</p>
+          </header>
+          <div class="grid four">
+            <article class="card"><span class="num">1</span><h3>対象</h3><p>何についての仕事か。repository、機能、文書、業務processなど。</p></article>
+            <article class="card"><span class="num">2</span><h3>期待する変化</h3><p>何がどうなれば成功か。原因が分かる、実装が通る、移行できる、など。</p></article>
+            <article class="card"><span class="num">3</span><h3>今回の境界</h3><p>調査だけ、実装まで、Rebuild手前、commitなし、など。</p></article>
+            <article class="card"><span class="num">4</span><h3>制約</h3><p>期限、触らない場所、既存diff、利用者確認が必要な判断。</p></article>
+          </div>
+          <div class="example" data-copy-source>この不具合の根本原因を調べて。対象はagent-workflows、既存の利用者変更は保持。まず診断だけで、修正はまだしない。<button class="copy-button" type="button" data-copy aria-label="依頼例をコピー">⧉</button></div>
+          <div class="callout" style="margin-top:1rem"><strong>Inceptionは1 Skillずつ：</strong> 最初は <code>$entry</code> に依頼を渡す。以後は各Skillが返す成果物・handoffリンクと次の呼び出し文を確認し、clearまたは履歴なしの新規会話を行ってから、その文を貼り付ける。Skill名を暗記する必要はない。</div>
+          <div class="example" data-copy-source>$entry を使って、この依頼を保存して整理して。今回はentryだけを実行し、成果物とhandoff、clear後の次のSkill呼び出し文を返して。<button class="copy-button" type="button" data-copy aria-label="Inception開始例をコピー">⧉</button></div>
+          <p>対象は目的探索・承認（B）、成果と測定（C）、実装計画（D）の25 Skill。途中の質問は同じSkillで続け、承認待ちや要修正を完了扱いしない。実装準備確認とDのまとめが通ったら、clear後に <code>execution-preflight</code> を明示起動して実装へ進む。<a href="plans/inception-single-skill-operation.md">運用変更の詳細</a></p>
+        </section>
+
+        <section id="task-types">
+          <header>
+            <span class="kicker">Task map</span>
+            <h2>どんなタスクで入るか</h2>
+            <p class="section-copy">カードを絞り込むと、依頼の型とWorkflow側の扱いが分かる。</p>
+          </header>
+          <div class="segmented" role="group" aria-label="タスク種別フィルター">
+            <button type="button" data-filter="all" aria-pressed="true">すべて</button>
+            <button type="button" data-filter="one-off" aria-pressed="false">one-off</button>
+            <button type="button" data-filter="managed" aria-pressed="false">managed</button>
+            <button type="button" data-filter="high-risk" aria-pressed="false">高リスク</button>
+          </div>
+          <div class="grid four" id="task-grid">
+            <article class="card" data-kind="one-off"><span class="label">ONE-OFF</span><h3>質問・説明・小さな確認</h3><p>読み取り中心で、短く、状態を残さなくても再現できる仕事。</p><div class="example" data-copy-source>この関数が何を保証しているか説明して。変更はしない。<button class="copy-button" type="button" data-copy aria-label="例をコピー">⧉</button></div></article>
+            <article class="card" data-kind="managed"><span class="label">MANAGED</span><h3>調査・設計・レビュー</h3><p>複数source、判断、独立レビュー、引継ぎがある仕事。成果と停止理由をRunへ残す。</p><div class="example" data-copy-source>目的と上流の決め事だけを与えて、全体を独立レビューして。修正はしない。<button class="copy-button" type="button" data-copy aria-label="例をコピー">⧉</button></div></article>
+            <article class="card" data-kind="managed"><span class="label">MANAGED</span><h3>機能追加・bug fix・改善</h3><p>現状、仕様、実装、検証をつなぐ仕事。必要なら分割し、成功済みの枝を保持する。</p><div class="example" data-copy-source>再現→根本原因→回帰test→最小修正→全体検証まで進めて。Git操作はしない。<button class="copy-button" type="button" data-copy aria-label="例をコピー">⧉</button></div></article>
+            <article class="card" data-kind="high-risk"><span class="label">SEPARATE GATE</span><h3>移行・activation・外部操作</h3><p>戻し方とdry-runを先に作り、実切替、Git、外部system変更は個別の権限として扱う。</p><div class="example" data-copy-source>dry-runとrollback確認まで。実generationのswitch、commit、pushはしない。<button class="copy-button" type="button" data-copy aria-label="例をコピー">⧉</button></div></article>
+          </div>
+        </section>
+
+        <section id="entry">
+          <header>
+            <span class="kicker">Entry</span>
+            <h2>エントリー時に起きること</h2>
+            <p class="section-copy">最初の依頼は「暫定目的」。いきなり実装へ飛ばず、現地で分かることを調べ、結果が変わる点だけ確認してから目的と権限を固定する。</p>
+          </header>
+          <div class="flow" aria-label="エントリーフロー">
+            <div class="flow-step"><small>INPUT</small><strong>自然文の依頼</strong><p>原文と解釈を分ける。</p></div>
+            <div class="flow-step"><small>LOOKUP</small><strong>既存Run確認</strong><p>重複ならresumeか新規かを判断。</p></div>
+            <div class="flow-step"><small>ROUTE</small><strong>one-off / managed</strong><p>規模、risk、可逆性で深度を選ぶ。</p></div>
+            <div class="flow-step"><small>DISCOVER</small><strong>先に現地調査</strong><p>回答可能な質問を利用者へ戻さない。</p></div>
+            <div class="flow-step"><small>CONFIRM</small><strong>目的と境界</strong><p>非目的、制約、停止点を揃える。</p></div>
+            <div class="flow-step"><small>APPROVE</small><strong>目的version</strong><p>明示承認後だけ保護された正本になる。</p></div>
+          </div>
+          <div class="grid two" style="margin-top:1rem">
+            <div class="callout"><strong>小さい仕事：</strong> 説明、読み取り、軽微で可逆な変更は、重いRunを作らないone-offにできる。</div>
+            <div class="callout warn"><strong>管理する仕事：</strong> 複数phase、worker、承認、長時間、依存、監査、復旧があるならmanaged Runにする。</div>
+          </div>
+        </section>
+
+        <section id="instructions">
+          <header>
+            <span class="kicker">Steering</span>
+            <h2>途中でどう指示するか</h2>
+            <p class="section-copy">指示は「目的を変える」のか、「同じ目的の範囲内で進め方を変える」のかを区別する。曖昧な短語は既存権限を拡張しない。</p>
+          </header>
+          <div class="chooser">
+            <div class="chooser-list" role="tablist" aria-label="指示したいこと">
+              <button type="button" role="tab" aria-selected="true" data-choice="start">新しい仕事を始める</button>
+              <button type="button" role="tab" aria-selected="false" data-choice="continue">そのまま続ける</button>
+              <button type="button" role="tab" aria-selected="false" data-choice="status">現在地を知る</button>
+              <button type="button" role="tab" aria-selected="false" data-choice="resume">中断から再開する</button>
+              <button type="button" role="tab" aria-selected="false" data-choice="boundary">停止点を追加する</button>
+              <button type="button" role="tab" aria-selected="false" data-choice="change">目的・scopeを変える</button>
+            </div>
+            <article class="card chooser-result" id="chooser-result" role="tabpanel" aria-live="polite">
+              <h3>新しい仕事を始める</h3>
+              <p class="grant">対象、期待する変化、今回の境界、制約を自然文で伝える。目的は暫定として記録され、必要な確認後に承認する。</p>
+              <div class="example" data-dynamic-example data-copy-source>この不具合を調査して。期待値はX、実際はY。まず原因特定まで、修正はしない。<button class="copy-button" type="button" data-copy aria-label="指示例をコピー">⧉</button></div>
+            </article>
+          </div>
+
+          <div class="timeline" style="margin-top:2rem">
+            <div class="timeline-item"><strong>着手</strong><p>「この不具合を原因調査して。修正はまだしない」— 読取・診断を許可し、source変更は許可しない。</p></div>
+            <div class="timeline-item"><strong>目的承認</strong><p>「この目的v1、非目的、制約で進めて」— 目的を正本として固定する。後から変えるなら影響分析と新versionが必要。</p></div>
+            <div class="timeline-item"><strong>実装範囲</strong><p>「把握済みのrequired findingを修正し、A6R完了まで承認なしで進めて」— その範囲の実装を委任するが、別gateは残る。</p></div>
+            <div class="timeline-item"><strong>継続</strong><p>「Go」「続けて」— 既存目的・scope・権限内の次の安全な一手へ進む。新しい権限は生まれない。</p></div>
+            <div class="timeline-item"><strong>停止点</strong><p>「Rebuildの手前まで」— build、dry-run、rollback確認までは進めても、実switchは行わない。</p></div>
+            <div class="timeline-item"><strong>観測</strong><p>「現在地と停止理由を返して」— 目的、完了、現在Group/Epoch、未検証、次の一手を物理stateから読む。</p></div>
+          </div>
+        </section>
+
+        <section id="recipes">
+          <header>
+            <span class="kicker">Prompt recipes</span>
+            <h2>そのまま使える指示レシピ</h2>
+            <p class="section-copy">内部commandを覚える代わりに、期待結果と権限境界を一文で固定する。</p>
+          </header>
+          <div class="recipe-grid">
+            <article class="card recipe"><span class="label">DIAGNOSE ONLY</span><h3>原因だけ調べる</h3><p>診断は修正権限を含まない。</p><div class="example" data-copy-source>症状、期待値、実値、環境を確認し、再現と根本原因まで診断して。修正はしない。原因、証拠、未検証riskを返して。<button class="copy-button" type="button" data-copy aria-label="診断レシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">RESEARCH</span><h3>調査だけ委任する</h3><p>結論だけでなく、sourceと不確実性を残す。</p><div class="example" data-copy-source>この選択肢を一次資料とcodebaseから調査して。現状維持を含む案、推奨、反証条件をまとめて。実装はしない。<button class="copy-button" type="button" data-copy aria-label="調査レシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">DESIGN GATE</span><h3>設計後に止める</h3><p>設計承認と実装承認を分ける。</p><div class="example" data-copy-source>As-Is、To-Be、non-goals、選択肢、推奨設計、migrationとrollbackまで作って。実装readiness review後に止まり、sourceは変更しない。<button class="copy-button" type="button" data-copy aria-label="設計レシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">AUTONOMOUS BOUNDARY</span><h3>境界まで自律実装</h3><p>通常の実装判断は委任し、止める操作を列挙する。</p><div class="example" data-copy-source>承認済み目的とplanの範囲で、required findingの修正、test、独立reviewまで承認なしで進めて。目的・scope変更、実activation、Git、外部操作が必要なら止めて。<button class="copy-button" type="button" data-copy aria-label="自律実装レシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">FINITE REVIEW</span><h3>二段階レビューを有限化</h3><p>候補抽出と必要性判定を分ける。</p><div class="example" data-copy-source>ReviewerはBackground、As-Is、canonical To-Be、Gap、証拠付きcandidateを出して。別Validatorがrequired / defer / reject / needs-userを判定し、requiredだけ修正。重複、理由ある選択、軽微、好みはloopへ戻さない。時間・round・attempt上限で停止理由を残して。<button class="copy-button" type="button" data-copy aria-label="レビュー指示をコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">RESUME</span><h3>長期作業を再開</h3><p>会話の記憶ではなく、最新HEADとCheckpointを読む。</p><div class="example" data-copy-source>A6Rを再開。最新の物理stateを検証し、目的、完了済み、現在地、停止理由、未検証、次の一手、残る権限gateを返してから進めて。<button class="copy-button" type="button" data-copy aria-label="再開レシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">INDEPENDENT REVIEW</span><h3>前提を絞った全体レビュー</h3><p>実装経緯を与えず、正本と成果だけで評価する。</p><div class="example" data-copy-source>目的と承認済みの上流決定だけを入力に、成果物全体をfresh contextでレビューして。変更候補をBackground、As-Is、To-Be、Gap、証拠付きで返し、修正はしない。<button class="copy-button" type="button" data-copy aria-label="全体レビューレシピをコピー">⧉</button></div></article>
+            <article class="card recipe"><span class="label">PREACTIVATION</span><h3>切替直前まで進める</h3><p>戻せる証拠を作って、最後のswitchを残す。</p><div class="example" data-copy-source>Rebuildの手前まで進めて。source test、Nix build、downstream dry-run、rollback確認、実行予定commandの提示まで。実generation activation、stage、commit、pushはしない。<button class="copy-button" type="button" data-copy aria-label="切替前レシピをコピー">⧉</button></div></article>
+          </div>
+        </section>
+
+        <section id="lifecycle">
+          <header>
+            <span class="kicker">Lifecycle</span>
+            <h2>想定される全体フロー</h2>
+            <p class="section-copy">必要なGroupだけを使う。小さい仕事を全工程へ通すのではなく、riskと成果に応じて深度を変える。</p>
+          </header>
+          <div class="flow" aria-label="Workflow全体のGroup">
+            <div class="flow-step"><small>GROUP B</small><strong>目的理解と承認</strong><p>暫定目的を調べ、真の目的と非目的を承認。</p></div>
+            <div class="flow-step"><small>GROUP C</small><strong>小目的と計測</strong><p>達成状態、指標、baseline、targetを接続。</p></div>
+            <div class="flow-step"><small>GROUP D</small><strong>仕様・設計・計画</strong><p>As-Is、spec、選択肢、設計、task、検証計画。</p></div>
+            <div class="flow-step"><small>GROUP E</small><strong>実行と収束</strong><p>Worker、二段階review、required-only fix、全体検証。</p></div>
+            <div class="flow-step"><small>GROUP G</small><strong>判断の永続化</strong><p>候補を重複整理し、利用者承認後だけADR等へ昇格。</p></div>
+            <div class="flow-step"><small>GROUP H</small><strong>目的監査と完了</strong><p>作業量ではなく目的を達成したかを最終判定。</p></div>
+          </div>
+          <div class="callout" style="margin-top:1rem"><strong>保存とclear：</strong> Inceptionでは毎Skillの成果物とhandoffを保存してclearする。Group全体の成果、検証、決定、未解決、無効化、次入力のまとめ（共通closure）はGroup終了時に一度行う。Skill途中のclearでGroupを完了扱いしない。</div>
+        </section>
+
+        <section id="review">
+          <header>
+            <span class="kicker">Two-stage review</span>
+            <h2>レビューと「直すべきか」を分ける</h2>
+            <p class="section-copy">Reviewerが見つけたものを即修正しない。別のfresh Validatorが、現在の仕事に本当に必要かを判定してからfix authorityを出す。</p>
+          </header>
+          <div class="review-loop" aria-label="二段階レビューフロー">
+            <div class="review-node"><span class="label">PHASE 1</span><h3>Candidate review</h3><p>Background、As-Is、canonical To-Be、Gap、requirement、証拠、fingerprintを持つ候補を作る。</p></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="review-node active"><span class="label">PHASE 2</span><h3>Finding validation</h3><p>別actorが正本、承認済みdecision、過去Finding、対象diffと照合し、admissionを決める。</p></div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="review-node"><span class="label">BOUNDED LOOP</span><h3>Requiredだけfix</h3><p>該当枝だけ修正し、fresh Reviewerが同じFinding IDを再検査する。</p></div>
+          </div>
+          <div class="dispositions">
+            <div class="disposition required"><strong>required</strong><p>正しさ、安全性、必須要件、回帰のため今直す。</p></div>
+            <div class="disposition defer"><strong>defer</strong><p>妥当だが今回の受入条件を変えない。完了をblockしない。</p></div>
+            <div class="disposition reject"><strong>reject</strong><p>重複、既解決、scope外、根拠のない好み。</p></div>
+            <div class="disposition needs-user"><strong>needs-user</strong><p>spec、scope、risk、budgetの選択を変えるため利用者判断。</p></div>
+          </div>
+          <div class="callout warn" style="margin-top:1rem"><strong>無限loopを防ぐ：</strong> dispatch前にdeadline／timebox、最大review round、Findingごとの最大fix attemptを固定する。枯渇したらworkerを増やさず、成功済み成果、未解決Finding、停止理由をdurable stateへ残す。再開には新しいbudgetの明示承認が必要。</div>
+        </section>
+
+        <section id="authority">
+          <header>
+            <span class="kicker">Authority</span>
+            <h2>どの言葉が、どこまで許可するか</h2>
+            <p class="section-copy">実装の承認と、配布・切替・公開の承認は別物。以下は通常の解釈であり、指示内で明示的に広げた範囲が優先される。</p>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>利用者の言葉</th><th>許可すること</th><th>許可しないこと</th><th>Workflowの返答</th></tr></thead>
+              <tbody>
+                <tr><td><strong>「調査して」「診断して」</strong></td><td>read-only探索、再現、原因と証拠の特定</td><td>source修正、設定変更、外部操作</td><td>原因、証拠、確度、未検証、修正候補</td></tr>
+                <tr><td><strong>「実装して」「直して」</strong></td><td>指定scope内のsource変更と相応の検証</td><td>Git stage/commit/push、deploy、activation</td><td>変更、test、review、残risk</td></tr>
+                <tr><td><strong>「完了まで承認なし」</strong></td><td>すでに承認した目的・scope内の通常判断と反復</td><td>目的変更、破壊的操作、秘密、live環境、Git、外部systemの別gate</td><td>境界まで継続し、別権限が必要な地点で停止</td></tr>
+                <tr><td><strong>「Go」「続けて」</strong></td><td>現在の承認済み次工程</td><td>未承認scopeへの拡張、停止条件の解除</td><td>同じRunを進めるか、明示された停止点で止まる</td></tr>
+                <tr><td><strong>「Rebuild手前まで」</strong></td><td>test、build、dry-run、rollback確認、予定command提示</td><td>実generation switch</td><td><strong>generation rebuild</strong> のpreactivation checkpointと正確な未実行command。全面判定とは扱わない。</td></tr>
+                <tr><td><strong>「commitして」「pushして」</strong></td><td>指定Git操作のみ。targetと差分を先に検証</td><td>deployやactivation（別途明示がなければ）</td><td>commit identity、対象、結果、残る変更</td></tr>
+                <tr><td><strong>「目的をXへ変える」</strong></td><td>影響分析、新objective version候補の作成と承認</td><td>過去の目的・履歴の上書き</td><td>影響、無効化される成果、再計画、承認点</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout danger" style="margin-top:1rem"><strong>別承認になりやすいもの：</strong> 真の目的・scope・risk・予算・ownerの変更、既存設定の削除／上書き／移行、実activation、Git stage/commit/push、外部system操作、secret取扱い、復旧不能なcleanup。</div>
+        </section>
+
+        <section id="continuity">
+          <header>
+            <span class="kicker">Continuity</span>
+            <h2>長時間でも、会話に依存しない</h2>
+            <p class="section-copy">会話のsummaryやcompactionは案内であって正本ではない。再開はHEAD、transaction、Artifact Bundle、Checkpointのdigestを検証して行う。</p>
+          </header>
+          <div class="grid three">
+            <article class="card"><span class="num">Epoch</span><h3>意味境界で閉じる</h3><p>調査→mutation、設計→実装、実装→独立review、authority変更、正本version変更では、tokenに余裕があってもContext Epochを閉じる。</p></article>
+            <article class="card"><span class="num">Bundle</span><h3>次に必要なものを固定</h3><p>canonical artifactのpath/version/digest、合格証拠、承認済み決定、未解決、無効化、次入力を束ねる。</p></article>
+            <article class="card"><span class="num">Resume</span><h3>停止理由まで復元</h3><p>目的、完了、現在地、未検証、open finding、budget terminal、次Skillを物理stateだけから返す。</p></article>
+          </div>
+          <div class="table-wrap" style="margin-top:1rem">
+            <table>
+              <thead><tr><th>聞き方</th><th>期待する返答</th><th>進行するか</th></tr></thead>
+              <tbody>
+                <tr><td><strong>「現在地と停止理由」</strong></td><td>目的version、完了済み成果、現在Group/Epoch、停止理由、未解決、残budget、次の一手</td><td>読み取りのみ</td></tr>
+                <tr><td><strong>「A6Rを再開」</strong></td><td>最新stateの鮮度とdigestを検証し、許可済みscope内で次transitionを実行</td><td>進行する</td></tr>
+                <tr><td><strong>「再開前に状況だけ」</strong></td><td>resume briefは作るがdispatchしない</td><td>読み取りのみ</td></tr>
+                <tr><td><strong>「停止してCheckpointを作って」</strong></td><td>部分成功、失敗、stop reason、次入力を保存し、安全にleaseを閉じる</td><td>停止する</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="callout" style="margin-top:1rem"><strong>Context予算：</strong> 目安はtarget 200K、通常上限300K、運用上の絶対上限500K。実測できなければ <code>estimated</code> または <code>unavailable</code> とし、推定値を正確な値として扱わない。</div>
+        </section>
+
+        <section id="inventory"
+          data-completion-projection="agent-workflow-implementation-evaluation/v1"
+          data-product-id="personal-ai-agent-workflow-v1"
+          data-release-id="source-release/v1"
+          data-release-scope="source-wide"
+          data-release-scope-status="source-complete"
+          data-overall-status="source-complete-operationally-pending"
+          data-source-wide-integration-complete="true"
+          data-full-workflow-ready="false"
+          data-s0-registry-ready="true"
+          data-source-transition-fixture-passed="true"
+          data-actual-a7-handoff-complete="false"
+          data-current-objective-approved="false"
+          data-migration-complete="false"
+          data-activation-complete="false"
+          data-activation-policy="separate-explicit-user-approval-required"
+          data-completion-registry="full-workflow-readiness/v1"
+          data-named-accepted="60"
+          data-named-planned="60"
+          data-profile-accepted="23"
+          data-profile-planned="23"
+          data-surface-accepted="11"
+          data-surface-planned="11"
+          data-distributed-skill-count="52"
+          data-shared-operation-count="8"
+          data-required-source-findings="0"
+          data-pending-source-gates=""
+          data-pending-operational-gates="actual-a7-handoff-complete|current-objective-approved|current-run-objective-achieved|personal-profile-pilots-completed|objective-audit-completed|run-outcome-decided|archive-or-continue-completed|live-runtime-verified|nix-generation-build-verified|nix-rebuild-verified|migration-complete|activation-complete|full-workflow-operational-adoption-approved"
+          data-plan-path="docs/plans/ai-agent-workflow-full-implementation-plan.md"
+          data-plan-digest="sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524"
+          data-catalog-path="docs/plans/ai-agent-workflow-step-catalog.md"
+          data-catalog-digest="sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d">
+          <header>
+            <span class="kicker">Implementation inventory</span>
+            <h2>Source-wide実装一覧</h2>
+            <p class="section-copy">canonical source releaseとevidence indexから、named contract、profile step、required surfaceを再生したsource-onlyの状態を示す。現在Run、live runtime、build／rebuild、migration、activation、運用採用は別gateであり、ここでは完了扱いにしない。</p>
+          </header>
+
+          <div class="grid four" aria-label="実装物の件数">
+            <article class="card"><span class="num" data-completion-claim="named-ratio">60 / 60</span><h3>Named contract</h3><p>52の物理Skill directoryと8つのGroup F shared operationを合計した正本catalog coverage。</p></article>
+            <article class="card"><span class="num">0</span><h3>Hook</h3><p>PreToolUse、PostToolUse、Stop等は未実装・未配布。</p></article>
+            <article class="card"><span class="num">3</span><h3>Nix生成command</h3><p><code>agent-workflow</code>、<code>agent-workflow-config</code>、<code>agent-workflow-implementation-status</code>。</p></article>
+            <article class="card"><span class="num">52</span><h3>Physical Skill directories</h3><p>60 named contractと同じ数ではない。Group Fの8 operationは共有protocol sourceに実装される。</p></article>
+          </div>
+
+          <div class="callout danger" style="margin-top:1rem" data-completion-claim="status-summary">source-wide機械判定: overall_status=source-complete-operationally-pending; source_wide_integration_complete=true; full_workflow_ready=false; named contract=60/60; profile step=23/23; required surface=11/11; required source findings=0。</div>
+          <div class="callout warn" style="margin-top:1rem"><strong>Hookは0件：</strong> 現時点ではshell/tool lifecycle hookで制御していない。stale HEAD、role、authority、write scope、Finding close、review budget等の強制は <code>control_kernel.py</code> のvalidated command境界で行う。将来hookを追加しても、正本のstate transition ownerにはしない。</div>
+
+          <p data-completion-claim="distributed-count">physical distributed Skill directories: 52</p>
+          <h3 style="margin-top:2rem">Bootstrap foundation contract details — A6／A6R／A7</h3>
+          <p>以下はfoundation 3 contractの固定referenceであり、上の機械所有distributed Skill一覧を置き換えるものではない。</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Skill</th><th>担当</th><th>利用範囲</th></tr></thead>
+              <tbody>
+                <tr><td><strong><a href="../agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md">bootstrap-build-walking-skeleton</a></strong></td><td>A6の最小経路 <code>entry → artifact → close/resume</code> を構築・検証する。</td><td>隔離されたBootstrap Runのみ。live config、activation、Gitは対象外。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md">bootstrap-migrate-control-kernel</a></strong></td><td>A6R converter、Artifact DAG Control Kernel、review/fix、crash recovery、cutover/rollbackを検証する。</td><td>digestとauthorityで拘束されたsource-only remediation。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md">bootstrap-self-host-handoff</a></strong></td><td>A7で手動Runをnew kernelへ物理移行し、fresh reader、次Group、rollback pointを検証する。</td><td>G1–G8とmigration approval後だけ。generation activationは行わない。</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h3 style="margin-top:2rem">実行command／CLI</h3>
+          <div class="grid two">
+            <article class="card">
+              <span class="label">DISTRIBUTED DEFAULT</span>
+              <h3><code>agent-workflow</code></h3>
+              <p>Nixが生成するdefault wrapper。<a href="../agent-workflows/src/ai_agent_workflow/operational_cli.py">operational_cli.py</a>へ入り、active pointerとdigest-bound implementation statusを検証して読み取る。</p>
+              <ul><li><code>status --pointer …</code></li><li><code>resume --pointer …</code></li></ul>
+            </article>
+            <article class="card">
+              <span class="label">EXPLICIT CONFIG TOOL</span>
+              <h3><code>agent-workflow-config</code></h3>
+              <p>Nixが生成する設定wrapper。<a href="../agent-workflows/src/ai_agent_workflow/config_cli.py">config_cli.py</a>とmodel policyを使い、managed keyだけを扱う。</p>
+              <ul><li><code>plan</code>／<code>doctor</code> — read-only</li><li><code>apply</code> — digestとruntime compatibility確認が必須</li><li><code>rollback</code> — backupまたはabsent stateへCAS復旧</li></ul>
+            </article>
+            <article class="card">
+              <span class="label">DERIVED IMPLEMENTATION STATUS</span>
+              <h3><code>agent-workflow-implementation-status</code></h3>
+              <p>active pointerなしで、正本plan／catalog、型付きcoverage、固定gate registry、物理surfaceからrelease scopeと全面Workflow readinessを導出する。raw manifestの自己申告値はstatusとして公開しない。</p>
+            </article>
+            <article class="card">
+              <span class="label">PRE-RUN DRAFT HELPER</span>
+              <h3><code>agent-workflow-inception</code></h3>
+              <p><code>init / save / resume</code>で依頼、候補、digest付き引継ぎ、残時間を管理する。Run・HEADを作らず、次Skillも起動しない。</p>
+              <p><code>recorded</code>は下書き保存成功であり、compiler合格やGroup受入ではない。実Runは<code>runtime adopt</code>で物理承認を検証・登録し、<code>runtime step</code>でC/Dを1 Skillずつ検査する。監査付き<code>runtime close</code>後にclearし、<code>runtime advance</code>で次Groupへ進む。許可された隔離試験だけ<code>rehearsal</code>とmock receiptを使う。AI呼出し・clear自体をhelperが代行するわけではない。</p>
+              <p><a href="../agent-workflows/skills/entry/references/inception-single-skill.md">操作手順</a> · <a href="../agent-workflows/examples/support-report/rehearse.py">サンプル引継ぎ試験</a></p>
+            </article>
+          </div>
+          <details style="margin-top:.75rem">
+            <summary>Legacy A6 mutation CLI — 明示指定時のみ</summary>
+            <div>
+              <p><a href="../agent-workflows/src/ai_agent_workflow/cli.py"><code>python3 -m ai_agent_workflow.cli</code></a> はmigration sourceとして保持。配布defaultではない。</p>
+              <p><code>entry</code>、<code>produce-artifact</code>、<code>close-epoch</code>、<code>open-epoch</code>、<code>close-group</code>、<code>resume</code>、<code>status</code></p>
+            </div>
+          </details>
+          <details>
+            <summary>Standalone scriptと生成wrapper</summary>
+            <div><code>agent-workflows/scripts/run-persistent-receipt.py</code>はbounded receipt runner。上記4 commandのwrapperは<a href="../flake.nix"><code>flake.nix</code></a>の<code>writeShellApplication</code>から生成する。sample replayと独立受入テストは<code>agent-workflows/examples/support-report/</code>に置く。</div>
+          </details>
+
+          <h3 style="margin-top:2rem">主要Python module</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Module</th><th>主責務</th></tr></thead>
+              <tbody>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/control_kernel.py">control_kernel.py</a></strong></td><td>immutable object／transaction／HEAD、Artifact DAG、role・authority、Task/Review package、Finding validation、有限budget、crash recovery、projection rebuild。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/migration.py">migration.py</a></strong></td><td>LegacyReader／NewReader、A6→v3 converter、pointer cutover、rollback、source binding。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/a7.py">a7.py</a></strong></td><td>A7 handoff packageの検証・採用、self-host status、retry recovery。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/core.py">core.py</a></strong></td><td>凍結されたA6 WorkflowStore。Run、artifact、Epoch/Group closure、Checkpoint、resume/status。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/operational_cli.py">operational_cli.py</a></strong></td><td>現在のread-only default CLI。active <code>new</code> pointerに対するstatus/resume。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/inception_cli.py">inception_cli.py</a></strong></td><td>pre-Run候補の初期化、非上書きhandoff、入力・承認receiptの継承検証、残budget、モック隔離。compiler/Group受入は実施しない。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/implementation_status.py">implementation_status.py</a></strong></td><td>正本plan／catalogのdigest、60＋23のcoverage、必須surface、完了gate、物理Skill配布からfull Workflow readinessを導出する。局所milestoneから全体完了を推論しない。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/config_policy.py">config_policy.py</a></strong></td><td>Codex model keyの限定merge、plan/apply/doctor/rollback、backup、CAS、permission保持。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/config_cli.py">config_cli.py</a></strong></td><td>config policyのoperator CLI。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/cli.py">cli.py</a></strong></td><td>A6 legacy/migration用JSON CLI。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/schema_validation.py">schema_validation.py</a></strong></td><td>標準libraryだけでdurable documentを検査するschema validator。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/__main__.py">__main__.py</a></strong></td><td><code>python -m ai_agent_workflow</code> をread-only operational CLIへ固定。</td></tr>
+                <tr><td><strong><a href="../agent-workflows/src/ai_agent_workflow/__init__.py">__init__.py</a></strong></td><td>package surfaceとA6互換export。</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <details style="margin-top:1rem">
+            <summary>主要schema</summary>
+            <div>
+              <p><strong>Run／closure：</strong> <code>run-state-v1.schema.json</code>、<code>skill-result-v1.schema.json</code>、<code>worker-report-v1.schema.json</code>、<code>artifact-bundle-v1.schema.json</code>、<code>checkpoint-v1.schema.json</code></p>
+              <p><strong>Control Kernel：</strong> <code>dag-command-v1.schema.json</code>、<code>dag-edge-v1.schema.json</code>、<code>dag-head-v1.schema.json</code>、<code>dag-object-v1.schema.json</code>、<code>dag-state-v1.schema.json</code>、<code>dag-transaction-v1.schema.json</code>、<code>projection-manifest-v1.schema.json</code></p>
+              <p><strong>Task／review／budget：</strong> <code>task-package-v1.schema.json</code>、<code>review-package-v1.schema.json</code>、<code>evaluation-package-v1.schema.json</code>、<code>finding-v1.schema.json</code>、<code>finding-validation-v1.schema.json</code>、<code>review-budget-v1.schema.json</code>、<code>budget-terminal-v1.schema.json</code></p>
+              <p><strong>Migration／A7：</strong> <code>legacy-migration-v1.schema.json</code>、<code>cutover-pointer-v1.schema.json</code>、<code>a7-handoff-package-v1.schema.json</code>、<code>a7-self-host-status-v1.schema.json</code></p>
+              <p><strong>Implementation scope：</strong> <code>implementation-status-v1.schema.json</code>、<code>implementation-evaluation-v1.schema.json</code>、<code>contract-acceptance-v1.schema.json</code></p>
+              <p><a href="../agent-workflows/schemas/dag-command-v1.schema.json">schema directoryの代表ファイルを開く</a></p>
+            </div>
+          </details>
+          <details>
+            <summary>主要test module／fixture</summary>
+            <div>
+              <p><code>test_walking_skeleton.py</code>、<code>test_control_kernel.py</code>、<code>test_a6r_evidence.py</code>、<code>test_a6r_remediation.py</code>、<code>test_a6r_rev34_convergence.py</code>、<code>test_a6r_fix_002.py</code>、<code>test_a6r_fix_003.py</code>、<code>test_a6r_fix_004.py</code>、<code>test_a6r_fix_005.py</code>、<code>test_a6r_fix_006.py</code>、<code>test_a7_self_host_handoff.py</code>、<code>test_config_policy.py</code>、<code>test_operational_cli.py</code>、<code>test_implementation_status.py</code></p>
+              <p>fixtureは <code>gates-v3.json</code>、<code>legacy-run.json</code>、<code>legacy-bundle.json</code>、<code>legacy-worker-report.json</code>、<code>review-convergence-v1.json</code>。</p>
+              <p><a href="../agent-workflows/tests/test_control_kernel.py">代表testを開く</a></p>
+            </div>
+          </details>
+          <details>
+            <summary>Manifest／Nix配布integration</summary>
+            <div>
+              <p><strong>主要manifest：</strong> <a href="../agent-workflows/manifests/source-release.json"><code>source-release.json</code></a>、<a href="../agent-workflows/manifests/source-evidence-index.json"><code>source-evidence-index.json</code></a>、<a href="../agent-workflows/manifests/implementation-status.json"><code>implementation-status.json</code></a>。</p>
+              <p><strong>Bootstrap receipt set：</strong> A6／A6R／A7には各1件のcontract acceptance receiptがあり、Skill、専用test selector、各digestを相互拘束する。追加contractはそれぞれ専用receiptを必要とする。</p>
+              <p><strong>配布先：</strong> <code>.codex/skills</code>、<code>.claude/skills</code>、<code>.agents/skills</code>、<code>.local/share/agent-workflows</code>。Home Manager packageへ4 commandを追加する。今回追加したInception helperのlive配布・rebuildは別途検証。</p>
+              <p><strong>所有しない：</strong> <code>.codex/config.toml</code>、auth、sessions、plugins、state。通常activationでこれらをwhole-file置換しない。</p>
+              <p><strong>Nix check：</strong> <code>workflow-contract</code> がmanifest、model policy、Skill投影、全Python test、3 commandのhelp／statusを検証する。</p>
+            </div>
+          </details>
+          <details>
+            <summary>未検証のoperational boundary</summary>
+            <div><p data-completion-claim="missing-summary">pending source gate: なし。未検証のoperational boundary: actual-a7-handoff-complete、current-objective-approved、current-run-objective-achieved、personal-profile-pilots-completed、objective-audit-completed、run-outcome-decided、archive-or-continue-completed、live-runtime-verified、nix-generation-build-verified、nix-rebuild-verified、migration-complete、activation-complete、full-workflow-operational-adoption-approved。</p><p>source fixtureやH1/H2/H3 skeletonは、現在Run、live runtime、approval、build／rebuild、migration、activation、Git操作の証拠ではない。</p></div>
+          </details>
+        </section>
+
+        <section id="availability">
+          <header>
+            <span class="kicker">Current vs target</span>
+            <h2>現在の実装範囲</h2>
+            <p class="section-copy">このページ前半は完成時の利用者UXを含む。現在値は上のImplementation inventoryにある機械所有のclaim blockを参照する。</p>
+          </header>
+          <div class="availability">
+            <article class="card now">
+              <h3>Source-wide implementation <span>SOURCE COMPLETE</span></h3>
+              <ul>
+                <li>A6R control kernelとA7 physical self-host handoff</li>
+                <li>immutable object／transaction、atomic HEAD、projection rebuild</li>
+                <li>one-off／managedのlifecycle分離</li>
+                <li>二段階review、required-only fix、有限停止のcontract</li>
+                <li>canonical releaseとevidence indexのbyte/digest再生</li>
+                <li>feature／bug fix／improvement fixture、cold resume、非live H1/H2/H3 skeleton</li>
+                <li>現在Run、live runtime、Nix build／rebuild、migration、activationは未検証</li>
+                <li data-completion-claim="coverage-summary">source coverage: 60/60 named contract、23/23 profile step、11/11 required surface。</li>
+              </ul>
+            </article>
+            <article class="card target">
+              <h3>全面計画のtarget <span>TARGET USER EXPERIENCE</span></h3>
+              <ul>
+                <li>自然文からGroup B〜Hへrouteする日常入口</li>
+                <li>目的理解、小目的・計測、仕様・設計・計画の各Skill</li>
+                <li>feature／bug fix／improvement profileのpilot</li>
+                <li>worker dispatch、convergence、全体reviewの運用surface</li>
+                <li>判断候補を承認付きでADR等へ昇格するsurface</li>
+                <li>会社用identity／policy／audit／release adapter</li>
+              </ul>
+            </article>
+          </div>
+          <div class="callout warn" style="margin-top:1rem"><strong>Sanitized source fixture：</strong> source fixtureはnew kernel revision 6、<code>paused_after_group</code>、open blocking finding 0、次Group <code>contracts-and-schema</code> を例示するもので、live-current pointerではない。live dotfiles/owner manifests were not inspected or activated; live systemとHome Manager profileも切り替えていない。</div>
+          <details style="margin-top:1rem">
+            <summary>現在のread-only CLI</summary>
+            <div>
+              <p>default CLIは、active A7 pointerを明示して状態を読むだけ。旧A6 mutation CLIはlegacy／migration sourceとして明示指定した場合だけ使う。</p>
+              <div class="example" data-copy-source>python3 -m ai_agent_workflow status --pointer /absolute/path/to/active-pointer.json
+python3 -m ai_agent_workflow resume --pointer /absolute/path/to/active-pointer.json<button class="copy-button" type="button" data-copy aria-label="CLI例をコピー">⧉</button></div>
+            </div>
+          </details>
+          <details>
+            <summary>Named contractと物理Skillの関係</summary>
+            <div data-completion-claim="distributed-summary">物理Skill directoryは52件、Group F shared protocol operationは8件。合計したnamed contract coverageと物理Skill数を混同しない。</div>
+          </details>
+        </section>
+
+        <section id="glossary">
+          <header>
+            <span class="kicker">Glossary</span>
+            <h2>最小用語集</h2>
+            <p class="section-copy">利用者が操作する必要はないが、statusの読解に役立つ語だけを載せる。</p>
+          </header>
+          <div class="grid two">
+            <details><summary>Workflow / Group / Skill</summary><div>Workflowは目的達成までの全経路。Groupは成果をまとめる工程群。Skillは一つの成果物を作る最小手順。Inception相当のB/C/Dでは1 Skillごとに保存・clear・明示再開し、E以降は既存のオーケストレーションで進める。</div></details>
+            <details><summary>Context Epoch</summary><div>Groupの意味を変えずに、会話文脈を閉じて物理成果へ固定する実行時単位。第四の業務階層ではない。</div></details>
+            <details><summary>Artifact Bundle / Checkpoint</summary><div>成果物参照、digest、証拠、決定、未解決、次入力を束ねた再開の正本。会話summaryより優先される。</div></details>
+            <details><summary>Controller / Orchestrator</summary><div>Controllerは利用者との薄い窓口。Orchestratorだけが検証済みcommandでcanonical HEADを更新する。</div></details>
+            <details><summary>Worker / Reviewer / Validator</summary><div>Workerは成果を作る。Reviewerはcandidateを出す。Validatorは修正必須かを独立評価する。Workerは自分のFindingをcloseできない。</div></details>
+            <details><summary>Arbiter</summary><div>review衝突、budget枯渇、仕様欠陥、分解失敗など通常loopが収束しない例外を整理する役。利用者のprotected approvalを代行しない。</div></details>
+            <details><summary>Release scope / Workflow readiness</summary><div>Release scopeはA6/A6R/A7のような限定された実装単位。局所scopeの判定と全面判定は別に導出する。全面判定の成立には正本の全coverage、必須surface、目的監査が必要。</div></details>
+            <details><summary>Generation rebuild / Workflow rebuild</summary><div>Generation rebuildはNix/Home Managerの切替操作。Workflow rebuildは60 contractと23 profile stepを含む全面計画。単独の「Rebuild直前」は使わず、どちらの境界かを明記する。</div></details>
+          </div>
+        </section>
+
+        <section id="sources">
+          <header>
+            <span class="kicker">Canonical sources</span>
+            <h2>このUsageの根拠</h2>
+          </header>
+          <ul class="source-list">
+            <li><a href="plans/ai-agent-workflow-rebuild.md">全面再構築プラン</a> — 目的、architecture、権限、停止条件の正本。</li>
+            <li><a href="plans/ai-agent-workflow-step-catalog.md">ステップ詳細カタログ</a> — Group／Skill、二段階review、有限停止の契約。</li>
+            <li><a href="../agent-workflows/README.md">control kernel README</a> — 現在のdefault CLIとlegacy CLIの境界。</li>
+            <li><a href="../agent-workflows/manifests/implementation-status.json">implementation status manifest</a> — release scope、plan coverage、完了gateの機械可読な現在値。</li>
+            <li><a href="a6r-codebase-overview.html">A6Rコードベース概要</a> — 実装モデルと検証結果の技術資料。</li>
+          </ul>
+        </section>
+
+        <footer class="footer">
+          <p>AI Agent Workflow 全体Usage — 2026-09-04時点。target design、Bootstrap release scope、full Workflow readinessを区別して記載。</p>
+          <p id="copy-status" class="sr-only" aria-live="polite"></p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const filters = document.querySelectorAll('[data-filter]');
+      const taskCards = document.querySelectorAll('[data-kind]');
+      filters.forEach((button) => {
+        button.addEventListener('click', () => {
+          const selected = button.dataset.filter;
+          filters.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+          taskCards.forEach((card) => {
+            card.classList.toggle('is-dimmed', selected !== 'all' && card.dataset.kind !== selected);
+          });
+        });
+      });
+
+      const choices = {
+        start: {
+          title: '新しい仕事を始める',
+          grant: '対象、期待する変化、今回の境界、制約を自然文で伝える。目的は暫定として記録され、必要な確認後に承認する。',
+          example: 'この不具合を調査して。期待値はX、実際はY。まず原因特定まで、修正はしない。'
+        },
+        continue: {
+          title: 'そのまま続ける',
+          grant: '既存の目的、scope、authority、停止条件を保ったまま、次のreadyな仕事へ進める。権限は拡張しない。',
+          example: 'Go。承認済みの範囲と停止条件を変えず、そのまま続けて。'
+        },
+        status: {
+          title: '現在地を知る',
+          grant: 'canonical stateを読み、進行はさせない。停止理由と残るgateまで明示させる。',
+          example: '現在地と停止理由を返して。目的、完了、現在Group/Epoch、未検証、open finding、残budget、次の一手も。'
+        },
+        resume: {
+          title: '中断から再開する',
+          grant: '最新HEADとCheckpointの鮮度を検証し、既存権限内で次transitionへ進む。',
+          example: 'A6Rを再開。会話ではなく最新の物理stateを検証し、停止理由と次の一手を確認してから進めて。'
+        },
+        boundary: {
+          title: '停止点を追加する',
+          grant: '現在の目的を変えず、今回どこまで進めるかを狭める。狭める指示は即時反映できる。',
+          example: 'Rebuildの手前まで。build、dry-run、rollback確認は実施してよいが、実switchとGit操作はしない。'
+        },
+        change: {
+          title: '目的・scopeを変える',
+          grant: '影響分析、新しいobjective version、無効化される成果、再計画を先に作り、利用者の明示承認を待つ。',
+          example: '目的をXからYへ変更したい。既存成果への影響、無効化、追加cost、選択肢を出し、新versionの承認前に止めて。'
+        }
+      };
+
+      const result = document.getElementById('chooser-result');
+      const choiceButtons = document.querySelectorAll('[data-choice]');
+      choiceButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const choice = choices[button.dataset.choice];
+          choiceButtons.forEach((item) => item.setAttribute('aria-selected', String(item === button)));
+          result.querySelector('h3').textContent = choice.title;
+          result.querySelector('.grant').textContent = choice.grant;
+          const example = result.querySelector('[data-dynamic-example]');
+          const copy = example.querySelector('[data-copy]');
+          example.textContent = choice.example;
+          example.append(copy);
+        });
+      });
+
+      const copyStatus = document.getElementById('copy-status');
+      document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-copy]');
+        if (!button) return;
+        const source = button.closest('[data-copy-source]');
+        const copyText = Array.from(source.childNodes)
+          .filter((node) => node !== button)
+          .map((node) => node.textContent)
+          .join('')
+          .trim();
+        try {
+          await navigator.clipboard.writeText(copyText);
+          button.textContent = '✓';
+          copyStatus.textContent = '指示例をコピーしました';
+          window.setTimeout(() => { button.textContent = '⧉'; }, 1200);
+        } catch (_) {
+          copyStatus.textContent = 'コピーできませんでした。テキストを選択してコピーしてください。';
+        }
+      });
+
+      const sections = Array.from(document.querySelectorAll('main section[id], header.hero[id]'));
+      const navLinks = Array.from(document.querySelectorAll('nav a'));
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          navLinks.forEach((link) => link.setAttribute('aria-current', String(link.getAttribute('href') === `#${visible.target.id}`)));
+        }, { rootMargin: '-15% 0px -70% 0px', threshold: [0, .2, .5] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    })();
+  </script>
+</body>
+</html>

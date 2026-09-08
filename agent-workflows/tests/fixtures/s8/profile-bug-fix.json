@@ -1,0 +1,168 @@
+{
+  "schema": "source-wide-profile-fixture-input/v1",
+  "fixture_id": "s8-profile-bug-fix",
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "profile": "bug-fix",
+  "workflow_manifest_ref": {
+    "path": "agent-workflows/workflows/bug-fix-standard.json",
+    "version": "workflow-manifest/v1",
+    "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151"
+  },
+  "profile_manifest_ref": {
+    "path": "agent-workflows/profiles/bug-fix.json",
+    "version": "software-profile-manifest/v1",
+    "digest": "sha256:25cc7ef5e6ab54762d3d8952df71c5ae2043bc0801a0d397f32ff448087b5de8"
+  },
+  "claimed_stage_order": [
+    "purpose",
+    "close-purpose",
+    "outcomes",
+    "close-outcomes",
+    "planning-current-system",
+    "bug-diagnosis",
+    "planning-fix-options",
+    "bug-fix-options",
+    "planning-readiness",
+    "close-planning",
+    "execution-loop",
+    "bug-regression",
+    "execution-review",
+    "execution-convergence",
+    "bug-impact",
+    "close-execution",
+    "decisions",
+    "close-decisions",
+    "run-outcome",
+    "close-run-outcome"
+  ],
+  "claimed_profile_order": [
+    "profile.bug-fix.BGF1",
+    "profile.bug-fix.BGF2",
+    "profile.bug-fix.BGF3",
+    "profile.bug-fix.BGF4",
+    "profile.bug-fix.BGF5",
+    "profile.bug-fix.BGF6",
+    "profile.bug-fix.BGF7",
+    "profile.bug-fix.BGF8"
+  ],
+  "review_plan": {
+    "budget": {
+      "maximum_review_rounds": 2,
+      "maximum_fix_waves": 1
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "candidate_revision": 0,
+        "reviews": [
+          {
+            "axis": "architecture-safety",
+            "actor_id": "bug-architecture-reviewer",
+            "context_epoch_id": "bug-review-epoch-a1",
+            "findings": [
+              {
+                "finding_id": "bug-arch-regression-gap",
+                "fingerprint": "bug-regression-gap",
+                "severity": "major",
+                "summary": "The regression contract omits the causal boundary."
+              }
+            ]
+          },
+          {
+            "axis": "integration-operability",
+            "actor_id": "bug-operability-reviewer",
+            "context_epoch_id": "bug-review-epoch-o1",
+            "findings": [
+              {
+                "finding_id": "bug-ops-regression-gap",
+                "fingerprint": "bug-regression-gap",
+                "severity": "major",
+                "summary": "The same missing causal boundary is observable in integration."
+              }
+            ]
+          }
+        ],
+        "dispositions": [
+          {
+            "fingerprint": "bug-regression-gap",
+            "classification": "required",
+            "materiality": "material",
+            "proposed_scope": [
+              "agent-workflows/tests/fixtures/s8"
+            ]
+          }
+        ],
+        "expected_route": "fix"
+      },
+      {
+        "round": 2,
+        "candidate_revision": 1,
+        "reviews": [
+          {
+            "axis": "architecture-safety",
+            "actor_id": "bug-architecture-reviewer-r2",
+            "context_epoch_id": "bug-review-epoch-a2",
+            "findings": []
+          },
+          {
+            "axis": "integration-operability",
+            "actor_id": "bug-operability-reviewer-r2",
+            "context_epoch_id": "bug-review-epoch-o2",
+            "findings": []
+          }
+        ],
+        "dispositions": [],
+        "expected_route": "accepted"
+      }
+    ],
+    "fix_waves": [
+      {
+        "wave": 1,
+        "after_round": 1,
+        "required_fingerprints": [
+          "bug-regression-gap"
+        ],
+        "fresh_rereview_round": 2
+      }
+    ],
+    "trace": [
+      {
+        "kind": "review",
+        "round": 1,
+        "axis": "architecture-safety"
+      },
+      {
+        "kind": "review",
+        "round": 1,
+        "axis": "integration-operability"
+      },
+      {
+        "kind": "finding-validation",
+        "round": 1
+      },
+      {
+        "kind": "fix",
+        "round": 1,
+        "wave": 1
+      },
+      {
+        "kind": "review",
+        "round": 2,
+        "axis": "architecture-safety"
+      },
+      {
+        "kind": "review",
+        "round": 2,
+        "axis": "integration-operability"
+      },
+      {
+        "kind": "finding-validation",
+        "round": 2
+      },
+      {
+        "kind": "converge",
+        "round": 2
+      }
+    ]
+  }
+}

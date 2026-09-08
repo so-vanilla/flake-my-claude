@@ -1,0 +1,532 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "group-h-manifest-v1.schema.json",
+  "title": "Strict physical Group H decision/outcome Skill contract manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "group_id",
+    "group",
+    "implementation_kind",
+    "contracts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "group-h-manifest/v1"
+    },
+    "group_id": {
+      "const": "agent-workflows.group.H"
+    },
+    "group": {
+      "const": "H"
+    },
+    "implementation_kind": {
+      "const": "skill"
+    },
+    "contracts": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H1"
+                },
+                "local_id": {
+                  "const": "H1"
+                },
+                "contract_name": {
+                  "const": "audit-objective"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 1
+                },
+                "acceptance_class": {
+                  "const": "H1_AuditObjectiveTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/audit-objective/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:afca708f1be6f4ab96f163631c4bdc5d7556ccdb3eaa0d2966afbbd83902f8cc"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H1)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H1.json"
+                    },
+                    "digest": {
+                      "const": "sha256:ad9323fe4dc4b3a234aea15dd900c17e8b8bddd8f887e268cace98a9546e497d"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H2"
+                },
+                "local_id": {
+                  "const": "H2"
+                },
+                "contract_name": {
+                  "const": "decide-run-outcome"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 2
+                },
+                "acceptance_class": {
+                  "const": "H2_DecideRunOutcomeTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/decide-run-outcome/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:3f190fa4dd4f0f94ad079f7834de2b08b8d7b784494d46d870f8ad6bf3042418"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H2)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H2.json"
+                    },
+                    "digest": {
+                      "const": "sha256:7a3513e455331454c35301bfb303e251156d8eb9695560d59accf90b567c1be8"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H3"
+                },
+                "local_id": {
+                  "const": "H3"
+                },
+                "contract_name": {
+                  "const": "archive-or-continue"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 3
+                },
+                "acceptance_class": {
+                  "const": "H3_ArchiveOrContinueTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/archive-or-continue/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:55ff582ef75b159bf850da1108a39bec64aee20b744dccb1a8226244a7353fc6"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H3)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H3.json"
+                    },
+                    "digest": {
+                      "const": "sha256:04612c390e2203cb399ccd62d330daf51577a29d170669bbb1819c45c3c1390b"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": {
+        "$ref": "#/$defs/contract"
+      }
+    }
+  },
+  "$defs": {
+    "digest": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "contract_base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "qualified_id",
+        "local_id",
+        "contract_name",
+        "group",
+        "order",
+        "acceptance_class",
+        "source_ref",
+        "selector_ref",
+        "evidence_ref"
+      ],
+      "properties": {
+        "qualified_id": {
+          "enum": [
+            "group.H.H1",
+            "group.H.H2",
+            "group.H.H3"
+          ]
+        },
+        "local_id": {
+          "enum": [
+            "H1",
+            "H2",
+            "H3"
+          ]
+        },
+        "contract_name": {
+          "enum": [
+            "audit-objective",
+            "decide-run-outcome",
+            "archive-or-continue"
+          ]
+        },
+        "group": {
+          "const": "H"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "acceptance_class": {
+          "enum": [
+            "H1_AuditObjectiveTests",
+            "H2_DecideRunOutcomeTests",
+            "H3_ArchiveOrContinueTests"
+          ]
+        },
+        "source_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^agent-workflows/skills/[a-z0-9-]+/SKILL\\.md$"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        },
+        "selector_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest",
+            "selector"
+          ],
+          "properties": {
+            "path": {
+              "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            },
+            "selector": {
+              "enum": [
+                "DecisionOutcomeLifecycleV1.compile(group.H.H1)",
+                "DecisionOutcomeLifecycleV1.compile(group.H.H2)",
+                "DecisionOutcomeLifecycleV1.compile(group.H.H3)"
+              ]
+            }
+          }
+        },
+        "evidence_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "digest"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^agent-workflows/evidence/contracts/H[1-3]\\.json$"
+            },
+            "digest": {
+              "$ref": "#/$defs/digest"
+            }
+          }
+        }
+      }
+    },
+    "contract": {
+      "oneOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H1"
+                },
+                "local_id": {
+                  "const": "H1"
+                },
+                "contract_name": {
+                  "const": "audit-objective"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 1
+                },
+                "acceptance_class": {
+                  "const": "H1_AuditObjectiveTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/audit-objective/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:afca708f1be6f4ab96f163631c4bdc5d7556ccdb3eaa0d2966afbbd83902f8cc"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H1)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H1.json"
+                    },
+                    "digest": {
+                      "const": "sha256:ad9323fe4dc4b3a234aea15dd900c17e8b8bddd8f887e268cace98a9546e497d"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H2"
+                },
+                "local_id": {
+                  "const": "H2"
+                },
+                "contract_name": {
+                  "const": "decide-run-outcome"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 2
+                },
+                "acceptance_class": {
+                  "const": "H2_DecideRunOutcomeTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/decide-run-outcome/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:3f190fa4dd4f0f94ad079f7834de2b08b8d7b784494d46d870f8ad6bf3042418"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H2)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H2.json"
+                    },
+                    "digest": {
+                      "const": "sha256:7a3513e455331454c35301bfb303e251156d8eb9695560d59accf90b567c1be8"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/contract_base"
+            },
+            {
+              "properties": {
+                "qualified_id": {
+                  "const": "group.H.H3"
+                },
+                "local_id": {
+                  "const": "H3"
+                },
+                "contract_name": {
+                  "const": "archive-or-continue"
+                },
+                "group": {
+                  "const": "H"
+                },
+                "order": {
+                  "const": 3
+                },
+                "acceptance_class": {
+                  "const": "H3_ArchiveOrContinueTests"
+                },
+                "source_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/skills/archive-or-continue/SKILL.md"
+                    },
+                    "digest": {
+                      "const": "sha256:55ff582ef75b159bf850da1108a39bec64aee20b744dccb1a8226244a7353fc6"
+                    }
+                  }
+                },
+                "selector_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
+                    },
+                    "digest": {
+                      "const": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+                    },
+                    "selector": {
+                      "const": "DecisionOutcomeLifecycleV1.compile(group.H.H3)"
+                    }
+                  }
+                },
+                "evidence_ref": {
+                  "properties": {
+                    "path": {
+                      "const": "agent-workflows/evidence/contracts/H3.json"
+                    },
+                    "digest": {
+                      "const": "sha256:04612c390e2203cb399ccd62d330daf51577a29d170669bbb1819c45c3c1390b"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

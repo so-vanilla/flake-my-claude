@@ -1,0 +1,1 @@
+{"schema":"measurement-observation/v1","observation_id":"stale-zero","status":"available","value":0,"unit":"events","condition":"stale source","window":{"start":"2026-09-05T00:00:00Z","end":"2026-09-05T01:00:00Z"},"source_ref":{"path":"fixtures/source.json","digest":"sha256:6666666666666666666666666666666666666666666666666666666666666666"},"reason":{"code":"stale"}}

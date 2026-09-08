@@ -1,0 +1,110 @@
+{
+  "schema": "source-wide-profile-fixture-input/v1",
+  "fixture_id": "s8-profile-improvement",
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "profile": "improvement",
+  "workflow_manifest_ref": {
+    "path": "agent-workflows/workflows/improvement-measured.json",
+    "version": "workflow-manifest/v1",
+    "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d"
+  },
+  "profile_manifest_ref": {
+    "path": "agent-workflows/profiles/improvement.json",
+    "version": "software-profile-manifest/v1",
+    "digest": "sha256:86216b07c0271ffe9fe78b0709d1e151f29ba72f223a746c8bba307bf45385fd"
+  },
+  "claimed_stage_order": [
+    "purpose",
+    "close-purpose",
+    "outcomes",
+    "close-outcomes",
+    "planning-current-system",
+    "improvement-baseline",
+    "planning-change-design",
+    "improvement-design",
+    "planning-readiness",
+    "close-planning",
+    "execution-loop",
+    "improvement-execution",
+    "execution-review",
+    "execution-convergence",
+    "improvement-decision",
+    "close-execution",
+    "decisions",
+    "close-decisions",
+    "run-outcome",
+    "close-run-outcome"
+  ],
+  "claimed_profile_order": [
+    "profile.improvement.I1",
+    "profile.improvement.I2",
+    "profile.improvement.I3",
+    "profile.improvement.I4",
+    "profile.improvement.I5",
+    "profile.improvement.I6",
+    "profile.improvement.I7"
+  ],
+  "review_plan": {
+    "budget": {
+      "maximum_review_rounds": 2,
+      "maximum_fix_waves": 1
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "candidate_revision": 0,
+        "reviews": [
+          {
+            "axis": "architecture-safety",
+            "actor_id": "improvement-architecture-reviewer",
+            "context_epoch_id": "improvement-review-epoch-a1",
+            "findings": [
+              {
+                "finding_id": "improvement-label-style",
+                "fingerprint": "improvement-label-style",
+                "severity": "minor",
+                "summary": "A fixture label could be shorter without changing the contract."
+              }
+            ]
+          },
+          {
+            "axis": "integration-operability",
+            "actor_id": "improvement-operability-reviewer",
+            "context_epoch_id": "improvement-review-epoch-o1",
+            "findings": []
+          }
+        ],
+        "dispositions": [
+          {
+            "fingerprint": "improvement-label-style",
+            "classification": "too-minor",
+            "materiality": "non-material",
+            "proposed_scope": []
+          }
+        ],
+        "expected_route": "accepted"
+      }
+    ],
+    "fix_waves": [],
+    "trace": [
+      {
+        "kind": "review",
+        "round": 1,
+        "axis": "architecture-safety"
+      },
+      {
+        "kind": "review",
+        "round": 1,
+        "axis": "integration-operability"
+      },
+      {
+        "kind": "finding-validation",
+        "round": 1
+      },
+      {
+        "kind": "converge",
+        "round": 1
+      }
+    ]
+  }
+}

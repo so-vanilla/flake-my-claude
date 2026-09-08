@@ -1,0 +1,39 @@
+{
+  "schema": "runtime-source-extension/v1",
+  "scope": "current-source-compatibility-only",
+  "historical_acceptance_rewritten": false,
+  "runtime_sample_completed": false,
+  "historical_products": {
+    "agent-workflows/schemas/dag-command-v1.schema.json": "sha256:f5825cb55b0380fe97a8a0db090d74ad9a0b81a2015e5b1d25e02665af41a5cb",
+    "agent-workflows/schemas/dag-state-v1.schema.json": "sha256:d58d79e0005ecf2a5929ed8f0ef74672eb21daac7bcaf57090c6d4562bda153d",
+    "agent-workflows/schemas/objective-approval-v1.schema.json": "sha256:96f84e7dbb02b661a06219376dab9a540f9a6ad2545922a29827a8c29748c033",
+    "agent-workflows/src/ai_agent_workflow/control_kernel.py": "sha256:dee09e3d769ae3399236f33acabca317af7c814ce4c67557fe0275aeb5d0e2e0",
+    "agent-workflows/tests/test_control_kernel.py": "sha256:024e048887d461d6ad40ff2336d97e09c80c26ad1c4471e3ef57a722a8296e06",
+    "agent-workflows/tests/test_objective_transition_compatibility.py": "sha256:2de754b933ec216c7ebf901308d42de0890df04d18dec506f95f40eb1ba75a0f"
+  },
+  "current_products": {
+    "agent-workflows/schemas/dag-command-v1.schema.json": "sha256:045ce5ade6e9a0ef8fe2000f85596ce230f975a2d0fe008369d65478afb8eabf",
+    "agent-workflows/schemas/dag-state-v1.schema.json": "sha256:d58d79e0005ecf2a5929ed8f0ef74672eb21daac7bcaf57090c6d4562bda153d",
+    "agent-workflows/schemas/objective-approval-v1.schema.json": "sha256:f1b61a2d2136c68a4a7581fd338a5f8f3b5a58f1aa2a33b9f0880d9d0f182e5f",
+    "agent-workflows/src/ai_agent_workflow/control_kernel.py": "sha256:a5b56437c50093c745d62d5c7c1e4c10b03f2081621b7a44486956a4030d25b6",
+    "agent-workflows/tests/test_control_kernel.py": "sha256:56152a36440a872cc02fb46ee58398e1ad59d9e32bba83d09bd99bb7d166cc2c",
+    "agent-workflows/tests/test_objective_transition_compatibility.py": "sha256:687e6d8b607d2107196c4c25f6cd66b0ff9902eea0666917d36551c9f66353e4"
+  },
+  "validation_sources": {
+    "agent-workflows/tests/test_runtime_objective_approval.py": "sha256:8fd52174956e14fc5633e1a010882984e8c6407a836963eb6e402f97b25d7673",
+    "agent-workflows/tests/test_objective_system.py": "sha256:c0ce8daa681586507222f06680aa92f18fb59da7cb4201dff26bf7ca0e71d326",
+    "agent-workflows/tests/test_planning_system.py": "sha256:07fb5fc9efdffe7f87058acfaad04e39d441451dec67ab6411ce241ee9cce66d",
+    "agent-workflows/src/ai_agent_workflow/objective_system.py": "sha256:ab1ee32923cec3a296f5561e6fea177e06772b350a53d4da4e2d72b20739699a",
+    "agent-workflows/src/ai_agent_workflow/planning_system.py": "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660"
+  },
+  "test_receipt": {
+    "started_at": "2026-09-08T03:51:37.740458+00:00",
+    "ended_at": "2026-09-08T03:51:43.750016+00:00",
+    "tests_run": 60,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_status": 0,
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=agent-workflows/src:agent-workflows/tests python3 -c 'import unittest,json,datetime; names=[\"test_control_kernel\", \"test_objective_transition_compatibility\", \"test_runtime_objective_approval\", \"test_objective_system\", \"test_planning_system\"]; loader=unittest.TestLoader(); flat=lambda s: [x for item in s for x in (flat(item) if isinstance(item,unittest.TestSuite) else [item])]; suite=unittest.TestSuite(t for n in names for t in flat(loader.loadTestsFromName(n)) if not t.id().endswith(\"test_evidence_six_path_aggregate_is_compact_canonical_json_without_lf\")); start=datetime.datetime.now(datetime.timezone.utc).isoformat(); result=unittest.TextTestRunner(verbosity=1).run(suite); print(json.dumps({\"started_at\":start,\"ended_at\":datetime.datetime.now(datetime.timezone.utc).isoformat(),\"tests_run\":result.testsRun,\"failures\":len(result.failures),\"errors\":len(result.errors),\"skipped\":len(result.skipped),\"exit_status\":0 if result.wasSuccessful() else 1})); raise SystemExit(not result.wasSuccessful())'"
+  }
+}

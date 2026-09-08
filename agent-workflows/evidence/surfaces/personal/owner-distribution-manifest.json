@@ -1,0 +1,40 @@
+{
+  "schema": "s7-personal-surface-result/v1",
+  "surface_id": "surface.owner-distribution-manifest",
+  "canonical_source": {
+    "path": "agent-workflows/manifests/distribution.json",
+    "digest": "sha256:3125fd7bcd7f759ae8f1106f79f1acfcc455483322acc5140a2a769cc566eb23"
+  },
+  "acceptance": {
+    "selector": "S7PersonalSurfaceTests.test_distribution_manifest_surface",
+    "command": "PYTHONPATH=agent-workflows/src python3 agent-workflows/tests/test_s7_personal_surfaces.py S7PersonalSurfaceTests.test_distribution_manifest_surface -v",
+    "result": "passed"
+  },
+  "claim_boundary": {
+    "source_fixture_only": true,
+    "live_apply": false,
+    "build": false,
+    "runtime_compatibility": "unverified"
+  },
+  "proof": {
+    "lifecycle_owner": "flake-my-claude.agent-workflows",
+    "ownership_classes": [
+      "portable_source",
+      "generated_projection",
+      "managed_destination",
+      "unmanaged_user_state",
+      "app_owned_runtime",
+      "secret_bearing_state",
+      "cache"
+    ],
+    "exact_managed_children": true,
+    "provider_roots_app_owned": true,
+    "required_operations": [
+      "backup",
+      "doctor",
+      "uninstall",
+      "rollback"
+    ],
+    "live_installation_claimed": false
+  }
+}

@@ -1,0 +1,380 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company-governance-result-v1.schema.json",
+  "title": "Pure seven-stage company-governance candidate or refusal",
+  "oneOf": [
+    {"$ref": "#/$defs/candidate"},
+    {"$ref": "#/$defs/refusal"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nonempty": {"type": "string", "minLength": 1},
+    "string_array": {"type": "array", "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+    "head": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "physical_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "version", "digest"],
+      "properties": {
+        "path": {"$ref": "#/$defs/nonempty"},
+        "version": {"$ref": "#/$defs/nonempty"},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "source_ref": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "digest"],
+      "properties": {"path": {"$ref": "#/$defs/nonempty"}, "digest": {"$ref": "#/$defs/digest"}}
+    },
+    "identity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "id"],
+      "properties": {"type": {"enum": ["human", "agent", "service"]}, "id": {"$ref": "#/$defs/nonempty"}}
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority_ref", "company_id", "namespace", "store_namespace", "scope", "owner_ref", "policy_ref", "audit_plan_ref"],
+      "properties": {
+        "authority_ref": {"$ref": "#/$defs/physical_ref"},
+        "company_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"},
+        "namespace": {"$ref": "#/$defs/nonempty"},
+        "store_namespace": {"$ref": "#/$defs/nonempty"},
+        "scope": {"enum": ["company-governance-candidate", "fixture-only"]},
+        "owner_ref": {"$ref": "#/$defs/physical_ref"},
+        "policy_ref": {"$ref": "#/$defs/physical_ref"},
+        "audit_plan_ref": {"$ref": "#/$defs/physical_ref"}
+      }
+    },
+    "scopes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["filesystem", "network", "external_actions", "production"],
+      "properties": {
+        "filesystem": {"$ref": "#/$defs/string_array"},
+        "network": {"$ref": "#/$defs/string_array"},
+        "external_actions": {"$ref": "#/$defs/string_array"},
+        "production": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "retention_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["policy_id", "duration_days", "disposition"],
+      "properties": {
+        "policy_id": {"$ref": "#/$defs/nonempty"},
+        "duration_days": {"type": "integer", "minimum": 1},
+        "disposition": {"enum": ["delete", "archive", "legal-hold"]}
+      }
+    },
+    "region_policy": {
+      "type": "object", "additionalProperties": false,
+      "required": ["allowed_regions", "selected_region", "policy_status"],
+      "properties": {
+        "allowed_regions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "selected_region": {"$ref": "#/$defs/nonempty"},
+        "policy_status": {"const": "satisfied"}
+      }
+    },
+    "scan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "secret_finding_count", "pii_finding_count", "secret_categories", "pii_categories", "raw_values_included"],
+      "properties": {
+        "status": {"const": "complete"},
+        "secret_finding_count": {"type": "integer", "minimum": 0},
+        "pii_finding_count": {"type": "integer", "minimum": 0},
+        "secret_categories": {"$ref": "#/$defs/string_array"},
+        "pii_categories": {"$ref": "#/$defs/string_array"},
+        "raw_values_included": {"const": false}
+      }
+    },
+    "classify_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["dataset_id", "data_class", "retention", "region", "scan"],
+      "properties": {
+        "dataset_id": {"$ref": "#/$defs/nonempty"},
+        "data_class": {"enum": ["public", "internal", "confidential", "restricted"]},
+        "retention": {"$ref": "#/$defs/retention_policy"},
+        "region": {"$ref": "#/$defs/region_policy"},
+        "scan": {"$ref": "#/$defs/scan"}
+      }
+    },
+    "delegation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["delegator", "delegatee", "scopes", "issued_at", "expires_at", "status"],
+      "properties": {
+        "delegator": {"$ref": "#/$defs/identity"},
+        "delegatee": {"$ref": "#/$defs/identity"},
+        "scopes": {"$ref": "#/$defs/scopes"},
+        "issued_at": {"$ref": "#/$defs/nonempty"},
+        "expires_at": {"$ref": "#/$defs/nonempty"},
+        "status": {"const": "active"}
+      }
+    },
+    "identity_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["identity", "delegation", "evaluated_at"],
+      "properties": {
+        "identity": {"$ref": "#/$defs/identity"},
+        "delegation": {"$ref": "#/$defs/delegation"},
+        "evaluated_at": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "tools_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requested_scopes", "effective_policy_ref", "least_privilege"],
+      "properties": {
+        "requested_scopes": {"$ref": "#/$defs/scopes"},
+        "effective_policy_ref": {"$ref": "#/$defs/physical_ref"},
+        "least_privilege": {"const": true}
+      }
+    },
+    "catalog_review": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "reviewer_type", "reviewer_id"],
+      "properties": {
+        "status": {"const": "passed"},
+        "reviewer_type": {"enum": ["human", "enterprise"]},
+        "reviewer_id": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "catalog_entry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "source", "version", "digest", "license", "review", "owner"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonempty"},
+        "source": {"$ref": "#/$defs/nonempty"},
+        "version": {"$ref": "#/$defs/nonempty"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "license": {"enum": ["MIT", "Apache-2.0", "BSD-3-Clause", "MPL-2.0", "ISC", "Proprietary-Approved"]},
+        "review": {"$ref": "#/$defs/catalog_review"},
+        "owner": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "catalog_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["entry", "entry_digest", "evaluated_at"],
+      "properties": {
+        "entry": {"$ref": "#/$defs/catalog_entry"},
+        "entry_digest": {"$ref": "#/$defs/digest"},
+        "evaluated_at": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "metric": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "value", "unit", "method"],
+      "properties": {
+        "status": {"const": "available"},
+        "value": {"type": "number"},
+        "unit": {"$ref": "#/$defs/nonempty"},
+        "method": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "metrics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["quality", "cost", "latency", "failure", "rollback"],
+      "properties": {
+        "quality": {"$ref": "#/$defs/metric"},
+        "cost": {"$ref": "#/$defs/metric"},
+        "latency": {"$ref": "#/$defs/metric"},
+        "failure": {"$ref": "#/$defs/metric"},
+        "rollback": {"$ref": "#/$defs/metric"}
+      }
+    },
+    "comparison": {
+      "type": "object", "additionalProperties": false,
+      "required": ["baseline", "target", "unit", "direction", "delta", "outcome"],
+      "properties": {
+        "baseline": {"type": "number"}, "target": {"type": "number"}, "unit": {"$ref": "#/$defs/nonempty"},
+        "direction": {"enum": ["higher-better", "lower-better"]}, "delta": {"type": "number"},
+        "outcome": {"enum": ["improved", "equivalent", "regressed"]}
+      }
+    },
+    "comparisons": {
+      "type": "object", "additionalProperties": false,
+      "required": ["quality", "cost", "latency", "failure", "rollback"],
+      "properties": {
+        "quality": {"$ref": "#/$defs/comparison"}, "cost": {"$ref": "#/$defs/comparison"},
+        "latency": {"$ref": "#/$defs/comparison"}, "failure": {"$ref": "#/$defs/comparison"},
+        "rollback": {"$ref": "#/$defs/comparison"}
+      }
+    },
+    "evaluation_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["evaluation_id", "catalog_entry_digest", "baseline", "target", "comparison", "adoption_status"],
+      "properties": {
+        "evaluation_id": {"$ref": "#/$defs/nonempty"}, "catalog_entry_digest": {"$ref": "#/$defs/digest"},
+        "baseline": {"$ref": "#/$defs/metrics"}, "target": {"$ref": "#/$defs/metrics"},
+        "comparison": {"$ref": "#/$defs/comparisons"}, "adoption_status": {"const": "not-decided"}
+      }
+    },
+    "rollout_stage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "percentage", "entry_criteria", "exit_criteria"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonempty"}, "percentage": {"type": "integer", "minimum": 1},
+        "entry_criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "exit_criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true}
+      }
+    },
+    "canary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["enabled", "cohort", "percentage", "success_criteria", "observation_minutes"],
+      "properties": {
+        "enabled": {"const": true}, "cohort": {"$ref": "#/$defs/nonempty"}, "percentage": {"type": "integer", "minimum": 1},
+        "success_criteria": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "observation_minutes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "rollback": {
+      "type": "object", "additionalProperties": false,
+      "required": ["available", "plan_ref", "trigger_conditions", "restoration_target"],
+      "properties": {
+        "available": {"const": true}, "plan_ref": {"$ref": "#/$defs/physical_ref"},
+        "trigger_conditions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "restoration_target": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "communication": {
+      "type": "object", "additionalProperties": false,
+      "required": ["audiences", "channel", "message_template", "owner"],
+      "properties": {
+        "audiences": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "channel": {"$ref": "#/$defs/nonempty"}, "message_template": {"$ref": "#/$defs/nonempty"}, "owner": {"$ref": "#/$defs/nonempty"}
+      }
+    },
+    "release_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["release_id", "artifact_digest", "rollout_stages", "canary", "rollback", "communication", "plan_digest", "evaluated_at", "release_status"],
+      "properties": {
+        "release_id": {"$ref": "#/$defs/nonempty"}, "artifact_digest": {"$ref": "#/$defs/digest"},
+        "rollout_stages": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/rollout_stage"}},
+        "canary": {"$ref": "#/$defs/canary"}, "rollback": {"$ref": "#/$defs/rollback"},
+        "communication": {"$ref": "#/$defs/communication"}, "plan_digest": {"$ref": "#/$defs/digest"},
+        "evaluated_at": {"$ref": "#/$defs/nonempty"}, "release_status": {"const": "not-executed"}
+      }
+    },
+    "audit_event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["event_id", "event_type", "record_ref", "retained"],
+      "properties": {
+        "event_id": {"$ref": "#/$defs/nonempty"}, "event_type": {"$ref": "#/$defs/nonempty"},
+        "record_ref": {"$ref": "#/$defs/physical_ref"}, "retained": {"const": true}
+      }
+    },
+    "audit_retention": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required_days", "actual_days", "status"],
+      "properties": {
+        "required_days": {"type": "integer", "minimum": 1}, "actual_days": {"type": "integer", "minimum": 1},
+        "status": {"const": "retained"}
+      }
+    },
+    "audit_payload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["operation_id", "operation_plan_ref", "expected_event_ids", "events", "unreadable_event_ids", "bypass_event_ids", "incident_event_ids", "retention", "completeness", "audit_source"],
+      "properties": {
+        "operation_id": {"$ref": "#/$defs/nonempty"},
+        "operation_plan_ref": {"$ref": "#/$defs/physical_ref"},
+        "expected_event_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/nonempty"}, "uniqueItems": true},
+        "events": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/audit_event"}},
+        "unreadable_event_ids": {"type": "array", "maxItems": 0, "items": {"$ref": "#/$defs/nonempty"}},
+        "bypass_event_ids": {"type": "array", "maxItems": 0, "items": {"$ref": "#/$defs/nonempty"}},
+        "incident_event_ids": {"$ref": "#/$defs/string_array"},
+        "retention": {"$ref": "#/$defs/audit_retention"}, "completeness": {"const": "complete"},
+        "audit_source": {"const": "fixture-only"}
+      }
+    },
+    "external_approval": {
+      "oneOf": [
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "actor", "scope", "receipt_ref", "granted"],
+          "properties": {
+            "status": {"const": "not-applicable"}, "actor": {"type": "null"}, "scope": {"type": "null"},
+            "receipt_ref": {"type": "null"}, "granted": {"const": false}
+          }
+        },
+        {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "actor", "scope", "receipt_ref", "granted"],
+          "properties": {
+            "status": {"const": "validated-external-receipt"},
+            "actor": {
+              "type": "object", "additionalProperties": false, "required": ["type", "id"],
+              "properties": {"type": {"enum": ["human", "enterprise"]}, "id": {"$ref": "#/$defs/nonempty"}}
+            },
+            "scope": {"enum": ["catalog-entry", "release-candidate"]},
+            "receipt_ref": {"$ref": "#/$defs/physical_ref"}, "granted": {"const": false}
+          }
+        }
+      ]
+    },
+    "source_interfaces": {
+      "type": "object", "additionalProperties": false,
+      "required": ["compiler", "step_catalog"],
+      "properties": {"compiler": {"$ref": "#/$defs/source_ref"}, "step_catalog": {"$ref": "#/$defs/source_ref"}}
+    },
+    "candidate_base": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "surface_id", "company_id", "stage", "result_kind", "status", "expected_head", "authority", "authority_digest", "company_store_namespace", "predecessor_artifact_refs", "evidence_refs", "payload", "external_approval", "source_interfaces", "non_mutating", "source_only", "uses_personal_state", "grants_approval", "performs_external_lookup", "performs_release", "reports_live_audit", "candidate_digest"],
+      "properties": {
+        "schema": {"const": "company-governance-candidate/v1"},
+        "surface_id": {"enum": ["surface.company.classify-data", "surface.company.resolve-identity", "surface.company.authorize-tools", "surface.company.approve-catalog", "surface.company.evaluate-change", "surface.company.release-workflow", "surface.company.audit-operation"]},
+        "company_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"},
+        "stage": {"enum": ["classify-data", "resolve-identity", "authorize-tools", "approve-catalog", "evaluate-change", "release-workflow", "audit-operation"]},
+        "result_kind": {"enum": ["data-classification-candidate", "identity-resolution-candidate", "tool-authorization-candidate", "catalog-approval-validation-candidate", "comparative-evaluation-candidate", "release-workflow-candidate", "audit-operation-candidate"]},
+        "status": {"const": "candidate"}, "expected_head": {"$ref": "#/$defs/head"},
+        "authority": {"$ref": "#/$defs/authority"}, "authority_digest": {"$ref": "#/$defs/digest"},
+        "company_store_namespace": {"$ref": "#/$defs/nonempty"},
+        "predecessor_artifact_refs": {"type": "array", "items": {"$ref": "#/$defs/physical_ref"}},
+        "evidence_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/physical_ref"}},
+        "payload": {}, "external_approval": {"$ref": "#/$defs/external_approval"},
+        "source_interfaces": {"$ref": "#/$defs/source_interfaces"},
+        "non_mutating": {"const": true}, "source_only": {"const": true}, "uses_personal_state": {"const": false},
+        "grants_approval": {"const": false}, "performs_external_lookup": {"const": false},
+        "performs_release": {"const": false}, "reports_live_audit": {"const": false},
+        "candidate_digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "candidate": {
+      "allOf": [
+        {"$ref": "#/$defs/candidate_base"},
+        {"oneOf": [
+          {"properties": {"surface_id": {"const": "surface.company.classify-data"}, "stage": {"const": "classify-data"}, "result_kind": {"const": "data-classification-candidate"}, "payload": {"$ref": "#/$defs/classify_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.resolve-identity"}, "stage": {"const": "resolve-identity"}, "result_kind": {"const": "identity-resolution-candidate"}, "payload": {"$ref": "#/$defs/identity_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.authorize-tools"}, "stage": {"const": "authorize-tools"}, "result_kind": {"const": "tool-authorization-candidate"}, "payload": {"$ref": "#/$defs/tools_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.approve-catalog"}, "stage": {"const": "approve-catalog"}, "result_kind": {"const": "catalog-approval-validation-candidate"}, "payload": {"$ref": "#/$defs/catalog_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.evaluate-change"}, "stage": {"const": "evaluate-change"}, "result_kind": {"const": "comparative-evaluation-candidate"}, "payload": {"$ref": "#/$defs/evaluation_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.release-workflow"}, "stage": {"const": "release-workflow"}, "result_kind": {"const": "release-workflow-candidate"}, "payload": {"$ref": "#/$defs/release_payload"}}},
+          {"properties": {"surface_id": {"const": "surface.company.audit-operation"}, "stage": {"const": "audit-operation"}, "result_kind": {"const": "audit-operation-candidate"}, "payload": {"$ref": "#/$defs/audit_payload"}}}
+        ]}
+      ]
+    },
+    "audit_details": {
+      "type": "object", "additionalProperties": false,
+      "required": ["missing_event_ids", "unreadable_event_ids", "bypassed_event_ids", "unretained_event_ids"],
+      "properties": {
+        "missing_event_ids": {"$ref": "#/$defs/string_array"},
+        "unreadable_event_ids": {"$ref": "#/$defs/string_array"},
+        "bypassed_event_ids": {"$ref": "#/$defs/string_array"},
+        "unretained_event_ids": {"$ref": "#/$defs/string_array"}
+      }
+    },
+    "refusal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "surface_id", "company_id", "reason", "expected_head", "details", "non_mutating", "source_only", "uses_personal_state", "grants_approval", "performs_external_lookup", "performs_release", "reports_live_audit"],
+      "properties": {
+        "schema": {"const": "company-governance-refusal/v1"}, "surface_id": {"$ref": "#/$defs/nonempty"},
+        "company_id": {"type": ["string", "null"]}, "reason": {"$ref": "#/$defs/nonempty"},
+        "expected_head": {"anyOf": [{"$ref": "#/$defs/head"}, {"type": "null"}]}, "details": {"$ref": "#/$defs/audit_details"},
+        "non_mutating": {"const": true}, "source_only": {"const": true}, "uses_personal_state": {"const": false},
+        "grants_approval": {"const": false}, "performs_external_lookup": {"const": false},
+        "performs_release": {"const": false}, "reports_live_audit": {"const": false}
+      }
+    }
+  }
+}

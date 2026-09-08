@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "workflow-manifest-v1.schema.json",
+  "title": "Source-only composition of named Skills and shared closure selectors",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "workflow_id",
+    "title",
+    "intent_class",
+    "entry_mode",
+    "profile",
+    "risk_class",
+    "source_only",
+    "planned_effect",
+    "required_human_gates",
+    "stages",
+    "completion"
+  ],
+  "properties": {
+    "schema": {"const": "workflow-manifest/v1"},
+    "workflow_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "intent_class": {
+      "enum": [
+        "bootstrap",
+        "feature",
+        "bug-fix",
+        "improvement",
+        "research",
+        "documentation",
+        "refactor",
+        "security",
+        "configuration",
+        "migration",
+        "incident",
+        "decision",
+        "external-operation",
+        "resume",
+        "execution-exception",
+        "company-change"
+      ]
+    },
+    "entry_mode": {"enum": ["new", "bootstrap", "resume", "exception-resume"]},
+    "profile": {"enum": [null, "feature", "bug-fix", "improvement"]},
+    "risk_class": {"enum": ["standard", "protected"]},
+    "source_only": {"const": true},
+    "planned_effect": {"enum": ["none", "local-change", "migration", "external-operation"]},
+    "required_human_gates": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "objective-approval",
+          "design-approval",
+          "execution-approval",
+          "fix-option-approval",
+          "improvement-adoption-approval",
+          "decision-promotion-approval",
+          "run-outcome-approval",
+          "risk-acceptance",
+          "migration-approval",
+          "external-operation-approval",
+          "incident-authority",
+          "company-policy-approval",
+          "dotfiles-ownership-approval",
+          "replacement-budget-approval"
+        ]
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage_id", "kind", "scope", "mode", "host_selector", "selectors"],
+        "properties": {
+          "stage_id": {"type": "string", "pattern": "^[a-z][a-z0-9-]+$"},
+          "kind": {"enum": ["common", "profile", "closure", "resume", "exception"]},
+          "scope": {"enum": ["A", "B", "C", "D", "E", "G", "H", "feature", "bug-fix", "improvement", "shared-closure", "resume", "execution-exception"]},
+          "mode": {"enum": ["serial", "parallel"]},
+          "host_selector": {"type": ["string", "null"]},
+          "selectors": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^(group\\.[A-H]\\.[A-Z0-9]+|profile\\.(feature|bug-fix|improvement)\\.[A-Z0-9]+)$"}
+          }
+        }
+      }
+    },
+    "execution_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "version", "path", "digest"],
+      "properties": {
+        "schema": {"const": "workflow-execution-policy-ref/v1"},
+        "version": {"type": "string", "pattern": "^v[1-9][0-9]*$"},
+        "path": {"type": "string", "pattern": "^agent-workflows/groups/[a-z0-9-]+-execution-policy-v[1-9][0-9]*\\.json$"},
+        "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "completion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "terminal_selector"],
+      "properties": {
+        "mode": {"enum": ["closed", "dynamic", "advisory-stop"]},
+        "terminal_selector": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

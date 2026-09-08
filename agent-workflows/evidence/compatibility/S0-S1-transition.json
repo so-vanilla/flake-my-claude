@@ -1,0 +1,274 @@
+{
+  "artifact_kind": "evidence",
+  "check_receipts": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=agent-workflows/src python3 -c 'from pathlib import Path; from ai_agent_workflow.section_transition_evidence import verify_section_transition_compatibility as verify; assert verify(Path(\".\"))'",
+      "exit_status": 0,
+      "scope": "json-schema",
+      "status": "passed"
+    },
+    {
+      "command": "PYTHONPYCACHEPREFIX=/tmp/s0-s1-u-c-evidence-finalize-001-pycache python3 -m py_compile agent-workflows/src/ai_agent_workflow/section_transition_evidence.py agent-workflows/tests/test_section_transition_compatibility.py",
+      "exit_status": 0,
+      "scope": "py-compile",
+      "status": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "scope": "diff-check",
+      "status": "passed"
+    }
+  ],
+  "claims": {
+    "accepted_named": 3,
+    "accepted_profiles": 0,
+    "activation": false,
+    "actual_a7": false,
+    "full_ready": false,
+    "migration": false,
+    "named_targets": 60,
+    "profile_targets": 23,
+    "source_transition_fixture_passed": true
+  },
+  "compatibility_id": "S0-S1-TRANSITION",
+  "expected_head": {
+    "revision": 1,
+    "synthetic": true,
+    "transaction_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "fixture": {
+    "kind": "source-only",
+    "observed_cases": [
+      {
+        "case": "S0-to-S1",
+        "result": "passed"
+      },
+      {
+        "case": "exact-retry",
+        "result": "passed"
+      },
+      {
+        "case": "fresh-cold-resume",
+        "result": "passed"
+      },
+      {
+        "case": "S1-to-S2",
+        "result": "passed"
+      }
+    ],
+    "predecessor": "accepted-section",
+    "public_interface": "section-control-plane/v1",
+    "target_rule": "numeric-immediate-successor"
+  },
+  "inputs": [
+    {
+      "digest": "sha256:1e7673dfc6ac3d3d8912c6920320128d2ec2962f14c84957a7090e078e8a3c7b",
+      "path": "docs/plans/ai-agent-workflow-s0-s1-transition-compatibility-plan.md"
+    },
+    {
+      "digest": "sha256:23c605b904db6278de35902ec0bf9a9d8384f5ca6bfbd124a696e9131b92dab3",
+      "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-source-001.md"
+    },
+    {
+      "digest": "sha256:522840980fa311e86ac3c0fad73812c232f8349da9275368eab08b930b6041b6",
+      "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-integration-001.md"
+    },
+    {
+      "digest": "sha256:6b5242e71a401605e24d7591c144f145d85aa56100b9e7617bce1ad0bcf4be35",
+      "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-validation-001.md"
+    },
+    {
+      "path": "agent-workflows/schemas/dag-command-v1.schema.json",
+      "digest": "sha256:f5825cb55b0380fe97a8a0db090d74ad9a0b81a2015e5b1d25e02665af41a5cb"
+    },
+    {
+      "path": "agent-workflows/schemas/objective-approval-v1.schema.json",
+      "digest": "sha256:96f84e7dbb02b661a06219376dab9a540f9a6ad2545922a29827a8c29748c033"
+    },
+    {
+      "path": "agent-workflows/tests/test_control_kernel.py",
+      "digest": "sha256:024e048887d461d6ad40ff2336d97e09c80c26ad1c4471e3ef57a722a8296e06"
+    },
+    {
+      "path": "agent-workflows/tests/test_objective_transition_compatibility.py",
+      "digest": "sha256:2de754b933ec216c7ebf901308d42de0890df04d18dec506f95f40eb1ba75a0f"
+    },
+    {
+      "digest": "sha256:7b92590ad71cccbb2ca1bdd89da1d4f6a8ced970d74a6f396b752265eca7d5f0",
+      "path": "agent-workflows/tests/test_section_transition_compatibility.py"
+    },
+    {
+      "path": "agent-workflows/evidence/compatibility/S2-objective-transition.json",
+      "digest": "sha256:e00285c0f2843ba52ea4df9f482c551e22953d73bd4d2f5a4d1ea7f448789cee"
+    },
+    {
+      "digest": "sha256:e82634a30e807cb88cabdaa490e5f9f95624181d099675c11d1f4b9bb9a3eff7",
+      "path": "agent-workflows/schemas/section-status-v1.schema.json"
+    },
+    {
+      "digest": "sha256:6c5e5392570fd8fe33bad7ac9a12d5320cc3a8f439937db0d2d2ba29ceec21ed",
+      "path": "agent-workflows/schemas/section-plan-v1.schema.json"
+    },
+    {
+      "digest": "sha256:da352c9340a61d24183c33f59d2425db3a26f0082bb4cb3bd83bd1f975c9be60",
+      "path": "agent-workflows/schemas/section-control-plane-v1.schema.json"
+    },
+    {
+      "digest": "sha256:d58d79e0005ecf2a5929ed8f0ef74672eb21daac7bcaf57090c6d4562bda153d",
+      "path": "agent-workflows/schemas/dag-state-v1.schema.json"
+    },
+    {
+      "digest": "sha256:74b10d757ef188ae5d11cbc1ac476038a148702d184e5cef5389ea8a7ab1dde4",
+      "path": "agent-workflows/evidence/sections/S0/index.json"
+    },
+    {
+      "digest": "sha256:d7c2032306d7edcf06a783fc895eddb45e95c47b1c5a570012ec918f74659e64",
+      "path": "agent-workflows/evidence/sections/S0/accepted.json"
+    },
+    {
+      "digest": "sha256:673114ec3e1ea69fcd9580805b7f872895062253a0a1ccc352f40f281ccc3070",
+      "path": "agent-workflows/manifests/s0-source-transition-authority.json"
+    },
+    {
+      "digest": "sha256:1248ad7efb757c587f64963dd7e102531ace74f43fb5ea18f57a7a3036fc86ea",
+      "path": "agent-workflows/schemas/s0-source-transition-authority-v1.schema.json"
+    }
+  ],
+  "review_validation_history": [
+    {
+      "candidate_digest": "sha256:a63392d56d23f6fb6c461db830d4f8dca0789b236f7894c9d62810d201a22ebd",
+      "closure_validation": {
+        "digest": "sha256:23c605b904db6278de35902ec0bf9a9d8384f5ca6bfbd124a696e9131b92dab3",
+        "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-source-001.md"
+      },
+      "needs_user": 0,
+      "required_open": 0,
+      "test_evidence_debt": 0,
+      "unit": "U-A",
+      "verdict": "accepted"
+    },
+    {
+      "candidate_digest": "sha256:1179cfe031b9539250099e1e1f005adaa4b486388555d2699c7ea94d193d7bc0",
+      "closure_validation": {
+        "digest": "sha256:522840980fa311e86ac3c0fad73812c232f8349da9275368eab08b930b6041b6",
+        "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-integration-001.md"
+      },
+      "needs_user": 0,
+      "required_open": 0,
+      "test_evidence_debt": 0,
+      "unit": "U-B",
+      "verdict": "accepted"
+    },
+    {
+      "candidate_digest": "sha256:a0e36ab8d9968deaccfb0c064d7f5c2d75ad8552a0dffc2d1d89f5d285a71352",
+      "closure_coverage": {
+        "digest": "sha256:522840980fa311e86ac3c0fad73812c232f8349da9275368eab08b930b6041b6",
+        "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-integration-001.md"
+      },
+      "closure_security": {
+        "digest": "sha256:23c605b904db6278de35902ec0bf9a9d8384f5ca6bfbd124a696e9131b92dab3",
+        "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-source-001.md"
+      },
+      "closure_validation": {
+        "digest": "sha256:6b5242e71a401605e24d7591c144f145d85aa56100b9e7617bce1ad0bcf4be35",
+        "path": ".local/agent/reports/ai-agent-workflow-full-implementation/s1-c-upstream-closure-validation-001.md"
+      },
+      "needs_user": 0,
+      "required_open": 0,
+      "test_evidence_debt": 0,
+      "unit": "U-C",
+      "verdict": "accepted"
+    }
+  ],
+  "s0_close": {
+    "accepted_parent_receipt": {
+      "digest": "sha256:d7c2032306d7edcf06a783fc895eddb45e95c47b1c5a570012ec918f74659e64",
+      "path": "agent-workflows/evidence/sections/S0/accepted.json"
+    },
+    "index": {
+      "digest": "sha256:74b10d757ef188ae5d11cbc1ac476038a148702d184e5cef5389ea8a7ab1dde4",
+      "path": "agent-workflows/evidence/sections/S0/index.json"
+    }
+  },
+  "schema": "section-transition-compatibility/v1",
+  "schemas": [
+    {
+      "digest": "sha256:e82634a30e807cb88cabdaa490e5f9f95624181d099675c11d1f4b9bb9a3eff7",
+      "name": "section-status-v1",
+      "path": "agent-workflows/schemas/section-status-v1.schema.json"
+    },
+    {
+      "digest": "sha256:6c5e5392570fd8fe33bad7ac9a12d5320cc3a8f439937db0d2d2ba29ceec21ed",
+      "name": "section-plan-v1",
+      "path": "agent-workflows/schemas/section-plan-v1.schema.json"
+    },
+    {
+      "digest": "sha256:da352c9340a61d24183c33f59d2425db3a26f0082bb4cb3bd83bd1f975c9be60",
+      "name": "section-control-plane-v1",
+      "path": "agent-workflows/schemas/section-control-plane-v1.schema.json"
+    },
+    {
+      "digest": "sha256:d58d79e0005ecf2a5929ed8f0ef74672eb21daac7bcaf57090c6d4562bda153d",
+      "name": "dag-state-v1",
+      "path": "agent-workflows/schemas/dag-state-v1.schema.json"
+    },
+    {
+      "digest": "sha256:5f63984646f407037592684d43618bf973e9faf3cc29cdd41c09c3b3efa2e6e9",
+      "name": "section-transition-compatibility-v1",
+      "path": "agent-workflows/schemas/section-transition-compatibility-v1.schema.json"
+    },
+    {
+      "digest": "sha256:335079c2b5e1b02e1e98f1e1dd2a2ecb578da82d33c5d475724c75378ab995a0",
+      "name": "section-transition-compatibility-authority-v1",
+      "path": "agent-workflows/schemas/section-transition-compatibility-authority-v1.schema.json"
+    },
+    {
+      "digest": "sha256:1248ad7efb757c587f64963dd7e102531ace74f43fb5ea18f57a7a3036fc86ea",
+      "name": "s0-source-transition-authority-v1",
+      "path": "agent-workflows/schemas/s0-source-transition-authority-v1.schema.json"
+    }
+  ],
+  "sources": [
+    {
+      "digest": "sha256:582c096ae14129fa04a9d75202a733a76f3ccc8c6268a48432112bea0017163b",
+      "path": "agent-workflows/src/ai_agent_workflow/section_control_plane.py",
+      "role": "compiler"
+    },
+    {
+      "digest": "sha256:dee09e3d769ae3399236f33acabca317af7c814ce4c67557fe0275aeb5d0e2e0",
+      "path": "agent-workflows/src/ai_agent_workflow/control_kernel.py",
+      "role": "kernel"
+    },
+    {
+      "digest": "sha256:7b92590ad71cccbb2ca1bdd89da1d4f6a8ced970d74a6f396b752265eca7d5f0",
+      "path": "agent-workflows/tests/test_section_transition_compatibility.py",
+      "role": "compatibility-test"
+    }
+  ],
+  "test_receipts": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=agent-workflows/src python3 -m unittest agent-workflows/tests/test_control_kernel.py agent-workflows/tests/test_objective_transition_compatibility.py",
+      "exit_status": 0,
+      "scope": "focused",
+      "status": "passed",
+      "tests_run": 20
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=agent-workflows/src python3 -m unittest agent-workflows/tests/test_s0_integration.py agent-workflows/tests/test_catalog_coverage.py agent-workflows/tests/test_s1_lifecycle_integration.py",
+      "exit_status": 0,
+      "scope": "affected-regression",
+      "status": "passed",
+      "tests_run": 42
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=agent-workflows/src python3 -m unittest agent-workflows/tests/test_control_kernel.py agent-workflows/tests/test_objective_transition_compatibility.py agent-workflows/tests/test_section_transition_compatibility.py agent-workflows/tests/test_s0_integration.py agent-workflows/tests/test_catalog_coverage.py agent-workflows/tests/test_s1_evidence.py agent-workflows/tests/test_a6r_evidence.py agent-workflows/tests/test_a6r_remediation.py agent-workflows/tests/test_a6r_rev34_convergence.py agent-workflows/tests/test_a7_self_host_handoff.py agent-workflows/tests/test_bootstrap_contracts.py agent-workflows/tests/test_operational_cli.py agent-workflows/tests/test_s1_lifecycle_integration.py agent-workflows/tests/test_section_control_plane_contract.py agent-workflows/tests/test_section_control_plane_kernel.py agent-workflows/tests/test_shared_closure_protocol.py",
+      "exit_status": 0,
+      "scope": "full-suite",
+      "status": "passed",
+      "tests_run": 216
+    }
+  ],
+  "version": "v1",
+  "workspace_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7"
+}

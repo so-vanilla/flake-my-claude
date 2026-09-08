@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.C.C4",
+  "contract_name": "define-targets",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/define-targets/SKILL.md",
+    "digest": "sha256:50a3c94141dcb710fc45d9ad5b8d71d26cc1d0d3ec18dcac17c3af64f96c23de"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_outcome_system.py::C4_TargetDefinitionTests"
+  },
+  "status": "passed"
+}

@@ -1,0 +1,40 @@
+{
+  "claim_boundary": {
+    "build_or_rebuild_claimed": false,
+    "current_run_evidence": false,
+    "full_workflow_ready": false,
+    "grants_approval": false,
+    "live_runtime_evidence": false,
+    "migration_or_activation_claimed": false,
+    "objective_outcome_claimed": false,
+    "operational_adoption_claimed": false,
+    "run_completion_claimed": false
+  },
+  "gate_id": "workflow-profiles-implemented",
+  "required_source_findings": [],
+  "schema": "agent-workflow-source-gate-evidence/workflow-profiles-implemented/v1",
+  "scope": "source-only",
+  "status": "passed",
+  "subject_refs": [
+    {
+      "digest": "sha256:8450824b5f6dbe71e1cbc8e140d8298462534763c54cbeab3734d0913e2a27f0",
+      "path": "agent-workflows/manifests/source-release.json"
+    },
+    {
+      "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+      "path": "agent-workflows/manifests/source-evidence-index.json"
+    },
+    {
+      "digest": "sha256:d35c72242683ea9e710efb62a925877490f4769fd70d17e6fd3fefd3d5e85c33",
+      "path": "agent-workflows/evidence/source-wide/profile-feature.json"
+    },
+    {
+      "digest": "sha256:7c1a1f398db5313ad977237e5642cf429e3440beebf0a4767ab35f18c7a671ab",
+      "path": "agent-workflows/evidence/source-wide/profile-bug-fix.json"
+    },
+    {
+      "digest": "sha256:6ea4d1be582776ca89c94deb734385946262a71c7e04a4ff38ca6e4f53b3e2dd",
+      "path": "agent-workflows/evidence/source-wide/profile-improvement.json"
+    }
+  ]
+}

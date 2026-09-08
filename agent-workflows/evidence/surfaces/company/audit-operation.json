@@ -1,0 +1,32 @@
+{
+  "schema": "company-governance-surface-evidence/v1",
+  "surface_id": "surface.company.audit-operation",
+  "canonical_source": {
+    "path": "agent-workflows/company/audit-operation.py",
+    "digest": "sha256:eb865164e896e4e638d0dd510564b0e8211566b018f7ed59f2035463e158ae00"
+  },
+  "acceptance": {
+    "selector": "surface.company.audit-operation",
+    "test_selector": "CompanyGovernanceTests.test_all_seven_compile_in_exact_order_as_static_non_authorizing_candidates",
+    "result": "passed"
+  },
+  "claim_boundary": {
+    "source_fixture_only": true,
+    "personal_state_used": false,
+    "credentials_used": false,
+    "live_company_system_used": false,
+    "live_identity_used": false,
+    "live_policy_used": false,
+    "live_catalog_used": false,
+    "live_evaluation_used": false,
+    "live_release_used": false,
+    "live_audit_used": false,
+    "approval_minted": false
+  },
+  "proof": {
+    "compiler": "ai_agent_workflow.company_governance.CompanyGovernanceV1.compile",
+    "result_kind": "audit-operation-candidate",
+    "missing_unreadable_preserved_on_refusal": true,
+    "audit_source": "fixture-only"
+  }
+}

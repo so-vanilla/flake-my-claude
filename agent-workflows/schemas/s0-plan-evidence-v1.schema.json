@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","additionalProperties":false,"required":["schema","run_id","section_id"],"properties":{"schema":{"const":"s0-plan-evidence/v1"},"run_id":{"type":"string","minLength":1},"section_id":{"const":"S0"}}}

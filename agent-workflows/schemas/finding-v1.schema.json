@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "finding-v1.schema.json",
+  "title": "Stable review Finding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["finding_id", "fingerprint", "requirement_ref", "description", "evidence", "severity", "state", "blocking", "candidate_task_id", "introduced_review_id", "owner", "original_reviewer_assignment", "resolution_ref", "closed_by"],
+  "properties": {
+    "finding_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "description": {"type": "string"},
+    "evidence": {"type": "array"},
+    "severity": {"type": "string", "minLength": 1},
+    "state": {"enum": ["open", "resolved", "unresolved", "invalid", "superseded"]},
+    "blocking": {"type": "boolean"},
+    "candidate_task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "introduced_review_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "owner": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "original_reviewer_assignment": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "requirement_ref": {},
+    "resolution_ref": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"type": "string", "minLength": 1}, "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"}}}]},
+    "closed_by": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "object_ref": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"type": "string", "minLength": 1}, "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"}}},
+    "resolution_claimed_by": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+    "closure_evidence": {"type": "array"},
+    "closure_ref": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "object_type": {"const": "finding-verdict"}, "path": {"type": "string", "pattern": "^(?!/)(?![A-Za-z]:[\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.|\\.\\.)(?:/|$))(?!.*//)(?!.*\\*)(?!.*\\/$).+$"}}}]}
+  }
+}

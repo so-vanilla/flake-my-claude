@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.C.C1",
+  "contract_name": "decompose-outcomes",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/decompose-outcomes/SKILL.md",
+    "digest": "sha256:d05721de81aae76fe1b2f972d7769b6add81bae0d01131abaf37c0b693a19e22"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_outcome_system.py::C1_DecomposeOutcomesTests"
+  },
+  "status": "passed"
+}

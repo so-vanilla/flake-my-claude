@@ -1,0 +1,25 @@
+{
+  "artifact_kind": "manifest",
+  "claims": {
+    "accepted_named": 3,
+    "accepted_profiles": 0,
+    "activation": false,
+    "actual_a7": false,
+    "full_ready": false,
+    "migration": false,
+    "named_targets": 60,
+    "profile_targets": 23,
+    "source_transition_fixture_passed": true
+  },
+  "compatibility_id": "S0-S1-TRANSITION",
+  "evidence": {
+    "digest": "sha256:5bc6f3588a4602d00bbcbfe45a9d36461d59f09d8166274c4a76b6a352904eea",
+    "path": "agent-workflows/evidence/compatibility/S0-S1-transition.json"
+  },
+  "predecessor": "accepted-section",
+  "public_interface": "section-control-plane/v1",
+  "schema": "section-transition-compatibility/v1",
+  "status": "accepted",
+  "target_rule": "numeric-immediate-successor",
+  "version": "v1"
+}

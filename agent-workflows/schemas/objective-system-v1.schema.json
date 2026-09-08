@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "objective-system-v1.schema.json",
+  "title": "Strict ObjectiveSystemV1 compile output",
+  "oneOf": [
+    {"$ref": "#/$defs/artifact"},
+    {"$ref": "#/$defs/approvalCommand"},
+    {"$ref": "#/$defs/refusal"}
+  ],
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "head": {"oneOf": [
+      {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "const": 0}, "transaction_digest": {"type": "null"}}},
+      {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 1}, "transaction_digest": {"$ref": "#/$defs/digest"}}}
+    ]},
+    "qualifiedId": {"enum": ["group.B.B1", "group.B.B2", "group.B.B3", "group.B.B4", "group.B.B5", "group.B.B6", "group.B.B7"]},
+    "physicalRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "digest", "selector"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(?:agent-workflows|docs|\\.local)/.+"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "selector": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}
+      }
+    },
+    "ownerRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["owner_kind", "owner_id", "authority_ref"],
+      "properties": {
+        "owner_kind": {"enum": ["human", "system"]},
+        "owner_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"},
+        "authority_ref": {"$ref": "#/$defs/physicalRef"}
+      }
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["owner_ref", "source_refs"],
+      "properties": {
+        "owner_ref": {"$ref": "#/$defs/ownerRef"},
+        "source_refs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/physicalRef"}}
+      }
+    },
+    "candidate": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "candidate_ref", "version"],
+      "properties": {
+        "status": {"const": "candidate"},
+        "candidate_ref": {"$ref": "#/$defs/physicalRef"},
+        "version": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:@/-]*$"}
+      }
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "inputs", "authority", "expected_head", "candidate"],
+      "properties": {
+        "schema": {"const": "objective-system-artifact/v1"},
+        "qualified_id": {"$ref": "#/$defs/qualifiedId"},
+        "inputs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/physicalRef"}},
+        "authority": {"$ref": "#/$defs/authority"},
+        "expected_head": {"$ref": "#/$defs/head"},
+        "candidate": {"$ref": "#/$defs/candidate"}
+      }
+    },
+    "explicitHumanReceipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["receipt_ref", "source", "explicit", "decision", "actor_ref"],
+      "properties": {
+        "receipt_ref": {"$ref": "#/$defs/physicalRef"},
+        "source": {"enum": ["human", "mock"]}, "explicit": {"const": true}, "decision": {"const": "approve"},
+        "actor_ref": {"$ref": "#/$defs/ownerRef"}
+      }
+    },
+    "approvalCommand": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "inputs", "authority", "expected_head", "candidate", "approval_receipt_ref"],
+      "properties": {
+        "schema": {"const": "objective-approval-command/v1"}, "qualified_id": {"const": "group.B.B7"},
+        "inputs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/physicalRef"}},
+        "authority": {"$ref": "#/$defs/authority"}, "expected_head": {"$ref": "#/$defs/head"},
+        "candidate": {"$ref": "#/$defs/candidate"}, "approval_receipt_ref": {"$ref": "#/$defs/explicitHumanReceipt"}
+      }
+    },
+    "refusal": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "qualified_id", "reason", "expected_head", "authority"],
+      "properties": {
+        "schema": {"const": "objective-system-refusal/v1"}, "qualified_id": {"$ref": "#/$defs/qualifiedId"},
+        "reason": {"enum": ["needs_user_duplicate_run", "blocked_missing_authority", "needs_user_purpose", "blocked_implicit_approval", "blocked_stale_head", "blocked_fixture_live"]},
+        "expected_head": {"$ref": "#/$defs/head"}, "authority": {"$ref": "#/$defs/authority"}
+      }
+    }
+  }
+}

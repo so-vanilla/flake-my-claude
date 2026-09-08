@@ -1,0 +1,126 @@
+{
+  "schema": "bootstrap-cases/v1",
+  "expected_head": {
+    "revision": 13,
+    "transaction_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "authority": {
+    "approved": true,
+    "expected_head": {
+      "revision": 13,
+      "transaction_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  },
+  "valid_inventory": {
+    "entries": [
+      {
+        "path": "agent-workflows/catalog.yaml",
+        "class": "source",
+        "owner": "agent-workflows.group.A",
+        "source": "repository",
+        "retention": "preserve",
+        "inspection": "catalog digest"
+      }
+    ],
+    "input_refs": [
+      {
+        "kind": "path-observation",
+        "path": "agent-workflows/catalog.yaml",
+        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ]
+  },
+  "valid_workspace": {
+    "inventory_ref": {
+      "kind": "inventory",
+      "path": "agent-workflows/evidence/contracts/A1.json",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "base_ref": {
+      "kind": "git-ref",
+      "path": "refs/heads/main",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "dirty_state_ref": {
+      "kind": "dirty-state",
+      "path": ".local/agent/dirty-state.json",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    "dirty_paths": ["docs/local-change.md"],
+    "write_scope": ["agent-workflows/src/ai_agent_workflow/bootstrap_contracts.py"],
+    "local_inputs": [
+      {
+        "kind": "local-input",
+        "path": ".local/agent/input.json",
+        "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+      }
+    ],
+    "rollback_ref": {
+      "kind": "rollback",
+      "path": "refs/heads/main",
+      "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  },
+  "valid_rollback": {
+    "inventory_ref": {
+      "kind": "inventory",
+      "path": "agent-workflows/evidence/contracts/A1.json",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "workspace_plan_ref": {
+      "kind": "workspace-plan",
+      "path": "agent-workflows/evidence/contracts/A2.json",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "restore_sources": [
+      {
+        "kind": "restore-source",
+        "path": "agent-workflows/catalog.yaml",
+        "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    ],
+    "owned_restore_sources": ["agent-workflows/catalog.yaml"],
+    "backup_paths": ["agent-workflows/catalog.yaml"],
+    "secret_paths": []
+  },
+  "valid_run_plan": {
+    "approved_plan_ref": {
+      "kind": "approved-plan",
+      "path": "docs/plans/ai-agent-workflow-s1-section-plan.md",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "objective": {
+      "path": "objectives/v001.md",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "approval_status": "approved"
+    },
+    "workspace_plan_ref": {
+      "kind": "workspace-plan",
+      "path": "agent-workflows/evidence/contracts/A2.json",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  },
+  "valid_legacy_detach": {
+    "inventory_ref": {
+      "kind": "inventory",
+      "path": "agent-workflows/evidence/contracts/A1.json",
+      "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "rollback_ref": {
+      "kind": "rollback-plan",
+      "path": "agent-workflows/evidence/contracts/A3.json",
+      "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    "a6_input_refs": [
+      {
+        "kind": "a6-input",
+        "path": "agent-workflows/core/workflow.json",
+        "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    ],
+    "non_use_authority": {
+      "path": "receipts/non-use.json",
+      "digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    }
+  }
+}

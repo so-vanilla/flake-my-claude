@@ -1,0 +1,45 @@
+{
+  "schema": "source-wide-fixture-result/v1",
+  "result_kind": "h1-h2-h3-source-skeleton",
+  "fixture_id": "s8-h1-h2-h3-source-skeleton",
+  "status": "source-candidate",
+  "expected_git_head": "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7",
+  "completion_manifest_ref": {
+    "path": "agent-workflows/groups/completion.json",
+    "version": "group-h-manifest/v1",
+    "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a"
+  },
+  "lifecycle_interface_ref": {
+    "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
+    "version": "python-source/v1",
+    "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+  },
+  "selectors": [
+    "group.H.H1",
+    "group.H.H2",
+    "group.H.H3"
+  ],
+  "source_capabilities": [
+    "compile-objective-audit-candidate",
+    "compile-run-outcome-validation-candidate",
+    "compile-archive-or-continue-candidate"
+  ],
+  "current_run_gates": {
+    "objective_audit_completed": false,
+    "run_outcome_decided": false,
+    "archive_or_continue_executed": false,
+    "live_runtime_observed": false,
+    "current_head_advanced": false
+  },
+  "cannot_satisfy_current_run_live_gates": true,
+  "claim_boundary": {
+    "source_candidate_only": true,
+    "current_run_evidence": false,
+    "live_runtime_evidence": false,
+    "grants_approval": false,
+    "objective_outcome_claimed": false,
+    "run_completion_claimed": false,
+    "full_workflow_ready": false
+  },
+  "result_digest": "sha256:60a063b5ea721fd1f61de79d281da1d028189567b3283c142937283d0ee2e8f0"
+}

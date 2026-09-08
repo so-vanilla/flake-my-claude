@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bootstrap-artifact/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "operation", "qualified_id", "outcome", "artifact", "input_refs", "authority_ref", "expected_head"],
+  "properties": {
+    "schema": {"const": "bootstrap-artifact/v1"},
+    "operation": {"enum": ["classify_environment", "plan_workspace", "design_rollback", "initialize_run_plan", "plan_legacy_detach"]},
+    "qualified_id": {"enum": ["group.A.A1", "group.A.A2", "group.A.A3", "group.A.A4", "group.A.A5"]},
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code"],
+      "properties": {
+        "status": {"enum": ["completed", "refused"]},
+        "reason_code": {"enum": ["ok", "unknown-owner", "foreign-diff-overlap", "missing-local-input", "missing-rollback", "secret-backup", "missing-restore-source", "objective-not-approved", "missing-non-use-authority", "invalid-input"]}
+      }
+    },
+    "artifact": {"type": "object"},
+    "input_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "path", "digest"],
+        "properties": {
+          "kind": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "authority_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "expected_head"],
+      "properties": {
+        "approved": {"const": true},
+        "expected_head": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["revision", "transaction_digest"],
+          "properties": {
+            "revision": {"type": "integer", "minimum": 0},
+            "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "expected_head": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "transaction_digest"],
+      "properties": {
+        "revision": {"type": "integer", "minimum": 0},
+        "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "operation": {"const": "classify_environment"},
+        "qualified_id": {"const": "group.A.A1"},
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "entries"],
+          "properties": {
+            "kind": {"const": "inventory"},
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "class", "owner", "source", "retention", "inspection"],
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "class": {"enum": ["source", "generated", "managed", "unmanaged", "app-owned", "secret-bearing", "ephemeral"]},
+                  "owner": {"type": "string", "minLength": 1},
+                  "source": {"type": "string", "minLength": 1},
+                  "retention": {"enum": ["preserve", "restore", "exclude"]},
+                  "inspection": {"type": "string", "minLength": 1}
+                }
+              }
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {"properties": {"outcome": {"properties": {"status": {"const": "completed"}, "reason_code": {"const": "ok"}}}, "input_refs": {"type": "array", "minItems": 1, "items": {}}}},
+        {"properties": {"outcome": {"properties": {"status": {"const": "refused"}, "reason_code": {"enum": ["unknown-owner", "invalid-input"]}}}}}
+      ]
+    },
+    {
+      "properties": {
+        "operation": {"const": "plan_workspace"},
+        "qualified_id": {"const": "group.A.A2"},
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "details"],
+          "properties": {
+            "kind": {"const": "workspace-plan"},
+            "details": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["base_ref", "dirty_paths", "write_scope", "local_inputs", "rollback_ref"],
+              "properties": {
+                "base_ref": {"type": "string", "minLength": 1},
+                "dirty_paths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                "write_scope": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                "local_inputs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                "rollback_ref": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {"properties": {"outcome": {"properties": {"status": {"const": "completed"}, "reason_code": {"const": "ok"}}}, "input_refs": {"type": "array", "minItems": 1, "items": {}}}},
+        {"properties": {"outcome": {"properties": {"status": {"const": "refused"}, "reason_code": {"enum": ["foreign-diff-overlap", "missing-local-input", "missing-rollback", "invalid-input"]}}}}}
+      ]
+    },
+    {
+      "properties": {
+        "operation": {"const": "design_rollback"},
+        "qualified_id": {"const": "group.A.A3"},
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "details"],
+          "properties": {
+            "kind": {"const": "rollback-plan"},
+            "details": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["restore_sources"],
+              "properties": {"restore_sources": {"type": "array", "items": {"type": "string", "minLength": 1}}}
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {"properties": {"outcome": {"properties": {"status": {"const": "completed"}, "reason_code": {"const": "ok"}}}, "input_refs": {"type": "array", "minItems": 1, "items": {}}}},
+        {"properties": {"outcome": {"properties": {"status": {"const": "refused"}, "reason_code": {"enum": ["secret-backup", "missing-restore-source", "invalid-input"]}}}}}
+      ]
+    },
+    {
+      "properties": {
+        "operation": {"const": "initialize_run_plan"},
+        "qualified_id": {"const": "group.A.A4"},
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "details"],
+          "properties": {
+            "kind": {"const": "run-plan"},
+            "details": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["objective_status"],
+              "properties": {"objective_status": {"enum": ["approved", "candidate", "unapproved"]}}
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {"properties": {"outcome": {"properties": {"status": {"const": "completed"}, "reason_code": {"const": "ok"}}}, "input_refs": {"type": "array", "minItems": 1, "items": {}}}},
+        {"properties": {"outcome": {"properties": {"status": {"const": "refused"}, "reason_code": {"enum": ["objective-not-approved", "invalid-input"]}}}}}
+      ]
+    },
+    {
+      "properties": {
+        "operation": {"const": "plan_legacy_detach"},
+        "qualified_id": {"const": "group.A.A5"},
+        "artifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "details"],
+          "properties": {
+            "kind": {"const": "legacy-detach-plan"},
+            "details": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["non_use_authority", "a6_input_refs"],
+              "properties": {
+                "non_use_authority": {"type": "string", "minLength": 1},
+                "a6_input_refs": {"type": "array", "items": {"type": "string", "minLength": 1}}
+              }
+            }
+          }
+        }
+      },
+      "oneOf": [
+        {"properties": {"outcome": {"properties": {"status": {"const": "completed"}, "reason_code": {"const": "ok"}}}, "input_refs": {"type": "array", "minItems": 1, "items": {}}}},
+        {"properties": {"outcome": {"properties": {"status": {"const": "refused"}, "reason_code": {"enum": ["missing-non-use-authority", "invalid-input"]}}}}}
+      ]
+    }
+  ]
+}

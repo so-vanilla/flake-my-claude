@@ -1,0 +1,28 @@
+{
+  "projection": "outcome-system-artifact/v1",
+  "qualified_id": "group.C.C5",
+  "canonical_source": "{{schema}}",
+  "display_only": true,
+  "state_owner": "none",
+  "target_ref": {
+    "path": "{{output.payload.target_ref.path}}",
+    "version": "{{output.payload.target_ref.version}}",
+    "digest": "{{output.payload.target_ref.digest}}"
+  },
+  "available_zero": {
+    "availability": "available",
+    "value": "{{output.payload.value}}",
+    "reason": null
+  },
+  "unavailable": {
+    "availability": "unavailable",
+    "value": null,
+    "reason": "{{output.payload.reason}}",
+    "decision_ref": {
+      "path": "{{inputs.observation.reason.decision_ref.path}}",
+      "digest": "{{inputs.observation.reason.decision_ref.digest}}"
+    }
+  },
+  "unknown_values": "preserve",
+  "null_values": "preserve"
+}

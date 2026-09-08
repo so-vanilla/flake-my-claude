@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared-closure-manifest/v1",
+  "title": "One shared source for every qualified F closure operation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "group_id", "source", "selectors"],
+  "properties": {
+    "schema": {"const": "shared-closure-manifest/v1"},
+    "group_id": {"const": "agent-workflows.group.F"},
+    "source": {"type": "object", "additionalProperties": false, "required": ["path", "version"], "properties": {"path": {"const": "agent-workflows/src/ai_agent_workflow/closure_protocol.py"}, "version": {"const": "v1"}}},
+    "selectors": {"type": "array", "minItems": 8, "maxItems": 8, "uniqueItems": true, "items": {"enum": ["group.F.F1", "group.F.F2", "group.F.F3", "group.F.F4", "group.F.F5", "group.F.F6", "group.F.F7", "group.F.F8"]}}
+  }
+}

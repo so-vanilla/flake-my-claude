@@ -1,0 +1,8 @@
+{
+  "schema": "outcome-system-artifact/v1",
+  "qualified_id": "group.C.C1",
+  "objective_ref": {"path": "agent-workflows/fixtures/objective.json", "version": "v1", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "forbidden": true},
+  "authority": {"namespace": "fixture:s2-foundation", "scope": "fixture-only", "owner_ref": {"kind": "fixture", "stable_id": "fixture-owner", "role": "outcome-owner", "path": "agent-workflows/tests/fixtures/s2/foundation/outcome/invalid-extra-nested-key.json", "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}},
+  "expected_head": {"revision": 14, "transaction_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "output": {"schema": "outcome-system-output/v1", "kind": "outcome_map", "payload": {"schema": "outcome-map/v1", "outcomes": [], "coverage_refs": []}}
+}

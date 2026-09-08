@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "section-result-v1.schema.json", "title": "Bounded source transition result", "type": "object", "additionalProperties": false,
+  "required": ["schema", "section_id", "run_id", "workflow_id", "plan_ref", "catalog_ref", "checkpoint_ref", "bundle_ref", "expected_head", "transaction_ref", "nodes", "edges", "claim", "rollback", "recovery", "claims"],
+  "properties": {
+    "schema": {"const": "section-result/v1"}, "section_id": {"type": "string", "pattern": "^S[0-9]+$"}, "run_id": {"type": "string", "minLength": 1}, "workflow_id": {"type": "string", "minLength": 1},
+    "plan_ref": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "catalog_ref": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "checkpoint_ref": {"type": "object", "additionalProperties": false, "required": ["checkpoint_id", "digest"], "properties": {"checkpoint_id": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "bundle_ref": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "expected_head": {"type": "object", "additionalProperties": false, "required": ["revision", "transaction_digest"], "properties": {"revision": {"type": "integer", "minimum": 0}, "transaction_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "transaction_ref": {"type": "object", "additionalProperties": false, "required": ["digest"], "properties": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}},
+    "nodes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["node_id", "object_ref"], "properties": {"node_id": {"type": "string", "minLength": 1}, "object_ref": {"type": "object", "minProperties": 1}}}},
+    "edges": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["edge_id", "from", "to", "type"], "properties": {"edge_id": {"type": "string", "minLength": 1}, "from": {"type": "string", "minLength": 1}, "to": {"type": "string", "minLength": 1}, "type": {"enum": ["requires", "produces", "authorizes", "verdict-for", "converges"]}}}},
+    "claim": {"const": "source-transition-fixture-passed"}, "rollback": {"type": "object", "minProperties": 1}, "recovery": {"type": "object", "minProperties": 1},
+    "claims": {"type": "object", "additionalProperties": false, "required": ["actual_a7", "activation", "full_ready"], "properties": {"actual_a7": {"const": false}, "activation": {"const": false}, "full_ready": {"const": false}}}
+  }
+}

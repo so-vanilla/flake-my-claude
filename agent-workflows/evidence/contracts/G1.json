@@ -1,0 +1,14 @@
+{
+  "schema": "qualified-contract-acceptance/v1",
+  "contract_id": "group.G.G1",
+  "contract_name": "scan-decision-evidence",
+  "implementation_kind": "skill",
+  "implementation_ref": {
+    "path": "agent-workflows/skills/scan-decision-evidence/SKILL.md",
+    "digest": "sha256:8a40892b412ea7e3de8ecfa8e84817e80d0e68345423c7596c093e2e9d88c9ef"
+  },
+  "test_ref": {
+    "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g1_scan_decision_evidence"
+  },
+  "status": "passed"
+}

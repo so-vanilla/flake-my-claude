@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Agent Workflow — 利用説明書</title>
+<style>
+:root{--paper:#f5f3ee;--card:#fffefa;--ink:#243832;--muted:#62716a;--line:#d9ded4;--green:#226449;--wash:#e8efe6;--amber:#855624;--sand:#fbf0d9}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.8 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}a{color:var(--green);text-underline-offset:3px}a:focus-visible,summary:focus-visible{outline:3px solid var(--amber);outline-offset:4px}.shell{max-width:1400px;margin:auto;display:grid;grid-template-columns:235px minmax(0,1fr);gap:48px;padding:36px 40px 90px}nav{position:sticky;top:28px;align-self:start;font-size:13px}nav .brand{font-size:12px;letter-spacing:.14em;font-weight:800;margin-bottom:18px}nav a{display:block;text-decoration:none;padding:6px 0;color:var(--muted)}nav a:hover{color:var(--green)}nav small{display:block;border-top:1px solid var(--line);padding-top:18px;margin-top:18px;line-height:1.7}main{min-width:0}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.13em;color:var(--green)}h1{font-size:clamp(32px,4vw,54px);line-height:1.25;letter-spacing:-.035em;margin:15px 0 22px}h2{font-size:28px;letter-spacing:-.02em;line-height:1.45;margin:0 0 20px}h3{font-size:19px;margin:28px 0 12px}p{margin:12px 0}.lead{font-size:20px;line-height:1.8;max-width:780px}.meta{font-size:12px;color:var(--muted);margin-top:25px}section{margin-top:58px;border-top:1px solid var(--line);padding-top:34px}.num{font:12px ui-monospace,monospace;color:var(--green);display:block;margin-bottom:10px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:22px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}.card h3{margin:0 0 8px}.card p{font-size:14px;margin:8px 0}.note,.warning{padding:16px 20px;border-left:4px solid var(--green);background:var(--wash);margin:20px 0;font-size:14px}.warning{border-color:var(--amber);background:var(--sand)}.small{font-size:13px;color:var(--muted)}.table-wrap{overflow-x:auto;margin:16px 0}table{border-collapse:collapse;width:100%;font-size:14px;text-align:left}th{background:var(--wash);font-size:12px;letter-spacing:.03em}th,td{padding:12px 13px;vertical-align:top;border-bottom:1px solid var(--line)}td:first-child{white-space:nowrap}td code{font-size:12px;overflow-wrap:anywhere}code{font: .87em/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;background:#e9ede5;border-radius:4px;padding:2px 4px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#213b31;color:#eff5e9;border-radius:10px;padding:20px;font:13px/1.9 ui-monospace,SFMono-Regular,Consolas,monospace}pre code{background:none;color:inherit;padding:0;font:inherit}ul,ol{padding-left:24px}li{margin:7px 0}.flow{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:22px 0}.flow .node{flex:1;min-width:112px;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:14px}.flow .node b{display:block;font-size:21px}.flow .node span{font-size:13px}.arrow{align-self:center;color:var(--green);font-weight:bold}.lane{padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin:12px 0}.lane h3{margin:0 0 8px}.arch{background:var(--wash);border:1px solid var(--line);border-radius:12px;padding:24px;margin:22px 0}.arch-top{text-align:center;max-width:650px;margin:0 auto}.arch-box{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:15px;font-size:14px}.arch-down{text-align:center;color:var(--green);padding:6px;font-size:13px}.arch-children{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.arch-foot{margin-top:16px;border-top:1px dashed #96ac9b;padding-top:15px;font-size:13px}.tag{display:inline-block;font-size:11px;letter-spacing:.04em;padding:2px 8px;border:1px solid var(--line);border-radius:30px;color:var(--green)}details{border:1px solid var(--line);border-radius:10px;background:var(--card);padding:16px 20px;margin:15px 0}summary{cursor:pointer;font-weight:700}footer{margin-top:55px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:20px}.skill-table td:nth-child(2){width:41%}.skill-table td:first-child{font:12px/1.8 ui-monospace,monospace;color:var(--green)}@media(max-width:1050px){.shell{grid-template-columns:180px minmax(0,1fr);gap:26px;padding:28px 24px}.cards{grid-template-columns:1fr}.arch-children{grid-template-columns:1fr}}@media(max-width:720px){.shell{display:block;padding:22px 18px 60px}nav{position:static;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:30px}nav a{display:inline-block;margin-right:16px}nav small{display:none}.lead{font-size:18px}h2{font-size:25px}.flow .node{min-width:135px}section{margin-top:40px}.skill-table{min-width:600px}}@media print{body{background:white;font-size:11px}.shell{display:block;padding:0}nav{display:none}section{margin-top:25px;padding-top:18px}.card,.note,.warning,.lane,.arch{break-inside:avoid}h2,h3{break-after:avoid}a{color:inherit}pre{background:#eef2ed;color:#243832}details{break-inside:auto}}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav aria-label="目次">
+<div class="brand">WORKFLOW / FIELD GUIDE</div>
+<a href="#start">01 最初にどう使うか</a>
+<a href="#map">02 全体の呼び出し順</a>
+<a href="#inception">03 B/C/D：1つずつ進める</a>
+<a href="#clear">04 clearの位置</a>
+<a href="#execution">05 E：実行・レビュー・修正</a>
+<a href="#architecture">06 親子と状態の仕組み</a>
+<a href="#noncoding">07 コーディング以外の用途</a>
+<a href="#decisions">08 判断の保存と完了判定</a>
+<a href="#helpers">09 補助コマンド・再開</a>
+<a href="#tips">10 知っておくとよいこと</a>
+<a href="#appendix">11 Bootstrap・共通処理</a>
+<a href="#evidence">12 検証範囲と参照元</a>
+<small>2026-09-06 source snapshot<br>52 Skills + 8 共通処理 = 60契約<br>この文書は利用説明書です。<br>承認・Run状態の正本ではありません。</small>
+</nav>
+<main>
+<header>
+<div class="eyebrow">AI AGENT WORKFLOW / 利用説明書</div>
+<h1>目的を決めるまでは、<br>一歩ずつ。<br>実行は、範囲を決めて任せる。</h1>
+<p class="lead">入口は <code>$entry</code>。B/C/Dでは、Skillを1つ呼び、成果物を保存し、clearして次へ。実行準備が整ったら、Eで親が作業・レビュー・必要な修正を子ワーカーへ振り分けます。</p>
+<p class="meta">対象：このリポジトリの自作Workflow。AI-DLC等は設計の参考であり、別の実行エンジンとして併用しません。現在のsourceと2026-09-06の運用変更を優先して説明しています。</p>
+<div class="warning"><strong>最初に知っておく境界</strong><br>Skill・経路のsourceが存在することと、すべての経路が本番で完走できることは別です。直近の実Run試験は <strong>B→C→D→Eの終了まで</strong>。G/Hを含む全経路、25回のfresh AI判断、ホストのclear操作はこの試験の対象外です。最新sourceがインストール済み環境へ反映されたとも、この説明書だけでは判断できません。</div>
+</header>
+
+<section id="start">
+<span class="num">01 / QUICK START</span><h2>最初にどう指示するか</h2>
+<div class="cards">
+<div class="card"><h3>1. 新しい依頼</h3><p><code>$entry</code> と、目的・対象・欲しい成果物・制約を伝える。最初から解決方法を決め切る必要はありません。</p></div>
+<div class="card"><h3>2. 1 Skillずつ進める</h3><p>出力とhandoffを保存できたらclear。返された次のSkill名とhandoffの絶対パスを、新しい会話へ渡します。</p></div>
+<div class="card"><h3>3. 実行を委ねる</h3><p>D12がready、Dの終了処理も完了したらclear。<code>$execution-preflight</code> を明示してEを開始します。</p></div>
+</div>
+<h3>新しい依頼の例</h3>
+<pre><code>$entry
+対象プロジェクト：/absolute/project
+目的：問い合わせ対応の見落としを減らしたい。
+欲しい成果物：現状整理、改善案、採用案の検証結果。
+期限・予算：計画段階で相談。実行前にwall-clock上限を固定する。
+制約：実顧客情報は使わない。外部送信・本番変更は別承認。
+今回はentryだけを実行し、出力と物理handoffを保存してください。
+終了時に、保存先・未解決事項・次Skillの呼び出し文を返してください。</code></pre>
+<p class="small">上のパスは記入例です。実際の絶対パスに置き換えます。初回には依頼の原文や参考資料も物理ファイルへ保存します。新規か既存Runの再開かが曖昧なら、重複Runを作らず確認します。</p>
+<h3>clear後の指示の例</h3>
+<pre><code>$discover-context
+/absolute/project/.../handoff-0001.json を読み、参照先と鮮度を確認してください。
+discover-contextだけを実行してください。
+承認済みの範囲・未解決事項・残予算を引き継ぎ、次Skillは自動実行しないでください。
+出力と次のhandoffを保存し、次回の呼び出し文を返してください。</code></pre>
+<p>25個のSkill名を覚える運用ではありません。<strong>毎回のhandoffから、次に呼ぶ1個を受け取る</strong>運用です。「続けて」だけでB/C/Dの残り全部を処理させないでください。</p>
+</section>
+
+<section id="map">
+<span class="num">02 / WORKFLOW MAP</span><h2>全体は「目的 → 成果 → 計画 → 実行 → 判断 → 完了」</h2>
+<div class="flow" aria-label="成果物を作成する代表的なワークフロー">
+<div class="node"><b>B</b><span>目的を決める<br>7 Skills</span></div><span class="arrow" aria-hidden="true">→</span>
+<div class="node"><b>C</b><span>成果を測れる形に<br>6 Skills</span></div><span class="arrow" aria-hidden="true">→</span>
+<div class="node"><b>D</b><span>実行計画を作る<br>12 Skills</span></div><span class="arrow" aria-hidden="true">→</span>
+<div class="node"><b>E</b><span>作成・検証<br>10 Skills / 分岐あり</span></div><span class="arrow" aria-hidden="true">→</span>
+<div class="node"><b>G / H</b><span>判断を残す<br>目的達成を判定</span></div>
+</div>
+<p>上図は代表形です。実際に必要なGroupは選択されたWorkflow manifestで決まります。各Groupの終わりに共通の<strong>F1〜F7（終了処理・checkpoint・clear案内）</strong>を挟みます。Fは「Eの後にだけ実行する工程」ではありません。</p>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>普段の扱い</th><th>何を決めるか</th></tr></thead><tbody>
+<tr><td>A / Bootstrap</td><td>Workflow基盤を新設・置換するときだけ</td><td>隔離、戻し方、Kernel移行、引き継ぎ。通常の新規案件で毎回A1から始めない。</td></tr>
+<tr><td>B / Objective</td><td>人が1 Skillずつ呼ぶ</td><td>本当の目的、範囲、実現可能性、人間による目的承認。</td></tr>
+<tr><td>C / Outcomes</td><td>人が1 Skillずつ呼ぶ</td><td>何が達成されれば成功か、その測定方法・目標・現状値。</td></tr>
+<tr><td>D / Planning</td><td>人が1 Skillずつ呼ぶ</td><td>仕様、選択肢、設計、分割、並列順序、検証・復旧。</td></tr>
+<tr><td>E / Execution</td><td>親から子へ、依存関係に沿って進行</td><td>作成、2軸レビュー、指摘の妥当性評価、required修正、統合検証。</td></tr>
+<tr><td>G / Decisions</td><td>対象経路で判断を集約。昇格は人間承認</td><td>一時的な判断から、ADR等へ残す内容を選ぶ。</td></tr>
+<tr><td>H / Completion</td><td>最終監査と人間の結果判定</td><td>成果物完成と目的達成を分け、達成・部分達成・未達等を記録する。</td></tr>
+</tbody></table></div>
+<div class="note">現在の <code>inception_runtime.py</code> のadvanceは <strong>B→C→D→E→H</strong> に固定されています。一方、manifestには <strong>B→C→D→G→H</strong> の調査・意思決定経路等もあります。任意のmanifestをそのまま自動実行する汎用runnerとして、このadapterを使うことはできません。</div>
+</section>
+
+<section id="inception">
+<span class="num">03 / INCEPTION · 25 SKILLS</span><h2>B/C/D：この順で1つずつ呼ぶ</h2>
+<p>各行が1回の明示的なSkill呼び出しです。正常終了したら「出力保存 → handoff保存 → clear → 次の行」。質問への回答待ちや上流への差し戻しでは、この直線順から分岐します。名前のリンクは各Skillの実装説明へ移動します。</p>
+<h3>B — 何のために取り組むか</h3>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>呼ぶSkill</th><th>やること・受け取るもの</th></tr></thead><tbody>
+<tr><td>B1</td><td><a href="../agent-workflows/skills/entry/SKILL.md"><code>$entry</code></a></td><td>依頼原文、解釈、仮定、不明点を分離した受付票。</td></tr>
+<tr><td>B2</td><td><a href="../agent-workflows/skills/discover-context/SKILL.md"><code>$discover-context</code></a></td><td>既存資料・現状・周辺事情を、出典付きで整理。</td></tr>
+<tr><td>B3</td><td><a href="../agent-workflows/skills/classify-scope/SKILL.md"><code>$classify-scope</code></a></td><td>調査か変更か、対象・所有者・戻せる範囲を分類。</td></tr>
+<tr><td>B4</td><td><a href="../agent-workflows/skills/grill-purpose/SKILL.md"><code>$grill-purpose</code></a></td><td>資料から分からない、目的に影響する問いを1つずつ人に聞く。</td></tr>
+<tr><td>B5</td><td><a href="../agent-workflows/skills/propose-true-purpose/SKILL.md"><code>$propose-true-purpose</code></a></td><td>真の目的の候補と推奨を提示。選択は人間が行う。</td></tr>
+<tr><td>B6</td><td><a href="../agent-workflows/skills/assess-feasibility-and-constraints/SKILL.md"><code>$assess-feasibility-and-constraints</code></a></td><td>時間・権限・環境等の制約から実現可能性を確認。</td></tr>
+<tr><td>B7</td><td><a href="../agent-workflows/skills/approve-objective/SKILL.md"><code>$approve-objective</code></a></td><td>明示された人間の承認を、対象目的と結び付けて記録。AIが承認を代行しない。</td></tr>
+</tbody></table></div>
+<p class="small">新規案件のB1〜B6はpre-Run draftから始まります。B7で実Runへ採用する際は、保存済みB1〜B6の全入力を実compilerで検証・記録します。まとめて6回のAI判断をやり直す意味ではありません。Bのclosure完了後にclearしてCへ進みます。</p>
+<h3>C — 「できた」をどう判定するか</h3>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>呼ぶSkill</th><th>やること・受け取るもの</th></tr></thead><tbody>
+<tr><td>C1</td><td><a href="../agent-workflows/skills/decompose-outcomes/SKILL.md"><code>$decompose-outcomes</code></a></td><td>承認された目的を、検証できる小目的へ分解。</td></tr>
+<tr><td>C2</td><td><a href="../agent-workflows/skills/build-outcome-dependency-graph/SKILL.md"><code>$build-outcome-dependency-graph</code></a></td><td>成果同士の前提関係と担当をグラフ化。</td></tr>
+<tr><td>C3</td><td><a href="../agent-workflows/skills/design-measurement/SKILL.md"><code>$design-measurement</code></a></td><td>測定方法、データ源、頻度、取得可能性を設計。</td></tr>
+<tr><td>C4</td><td><a href="../agent-workflows/skills/define-targets/SKILL.md"><code>$define-targets</code></a></td><td>期限付きの目標水準を決める。</td></tr>
+<tr><td>C5</td><td><a href="../agent-workflows/skills/capture-baseline/SKILL.md"><code>$capture-baseline</code></a></td><td>比較に使う現状値を観測証拠から記録。未取得はゼロにしない。</td></tr>
+<tr><td>C6</td><td><a href="../agent-workflows/skills/validate-outcome-system/SKILL.md"><code>$validate-outcome-system</code></a></td><td>目的→小目的→測定→目標→現状値のつながりを検証。</td></tr>
+</tbody></table></div>
+<h3>D — 誰が、何を、どの順に作るか</h3>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>呼ぶSkill</th><th>やること・受け取るもの</th></tr></thead><tbody>
+<tr><td>D1</td><td><a href="../agent-workflows/skills/select-workflow-profile/SKILL.md"><code>$select-workflow-profile</code></a></td><td>案件に合うWorkflowと必要なGroupを選ぶ。</td></tr>
+<tr><td>D2</td><td><a href="../agent-workflows/skills/reverse-engineer-current-system/SKILL.md"><code>$reverse-engineer-current-system</code></a></td><td>現行の構造・流れ・境界を把握。コード以外なら既存業務や文書が対象。</td></tr>
+<tr><td>D3</td><td><a href="../agent-workflows/skills/discover-practices/SKILL.md"><code>$discover-practices</code></a></td><td>実際の開発・レビュー・運用規則を出典付きで整理。</td></tr>
+<tr><td>D4</td><td><a href="../agent-workflows/skills/specify-what-and-why/SKILL.md"><code>$specify-what-and-why</code></a></td><td>何が必要で、なぜ必要かを正本仕様にする。手段を混ぜない。</td></tr>
+<tr><td>D5</td><td><a href="../agent-workflows/skills/explore-options/SKILL.md"><code>$explore-options</code></a></td><td>現状維持も含む選択肢とトレードオフを比較。</td></tr>
+<tr><td>D6</td><td><a href="../agent-workflows/skills/design-solution/SKILL.md"><code>$design-solution</code></a></td><td>承認された選択肢を実装可能な設計へ。現D5の選択証拠が必要。</td></tr>
+<tr><td>D7</td><td><a href="../agent-workflows/skills/design-contracts/SKILL.md"><code>$design-contracts</code></a></td><td>入出力・責任分担・互換性など、分担間の約束を固定。</td></tr>
+<tr><td>D8</td><td><a href="../agent-workflows/skills/decompose-tasks/SKILL.md"><code>$decompose-tasks</code></a></td><td>独立にレビュー可能なTaskへ分割。範囲と完了条件を定義。</td></tr>
+<tr><td>D9</td><td><a href="../agent-workflows/skills/sequence-and-parallelize/SKILL.md"><code>$sequence-and-parallelize</code></a></td><td>依存・書込み競合・資源競合を整理し、安全な並列順序を決める。</td></tr>
+<tr><td>D10</td><td><a href="../agent-workflows/skills/prepare-worker-briefs/SKILL.md"><code>$prepare-worker-briefs</code></a></td><td>各子ワーカーへ渡す最小限の入力・作業範囲・検証・停止条件を作る。</td></tr>
+<tr><td>D11</td><td><a href="../agent-workflows/skills/plan-verification-and-recovery/SKILL.md"><code>$plan-verification-and-recovery</code></a></td><td>検証・レビュー・復旧・受渡しと有限の時間／回数予算を固定。</td></tr>
+<tr><td>D12</td><td><a href="../agent-workflows/skills/implementation-readiness-review/SKILL.md"><code>$implementation-readiness-review</code></a></td><td>D1〜D11を横断して着手可能か確認。不足は担当する上流Skillへ戻す。</td></tr>
+</tbody></table></div>
+<div class="note">feature / bug-fix / improvementの23個のprofile stepは、選ばれたD/EのSkill内に組み込む検査・作業です。別途23個のSkillを呼ぶ意味ではありません。また、profileのF1と共通closureのF1は別物です。</div>
+</section>
+
+<section id="clear">
+<span class="num">04 / CONTEXT BOUNDARIES</span><h2>clearは「保存できたこと」を確認してから</h2>
+<div class="lane"><strong>通常のB/C/D</strong><div class="flow"><div class="node">1 Skill実行</div><span class="arrow">→</span><div class="node">出力・handoff保存</div><span class="arrow">→</span><div class="node">人がclear</div><span class="arrow">→</span><div class="node">次Skillを明示</div></div></div>
+<div class="table-wrap"><table><thead><tr><th>タイミング</th><th>clearするか</th><th>次の会話へ渡すもの</th></tr></thead><tbody>
+<tr><td>B/C/Dの途中</td><td>そのSkillの正常終了・保存後に行う。</td><td>handoffの絶対パス、次Skill名。途中ではGroup全体のclosureを毎回行わない。</td></tr>
+<tr><td>B7 / C6 / D12の終了</td><td>GroupのF1〜F7完了後に行う。</td><td>受理済みbundle/checkpoint、次Groupの案内、承認・残予算。</td></tr>
+<tr><td>Grilling等の質問中</td><td>質問のたびには行わない。</td><td>同じSkill内で回答を整理。不明点が残れば同じSkillを再開する。</td></tr>
+<tr><td>保存失敗・blocked</td><td>未保存のまま次へ進まない。</td><td>停止理由と証拠を先に保存。clear自体は問題の解決や承認にならない。</td></tr>
+<tr><td>Eの子ワーカー</td><td>各attemptをfresh contextで起動。</td><td>親がTask/Review packageを渡す。利用者が各子へ手動clearする運用ではない。</td></tr>
+<tr><td>Eの親 / G / H</td><td>保存されたEpoch境界・Group終了時の案内に従う。</td><td>checkpointから再開。B/C/Dの「全Skillごと」を全Groupへ無条件に拡張しない。</td></tr>
+</tbody></table></div>
+<p>ここでのclearは、ホストの会話を空にする操作、または<strong>過去の会話を継承しない新しい会話</strong>への移行です。履歴をコピーするforkや、同じ会話内の要約は同じ意味ではありません。補助スクリプトはホストのclearを操作・証明しません。</p>
+<p>clearしてもファイル・目的承認・消費済み予算・Findingは残ります。<strong>回数や期限をリセットするための操作ではありません。</strong></p>
+</section>
+
+<section id="execution">
+<span class="num">05 / EXECUTION &amp; TWO-STAGE REVIEW</span><h2>Eは「レビューの後に、指摘を評価する」</h2>
+<pre><code>$execution-preflight
+対象：/absolute/project
+Run ID：実際のrun-id
+保存済みD closure / handoff：/absolute/project/.../handoff.json
+現HEAD、承認、D8のTask、D10のbrief、D12のready判定を検証してください。
+通過した場合だけ、承認済み範囲と残予算でGroup Eを進めてください。
+review候補は単一の独立Validatorで評価し、requiredだけを修正してください。
+予算不足・権限外・重大な未解決は止め、理由と再開条件を残してください。</code></pre>
+<p class="small">E1単体は検査であり、dispatchや外部操作の許可は出しません。後続を進めるには、実際の承認と有効なTask package・書込み範囲が必要です。</p>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>親が手配するSkill</th><th>役割・分岐</th></tr></thead><tbody>
+<tr><td>E1</td><td><a href="../agent-workflows/skills/execution-preflight/SKILL.md"><code>$execution-preflight</code></a></td><td>最新状態、依存、権限、競合、有限予算を確認。</td></tr>
+<tr><td>E2</td><td><a href="../agent-workflows/skills/dispatch-task/SKILL.md"><code>$dispatch-task</code></a></td><td>readyなTaskを変更不可の狭いpackageにする。</td></tr>
+<tr><td>E3</td><td><a href="../agent-workflows/skills/execute-small-loop/SKILL.md"><code>$execute-small-loop</code></a></td><td>子Workerが作成・focused test・自己点検。自己点検は独立レビューの代わりではない。</td></tr>
+<tr><td>E4</td><td><a href="../agent-workflows/skills/review-task-spec/SKILL.md"><code>$review-task-spec</code></a></td><td>fresh Reviewer：仕様・アーキテクチャ・安全性。同じ凍結candidateをE5と並列に見る。</td></tr>
+<tr><td>E5</td><td><a href="../agent-workflows/skills/review-task-quality/SKILL.md"><code>$review-task-quality</code></a></td><td>fresh Reviewer：品質・統合・運用性・証拠。</td></tr>
+<tr><td>E6</td><td><a href="../agent-workflows/skills/validate-review-findings/SKILL.md"><code>$validate-review-findings</code></a></td><td>別の単一Validatorが両レビューを結合し、required / defer / reject / needs-userを判定。</td></tr>
+<tr><td>E7</td><td><a href="../agent-workflows/skills/fix-and-rereview/SKILL.md"><code>$fix-and-rereview</code></a></td><td>requiredがあるときだけ修正とfresh再レビュー。E6へ戻る。</td></tr>
+<tr><td>E8</td><td><a href="../agent-workflows/skills/converge-parallel-batch/SKILL.md"><code>$converge-parallel-batch</code></a></td><td>受理済みの並列成果を統合。意味判断が必要なら別の統合Worker＋レビューへ。</td></tr>
+<tr><td>E9</td><td><a href="../agent-workflows/skills/verify-whole-change/SKILL.md"><code>$verify-whole-change</code></a></td><td>統合した全変更を、計画・元の目的への寄与に照らしてfresh検証。</td></tr>
+<tr><td>E10</td><td><a href="../agent-workflows/skills/arbitrate-exception/SKILL.md"><code>$arbitrate-exception</code></a></td><td>競合・予算切れ・仕様欠陥等で通常経路が止まった場合のみ、有限の仲裁案を出す。</td></tr>
+</tbody></table></div>
+<div class="lane"><h3>典型的な分岐</h3><p>E1 → E2 → E3 → <strong>E4とE5を並列</strong> → E6</p><ul><li><strong>requiredあり：</strong>E7で修正・再レビュー → E6で再評価。</li><li><strong>requiredなし：</strong>E8で収束 → E9で全体検証 → Groupの終了処理。</li><li><strong>人間判断・未解決・予算不足：</strong>停止。必要に応じE10へ。軽微な指摘を消すためだけに繰り返さない。</li></ul></div>
+<p>Validatorは、背景・As-Is・正本のTo-Be・差分・証拠を確認します。重複、理由のある既存選択、軽微な改善提案をそのまま修正指示へ変換しません。Workerは自分のFindingを閉じず、Reviewerは実装を変更せず、Validatorも修正しません。</p>
+<h3>macOS practical threat boundary</h3>
+<p>機密性が必要なbroker-only Taskの実用プロファイルは <code>macos-parent-writer-practical/v1</code> です。正本は <code>r5-practical-profile-approval/v1</code>（approval digest <code>sha256:2f0ae19fac7b90778d1b5713c51071f1ab7e96ce179237a1e5892cf320dfaefb</code>）です。trusted側はCodex host、parent Orchestrator、same-UID parent runtime processで、親が唯一のstate writerです。adversarial側はsandboxed task child、malformed or stale caller input、その子に許された範囲で可能なpath substitutionです。</p>
+<p>E2はTaskの全write rootとbroker state rootが、同一・包含・被包含のいずれにもならないことを確認します。sandboxはTask childによるbroker stateの読取り・変更を拒否します。E3はcallerの自己申告ではなく、<code>parent_authenticated_receipt=true</code> のv2 receiptを親経由で読み直し、非重複、descriptor anchoring、no-follow、device/inodeの再確認、publication前後のattachment check、defense-in-depthのrollbackを検証します。</p>
+<div class="warning"><strong>このプロファイルが保証しないこと</strong><br>receiptには次のaccepted residualをそのまま残します。<ul><li><code>a malicious external process running as the same login UID may rename a project ancestor</code></li><li><code>SIGKILL of the trusted parent after a publication syscall and before bookkeeping may leave bytes in a detached tree</code></li></ul><code>arbitrary_same_uid_atomicity=false</code>、<code>publication_sigkill_atomicity=false</code> です。attachment checkやrollbackは防御を重ねるものですが、この2つをtrueにする保証ではありません。別OS principal、privileged service、launchd unit、non-writable mountは実装しておらず、activation済みとも扱いません。</div>
+</section>
+
+<section id="architecture">
+<span class="num">06 / ARCHITECTURE</span><h2>親が全部覚えるのではなく、ファイルで引き継ぐ</h2>
+<p>業務上の構造は <strong>Workflow → Group → Skill</strong> の3層です。これとは別に、実行時の「人・薄い親Controller・子の専門役割」と、状態を守る「DAG Orchestrator / Control Kernel」があります。Skillの数だけ常駐エージェントがいるわけではありません。</p>
+<div class="arch" role="img" aria-label="人が目的と承認を所有し、薄い親Controllerが独立Worker、Reviewer、Validatorにpackageを渡す。状態更新はDAG OrchestratorとControl Kernelが単独で検証する。">
+<div class="arch-top"><div class="arch-box"><strong>人間</strong><br>目的・重要な選択・保護された承認を所有<br>B/C/Dは1 Skillずつ呼び、保存後にclear</div><div class="arch-down">↓ 明示指示 / 承認　↑ 選択肢 / 停止理由</div><div class="arch-box"><strong>薄い親 Controller</strong><br>次のready taskを確認し、packageを渡し、結果参照を回収<br>全履歴を子へ渡さず、専門的な正しさを一人で裁定しない</div></div>
+<div class="arch-down">↓ 各attemptを独立したcontextへ</div>
+<div class="arch-children"><div class="arch-box"><strong>Worker / 統合Worker</strong><br>許された範囲で成果物を作る<br>自己検証とresolution claim</div><div class="arch-box"><strong>Reviewer × 2軸</strong><br>同じcandidateを独立に検査<br>指摘候補と根拠を返す</div><div class="arch-box"><strong>Finding Validator</strong><br>両レビューを単一窓口で評価<br>必要性・重複・既存判断を確認</div></div>
+<div class="arch-foot"><strong>状態の制御面：DAG Orchestrator / Control Kernel</strong><br>role・権限・書込みlease・入力digest・予算・expected HEADを検証し、許されたcommandだけをtransactionとして確定する。WorkerがHEADを直接書き換える構造ではない。ここでいうHEADはWorkflow状態であり、Git HEADとは別。</div>
+</div>
+<div class="cards"><div class="card"><h3>Skill = 手順と契約</h3><p>必要入力、範囲、出力、完了・停止条件を定義。Skillだけでは無人の常駐実行基盤になりません。</p></div><div class="card"><h3>Package = 子への依頼書</h3><p>必要な背景と物理参照、受入条件、非目標、書込み範囲、予算を渡す。無関係な会話全文は渡しません。</p></div><div class="card"><h3>Receipt = 確認の証拠</h3><p>誰が、どの版の何を検証・承認したかを固定。短い報告でも、元のファイルへ追跡できます。</p></div></div>
+<p><strong>並列化の単位は、依存が満たされて競合しないTask。</strong>前提成果が未受理のTaskを先走らせたり、同じファイルを複数Workerへ同時に書かせたりしません。実行環境のcapacityの制約は残ります。役割の独立性は単に名前を変えることではなく、入力とcontext・担当を分離して維持します。</p>
+<p>Context Epochは会話の区切りを記録する実行メタデータです。第4の業務階層ではありません。親も必要な境界でcheckpointから再開するため、1本の巨大な会話を永続させる設計ではありません。</p>
+</section>
+
+<section id="noncoding">
+<span class="num">07 / BEYOND CODING</span><h2>コード以外にも、目的・成果・判断を扱える</h2>
+<p>B/C/D/G/Hは、コードを唯一の成果物とする手順ではありません。下表はsource上の経路と、それに合う目的の例です。<strong>すべてを本番で自動完走できるという一覧ではありません。</strong></p>
+<div class="table-wrap"><table><thead><tr><th>目的の例</th><th>成果物の例</th><th>定義された経路 / 適用上の境界</th></tr></thead><tbody>
+<tr><td>導入候補の比較・調査</td><td>判断基準、出典付き比較、未確定事項、推奨と選択の記録。</td><td><a href="../agent-workflows/workflows/research-discovery.json">research-discovery</a>：B→C→D→G→H。現manifestにEはなく、独立した大規模調査実行フェーズを自動提供するとは扱わない。</td></tr>
+<tr><td>業務手順書・説明資料の改善</td><td>読者と用途の整理、文書案、利用シナリオによる検証。</td><td><a href="../agent-workflows/workflows/documentation-change.json">documentation-change</a>：B→C→D→E→G→H。Eの成果物を文書にする。書式生成等は別途必要なツールで行う。</td></tr>
+<tr><td>散在する判断の整理</td><td>判断一覧、重複・矛盾・失効関係、ADRや運用記録の候補。</td><td><a href="../agent-workflows/workflows/decision-consolidation.json">decision-consolidation</a>：B→C→D→G→H。G5の承認前に正本へ昇格しない。</td></tr>
+<tr><td>対応時間・手戻りの改善</td><td>現状値、改善仮説、目標、施策案、前後比較。</td><td>Cの測定・baselineとDの計画を利用可能。<a href="../agent-workflows/workflows/improvement-measured.json">improvement-measured</a>のprofileはソフトウェア寄り。業務固有の入力・測定・実行手段との適合確認が必要。</td></tr>
+<tr><td>外部操作の事前計画</td><td>操作手順、影響範囲、承認点、失敗時の復旧方法。</td><td><a href="../agent-workflows/workflows/external-operation-plan.json">external-operation-plan</a>：B→C→D→G→H、source-only。メール送信・サービス設定変更等を実行する経路ではない。</td></tr>
+<tr><td>移行・切替の段取り</td><td>切替条件、チェックリスト、ロールバック計画。</td><td><a href="../agent-workflows/workflows/migration-cutover-plan.json">migration-cutover-plan</a>：計画と実際のactivation/migrationは分離。計画完成を実移行済みとしない。</td></tr>
+</tbody></table></div>
+<h3>非コーディングの入口も $entry</h3>
+<pre><code>$entry
+目的：社内FAQで同じ質問が繰り返される状況を減らしたい。
+対象：/absolute/project に置いた匿名化FAQと問い合わせ分類。
+成果物：不足項目の整理、FAQ改稿案、代表的な質問シナリオでの確認。
+変更はローカル文書のみ。公開・社内システム更新は別承認。
+利用者への質問が必要なら聞いてください。今回はentryだけを進めてください。</code></pre>
+<div class="warning">B/C/Dの共通性だけで、特定業務の専門品質や外部操作権限が得られるわけではありません。調査データへのアクセス、専門家の判断、公開・送信・購入・本番変更は、それぞれ別の条件が必要です。manifestと実Run adapterの経路が合わない場合は、順序を偽装せず停止・適合確認します。</div>
+</section>
+
+<section id="decisions">
+<span class="num">08 / DECISIONS &amp; COMPLETION</span><h2>「作った」と「目的を達成した」を分ける</h2>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>Skill</th><th>役割</th></tr></thead><tbody>
+<tr><td>G1</td><td><a href="../agent-workflows/skills/scan-decision-evidence/SKILL.md"><code>$scan-decision-evidence</code></a></td><td>判断の根拠となるファイル・イベント・既存記録を列挙。</td></tr>
+<tr><td>G2</td><td><a href="../agent-workflows/skills/classify-decision-status/SKILL.md"><code>$classify-decision-status</code></a></td><td>観測・仮定・提案・承認済み等を分ける。</td></tr>
+<tr><td>G3</td><td><a href="../agent-workflows/skills/deduplicate-and-link/SKILL.md"><code>$deduplicate-and-link</code></a></td><td>重複、矛盾、置き換え関係を結ぶ。</td></tr>
+<tr><td>G4</td><td><a href="../agent-workflows/skills/draft-durable-records/SKILL.md"><code>$draft-durable-records</code></a></td><td>長期保存する記録の候補を作る。</td></tr>
+<tr><td>G5</td><td><a href="../agent-workflows/skills/approve-promotion/SKILL.md"><code>$approve-promotion</code></a></td><td>候補ごとの人間の昇格判断を記録。</td></tr>
+<tr><td>G6</td><td><a href="../agent-workflows/skills/promote-and-backlink/SKILL.md"><code>$promote-and-backlink</code></a></td><td>承認された内容だけをrepository-localに昇格し、元証拠と相互参照。</td></tr>
+<tr><td>H1</td><td><a href="../agent-workflows/skills/audit-objective/SKILL.md"><code>$audit-objective</code></a></td><td>成果物の納品、進め方、目的実現を別々に監査。</td></tr>
+<tr><td>H2</td><td><a href="../agent-workflows/skills/decide-run-outcome/SKILL.md"><code>$decide-run-outcome</code></a></td><td>人間が achieved / partially achieved / not achieved / superseded / abandoned を判定。</td></tr>
+<tr><td>H3</td><td><a href="../agent-workflows/skills/archive-or-continue/SKILL.md"><code>$archive-or-continue</code></a></td><td>証拠・復旧手段の保持と、アーカイブまたは継続の引き継ぎを計画。</td></tr>
+</tbody></table></div>
+<p>たとえば「FAQを改稿してテストした」はdelivery、「問い合わせが減った」はoutcomeです。効果の観測期間がまだ来ていなければ、未測定として残します。H2/H3の記録自体は、ファイル削除・新Run作成・本番操作を自動許可しません。</p>
+</section>
+
+<section id="helpers">
+<span class="num">09 / HELPERS &amp; RESUME</span><h2>補助スクリプトは、会話の代わりではなく記録の接着剤</h2>
+<p>普段はSkillに保存・確認を依頼し、返されたhandoffを次へ渡せばよい設計です。以下は仕組みの説明と、状態を確認したいときの入口です。wrapperの利用可否はインストール環境に依存します。</p>
+<div class="table-wrap"><table><thead><tr><th>入口</th><th>行うこと</th><th>行わないこと</th></tr></thead><tbody>
+<tr><td><code>install-project-local-inception.py</code></td><td>review済みrelease manifestから<code>.agents/skills</code>、runtime、schema、Workflow、Group、catalog、wrapperをdigest・mode付きでcreate-only配置。</td><td>live source treeからの対象推測、内容の異なる既存ファイルの上書き、global設定、Nix activation。</td></tr>
+<tr><td><code>/absolute/project/.agent-workflow/bin/agent-workflow-inception init / save / resume</code></td><td>pre-Runの受付、Skill出力、handoffを保存・鮮度確認。</td><td>Run承認、実compilerの受入、AIの起動、次Skillの自動呼出し。</td></tr>
+<tr><td><code>/absolute/project/.agent-workflow/bin/agent-workflow-inception runtime adopt</code></td><td>B1〜B6の必須物理入力と明示承認から実Runへ接続。</td><td>承認の捏造、mockからrealへの転用、勝手な期限reset。</td></tr>
+<tr><td><code>Project-local Run操作: status, step, close, advance（absolute wrapper限定）</code></td><td>現在地確認、C/Dを1回につき1compiler操作、Group終了、許可された次Groupへの移行。</td><td>任意のWorkflowの一括自動実行、ホストclear、外部AIの強制停止。</td></tr>
+<tr><td><code>agent-workflow status / resume</code></td><td>既存の運用pointerを使う別の状態・再開確認入口。</td><td>新規draftからの自動実Run採用。project-local helperと引数・責任範囲が異なる。</td></tr>
+</tbody></table></div>
+<h3>状態確認の例（変更しない操作）</h3>
+<pre><code>/absolute/project/.agent-workflow/bin/agent-workflow-inception \
+  resume --handoff /absolute/project/.../handoff-0001.json
+
+/absolute/project/.agent-workflow/bin/agent-workflow-inception runtime status --project /absolute/project --run-id actual-run-id</code></pre>
+<p>前者は同一snapshotのwrapperでdraft/handoffを検証し、<code>frontier_status: helper-verified</code>が返った場合だけ次の状態として採用します。手書きJSONやagentの成功メッセージはfrontierではありません。後者は実Runの状態を確認するものです。返ってきたnext adviceは実行済みという意味ではありません。状態を見てから、適切なSkillを明示して再開します。</p>
+<details><summary>ファイルの役割と、実Run採用時の注意</summary>
+<ul><li><code>.agent-workflow/SNAPSHOT-MANIFEST.json</code>：review済みrelease manifestのdigestと、project-local Skill、runtime、schema、Workflow、Group、catalog、wrapperの同一snapshotを固定。wrapperは毎回全対象byte・mode・managed inventoryを検証する。</li><li><code>.local/agent/inception/…</code>：pre-Runの依頼・出力・helper proof付きhandoff。新規受付の保存で勝手にRunを初期化しない。</li><li><code>.local/agent/runs/&lt;run-id&gt;/control-kernel/</code>：実Runのtransaction、object、HEAD等。会話要約ではなく、検証されたこの状態を基準にする。</li><li>Artifactの参照はpath・version・digestで結合。ファイルを後から手編集した場合、古いreceiptはそのまま使えない。</li><li>実行Taskのread scopeは宣言と観測receiptへ固定する。ただし通常receiptはOS全体のallow-listを意味せず、OS隔離を使わない限り <code>os_isolation_enforced=false</code> とする。</li><li>adoptには <code>preapproval_steps</code> としてB1〜B6の正確な6入力が<strong>必須</strong>。詳細な引数と承認receiptの形式は<a href="../agent-workflows/skills/entry/references/inception-single-skill.md">single-Skill protocol</a>に従う。</li><li>realな人間承認と、明示許可されたrehearsalのmock承認は分離。テスト用driverの固定入力を通常案件の判断として流用しない。</li><li>project-local Runを操作しても、global current Run/objective pointerを変更する機能ではない。</li></ul>
+</details>
+</section>
+
+<section id="tips">
+<span class="num">10 / OPERATING NOTES</span><h2>時間・承認・止まったときの扱い</h2>
+<h3>時間を守るには、最初に「今回の上限」を置く</h3>
+<p>実行前にwall-clock期限、レビュー回数、Findingごとの修正回数を固定します。現行のruntime採用処理はreview budgetに<strong>最大2 round・Findingあたり最大5 attempt</strong>を記録します。期限は承認receiptの発行時刻とbudget_secondsから算出され、clearや再開でも動きません。</p>
+<p>予算不足でrequiredが残れば停止であり、完成ではありません。軽微な問題は根拠付きでdeferし、成功した成果物も保存します。ループ名やFinding IDを変えてやり直し回数を消す運用にしません。予算切れからの再開は、新しい明示承認と検証されたreopenが必要です。</p>
+<div class="warning">過去のこの開発セッションで使った「Section-wide fast mode」「全体5時間」「修正wave数」等の一時的な指示を、全案件の製品defaultとみなさないでください。また、helperの期限チェックは次の操作を拒否するもので、動作中の外部AIプロセスを時刻どおり強制終了する監督ではありません。</div>
+<h3>承認を軽くできるところ・別扱いにするところ</h3>
+<div class="table-wrap"><table><thead><tr><th>内容</th><th>扱い</th></tr></thead><tbody>
+<tr><td>進捗の表示・根拠の読取り</td><td>毎回の承認待ちにする必要はない。開始・終了・停止理由・次の一手を短く表示する。</td></tr>
+<tr><td>承認済みTask内の作成・テスト</td><td>有効な権限・範囲・予算内で進める。進捗表示の許可を実行権限の代わりにしない。</td></tr>
+<tr><td>目的承認・重要な選択・昇格・最終結果</td><td>B7、D5→D6の選択、G5、H2等は、対象と結び付いた人間の判断が必要。</td></tr>
+<tr><td>外部送信・credential・本番設定・公開</td><td>別の保護された承認境界。Nix activation、Git commit/push等も今回の具体的な権限を確認する。</td></tr>
+</tbody></table></div>
+<h3>止まったら、この5点を返してもらう</h3>
+<pre><code>現在地：Run / Group / Skill / revision
+完了済み：受理された成果物と検証の参照
+停止理由：不足入力・権限・予算・不整合等の具体的な原因
+未実施：残るrequired、未検証、defer
+次の一手：誰が何を用意・承認し、どのSkillから再開するか</code></pre>
+<p>「完了です」だけで判断せず、何が閉じたのかを確認します。draft保存、compiler通過、Task成功、E closed、目的達成、本番反映はそれぞれ別です。</p>
+</section>
+
+<section id="appendix">
+<span class="num">11 / COMPLETE INVENTORY</span><h2>Bootstrapと共通処理も含めた数え方</h2>
+<p><strong>A:8 + B:7 + C:6 + D:12 + E:10 + G:6 + H:3 = 52個の物理Skill。</strong>これにFの共通処理8契約を加えて60です。「60個の独立したSKILL.md」でも、「3種類だけのSkill」でもありません。3種類という数はsoftware profileのfeature / bug-fix / improvementに対応します。</p>
+<details><summary>A — Workflow基盤を作るときの8 Skills</summary>
+<div class="table-wrap"><table class="skill-table"><thead><tr><th>ID</th><th>Skill</th><th>用途</th></tr></thead><tbody>
+<tr><td>A1</td><td><a href="../agent-workflows/skills/bootstrap-classify-environment/SKILL.md"><code>$bootstrap-classify-environment</code></a></td><td>環境と所有範囲を分類。</td></tr>
+<tr><td>A2</td><td><a href="../agent-workflows/skills/bootstrap-isolate-workspace/SKILL.md"><code>$bootstrap-isolate-workspace</code></a></td><td>既存差分を守る隔離計画。</td></tr>
+<tr><td>A3</td><td><a href="../agent-workflows/skills/bootstrap-design-rollback/SKILL.md"><code>$bootstrap-design-rollback</code></a></td><td>所有者を限定した復旧計画。</td></tr>
+<tr><td>A4</td><td><a href="../agent-workflows/skills/bootstrap-initialize-run/SKILL.md"><code>$bootstrap-initialize-run</code></a></td><td>初期Runの計画。名前だけでruntime作成を許可しない。</td></tr>
+<tr><td>A5</td><td><a href="../agent-workflows/skills/bootstrap-detach-legacy-owner/SKILL.md"><code>$bootstrap-detach-legacy-owner</code></a></td><td>旧runtime所有者の切離し計画。</td></tr>
+<tr><td>A6</td><td><a href="../agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md"><code>$bootstrap-build-walking-skeleton</code></a></td><td>隔離した最小の動作骨格を構築・確認。</td></tr>
+<tr><td>A6R</td><td><a href="../agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md"><code>$bootstrap-migrate-control-kernel</code></a></td><td>source-only契約に基づくKernel移行のリハーサル。</td></tr>
+<tr><td>A7</td><td><a href="../agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md"><code>$bootstrap-self-host-handoff</code></a></td><td>運用gate通過後の最新Run引き継ぎ。通常案件の開始手順ではない。</td></tr>
+</tbody></table></div>
+</details>
+<details><summary>F — 独立Skillではない8つの共通処理</summary>
+<div class="table-wrap"><table><thead><tr><th>ID / 契約名</th><th>処理</th></tr></thead><tbody>
+<tr><td>F1 <code>audit-group-purpose</code></td><td>Groupの成果が目的に沿っているかを証拠とともに確認。</td></tr>
+<tr><td>F2 <code>collect-group-artifacts</code></td><td>成果・失敗・未検証・部分成功をbundleに集める。</td></tr>
+<tr><td>F3 <code>extract-decision-candidates</code></td><td>重要判断の候補を抽出。未承認の提案は決定扱いしない。</td></tr>
+<tr><td>F4 <code>replan-future</code></td><td>完了履歴を保持し、将来の計画変更を扱う。範囲変更等は人間へ。</td></tr>
+<tr><td>F5 <code>advise-next-group</code></td><td>版に結び付いた次Group・Skill・必要入力を案内。</td></tr>
+<tr><td>F6 <code>write-checkpoint</code></td><td>次のfresh contextが読める物理checkpointを確定。</td></tr>
+<tr><td>F7 <code>clear-boundary</code></td><td>境界を確定して、人へclearと再開方法を案内。ホスト操作は代行しない。</td></tr>
+<tr><td>F8 <code>resume</code></td><td>新しいcontextから状態・参照・鮮度を検証して再開案内。</td></tr>
+</tbody></table></div><p>これらは<a href="../agent-workflows/groups/shared-closure.json">shared-closure manifest</a>の契約名であり、<code>$clear-boundary</code>や<code>$resume</code>という物理Skillがあるという意味ではありません。</p>
+</details>
+<details><summary>用意されている18個のWorkflow manifest</summary>
+<p>新規案件の入口は原則B1。resume / exception / bootstrapは特別な入口です。以下はsource定義の一覧であり、一括runnerの対応一覧ではありません。</p>
+<ul>
+<li><a href="../agent-workflows/workflows/feature-bounded.json">feature-bounded</a> / <a href="../agent-workflows/workflows/feature-architectural.json">feature-architectural</a>：機能追加。</li>
+<li><a href="../agent-workflows/workflows/bug-fix-standard.json">bug-fix-standard</a> / <a href="../agent-workflows/workflows/bug-fix-hotfix.json">bug-fix-hotfix</a>：不具合修正。</li>
+<li><a href="../agent-workflows/workflows/improvement-measured.json">improvement-measured</a>：測定付き改善。</li>
+<li><a href="../agent-workflows/workflows/refactor-behavior-preserving.json">refactor-behavior-preserving</a>：振る舞いを保持する整理。</li>
+<li><a href="../agent-workflows/workflows/documentation-change.json">documentation-change</a> / <a href="../agent-workflows/workflows/research-discovery.json">research-discovery</a> / <a href="../agent-workflows/workflows/decision-consolidation.json">decision-consolidation</a>：文書・調査・判断整理。</li>
+<li><a href="../agent-workflows/workflows/configuration-dotfiles-source.json">configuration-dotfiles-source</a>：設定source。</li>
+<li><a href="../agent-workflows/workflows/external-operation-plan.json">external-operation-plan</a> / <a href="../agent-workflows/workflows/migration-cutover-plan.json">migration-cutover-plan</a>：外部操作・切替の計画。</li>
+<li><a href="../agent-workflows/workflows/security-sensitive-change.json">security-sensitive-change</a> / <a href="../agent-workflows/workflows/company-governed-change.json">company-governed-change</a> / <a href="../agent-workflows/workflows/incident-response.json">incident-response</a>：追加の安全・組織・事故対応条件。</li>
+<li><a href="../agent-workflows/workflows/bootstrap-new-workflow.json">bootstrap-new-workflow</a> / <a href="../agent-workflows/workflows/resume-interrupted-work.json">resume-interrupted-work</a> / <a href="../agent-workflows/workflows/execution-exception-arbitration.json">execution-exception-arbitration</a>：基盤新設・中断再開・例外仲裁。</li>
+</ul></details>
+</section>
+
+<section id="evidence">
+<span class="num">12 / EVIDENCE &amp; LIMITS</span><h2>どこまで確認できているか</h2>
+<div class="table-wrap"><table><thead><tr><th>区分</th><th>2026-09-06の記録に基づく範囲</th></tr></thead><tbody>
+<tr><td>sourceの回帰試験</td><td>570件のunittest成功（264.845秒）。説明書作成のために再実行した結果ではなく、直近の<a href="reports/inception-runtime-trial-2026-09-06.md">修正・隔離試験報告</a>に記録された結果。</td></tr>
+<tr><td>実Runのサンプル</td><td>問い合わせCSVを検証・抽出する小規模CLI。B/C/Dの実compiler・closure、3 fresh Worker、2軸review、単一Validatorを通しE closed。</td></tr>
+<tr><td>時間・品質</td><td>実Run登録からE closedまで17分26秒、20分枠内。外部受入24件、unit 6件成功。軽微なエラー列名表示の指摘1件をdefer、required 0件。</td></tr>
+<tr><td>実測に含まないもの</td><td>固定計画入力の事前準備、Workflow自体の修正時間、B/C/Dの25回すべてをfresh AIに判断させる時間。一般案件の所要時間や品質を保証する数値ではない。</td></tr>
+<tr><td>まだ別検証のもの</td><td>ホストのclear、全SkillのAI判断品質、非コーディング経路の実Run完走、G/Hを含む本番全体、実業務での効果、最新sourceのNix反映・activation。</td></tr>
+<tr><td>既知のruntime制約</td><td>保守的な機密文字列判定が通常の安全制約文まで拒否する場合あり。F1〜F5途中の中断の自動復旧は未対応で停止。F6受理後は同一証拠の再試行でF7のみ再開可能。</td></tr>
+</tbody></table></div>
+<h3>実装・運用ルールを確認する場所</h3>
+<ul>
+<li><a href="plans/inception-single-skill-operation.md">Inception単一Skill運用の決定</a> — B/C/Dのclear境界は、旧計画のまとめ実行方針よりこちらを優先。</li>
+<li><a href="../agent-workflows/skills/entry/references/inception-single-skill.md">single-Skill protocol</a> — 保存形式、handoff、実Run採用、再開の詳しい手順。</li>
+<li><a href="../agent-workflows/catalog.yaml">Skill・profile stepのcatalog</a> / <a href="plans/ai-agent-workflow-step-catalog.md">設計上の全工程と役割分担</a> — 計画文書の古い進捗欄を現状の完成証拠にしない。</li>
+<li><a href="../agent-workflows/src/ai_agent_workflow/inception_runtime.py">現行runtime adapter</a> / <a href="../agent-workflows/src/ai_agent_workflow/runtime_approval.py">承認・有限予算</a> / <a href="../agent-workflows/groups/required-only-feedback-execution-policy-v1.json">required-onlyのレビュー分岐</a>。</li>
+<li><a href="reports/inception-runtime-trial-2026-09-06.md">最新の修正・隔離試験報告</a> — mockと実処理、成功と未検証の区別。</li>
+<li><a href="ai-agent-workflow-usage.html">既存の全体Usage・実装面の説明</a> — 本書は日々の呼び出し方を補う別冊。</li>
+</ul>
+</section>
+<footer>AI Agent Workflow / 利用説明書 · 2026-09-06<br>このHTMLを読んでもRunは進まず、承認も発行されません。実行時は選択したSkill、物理handoff、最新状態、明示された権限を確認してください。</footer>
+</main>
+</div>
+</body>
+</html>

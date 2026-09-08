@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "macos-practical-threat-profile-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile_id",
+    "approval_digest",
+    "trusted",
+    "adversarial",
+    "accepted_residuals",
+    "guarantees",
+    "not_guaranteed"
+  ],
+  "properties": {
+    "schema": {"const": "macos-practical-threat-profile/v1"},
+    "profile_id": {"const": "macos-parent-writer-practical/v1"},
+    "approval_digest": {"const": "sha256:2f0ae19fac7b90778d1b5713c51071f1ab7e96ce179237a1e5892cf320dfaefb"},
+    "trusted": {
+      "const": [
+        "Codex host",
+        "parent Orchestrator",
+        "same-UID parent runtime process"
+      ]
+    },
+    "adversarial": {
+      "const": [
+        "sandboxed task child",
+        "malformed or stale caller input",
+        "path substitution available to the sandboxed task child"
+      ]
+    },
+    "accepted_residuals": {
+      "const": [
+        "a malicious external process running as the same login UID may rename a project ancestor",
+        "SIGKILL of the trusted parent after a publication syscall and before bookkeeping may leave bytes in a detached tree"
+      ]
+    },
+    "guarantees": {
+      "const": [
+        "sandboxed task child cannot read broker state",
+        "sandboxed task child cannot mutate broker state",
+        "task write scope is disjoint from broker state",
+        "trusted parent authenticates the receipt and rejects caller-authored safety labels"
+      ]
+    },
+    "not_guaranteed": {
+      "const": [
+        "a malicious external process running as the same login UID may rename a project ancestor",
+        "SIGKILL of the trusted parent after a publication syscall and before bookkeeping may leave bytes in a detached tree"
+      ]
+    }
+  }
+}
