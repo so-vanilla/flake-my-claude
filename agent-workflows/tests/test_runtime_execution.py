@@ -9,16 +9,19 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "examples" / "support-report"
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "tests"), str(EXAMPLE)]
 
-from ai_agent_workflow.inception_runtime import InceptionRuntime  # noqa: E402
-from ai_agent_workflow.macos_task_process import MacOSTaskProcessBroker  # noqa: E402
-from ai_agent_workflow.runtime_execution import RuntimeExecution, RuntimeExecutionError  # noqa: E402
-from ai_agent_workflow.execution_v2 import ExecutionClosureBuilder, RegressionFrontier  # noqa: E402
-from runtime_trial import audited_close, initialize, plan_group, put  # noqa: E402
+from ai_agent_workflow.control_kernel import ControlKernel
+from ai_agent_workflow.execution_v2 import ExecutionClosureBuilder, RegressionFrontier
+from ai_agent_workflow.inception_runtime import InceptionRuntime
+from ai_agent_workflow.loop_contracts import canonical_digest
+from ai_agent_workflow.macos_task_process import MacOSTaskProcessBroker
+from ai_agent_workflow.runtime_execution import RuntimeExecution, RuntimeExecutionError
+from runtime_trial import audited_close, initialize, plan_group, put
 
 
 def digest_bytes(path):
@@ -116,7 +119,6 @@ if not objective.get('objective') or not denied:
 
     def _required_e7(self, package, prior_candidate, prior_closure, base_plan):
         finding_id = "runtime-required"
-        output = self.project / "sla_report/core.py"
         output_digest = "sha256:" + hashlib.sha256(b"# bounded runtime output\n").hexdigest()
         candidate_doc = {
             "schema": "runtime-e7-post-fix-candidate/v1", "finding_id": finding_id, "candidate_id": "runtime-e7-post-fix",
@@ -361,6 +363,7 @@ if not objective.get('objective') or not denied:
         self.assertIsNone(state["tasks"]["parse-select"]["result_ref"])
         self.assertFalse(InceptionRuntime(self.project, "support-report").records("E"))
 
+
     def test_one_required_finding_stops_at_persisted_split_repair_frontier(self):
         package = self.package()
         runtime = RuntimeExecution(self.project, "support-report")
@@ -426,6 +429,416 @@ if not objective.get('objective') or not denied:
         self.assertNotIn("parse-select", state["tasks"])
         self.assertFalse(state["leases"])
         self.assertFalse(InceptionRuntime(self.project, "support-report").records("E"))
+
+
+
+class WorkflowLoopExecutionTests(unittest.TestCase):
+    """Exercise the explicit loop-control path without a process broker."""
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(prefix="workflow-loop-runtime-")
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.authority = {"status": "approved", "scopes": ["*"]}
+        self.identity = {
+            "schema": "loop-work-identity/v1",
+            "work_lineage_id": "lineage-runtime",
+            "logical_task_id": "task-1",
+            "phase": "E3",
+            "scope_revision": "scope-1",
+            "requirements_digest": "sha256:" + "a" * 64,
+            "predecessor_ref": None,
+        }
+        self.kernel = ControlKernel(self.root, "workflow-loop-run")
+        self.kernel.entry(
+            {"path": "objectives/loop.md", "version": "v1", "digest": "sha256:" + "b" * 64},
+            authority_ref=self.authority,
+            loop_control={"identity": self.identity, "history": []},
+        )
+        self.runtime = RuntimeExecution(kernel=self.kernel)
+
+    def request(self, **changes):
+        value = {"schema": "workflow-loop/v1", "identity": copy.deepcopy(self.identity), "phase": "E3"}
+        value.update(copy.deepcopy(changes))
+        return value
+
+    def result_ref(self, suffix):
+        return {"id": "result-" + suffix, "digest": "sha256:" + suffix * 64}
+
+    def completion_bundle(self, candidate, package):
+        evidence = {
+            "schema": "loop-evidence-record/v1",
+            "evidence_id": "evidence-1",
+            "evidence_digest": "",
+            "candidate_digest": candidate,
+            "spec_digest": "sha256:" + "1" * 64,
+            "source_digest": "sha256:" + "2" * 64,
+            "dependency_digest": "sha256:" + "3" * 64,
+            "environment_digest": "sha256:" + "4" * 64,
+            "check_definition_digest": "sha256:" + "5" * 64,
+            "coverage": ["R1"],
+            "status": "pass",
+        }
+        evidence["evidence_digest"] = canonical_digest(
+            {key: value for key, value in evidence.items() if key != "evidence_digest"}
+        )
+        requirement = {
+            "schema": "loop-requirement-assessment/v1",
+            "requirement_id": "R1",
+            "status": "pass",
+            "scope": ["src/a.py"],
+            "evidence_refs": [{"id": "evidence-1", "digest": evidence["evidence_digest"]}],
+        }
+        reviews = [
+            {
+                "schema": "loop-review-assessment/v1",
+                "review_id": "review-" + axis,
+                "axis": axis,
+                "actor_id": actor,
+                "context_epoch": epoch,
+                "candidate_digest": candidate,
+                "package_digest": package,
+                "coverage": ["R1"],
+                "completed": True,
+                "unevaluated": [],
+                "finding_refs": [],
+            }
+            for axis, actor, epoch in (
+                ("architecture-safety", "reviewer-a", "epoch-a"),
+                ("integration-operability", "reviewer-b", "epoch-b"),
+            )
+        ]
+        return {
+            "identity": copy.deepcopy(self.identity),
+            "candidate_digest": candidate,
+            "package_digest": package,
+            "requirements": [requirement],
+            "reviews": reviews,
+            "evidence": [evidence],
+            "findings": [],
+        }, requirement, reviews, evidence
+
+    def test_dispatch_reserves_before_accepting_and_ignores_legacy_progress_controls(self):
+        result = self.runtime.execute_loop(
+            "task-1",
+            self.request(
+                remaining_seconds=0,
+                review_budget={"rounds": 0},
+                deadline="expired",
+                budget_digest="sha256:" + "d" * 64,
+            ),
+            result_ref=self.result_ref("c"),
+            process_timeout=2.0,
+        )
+        self.assertEqual("continue", result["outcome"])
+        self.assertEqual(1, result["counters"]["initial"])
+        self.assertEqual(0, result["counters"]["additional_iterations"])
+        self.assertEqual(0, result["counters"]["technical_retries"])
+        self.assertEqual(2.0, result["process_timeout"]["process_timeout"])
+        self.assertEqual(
+            {"budget_digest", "deadline", "remaining_seconds", "review_budget"},
+            set(result["ignored_progress_fields"]),
+        )
+        event = result["history"][-1]
+        self.assertEqual("evaluated", event["status"])
+        self.assertEqual("initial", event["kind"])
+
+    def test_scope_rename_does_not_reset_counter_and_technical_retry_is_finite(self):
+        first = self.runtime.execute_loop("task-1", self.request(), result_ref=self.result_ref("c"))
+        renamed = self.request()
+        renamed["identity"]["scope_revision"] = "renamed-scope"
+        renamed["command_id"] = "renamed-scope-next-iteration"
+        second = self.runtime.execute_loop(
+            "task-1", renamed, result_ref=self.result_ref("d"),
+        )
+        self.assertEqual(1, second["counters"]["additional_iterations"])
+        self.assertEqual(1, second["counters"]["initial"])
+        self.assertEqual(first["identity"], second["identity"])
+
+        retry = self.runtime.execute_loop(
+            "task-1",
+            self.request(iteration_kind="technical-retry"),
+            result_ref=self.result_ref("e"),
+        )
+        self.assertEqual(1, retry["counters"]["technical_retries"])
+        self.assertEqual("execution-failed", retry["outcome"])
+        self.assertTrue(retry["terminal_recorded"])
+        blocked = self.runtime.execute_loop(
+            "task-1",
+            self.request(iteration_kind="technical-retry"),
+            result_ref=self.result_ref("f"),
+        )
+        self.assertEqual("execution-failed", blocked["outcome"])
+        self.assertEqual(retry["terminal_ref"], blocked["terminal_ref"])
+
+    def test_additional_iteration_limit_is_terminal_and_durable(self):
+        outcomes = []
+        for suffix in ("c", "d", "e", "f"):
+            result = self.runtime.execute_loop(
+                "task-1",
+                self.request(command_id="iteration-" + suffix),
+                result_ref=self.result_ref(suffix),
+            )
+            outcomes.append(result["outcome"])
+        self.assertEqual(["continue", "continue", "continue", "iteration-limit"], outcomes)
+        self.assertTrue(result["limit_exhausted"])
+        self.assertTrue(result["terminal_recorded"])
+        self.assertEqual("iteration-limit", self.kernel.read_state()["loop_control"]["terminal_record"]["outcome"])
+
+    def test_needs_input_is_saved_and_resume_evidence_does_not_reset_the_counter(self):
+        stopped = self.runtime.execute_loop("task-1", self.request())
+        self.assertEqual("needs-input", stopped["outcome"])
+        self.assertTrue(stopped["terminal_recorded"])
+        terminal_ref = stopped["terminal_ref"]
+        resumed = self.runtime.execute_loop(
+            "task-1",
+            self.request(
+                resume_evidence_ref={"id": "input-1", "digest": "sha256:" + "9" * 64}
+            ),
+            result_ref=self.result_ref("c"),
+        )
+        self.assertEqual("continue", resumed["outcome"])
+        self.assertEqual(1, resumed["counters"]["initial"])
+        state = self.kernel.read_state()["loop_control"]
+        self.assertIsNone(state["terminal_record"])
+        self.assertEqual("loop-terminal-record", state["control_refs"][0]["object_type"])
+        self.assertEqual("loop-resume-record", state["control_refs"][1]["object_type"])
+        self.assertEqual(terminal_ref["digest"], state["control_refs"][0]["digest"])
+
+    def test_completed_decision_is_saved_with_current_assessments(self):
+        candidate = "sha256:" + "c" * 64
+        package = "sha256:" + "d" * 64
+        bundle, requirement, reviews, evidence = self.completion_bundle(candidate, package)
+        result = self.runtime.execute_loop(
+            "task-1",
+            self.request(completion_request=bundle),
+            result_ref={"id": "candidate-result", "digest": candidate},
+        )
+        self.assertEqual("completed", result["outcome"])
+        self.assertTrue(result["terminal_recorded"])
+        terminal = self.kernel.read_state()["loop_control"]["terminal_record"]
+        self.assertEqual([requirement], terminal["requirements"])
+        self.assertEqual(reviews, terminal["reviews"])
+        self.assertEqual([evidence], terminal["evidence"])
+
+    def test_same_request_is_exactly_once_and_does_not_redispatch(self):
+        calls = []
+
+        def dispatch(_package):
+            calls.append("called")
+            return self.result_ref("c")
+
+        request = self.request()
+        first = self.runtime.execute_loop("task-1", request, dispatcher=dispatch)
+        replay = self.runtime.execute_loop("task-1", request, dispatcher=dispatch)
+        self.assertEqual(["called"], calls)
+        self.assertEqual(1, len(replay["history"]))
+        self.assertEqual(first["event"], replay["event"])
+
+    def test_implicit_command_ignores_evaluation_and_legacy_sidecar_changes(self):
+        calls = []
+
+        def dispatch(_package):
+            calls.append("called")
+            return self.result_ref("c")
+
+        first = self.runtime.execute_loop(
+            "task-1", self.request(remaining_seconds=0), dispatcher=dispatch
+        )
+        replay = self.runtime.execute_loop(
+            "task-1",
+            self.request(remaining_seconds=999, review_budget={"rounds": 99}),
+            dispatcher=dispatch,
+        )
+        self.assertEqual(["called"], calls)
+        self.assertEqual(1, len(replay["history"]))
+        self.assertEqual(first["event"], replay["event"])
+
+    def test_replayed_command_rejects_a_different_result_without_terminalizing(self):
+        request = self.request(command_id="stable-command")
+        self.runtime.execute_loop("task-1", request, result_ref=self.result_ref("c"))
+        with self.assertRaisesRegex(RuntimeExecutionError, "different result"):
+            self.runtime.execute_loop(
+                "task-1", request, result_ref=self.result_ref("d")
+            )
+        state = self.kernel.read_state()["loop_control"]
+        self.assertIsNone(state["terminal_record"])
+        self.assertEqual(1, len(self.runtime.loop_status()["history"]))
+
+    def test_explicit_command_rejects_changed_completion_payload(self):
+        candidate = "sha256:" + "c" * 64
+        package = "sha256:" + "d" * 64
+        request = self.request(command_id="stable-command")
+        self.runtime.execute_loop(
+            "task-1",
+            request,
+            result_ref={"id": "candidate-result", "digest": candidate},
+        )
+        bundle, _, _, _ = self.completion_bundle(candidate, package)
+        changed = self.request(
+            command_id="stable-command", completion_request=bundle
+        )
+        with self.assertRaisesRegex(RuntimeExecutionError, "different request payload"):
+            self.runtime.execute_loop(
+                "task-1",
+                changed,
+                result_ref={"id": "candidate-result", "digest": candidate},
+            )
+        self.assertIsNone(self.kernel.read_state()["loop_control"]["terminal_record"])
+
+    def test_foreign_lineage_is_a_refusal_not_a_durable_run_outcome(self):
+        request = self.request()
+        request["identity"]["work_lineage_id"] = "foreign-lineage"
+        with self.assertRaisesRegex(RuntimeExecutionError, "work lineage"):
+            self.runtime.execute_loop(
+                "task-1", request, result_ref=self.result_ref("c")
+            )
+        state = self.kernel.read_state()["loop_control"]
+        self.assertIsNone(state["terminal_record"])
+        self.assertEqual([], self.runtime.loop_status()["history"])
+
+    def test_malformed_supplied_result_is_a_non_mutating_refusal(self):
+        before = self.kernel.read_state()
+        with self.assertRaisesRegex(RuntimeExecutionError, "sha256 digest"):
+            self.runtime.execute_loop(
+                "task-1",
+                self.request(),
+                result_ref={"id": "bad-result", "digest": "not-a-digest"},
+            )
+        after = self.kernel.read_state()
+        self.assertEqual(before["revision"], after["revision"])
+        self.assertEqual([], self.runtime.loop_status()["history"])
+        self.assertIsNone(after["loop_control"]["terminal_record"])
+
+    def test_malformed_completion_is_a_non_mutating_refusal(self):
+        before = self.kernel.read_state()
+        candidate = "sha256:" + "c" * 64
+        package = "sha256:" + "d" * 64
+        bundle, _, _, _ = self.completion_bundle(candidate, package)
+        bundle["requirements"] = "not-a-list"
+        with self.assertRaisesRegex(RuntimeExecutionError, "completion input is invalid"):
+            self.runtime.execute_loop(
+                "task-1",
+                self.request(completion_request=bundle),
+                result_ref={"id": "candidate-result", "digest": candidate},
+            )
+        after = self.kernel.read_state()
+        self.assertEqual(before["revision"], after["revision"])
+        self.assertEqual([], self.runtime.loop_status()["history"])
+        self.assertIsNone(after["loop_control"]["terminal_record"])
+
+    def test_incomplete_completion_is_a_non_mutating_refusal(self):
+        before = self.kernel.read_state()
+        candidate = "sha256:" + "c" * 64
+        for completion_request in ({}, {"requirements": "bad"}):
+            with self.subTest(completion_request=completion_request):
+                with self.assertRaisesRegex(
+                    RuntimeExecutionError, "completion input is invalid"
+                ):
+                    self.runtime.execute_loop(
+                        "task-1",
+                        self.request(completion_request=completion_request),
+                        result_ref={"id": "candidate-result", "digest": candidate},
+                    )
+                after = self.kernel.read_state()
+                self.assertEqual(before["revision"], after["revision"])
+                self.assertEqual([], self.runtime.loop_status()["history"])
+                self.assertIsNone(after["loop_control"]["terminal_record"])
+
+    def test_rejected_completed_terminal_is_not_reported_as_completed(self):
+        candidate = "sha256:" + "c" * 64
+        package = "sha256:" + "d" * 64
+        bundle, _, _, _ = self.completion_bundle(candidate, package)
+        result = self.runtime.execute_loop(
+            "task-1",
+            self.request(completion_request=bundle),
+            result_ref={"id": "different-result", "digest": "sha256:" + "e" * 64},
+        )
+        self.assertEqual("execution-failed", result["outcome"])
+        self.assertEqual("completed", result["requested_outcome"])
+        self.assertFalse(result["terminal_recorded"])
+        self.assertFalse(result["durable"])
+        self.assertIn("does not match", result["terminal_error"])
+        self.assertIsNone(self.kernel.read_state()["loop_control"]["terminal_record"])
+
+    def test_unknown_dispatch_blocks_redispatch_until_recovery(self):
+        calls = []
+
+        def ambiguous(_package):
+            calls.append("called")
+            raise RuntimeError("broker disconnected")
+
+        unknown = self.runtime.execute_loop("task-1", self.request(), dispatcher=ambiguous)
+        self.assertEqual("recovery-required", unknown["outcome"])
+        self.assertTrue(unknown["execution_unknown"])
+        blocked = self.runtime.execute_loop(
+            "task-1", self.request(command_id="redispatch"), dispatcher=lambda _: calls.append("retry"),
+        )
+        self.assertEqual("recovery-required", blocked["outcome"])
+        self.assertEqual(["called"], calls)
+        self.assertEqual("execution-unknown", blocked["history"][-1]["status"])
+
+    def test_explicit_ambiguous_dispatch_status_is_execution_unknown(self):
+        result = self.runtime.execute_loop(
+            "task-1",
+            self.request(),
+            dispatcher=lambda _package: {"status": "unknown"},
+        )
+        self.assertEqual("recovery-required", result["outcome"])
+        self.assertTrue(result["execution_unknown"])
+        self.assertEqual("execution-unknown", result["history"][-1]["status"])
+
+    def test_unknown_state_remains_visible_when_terminal_recording_fails(self):
+        with patch.object(
+            self.kernel,
+            "record_loop_outcome",
+            side_effect=RuntimeError("terminal storage unavailable"),
+        ):
+            result = self.runtime.execute_loop(
+                "task-1",
+                self.request(),
+                dispatcher=lambda _package: {"status": "unknown"},
+            )
+        self.assertEqual("recovery-required", result["outcome"])
+        self.assertTrue(result["execution_unknown"])
+        self.assertTrue(result["needs_recovery"])
+        self.assertFalse(result["terminal_recorded"])
+        self.assertFalse(result["durable"])
+        self.assertTrue(self.kernel.read_state()["loop_control"]["recovery_required"])
+
+    def test_integration_return_restores_task_counter_and_keeps_integration_counter(self):
+        self.runtime.execute_loop("task-1", self.request(), result_ref=self.result_ref("c"))
+        integration_identity = copy.deepcopy(self.identity)
+        integration_identity.update({"logical_task_id": "integration-1", "phase": "E8", "scope_revision": "scope-e8"})
+        integration = self.runtime.execute_loop(
+            "integration-1",
+            {"schema": "workflow-loop/v1", "identity": integration_identity, "phase": "E8"},
+            integration=True,
+            result_ref=self.result_ref("d"),
+        )
+        self.assertEqual("E8", integration["identity"]["phase"])
+        self.assertEqual(1, integration["counters"]["initial"])
+        returned_identity = copy.deepcopy(self.identity)
+        returned_identity["scope_revision"] = "scope-return"
+        returned = self.runtime.execute_loop(
+            "task-1",
+            {
+                "schema": "workflow-loop/v1",
+                "identity": returned_identity,
+                "phase": "E3",
+                "iteration_kind": "integration-return",
+            },
+            result_ref=self.result_ref("e"),
+        )
+        self.assertEqual("E3", returned["identity"]["phase"])
+        self.assertEqual(1, returned["counters"]["initial"])
+        self.assertEqual(1, returned["counters"]["additional_iterations"])
+        self.assertEqual("E8", self.kernel.read_state()["loop_control"]["archives"][0]["identity"]["phase"])
+
+    def test_project_runtime_requires_the_accepted_operational_task_grant(self):
+        self.runtime.runtime = object()
+        with self.assertRaisesRegex(RuntimeExecutionError, "D8/D10 operational grant"):
+            self.runtime.execute_loop("renamed-task", self.request(logical_task_id="renamed-task"), result_ref=self.result_ref("c"))
 
 
 if __name__ == "__main__":

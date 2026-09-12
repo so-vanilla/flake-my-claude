@@ -17,11 +17,11 @@
   "status": "passed",
   "subject_refs": [
     {
-      "digest": "sha256:8450824b5f6dbe71e1cbc8e140d8298462534763c54cbeab3734d0913e2a27f0",
+      "digest": "sha256:7f814cac738a1fc68e187b9d1f7894582c07ee600c615e3d9de7f0f0a3f4635d",
       "path": "agent-workflows/manifests/source-release.json"
     },
     {
-      "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+      "digest": "sha256:fee49f4f5b1abfa497d9ca815477527439676153bdbfab94c1ec914af0bc0063",
       "path": "agent-workflows/manifests/source-evidence-index.json"
     },
     {
@@ -29,7 +29,7 @@
       "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md"
     },
     {
-      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
       "path": "docs/plans/ai-agent-workflow-step-catalog.md"
     }
   ]

@@ -14,21 +14,21 @@ from ai_agent_workflow.schema_validation import SchemaValidationError, validate_
 
 
 COMPILER_PATH = "agent-workflows/src/ai_agent_workflow/software_profiles.py"
-COMPILER_DIGEST = "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a"
-FROZEN_WAVE_1 = {
+COMPILER_DIGEST = "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c"
+CURRENT_WAVE_2 = {
     COMPILER_PATH: COMPILER_DIGEST,
     "agent-workflows/tests/test_software_profiles.py": "sha256:b125acb66b7e820025726d0bd2c3e4d0758d23c270b1cc146d791c2383851c09",
     "agent-workflows/schemas/software-profile-result-v1.schema.json": "sha256:b3a1168f04a83697574852e86c456a0ae5e4052db2a53331e3c2e0212cd5ca60",
-    "agent-workflows/schemas/software-profile-manifest-v1.schema.json": "sha256:cde057c4ad565f13b5ba330afb96169257d566dea7beb5a8fce7de76b2f60bee",
+    "agent-workflows/schemas/software-profile-manifest-v1.schema.json": "sha256:1c090552dffcec60cd64c8395b091ab843cf674f7570fcb97bd7f1f9c05f016d",
 }
 ACCEPTED_UPSTREAM = {
     "agent-workflows/catalog.yaml": "sha256:2fd1caaddf4509d2f56bd31a68b062290e70f2f2da33facf1d8187d476bb3f1d",
-    "agent-workflows/src/ai_agent_workflow/workflow_composition.py": "sha256:07562ee404381b9d40c7e7ef9e22f20af068c4e5b96461134e3684ee2cfb4fe6",
-    "agent-workflows/src/ai_agent_workflow/planning_system.py": "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660",
-    "agent-workflows/src/ai_agent_workflow/execution_group.py": "sha256:a6718485618f2d9d5f72b82b20d797c181829d0e990adfbc9e148765608fd2d2",
-    "agent-workflows/groups/planning.json": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5",
-    "agent-workflows/groups/execution.json": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52",
-    "docs/plans/ai-agent-workflow-step-catalog.md": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+    "agent-workflows/src/ai_agent_workflow/workflow_composition.py": "sha256:380d7186ea66bfec18491deaee3d0439f3d93f100ac7fbc5109842b453fe40c3",
+    "agent-workflows/src/ai_agent_workflow/planning_system.py": "sha256:bfcddf4d99d2c4584225bfe75e9be09bb969a8c121b1b095a50496a97403e2c0",
+    "agent-workflows/src/ai_agent_workflow/execution_group.py": "sha256:745c63fd8ca761148b91d116549a71bb140d02e65ada39b8a1148e67abaeba9a",
+    "agent-workflows/groups/planning.json": "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80",
+    "agent-workflows/groups/execution.json": "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc",
+    "docs/plans/ai-agent-workflow-step-catalog.md": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
 }
 HOSTS = {
     "feature": ["group.D.D4", "group.D.D4", "group.D.D4", "group.D.D6", "group.E.E3", "group.E.E3", "group.E.E3", "group.E.E9"],
@@ -122,8 +122,8 @@ class SoftwareProfilePhysicalBindingTests(unittest.TestCase):
         self.assertEqual({"feature": 8, "bug-fix": 8, "improvement": 7}, counts)
         self.assertEqual({(COMPILER_PATH, COMPILER_DIGEST)}, compiler_refs)
 
-    def test_frozen_wave_1_and_accepted_upstream_are_unchanged(self):
-        for path, digest in {**FROZEN_WAVE_1, **ACCEPTED_UPSTREAM}.items():
+    def test_current_wave_2_and_accepted_upstream_are_unchanged(self):
+        for path, digest in {**CURRENT_WAVE_2, **ACCEPTED_UPSTREAM}.items():
             with self.subTest(path=path):
                 self.assertEqual(digest, raw(path))
 

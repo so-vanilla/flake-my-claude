@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-metrics-comparison-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "baseline_ref", "candidate_ref", "changes", "quality_equivalent", "performance_claim_allowed", "reason", "comparison_digest"],
+  "properties": {
+    "schema": {"const": "loop-metrics-comparison/v1"},
+    "baseline_ref": {"$ref": "#/$defs/ref"},
+    "candidate_ref": {"$ref": "#/$defs/ref"},
+    "changes": {"$ref": "#/$defs/changes"},
+    "quality_equivalent": {"type": ["boolean", "null"]},
+    "performance_claim_allowed": {"type": "boolean"},
+    "reason": {"enum": ["comparable-completed-runs", "incomplete-or-unavailable-comparison"]},
+    "comparison_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {"type": "object", "additionalProperties": false, "required": ["id", "digest"], "properties": {"id": {"$ref": "#/$defs/id"}, "digest": {"$ref": "#/$defs/digest"}}},
+    "change": {"type": ["integer", "null"]},
+    "changes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["duration_ms", "llm_calls", "read_bytes", "test_invocations"],
+      "properties": {
+        "duration_ms": {"$ref": "#/$defs/change"}, "llm_calls": {"$ref": "#/$defs/change"},
+        "read_bytes": {"$ref": "#/$defs/change"}, "test_invocations": {"$ref": "#/$defs/change"}
+      }
+    }
+  }
+}

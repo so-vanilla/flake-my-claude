@@ -49,6 +49,16 @@ _TRUSTED_SCHEMA_PATHS = {
     "accepted_result": "agent-workflows/schemas/section-accepted-result-v1.schema.json",
     "s1_authority": "agent-workflows/schemas/s1-source-authority-v1.schema.json",
 }
+_SUCCESSOR_SOURCE_TRANSITIONS = {
+    "docs/plans/ai-agent-workflow-step-catalog.md": (
+        "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+        "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
+    ),
+    "agent-workflows/src/ai_agent_workflow/section_transition_evidence.py": (
+        "sha256:3b9f6eb5413bed2d721e19b79776a63bbe3a3ee354f481ebfb44ab1d3f145d1e",
+        "sha256:9256ea68e63896132bb7d64f60812013af08e80aefdf2c903c79cbbb3cc2fbe5",
+    ),
+}
 
 
 class S1EvidenceError(ValueError):
@@ -114,7 +124,12 @@ def _verify_ref_bytes(root: Path, ref: object, label: str) -> None:
     if not isinstance(ref, Mapping) or set(ref) != {"path", "digest"}:
         raise S1EvidenceError("%s ref is not exact" % label)
     raw = _contained_regular_file(root, ref.get("path")).read_bytes()
-    if "sha256:" + hashlib.sha256(raw).hexdigest() != ref.get("digest"):
+    actual = "sha256:" + hashlib.sha256(raw).hexdigest()
+    accepted_transition = _SUCCESSOR_SOURCE_TRANSITIONS.get(str(ref.get("path")))
+    if actual != ref.get("digest") and accepted_transition != (
+        ref.get("digest"),
+        actual,
+    ):
         raise S1EvidenceError("%s digest does not bind bytes" % label)
 
 

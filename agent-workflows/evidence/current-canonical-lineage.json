@@ -1,12 +1,12 @@
 {
   "canonical_inputs": [
     {
-      "digest": "sha256:f4e71ef2c587d12df19dd13affdb929ac8995269448a2218656927694ed966b3",
+      "digest": "sha256:91dfd8723f194ddfeb77264abb04a27db599ae23e87553a62dd3388c1166b5c6",
       "path": "docs/plans/ai-agent-workflow-rebuild.md",
       "role": "rebuild-plan"
     },
     {
-      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
       "path": "docs/plans/ai-agent-workflow-step-catalog.md",
       "role": "step-catalog"
     },
@@ -17,7 +17,7 @@
     }
   ],
   "corrected_candidate": {
-    "aggregate": "sha256:06a8020960bd25112feba3d89be26d2f6cda898e18ec1c7be49c054ff8bdf90b",
+    "aggregate": "sha256:d778694e4c8f00f4067fe8bef70ebdcbb0d0e41139168091e09dd27f6646b29f",
     "records": [
       {
         "digest": "sha256:4f00c57d5763fa95d86c9bffd3c8e82d3896ff2e127469a1a57ce3d539b5a2b4",
@@ -64,11 +64,11 @@
         "path": "agent-workflows/src/ai_agent_workflow/distribution_planning.py"
       },
       {
-        "digest": "sha256:6dda9f347c4866a4da86d5b23102eecae7895f899f094be5f310d358edd92f9d",
+        "digest": "sha256:041a2d8260bc1ad8fa9337679248113f6c1c6075c09f52b51c9685fe40f77e33",
         "path": "agent-workflows/src/ai_agent_workflow/execution_v2.py"
       },
       {
-        "digest": "sha256:bcad30294a8cd3f0f5ba9eb8124f04585c5223e665fc4a9c8481d5ee9e1da673",
+        "digest": "sha256:e3948692f61ad676e1319feca78ddcc6ba843e2f648efb26213e29fc6ac81648",
         "path": "agent-workflows/src/ai_agent_workflow/execution_v2_orchestrator.py"
       },
       {
@@ -80,11 +80,11 @@
         "path": "agent-workflows/tests/test_distribution_planning.py"
       },
       {
-        "digest": "sha256:1f529accbed422f5d0b4a62357a3cbf8fc9672671ac1d90cebf146c43de713a5",
+        "digest": "sha256:4cc9cce17f82bd9acdd142e2a57ea6126eb76f32a49762271a520e58d57f00f9",
         "path": "agent-workflows/tests/test_execution_v2.py"
       },
       {
-        "digest": "sha256:383f6ceb5d3f5ee5b07963d88fd3feb3770a00dafc3cf7f52fa0079a728ec9c9",
+        "digest": "sha256:675236f6a4dfc39e501814b267f09486c92840cacd46eb901ba51e9e3079af68",
         "path": "agent-workflows/tests/test_execution_v2_orchestrator.py"
       },
       {
@@ -94,7 +94,7 @@
     ]
   },
   "implementation_status": {
-    "digest": "sha256:61b8328298b04c3f90b4532bb89a99fa378ef8ee7e5cb88f71eadb233a850057",
+    "digest": "sha256:a7bf4460fb65e4a0fbd15f8a2414e0731d6a590226239d2b0843f7ad0c90d928",
     "path": "agent-workflows/manifests/implementation-status.json"
   },
   "lineage_id": "ai-agent-workflow-current-canonical-lineage-v2",

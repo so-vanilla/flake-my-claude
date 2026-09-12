@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-control-state-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "identity", "event_refs", "archives", "counter_identity", "counters",
+    "status", "outcome", "terminal_outcome", "recovery_required",
+    "dispatch_allowed", "recovery", "control_refs", "terminal_ref",
+    "terminal_record"
+  ],
+  "properties": {
+    "schema": {"const": "loop-control-state/v1"},
+    "identity": {"$ref": "loop-work-identity-v1.schema.json"},
+    "event_refs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/event_ref"}
+    },
+    "archives": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/archive"}
+    },
+    "control_refs": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/control_ref"}
+    },
+    "terminal_ref": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/terminal_ref"}]},
+    "terminal_record": {"anyOf": [{"type": "null"}, {"$ref": "loop-terminal-record-v1.schema.json"}]},
+    "counter_identity": {"$ref": "#/$defs/counter_identity"},
+    "counters": {"$ref": "#/$defs/counters"},
+    "status": {"enum": ["idle", "reserved", "running", "evaluated", "execution-unknown"]},
+    "outcome": {"type": ["null", "string"], "enum": [null, "completed", "needs-input", "stalled", "iteration-limit", "execution-failed", "recovery-required"]},
+    "terminal_outcome": {"type": ["null", "string"], "enum": [null, "completed", "needs-input", "stalled", "iteration-limit", "execution-failed", "recovery-required"]},
+    "recovery_required": {"type": "boolean"},
+    "dispatch_allowed": {"type": "boolean"},
+    "recovery": {
+      "anyOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resolution", "evidence_ref"],
+          "properties": {
+            "resolution": {"enum": ["accept-result", "retry"]},
+            "evidence_ref": {"$ref": "#/$defs/ref"}
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {
+      "type": "object",
+      "required": ["digest"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "path": {"type": "string", "minLength": 1},
+        "digest": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "event_ref": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["digest", "object_type"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "digest": {"$ref": "#/$defs/digest"},
+        "object_type": {"const": "loop-iteration-event"}
+      }
+    },
+    "control_ref": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["digest", "object_type"],
+      "properties": {
+        "digest": {"$ref": "#/$defs/digest"},
+        "object_type": {"enum": ["loop-terminal-record", "loop-resume-record"]},
+        "path": {"type": "string", "minLength": 1}
+      }
+    },
+    "terminal_ref": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["digest", "object_type"],
+      "properties": {
+        "digest": {"$ref": "#/$defs/digest"},
+        "object_type": {"const": "loop-terminal-record"},
+        "path": {"type": "string", "minLength": 1}
+      }
+    },
+    "counter_identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work_lineage_id", "logical_task_id", "policy_id"],
+      "properties": {
+        "work_lineage_id": {"$ref": "#/$defs/id"},
+        "logical_task_id": {"$ref": "#/$defs/id"},
+        "policy_id": {"enum": ["B", "C", "D1-D4", "D5", "D6-D12", "E3-E7", "E8-E9", "G-H"]}
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "policy_id", "phase", "additional_iteration_limit", "technical_retry_limit", "counter_scope"],
+      "properties": {
+        "schema": {"const": "loop-policy/v1"},
+        "policy_id": {"enum": ["B", "C", "D1-D4", "D5", "D6-D12", "E3-E7", "E8-E9", "G-H"]},
+        "phase": {"type": "string", "minLength": 1},
+        "additional_iteration_limit": {"type": "integer", "minimum": 1},
+        "technical_retry_limit": {"const": 1},
+        "counter_scope": {"type": "string", "minLength": 1}
+      }
+    },
+    "counters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["counter_key", "policy", "total", "initial", "additional_iterations", "technical_retries", "by_kind", "highest_attempt", "next_attempt"],
+      "properties": {
+        "counter_key": {"$ref": "#/$defs/counter_identity"},
+        "policy": {"$ref": "#/$defs/policy"},
+        "total": {"type": "integer", "minimum": 0},
+        "initial": {"type": "integer", "minimum": 0},
+        "additional_iterations": {"type": "integer", "minimum": 0},
+        "technical_retries": {"type": "integer", "minimum": 0},
+        "by_kind": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["initial", "improvement", "integration-return", "technical-retry"],
+          "properties": {
+            "initial": {"type": "integer", "minimum": 0},
+            "improvement": {"type": "integer", "minimum": 0},
+            "integration-return": {"type": "integer", "minimum": 0},
+            "technical-retry": {"type": "integer", "minimum": 0}
+          }
+        },
+        "highest_attempt": {"type": "integer", "minimum": -1},
+        "next_attempt": {"type": "integer", "minimum": 0}
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity", "event_refs", "counter_identity", "counters", "status",
+        "outcome", "terminal_outcome", "recovery_required", "dispatch_allowed",
+        "recovery", "control_refs", "terminal_ref", "terminal_record"
+      ],
+      "properties": {
+        "identity": {"$ref": "loop-work-identity-v1.schema.json"},
+        "event_refs": {"type": "array", "items": {"$ref": "#/$defs/event_ref"}},
+        "control_refs": {"type": "array", "items": {"$ref": "#/$defs/control_ref"}},
+        "terminal_ref": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/terminal_ref"}]},
+        "terminal_record": {"anyOf": [{"type": "null"}, {"$ref": "loop-terminal-record-v1.schema.json"}]},
+        "counter_identity": {"$ref": "#/$defs/counter_identity"},
+        "counters": {"$ref": "#/$defs/counters"},
+        "status": {"enum": ["idle", "reserved", "running", "evaluated", "execution-unknown"]},
+        "outcome": {"type": ["null", "string"], "enum": [null, "completed", "needs-input", "stalled", "iteration-limit", "execution-failed", "recovery-required"]},
+        "terminal_outcome": {"type": ["null", "string"], "enum": [null, "completed", "needs-input", "stalled", "iteration-limit", "execution-failed", "recovery-required"]},
+        "recovery_required": {"type": "boolean"},
+        "dispatch_allowed": {"type": "boolean"},
+        "recovery": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["resolution", "evidence_ref"],
+              "properties": {
+                "resolution": {"enum": ["accept-result", "retry"]},
+                "evidence_ref": {"$ref": "#/$defs/ref"}
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

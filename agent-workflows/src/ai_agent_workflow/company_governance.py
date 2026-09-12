@@ -65,7 +65,7 @@ _DIMENSIONS = {
 }
 _STEP_CATALOG = (
     "docs/plans/ai-agent-workflow-step-catalog.md",
-    "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+    "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
 )
 
 

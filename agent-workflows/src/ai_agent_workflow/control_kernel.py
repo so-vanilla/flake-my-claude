@@ -24,7 +24,57 @@ import tempfile
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Iterator,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    Union,
+)
+
+from .loop_contracts import (
+    TERMINAL_OUTCOMES,
+    LoopContractError,
+    phase_policy,
+    validate_iteration_event,
+    validate_resume_record,
+    validate_terminal_record,
+    validate_work_identity,
+)
+from .loop_contracts import (
+    counter_identity as loop_counter_identity,
+)
+from .loop_contracts import (
+    validate_ref as validate_loop_ref,
+)
+from .loop_state import (
+    RecoveryRequiredError,
+    build_iteration_event,
+    reduce_history,
+    reserve_iteration,
+    validate_history,
+)
+from .loop_state import (
+    accept_result as reduce_loop_result,
+)
+from .loop_state import (
+    event_ref as loop_event_ref,
+)
+from .loop_state import (
+    mark_execution_unknown as reduce_execution_unknown,
+)
+from .loop_state import (
+    mark_running as reduce_loop_running,
+)
+from .loop_state import (
+    recover_execution as reduce_execution_recovery,
+)
+from .completion import classify_completion
 
 
 class KernelError(RuntimeError):
@@ -154,7 +204,26 @@ COMMAND_TYPES = {
     "open_section",
     "open_group",
     "open_operational_group",
+    "reserve_loop_event",
+    "mark_loop_running",
+    "accept_loop_result",
+    "mark_loop_execution_unknown",
+    "recover_loop_execution",
+    "transition_loop_phase",
+    "record_loop_outcome",
+    "resume_loop_outcome",
 }
+LOOP_COMMAND_TYPES = {
+    "reserve_loop_event",
+    "mark_loop_running",
+    "accept_loop_result",
+    "mark_loop_execution_unknown",
+    "recover_loop_execution",
+    "transition_loop_phase",
+    "record_loop_outcome",
+    "resume_loop_outcome",
+}
+LEGACY_PROGRESS_COMMAND_TYPES = {"terminal_review", "reopen_review"}
 _OBJECT_TYPES = {
     "objective",
     "objective-candidate",
@@ -177,6 +246,9 @@ _OBJECT_TYPES = {
     "legacy-bundle",
     "legacy-worker-report",
     "legacy-artifact",
+    "loop-iteration-event",
+    "loop-terminal-record",
+    "loop-resume-record",
 }
 _DURABLE_FORBIDDEN_KEYS = {
     "secret",
@@ -1219,6 +1291,21 @@ class ControlKernel:
         elif object_type == "legacy-artifact":
             if set(payload) != {"legacy_id", "value"} or not isinstance(payload.get("legacy_id"), str) or not _ID.fullmatch(payload["legacy_id"]) or not isinstance(payload.get("value"), Mapping):
                 raise ObjectValidationError("legacy artifact object is incomplete")
+        elif object_type == "loop-iteration-event":
+            try:
+                validate_iteration_event(payload)
+            except LoopContractError as exc:
+                raise ObjectValidationError(str(exc)) from exc
+        elif object_type == "loop-terminal-record":
+            try:
+                validate_terminal_record(payload)
+            except LoopContractError as exc:
+                raise ObjectValidationError(str(exc)) from exc
+        elif object_type == "loop-resume-record":
+            try:
+                validate_resume_record(payload)
+            except LoopContractError as exc:
+                raise ObjectValidationError(str(exc)) from exc
 
     def _validate_closed_boundary_objects(
         self,
@@ -1768,6 +1855,409 @@ class ControlKernel:
                             or any(current.get(key) != candidate.get(key) for key in ("path", "version", "digest", "namespace"))):
                         raise IntegrityBlockedError("current objective pointer is not joined to approval")
 
+    @staticmethod
+    def _loop_recovery_shape(value: Any, label: str = "loop_control.recovery") -> Optional[Dict[str, Any]]:
+        if value is None:
+            return None
+        if not isinstance(value, Mapping) or set(value) != {"resolution", "evidence_ref"}:
+            raise LoopContractError("%s is incomplete" % label)
+        if value.get("resolution") not in {"accept-result", "retry"}:
+            raise LoopContractError("%s.resolution is invalid" % label)
+        validate_loop_ref(value.get("evidence_ref"), "%s.evidence_ref" % label)
+        return _copy(dict(value))
+
+    @classmethod
+    def _normalize_loop_control_input(cls, value: Any) -> Dict[str, Any]:
+        """Normalize an explicit loop projection before it enters the Run.
+
+        Entry accepts either the compact ``identity/history`` form or the
+        pure reducer's projection.  The durable Kernel representation is
+        materialized later as immutable event object references; no caller's
+        derived counters or history list is trusted as a second authority.
+        """
+
+        if not isinstance(value, Mapping):
+            raise LoopContractError("loop_control must be an object")
+        allowed = {
+            "schema", "state_schema", "contract_version", "identity", "history", "events",
+            "event_refs", "counter_key", "counter_identity", "policy", "counters",
+            "initial_attempt_recorded", "additional_iterations_used", "technical_retries_used",
+            "latest_event", "status", "outcome", "terminal_outcome", "recovery_required",
+            "dispatch_allowed", "recovery", "archives", "control_refs",
+            "terminal_ref", "terminal_record",
+        }
+        unknown = sorted(set(value) - allowed)
+        if unknown:
+            raise LoopContractError("loop_control has unsupported fields: %s" % ", ".join(unknown))
+        if value.get("schema") is not None and value.get("schema") != "loop-control-state/v1":
+            raise LoopContractError("loop_control.schema is unsupported")
+        try:
+            identity = validate_work_identity(value.get("identity"))
+        except LoopContractError:
+            raise
+        supplied_history = value.get("history")
+        supplied_events = value.get("events")
+        if supplied_history is not None and supplied_events is not None and supplied_history != supplied_events:
+            raise LoopContractError("loop_control history and events disagree")
+        history_value = supplied_history if supplied_history is not None else supplied_events
+        if history_value is None:
+            history_value = []
+        history = validate_history(history_value, identity=identity)
+        supplied_refs = value.get("event_refs")
+        if supplied_refs is not None:
+            if not isinstance(supplied_refs, list) or len(supplied_refs) != len(history):
+                raise LoopContractError("loop_control.event_refs do not match history")
+            expected_refs = [loop_event_ref(event) for event in history]
+            for index, ref in enumerate(supplied_refs):
+                if not isinstance(ref, Mapping) or ref.get("digest") != expected_refs[index]["digest"]:
+                    raise LoopContractError("loop_control.event_refs[%s] is not history-bound" % index)
+                if "id" in ref and ref.get("id") != expected_refs[index]["id"]:
+                    raise LoopContractError("loop_control.event_refs[%s] has the wrong event id" % index)
+        archives = value.get("archives", [])
+        if not isinstance(archives, list) or archives:
+            raise LoopContractError("entry loop_control archives must be empty")
+        if value.get("control_refs") not in (None, []):
+            raise LoopContractError("entry loop_control control_refs must be empty")
+        if value.get("terminal_ref") is not None or value.get("terminal_record") is not None:
+            raise LoopContractError("entry loop_control cannot begin terminal")
+        recovery = cls._loop_recovery_shape(value.get("recovery"))
+        return {"identity": identity, "history": history, "recovery": recovery}
+
+    @staticmethod
+    def _loop_projection(
+        projection: Mapping[str, Any],
+        identity: Mapping[str, Any],
+        event_refs: Sequence[Mapping[str, Any]],
+        recovery: Optional[Mapping[str, Any]] = None,
+        archives: Sequence[Mapping[str, Any]] = (),
+        control_refs: Sequence[Mapping[str, Any]] = (),
+        terminal_ref: Optional[Mapping[str, Any]] = None,
+        terminal_record: Optional[Mapping[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Build the compact durable loop projection from a pure reduction."""
+
+        counters = _copy(projection.get("counters"))
+        if not isinstance(counters, dict):
+            raise LoopContractError("loop reduction counters are malformed")
+        # ``reduce_history`` intentionally has no counter authority when the
+        # history is empty.  The Kernel nevertheless persists an explicit
+        # loop-control projection from entry onward, so bind the empty
+        # projection's counter key and policy to its supplied identity here.
+        if counters.get("counter_key") is None:
+            counters["counter_key"] = _copy(loop_counter_identity(identity))
+        if counters.get("policy") is None:
+            counters["policy"] = _copy(phase_policy(identity["phase"]))
+
+        if (terminal_ref is None) != (terminal_record is None):
+            raise LoopContractError("terminal_ref and terminal_record must coexist")
+        if terminal_record is not None:
+            checked_terminal = validate_terminal_record(terminal_record)
+            if loop_counter_identity(checked_terminal["identity"]) != loop_counter_identity(identity):
+                raise LoopContractError("terminal record belongs to a different loop counter")
+        else:
+            checked_terminal = None
+        outcome = checked_terminal["outcome"] if checked_terminal is not None else projection.get("outcome")
+        return {
+            "schema": "loop-control-state/v1",
+            "identity": _copy(identity),
+            "event_refs": _copy(list(event_refs)),
+            "archives": _copy(list(archives)),
+            "control_refs": _copy(list(control_refs)),
+            "terminal_ref": _copy(terminal_ref),
+            "terminal_record": _copy(checked_terminal),
+            "counter_identity": _copy(loop_counter_identity(identity)),
+            "counters": counters,
+            "status": projection.get("status"),
+            "outcome": outcome,
+            "terminal_outcome": outcome,
+            "recovery_required": projection.get("recovery_required"),
+            "dispatch_allowed": bool(projection.get("dispatch_allowed")) and checked_terminal is None,
+            "recovery": _copy(recovery),
+        }
+
+    def _loop_history_for_refs(
+        self,
+        state: Mapping[str, Any],
+        identity_value: Any,
+        refs: Any,
+        label: str = "loop_control.event_refs",
+    ) -> List[Dict[str, Any]]:
+        try:
+            checked_identity = validate_work_identity(identity_value)
+        except LoopContractError as exc:
+            raise IntegrityBlockedError("%s identity is malformed" % label) from exc
+        if not isinstance(refs, list):
+            raise IntegrityBlockedError("%s are malformed" % label)
+        history: List[Dict[str, Any]] = []
+        for index, ref in enumerate(refs):
+            try:
+                self._validate_ref_runtime(ref, "%s[%s]" % (label, index))
+            except KernelError as exc:
+                raise IntegrityBlockedError("loop-control event reference is malformed") from exc
+            if ref.get("object_type") != "loop-iteration-event" or ref.get("digest") not in state.get("object_refs", {}):
+                raise IntegrityBlockedError("loop-control event reference is not catalogued")
+            event_object = self._load_ref_object(ref, "%s[%s]" % (label, index))
+            if event_object.get("object_type") != "loop-iteration-event":
+                raise IntegrityBlockedError("loop-control event object type is invalid")
+            history.append(_copy(event_object["payload"]))
+        try:
+            return validate_history(history, identity=checked_identity)
+        except LoopContractError as exc:
+            raise IntegrityBlockedError("loop-control event history is invalid") from exc
+
+    def _loop_history(self, state: Mapping[str, Any]) -> List[Dict[str, Any]]:
+        loop = state.get("loop_control")
+        if not isinstance(loop, Mapping):
+            raise IntegrityBlockedError("loop-control state is missing")
+        return self._loop_history_for_refs(
+            state,
+            loop.get("identity"),
+            loop.get("event_refs"),
+        )
+
+    @staticmethod
+    def _loop_payload_ref(ref: Mapping[str, Any]) -> Dict[str, str]:
+        return {"path": ref["path"], "digest": ref["digest"]}
+
+    def _validate_loop_control_records(
+        self,
+        state: Mapping[str, Any],
+        identity: Mapping[str, Any],
+        refs: Any,
+        terminal_ref: Any,
+        terminal_record: Any,
+        *,
+        label: str,
+        load_objects: bool,
+    ) -> None:
+        if not isinstance(refs, list):
+            raise IntegrityBlockedError(label + " control_refs are malformed")
+        for ref in refs:
+            try:
+                self._validate_ref_runtime(ref, label + " control reference")
+            except KernelError as exc:
+                raise IntegrityBlockedError(label + " control reference is malformed") from exc
+            if ref.get("object_type") not in {"loop-terminal-record", "loop-resume-record"}:
+                raise IntegrityBlockedError(label + " control reference type is invalid")
+            if ref.get("digest") not in state.get("object_refs", {}):
+                raise IntegrityBlockedError(label + " control reference is not catalogued")
+        expected_terminal_ref = refs[-1] if refs and refs[-1].get("object_type") == "loop-terminal-record" else None
+        if terminal_ref != expected_terminal_ref:
+            raise IntegrityBlockedError(label + " terminal_ref is not the active control record")
+        if (terminal_ref is None) != (terminal_record is None):
+            raise IntegrityBlockedError(label + " terminal record projection is incomplete")
+        if terminal_record is not None:
+            try:
+                checked_terminal = validate_terminal_record(terminal_record)
+            except LoopContractError as exc:
+                raise IntegrityBlockedError(label + " terminal record is malformed") from exc
+            if loop_counter_identity(checked_terminal["identity"]) != loop_counter_identity(identity):
+                raise IntegrityBlockedError(label + " terminal record counter is stale")
+        if not load_objects:
+            return
+        active_ref: Optional[Mapping[str, Any]] = None
+        active_record: Optional[Mapping[str, Any]] = None
+        for ref in refs:
+            loaded = self._load_ref_object(ref, label + " control record")
+            payload = loaded.get("payload")
+            if ref["object_type"] == "loop-terminal-record":
+                if active_ref is not None:
+                    raise IntegrityBlockedError(label + " contains nested terminal records")
+                try:
+                    active_record = validate_terminal_record(payload)
+                except LoopContractError as exc:
+                    raise IntegrityBlockedError(label + " terminal record object is malformed") from exc
+                if loop_counter_identity(active_record["identity"]) != loop_counter_identity(identity):
+                    raise IntegrityBlockedError(label + " terminal record object counter is stale")
+                active_ref = ref
+            else:
+                if active_ref is None:
+                    raise IntegrityBlockedError(label + " resume record has no active terminal")
+                try:
+                    resume = validate_resume_record(payload)
+                except LoopContractError as exc:
+                    raise IntegrityBlockedError(label + " resume record object is malformed") from exc
+                if resume["terminal_ref"] != self._loop_payload_ref(active_ref):
+                    raise IntegrityBlockedError(label + " resume record does not bind the active terminal")
+                if loop_counter_identity(resume["identity"]) != loop_counter_identity(identity):
+                    raise IntegrityBlockedError(label + " resume record object counter is stale")
+                active_ref = None
+                active_record = None
+        if active_ref != terminal_ref or active_record != terminal_record:
+            raise IntegrityBlockedError(label + " terminal projection is not control-history-derived")
+
+    def _validate_loop_control(self, state: Mapping[str, Any], load_objects: bool) -> None:
+        loop = state.get("loop_control")
+        required = {
+            "schema", "identity", "event_refs", "archives", "counter_identity", "counters",
+            "status", "outcome", "terminal_outcome", "recovery_required",
+            "dispatch_allowed", "recovery", "control_refs", "terminal_ref", "terminal_record",
+        }
+        if not isinstance(loop, Mapping) or set(loop) != required:
+            raise IntegrityBlockedError("state.loop_control is incomplete")
+        if loop.get("schema") != "loop-control-state/v1":
+            raise IntegrityBlockedError("state.loop_control schema is unsupported")
+        try:
+            identity = validate_work_identity(loop.get("identity"))
+            expected_counter_identity = loop_counter_identity(identity)
+        except LoopContractError as exc:
+            raise IntegrityBlockedError("state.loop_control identity is malformed") from exc
+        if loop.get("counter_identity") != expected_counter_identity:
+            raise IntegrityBlockedError("state.loop_control counter identity drifted")
+        refs = loop.get("event_refs")
+        if not isinstance(refs, list):
+            raise IntegrityBlockedError("state.loop_control event_refs are malformed")
+        for index, ref in enumerate(refs):
+            try:
+                self._validate_ref_runtime(ref, "state.loop_control.event_refs[%s]" % index)
+            except KernelError as exc:
+                raise IntegrityBlockedError("state.loop_control event reference is malformed") from exc
+            if ref.get("object_type") != "loop-iteration-event" or ref.get("digest") not in state.get("object_refs", {}):
+                raise IntegrityBlockedError("state.loop_control event reference is not catalogued")
+        archives = loop.get("archives")
+        if not isinstance(archives, list):
+            raise IntegrityBlockedError("state.loop_control archives are malformed")
+        archive_counter_keys = set()
+        for index, archive in enumerate(archives):
+            archive_required = {
+                "identity", "event_refs", "counter_identity", "counters", "status",
+                "outcome", "terminal_outcome", "recovery_required", "dispatch_allowed", "recovery",
+                "control_refs", "terminal_ref", "terminal_record",
+            }
+            if not isinstance(archive, Mapping) or set(archive) != archive_required:
+                raise IntegrityBlockedError("state.loop_control archive %s is incomplete" % index)
+            try:
+                archive_identity = validate_work_identity(archive.get("identity"))
+                archive_counter = loop_counter_identity(archive_identity)
+            except LoopContractError as exc:
+                raise IntegrityBlockedError("state.loop_control archive identity is malformed") from exc
+            if archive.get("counter_identity") != archive_counter or tuple(sorted(archive_counter.items())) in archive_counter_keys:
+                raise IntegrityBlockedError("state.loop_control archive counter identity is duplicated")
+            archive_counter_keys.add(tuple(sorted(archive_counter.items())))
+            if archive.get("status") not in {"idle", "reserved", "running", "evaluated", "execution-unknown"}:
+                raise IntegrityBlockedError("state.loop_control archive status is invalid")
+            if archive.get("outcome") not in {None, *TERMINAL_OUTCOMES} or archive.get("terminal_outcome") not in {None, *TERMINAL_OUTCOMES}:
+                raise IntegrityBlockedError("state.loop_control archive outcome is invalid")
+            if not isinstance(archive.get("recovery_required"), bool) or not isinstance(archive.get("dispatch_allowed"), bool):
+                raise IntegrityBlockedError("state.loop_control archive dispatch flags are malformed")
+            try:
+                self._loop_recovery_shape(archive.get("recovery"), "state.loop_control.archive.recovery")
+            except LoopContractError as exc:
+                raise IntegrityBlockedError("state.loop_control archive recovery is malformed") from exc
+            self._validate_loop_control_records(
+                state,
+                archive_identity,
+                archive.get("control_refs"),
+                archive.get("terminal_ref"),
+                archive.get("terminal_record"),
+                label="state.loop_control archive",
+                load_objects=load_objects,
+            )
+            archive_refs = archive.get("event_refs")
+            if not isinstance(archive_refs, list):
+                raise IntegrityBlockedError("state.loop_control archive event_refs are malformed")
+            for ref in archive_refs:
+                try:
+                    self._validate_ref_runtime(ref, "state.loop_control archive event reference")
+                except KernelError as exc:
+                    raise IntegrityBlockedError("state.loop_control archive event reference is malformed") from exc
+                if ref.get("object_type") != "loop-iteration-event" or ref.get("digest") not in state.get("object_refs", {}):
+                    raise IntegrityBlockedError("state.loop_control archive event reference is not catalogued")
+            if load_objects:
+                archive_history = self._loop_history_for_refs(
+                    state,
+                    archive_identity,
+                    archive_refs,
+                    "state.loop_control.archive.event_refs",
+                )
+                archive_projection = reduce_history(archive_history, identity=archive_identity)
+                derived_archive = self._loop_projection(
+                    archive_projection,
+                    archive_identity,
+                    archive_refs,
+                    archive.get("recovery"),
+                    control_refs=archive.get("control_refs", []),
+                    terminal_ref=archive.get("terminal_ref"),
+                    terminal_record=archive.get("terminal_record"),
+                )
+                archive_expected = {
+                    key: derived_archive[key]
+                    for key in archive_required
+                }
+                if dict(archive) != archive_expected:
+                    raise IntegrityBlockedError("state.loop_control archive projection is not history-derived")
+        if loop.get("status") not in {"idle", "reserved", "running", "evaluated", "execution-unknown"}:
+            raise IntegrityBlockedError("state.loop_control status is invalid")
+        if loop.get("outcome") not in {None, *TERMINAL_OUTCOMES} or loop.get("terminal_outcome") not in {None, *TERMINAL_OUTCOMES}:
+            raise IntegrityBlockedError("state.loop_control outcome is invalid")
+        if not isinstance(loop.get("recovery_required"), bool) or not isinstance(loop.get("dispatch_allowed"), bool):
+            raise IntegrityBlockedError("state.loop_control dispatch flags are malformed")
+        try:
+            self._loop_recovery_shape(loop.get("recovery"))
+        except LoopContractError as exc:
+            raise IntegrityBlockedError("state.loop_control recovery is malformed") from exc
+        self._validate_loop_control_records(
+            state,
+            identity,
+            loop.get("control_refs"),
+            loop.get("terminal_ref"),
+            loop.get("terminal_record"),
+            label="state.loop_control",
+            load_objects=load_objects,
+        )
+        if load_objects:
+            history = self._loop_history(state)
+            try:
+                projection = reduce_history(history, identity=identity)
+            except LoopContractError as exc:
+                raise IntegrityBlockedError("state.loop_control reduction failed") from exc
+            expected = self._loop_projection(
+                projection,
+                identity,
+                refs,
+                loop.get("recovery"),
+                archives,
+                loop.get("control_refs", []),
+                loop.get("terminal_ref"),
+                loop.get("terminal_record"),
+            )
+            if loop != expected:
+                raise IntegrityBlockedError("state.loop_control projection is not derived from immutable history")
+
+    def _sync_loop_history(
+        self,
+        state: Dict[str, Any],
+        old_history: Sequence[Mapping[str, Any]],
+        new_history: Sequence[Mapping[str, Any]],
+        stage: Path,
+        projection: Mapping[str, Any],
+        recovery: Optional[Mapping[str, Any]],
+    ) -> None:
+        loop = state.get("loop_control")
+        if not isinstance(loop, Mapping) or not isinstance(loop.get("event_refs"), list):
+            raise IntegrityBlockedError("loop-control state is missing event references")
+        old_refs = loop["event_refs"]
+        if len(old_refs) != len(old_history):
+            raise IntegrityBlockedError("loop-control history/reference cardinality differs")
+        refs: List[Mapping[str, Any]] = []
+        for index, event in enumerate(new_history):
+            if index < len(old_history) and old_history[index] == event:
+                refs.append(_copy(old_refs[index]))
+                continue
+            ref = self._new_object(stage, "loop-iteration-event", event)
+            self._add_object_ref(state, ref)
+            refs.append(ref)
+        state["loop_control"] = self._loop_projection(
+            projection,
+            loop["identity"],
+            refs,
+            recovery,
+            loop.get("archives", []),
+            loop.get("control_refs", []),
+            loop.get("terminal_ref"),
+            loop.get("terminal_record"),
+        )
+
     def _validate_state(self, state: Mapping[str, Any], load_objects: bool = True) -> None:
         if not isinstance(state, Mapping) or state.get("schema") != SCHEMA_STATE:
             raise IntegrityBlockedError("unsupported state schema")
@@ -1777,7 +2267,7 @@ class ControlKernel:
             "authority", "group", "epoch", "epoch_contexts", "context_budget", "object_refs",
             "artifacts", "tasks", "reviews", "findings", "verdicts", "finding_validations", "edges", "leases",
             "idempotency", "nodes", "metadata", "migration", "updated_at", "review_budget", "budget_terminal", "terminal_history",
-            "objective_history", "objective_approvals", "objective_events",
+            "objective_history", "objective_approvals", "objective_events", "loop_control",
         }
         if set(state) - allowed_state_fields:
             raise IntegrityBlockedError("state has unsupported fields")
@@ -1852,19 +2342,28 @@ class ControlKernel:
             self._validate_budget(state.get("context_budget"))
         except KernelError as exc:
             raise IntegrityBlockedError("state.context_budget is malformed") from exc
-        review_budget = state.get("review_budget")
-        if not isinstance(review_budget, Mapping) or set(review_budget) != {"version", "deadline", "max_rounds", "max_attempts_per_finding", "rounds_used", "finding_attempts"} or not isinstance(review_budget.get("version"), str) or not _ID.fullmatch(review_budget["version"]) or any(not isinstance(review_budget.get(key), int) or isinstance(review_budget[key], bool) or review_budget[key] < 1 for key in ("max_rounds", "max_attempts_per_finding")) or not isinstance(review_budget.get("rounds_used"), int) or review_budget["rounds_used"] < 0 or not isinstance(review_budget.get("finding_attempts"), Mapping):
-            raise IntegrityBlockedError("state.review_budget is malformed")
-        try:
-            deadline = _datetime.datetime.fromisoformat(str(review_budget.get("deadline")).replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise IntegrityBlockedError("state.review_budget deadline is malformed") from exc
-        if deadline.tzinfo is None or any(not isinstance(key, str) or not _ID.fullmatch(key) or not isinstance(value, int) or value < 0 for key, value in review_budget["finding_attempts"].items()):
-            raise IntegrityBlockedError("state.review_budget is malformed")
-        if state.get("budget_terminal") is not None and not isinstance(state.get("budget_terminal"), Mapping):
-            raise IntegrityBlockedError("state.budget_terminal is malformed")
-        if not isinstance(state.get("terminal_history"), list):
-            raise IntegrityBlockedError("state.terminal_history is malformed")
+        has_review_budget = "review_budget" in state
+        has_loop_control = "loop_control" in state
+        if has_review_budget == has_loop_control:
+            raise IntegrityBlockedError("state must contain exactly one progress-control schema")
+        if has_loop_control:
+            if "budget_terminal" in state or "terminal_history" in state:
+                raise IntegrityBlockedError("loop-control state cannot contain legacy budget terminal fields")
+            self._validate_loop_control(state, load_objects)
+        else:
+            review_budget = state.get("review_budget")
+            if not isinstance(review_budget, Mapping) or set(review_budget) != {"version", "deadline", "max_rounds", "max_attempts_per_finding", "rounds_used", "finding_attempts"} or not isinstance(review_budget.get("version"), str) or not _ID.fullmatch(review_budget["version"]) or any(not isinstance(review_budget.get(key), int) or isinstance(review_budget[key], bool) or review_budget[key] < 1 for key in ("max_rounds", "max_attempts_per_finding")) or not isinstance(review_budget.get("rounds_used"), int) or review_budget["rounds_used"] < 0 or not isinstance(review_budget.get("finding_attempts"), Mapping):
+                raise IntegrityBlockedError("state.review_budget is malformed")
+            try:
+                deadline = _datetime.datetime.fromisoformat(str(review_budget.get("deadline")).replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise IntegrityBlockedError("state.review_budget deadline is malformed") from exc
+            if deadline.tzinfo is None or any(not isinstance(key, str) or not _ID.fullmatch(key) or not isinstance(value, int) or value < 0 for key, value in review_budget["finding_attempts"].items()):
+                raise IntegrityBlockedError("state.review_budget is malformed")
+            if state.get("budget_terminal") is not None and not isinstance(state.get("budget_terminal"), Mapping):
+                raise IntegrityBlockedError("state.budget_terminal is malformed")
+            if not isinstance(state.get("terminal_history"), list):
+                raise IntegrityBlockedError("state.terminal_history is malformed")
         migration = state.get("migration")
         if migration is not None:
             required_migration = {
@@ -2698,7 +3197,9 @@ class ControlKernel:
         epoch_id: str,
         authority_ref: Mapping[str, Any],
         aliases: Iterable[str],
-        external_refs: Iterable[str], review_budget: Optional[Mapping[str, Any]] = None,
+        external_refs: Iterable[str],
+        review_budget: Optional[Mapping[str, Any]] = None,
+        loop_control: Optional[Mapping[str, Any]] = None,
     ) -> Dict[str, Any]:
         initial_epoch = {
             "id": epoch_id,
@@ -2708,6 +3209,23 @@ class ControlKernel:
             "started_at_revision": 1,
             "input_ref": None,
         }
+        if loop_control is not None and review_budget is not None:
+            raise KernelError("loop_control and review_budget cannot coexist")
+        normalized_loop: Optional[Dict[str, Any]] = None
+        if loop_control is not None:
+            try:
+                normalized_input = self._normalize_loop_control_input(loop_control)
+                normalized_projection = reduce_history(
+                    normalized_input["history"], identity=normalized_input["identity"]
+                )
+            except LoopContractError as exc:
+                raise KernelError("loop_control is invalid: %s" % exc) from exc
+            normalized_loop = self._loop_projection(
+                normalized_projection,
+                normalized_input["identity"],
+                [],
+                normalized_input["recovery"],
+            )
         state = {
             "schema": SCHEMA_STATE,
             "run_id": self.run_id,
@@ -2733,9 +3251,6 @@ class ControlKernel:
             },
             "epoch_contexts": {epoch_id: initial_epoch},
             "context_budget": dict(BUDGET_POLICY, token_status="unavailable", token_count=None),
-            "review_budget": _copy(review_budget or {"version": "v1", "deadline": "9999-12-31T23:59:59+00:00", "max_rounds": 10, "max_attempts_per_finding": 2, "rounds_used": 0, "finding_attempts": {}}),
-            "budget_terminal": None,
-            "terminal_history": [],
             "object_refs": {},
             "artifacts": {},
             "tasks": {},
@@ -2749,6 +3264,12 @@ class ControlKernel:
             "nodes": {},
             "metadata": {"aliases": list(aliases), "external_refs": list(external_refs)},
         }
+        if normalized_loop is None:
+            state["review_budget"] = _copy(review_budget or {"version": "v1", "deadline": "9999-12-31T23:59:59+00:00", "max_rounds": 10, "max_attempts_per_finding": 2, "rounds_used": 0, "finding_attempts": {}})
+            state["budget_terminal"] = None
+            state["terminal_history"] = []
+        else:
+            state["loop_control"] = normalized_loop
         fixture_identity = authority_ref.get("fixture_identity")
         runtime_identity = authority_ref.get("runtime_identity")
         if runtime_identity is not None:
@@ -3114,6 +3635,11 @@ class ControlKernel:
                     and value.get("schema") == "repair-attempt-state/v1"
                     and isinstance(child, Mapping)
                 )
+                schema_owned_non_authorizing = (
+                    raw_key == "non_authorizing"
+                    and value.get("schema") in {"loop-terminal-record/v1", "loop-resume-record/v1"}
+                    and child is True
+                )
                 if schema_owned_attempt_authority_ref:
                     try:
                         ControlKernel._validate_ref_runtime(
@@ -3128,6 +3654,7 @@ class ControlKernel:
                     and ControlKernel._is_forbidden_durable_key(normalized)
                     and not telemetry_key
                     and not schema_owned_attempt_authority_ref
+                    and not schema_owned_non_authorizing
                 ):
                     raise AuthorizationError("%s contains non-durable field: %s" % (label, key))
                 child_allows_reference_path = normalized in {
@@ -3893,7 +4420,7 @@ class ControlKernel:
         if not isinstance(payload, Mapping):
             raise CommandValidationError("command payload must be an object")
         fields = {
-            "entry": {"objective_ref"},
+            "entry": {"objective_ref", "loop_control"},
             "approve_objective": {"candidate_ref", "prior_objective", "proposal_digest", "approval"},
             "publish_artifact": {"artifact_id", "version", "value", "kind", "path"},
             "publish_task_package": {"task_id", "package", "assignment", "input_refs", "sibling_group"},
@@ -3917,6 +4444,14 @@ class ControlKernel:
             "close_group": {"acceptance_evidence", "approved_decisions", "unresolved_items", "invalidated_artifacts", "next_inputs", "next_group", "boundary_reason"},
             "open_section": {"section", "group", "first_frontier", "preconditions", "transition"},
             "open_group": {"section", "group", "first_frontier", "preconditions", "transition"},
+            "reserve_loop_event": {"event"},
+            "mark_loop_running": {"event_id"},
+            "accept_loop_result": {"event_id", "result_ref"},
+            "mark_loop_execution_unknown": {"event_id"},
+            "recover_loop_execution": {"event_id", "resolution", "evidence_ref", "result_ref", "retry_event", "retry_command_id", "retry_event_id"},
+            "transition_loop_phase": {"identity", "reason"},
+            "record_loop_outcome": {"record"},
+            "resume_loop_outcome": {"record"},
         }[operation]
         unknown = sorted(set(payload) - fields)
         if unknown:
@@ -3946,6 +4481,14 @@ class ControlKernel:
             "close_group": fields,
             "open_section": fields,
             "open_group": fields,
+            "reserve_loop_event": fields,
+            "mark_loop_running": fields,
+            "accept_loop_result": fields,
+            "mark_loop_execution_unknown": fields,
+            "recover_loop_execution": fields,
+            "transition_loop_phase": fields,
+            "record_loop_outcome": fields,
+            "resume_loop_outcome": fields,
         }[operation]
         missing = sorted(required - set(payload))
         if missing:
@@ -3953,6 +4496,68 @@ class ControlKernel:
         if operation == "entry":
             if not isinstance(payload["objective_ref"], Mapping):
                 raise CommandValidationError("entry.objective_ref must be an object")
+            if "loop_control" in payload:
+                try:
+                    self._normalize_loop_control_input(payload["loop_control"])
+                except LoopContractError as exc:
+                    raise CommandValidationError("entry.loop_control is invalid: %s" % exc) from exc
+        elif operation == "reserve_loop_event":
+            event = payload.get("event")
+            try:
+                checked = validate_iteration_event(event)
+            except LoopContractError as exc:
+                raise CommandValidationError("reserve_loop_event.event is invalid: %s" % exc) from exc
+            if checked.get("status") != "reserved":
+                raise CommandValidationError("reserve_loop_event.event must be reserved")
+        elif operation in {"mark_loop_running", "mark_loop_execution_unknown"}:
+            if not isinstance(payload.get("event_id"), str) or not _ID.fullmatch(payload["event_id"]):
+                raise CommandValidationError("%s.event_id is malformed" % operation)
+        elif operation == "accept_loop_result":
+            if not isinstance(payload.get("event_id"), str) or not _ID.fullmatch(payload["event_id"]):
+                raise CommandValidationError("accept_loop_result.event_id is malformed")
+            try:
+                validate_loop_ref(payload.get("result_ref"), "accept_loop_result.result_ref")
+            except LoopContractError as exc:
+                raise CommandValidationError(str(exc)) from exc
+        elif operation == "recover_loop_execution":
+            if not isinstance(payload.get("event_id"), str) or not _ID.fullmatch(payload["event_id"]):
+                raise CommandValidationError("recover_loop_execution.event_id is malformed")
+            if payload.get("resolution") not in {"accept-result", "retry"}:
+                raise CommandValidationError("recover_loop_execution.resolution is invalid")
+            try:
+                validate_loop_ref(payload.get("evidence_ref"), "recover_loop_execution.evidence_ref")
+                if payload.get("result_ref") is not None:
+                    validate_loop_ref(payload.get("result_ref"), "recover_loop_execution.result_ref")
+            except LoopContractError as exc:
+                raise CommandValidationError(str(exc)) from exc
+            retry_event = payload.get("retry_event")
+            if retry_event is not None:
+                try:
+                    checked_retry = validate_iteration_event(retry_event)
+                except LoopContractError as exc:
+                    raise CommandValidationError("recover_loop_execution.retry_event is invalid: %s" % exc) from exc
+                if checked_retry.get("status") != "reserved":
+                    raise CommandValidationError("recover_loop_execution.retry_event must be reserved")
+            for key in ("retry_command_id", "retry_event_id"):
+                if payload.get(key) is not None and (not isinstance(payload[key], str) or not _ID.fullmatch(payload[key])):
+                    raise CommandValidationError("recover_loop_execution.%s is malformed" % key)
+        elif operation == "transition_loop_phase":
+            try:
+                validate_work_identity(payload.get("identity"))
+            except LoopContractError as exc:
+                raise CommandValidationError("transition_loop_phase.identity is invalid: %s" % exc) from exc
+            if not isinstance(payload.get("reason"), str) or not payload["reason"]:
+                raise CommandValidationError("transition_loop_phase.reason is required")
+        elif operation == "record_loop_outcome":
+            try:
+                validate_terminal_record(payload.get("record"))
+            except LoopContractError as exc:
+                raise CommandValidationError("record_loop_outcome.record is invalid: %s" % exc) from exc
+        elif operation == "resume_loop_outcome":
+            try:
+                validate_resume_record(payload.get("record"))
+            except LoopContractError as exc:
+                raise CommandValidationError("resume_loop_outcome.record is invalid: %s" % exc) from exc
         elif operation == "approve_objective":
             candidate = payload["candidate_ref"]
             prior = payload["prior_objective"]
@@ -4284,6 +4889,10 @@ class ControlKernel:
         operation = command.get("command_type")
         if not isinstance(operation, str) or not operation:
             raise AuthorizationError("command_type is required")
+        if operation in LOOP_COMMAND_TYPES and "loop_control" not in state:
+            raise AuthorizationError("loop-control operation requires a loop-control Run")
+        if operation in LEGACY_PROGRESS_COMMAND_TYPES and "loop_control" in state:
+            raise AuthorizationError("legacy review-progress operation cannot mutate a loop-control Run")
         required_payload_fields = {
             "publish_artifact": ("artifact_id", "version"),
             "publish_task_package": ("task_id",),
@@ -4297,6 +4906,14 @@ class ControlKernel:
             "release_task": ("task_id", "assignment_id"),
             "open_epoch": ("epoch_id", "input_ref"),
             "open_review_epoch": ("epoch_id", "input_ref"),
+            "reserve_loop_event": ("event",),
+            "mark_loop_running": ("event_id",),
+            "accept_loop_result": ("event_id", "result_ref"),
+            "mark_loop_execution_unknown": ("event_id",),
+            "recover_loop_execution": ("event_id", "resolution", "evidence_ref", "result_ref", "retry_event", "retry_command_id", "retry_event_id"),
+            "transition_loop_phase": ("identity", "reason"),
+            "record_loop_outcome": ("record",),
+            "resume_loop_outcome": ("record",),
         }
         required = required_payload_fields.get(operation, ())
         payload = command.get("payload")
@@ -5109,6 +5726,23 @@ class ControlKernel:
         state["objective_ref"]["object_digest"] = objective["digest"]
         state["entry_object_ref"] = objective
         state.setdefault("nodes", {})["objective:entry"] = "objective"
+        if "loop_control" in payload:
+            try:
+                normalized = self._normalize_loop_control_input(payload["loop_control"])
+                projection = reduce_history(normalized["history"], identity=normalized["identity"])
+            except LoopContractError as exc:
+                raise CommandValidationError("entry.loop_control is invalid: %s" % exc) from exc
+            refs = []
+            for event in normalized["history"]:
+                ref = self._new_object(stage, "loop-iteration-event", event)
+                self._add_object_ref(state, ref)
+                refs.append(ref)
+            state["loop_control"] = self._loop_projection(
+                projection,
+                normalized["identity"],
+                refs,
+                normalized["recovery"],
+            )
         return state
 
     def _validate_section_transition(self, command: Mapping[str, Any], state: Mapping[str, Any]) -> None:
@@ -5342,6 +5976,7 @@ class ControlKernel:
         aliases: Optional[Iterable[str]] = None,
         external_refs: Optional[Iterable[str]] = None,
         review_budget: Optional[Mapping[str, Any]] = None,
+        loop_control: Optional[Mapping[str, Any]] = None,
         objective: Optional[Mapping[str, Any]] = None,
         authority: Optional[Mapping[str, Any]] = None,
     ) -> Dict[str, Any]:
@@ -5376,7 +6011,15 @@ class ControlKernel:
         authority = authority_ref
         if authority is None:
             raise AuthorizationError("entry requires explicit authority_ref")
+        if loop_control is not None and review_budget is not None:
+            raise KernelError("loop_control and review_budget cannot coexist")
         payload = {"objective_ref": _copy(objective)}
+        if loop_control is not None:
+            try:
+                self._normalize_loop_control_input(loop_control)
+            except LoopContractError as exc:
+                raise KernelError("loop_control is invalid: %s" % exc) from exc
+            payload["loop_control"] = _copy(loop_control)
         state = self._empty_state(
             objective,
             workflow_version,
@@ -5386,6 +6029,7 @@ class ControlKernel:
             aliases or [],
             external_refs or [],
             review_budget,
+            loop_control,
         )
         command = self._make_command(
             "entry",
@@ -5395,6 +6039,226 @@ class ControlKernel:
         )
         command["workflow_version"] = workflow_version
         return self._commit(command, self._entry_reducer, initial=True, initial_state=state)
+
+    def _loop_command(
+        self,
+        operation: str,
+        payload: Mapping[str, Any],
+        *,
+        authority_ref: Optional[Mapping[str, Any]],
+        idempotency_key: str,
+        expected_revision: Optional[int],
+    ) -> Dict[str, Any]:
+        """Build one loop command against a lock-held immutable HEAD snapshot."""
+
+        with self._lock():
+            state, head = self._load_current()
+            if "loop_control" not in state:
+                raise AuthorizationError("loop-control operation requires a loop-control Run")
+            if expected_revision is not None:
+                if not isinstance(expected_revision, int) or isinstance(expected_revision, bool):
+                    raise StaleHeadError("expected loop revision is malformed")
+                if state["revision"] != expected_revision:
+                    raise StaleHeadError("expected loop revision is stale")
+            authority = state["authority"] if authority_ref is None else authority_ref
+            command = self._make_command(
+                operation,
+                authority_ref=authority,
+                payload=payload,
+                idempotency_key=idempotency_key,
+                expected_head=head,
+            )
+            command["workflow_version"] = state["workflow_version"]
+        return self.apply(command)
+
+    def reserve_loop_event(
+        self,
+        event: Optional[Mapping[str, Any]] = None,
+        *,
+        identity: Optional[Mapping[str, Any]] = None,
+        command_id: Optional[str] = None,
+        event_id: Optional[str] = None,
+        kind: str = "initial",
+        attempt: Optional[int] = None,
+        predecessor_ref: Optional[Mapping[str, Any]] = None,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Persist a ``reserved`` event before any external dispatch."""
+
+        try:
+            if event is None:
+                event = build_iteration_event(
+                    identity,
+                    command_id,
+                    kind=kind,
+                    attempt=0 if attempt is None else attempt,
+                    predecessor_ref=predecessor_ref,
+                    event_id=event_id,
+                )
+            else:
+                event = validate_iteration_event(event)
+        except LoopContractError as exc:
+            raise CommandValidationError("loop event is invalid: %s" % exc) from exc
+        if event.get("status") != "reserved":
+            raise CommandValidationError("loop event must be reserved")
+        key = idempotency_key or "loop-reserve:" + event["command_id"]
+        return self._loop_command(
+            "reserve_loop_event",
+            {"event": _copy(event)},
+            authority_ref=authority_ref,
+            idempotency_key=key,
+            expected_revision=expected_revision,
+        )
+
+    def mark_loop_running(
+        self,
+        event_id: str,
+        *,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        return self._loop_command(
+            "mark_loop_running",
+            {"event_id": event_id},
+            authority_ref=authority_ref,
+            idempotency_key=idempotency_key or "loop-running:" + event_id,
+            expected_revision=expected_revision,
+        )
+
+    def accept_loop_result(
+        self,
+        event_id: str,
+        result_ref: Mapping[str, Any],
+        *,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        payload = {"event_id": event_id, "result_ref": _copy(result_ref)}
+        key = idempotency_key or "loop-accept:" + _digest(payload)
+        return self._loop_command(
+            "accept_loop_result",
+            payload,
+            authority_ref=authority_ref,
+            idempotency_key=key,
+            expected_revision=expected_revision,
+        )
+
+    def mark_loop_execution_unknown(
+        self,
+        event_id: str,
+        *,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        return self._loop_command(
+            "mark_loop_execution_unknown",
+            {"event_id": event_id},
+            authority_ref=authority_ref,
+            idempotency_key=idempotency_key or "loop-unknown:" + event_id,
+            expected_revision=expected_revision,
+        )
+
+    def recover_loop_execution(
+        self,
+        event_id: str,
+        *,
+        resolution: str,
+        evidence_ref: Mapping[str, Any],
+        result_ref: Optional[Mapping[str, Any]] = None,
+        retry_event: Optional[Mapping[str, Any]] = None,
+        retry_command_id: Optional[str] = None,
+        retry_event_id: Optional[str] = None,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        payload = {
+            "event_id": event_id,
+            "resolution": resolution,
+            "evidence_ref": _copy(evidence_ref),
+            "result_ref": _copy(result_ref),
+            "retry_event": _copy(retry_event),
+            "retry_command_id": retry_command_id,
+            "retry_event_id": retry_event_id,
+        }
+        key = idempotency_key or "loop-recovery:" + _digest(payload)
+        return self._loop_command(
+            "recover_loop_execution",
+            payload,
+            authority_ref=authority_ref,
+            idempotency_key=key,
+            expected_revision=expected_revision,
+        )
+
+    def transition_loop_phase(
+        self,
+        identity: Mapping[str, Any],
+        *,
+        reason: str = "phase-transition",
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        payload = {"identity": _copy(identity), "reason": reason}
+        key = idempotency_key or "loop-transition:" + _digest(payload)
+        return self._loop_command(
+            "transition_loop_phase",
+            payload,
+            authority_ref=authority_ref,
+            idempotency_key=key,
+            expected_revision=expected_revision,
+        )
+
+    def record_loop_outcome(
+        self,
+        record: Mapping[str, Any],
+        *,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Persist one completed or incomplete loop record before returning."""
+
+        try:
+            checked = validate_terminal_record(record)
+        except LoopContractError as exc:
+            raise CommandValidationError("loop terminal record is invalid: %s" % exc) from exc
+        payload = {"record": checked}
+        return self._loop_command(
+            "record_loop_outcome",
+            payload,
+            authority_ref=authority_ref,
+            idempotency_key=idempotency_key or "loop-terminal:" + _digest(payload),
+            expected_revision=expected_revision,
+        )
+
+    def resume_loop_outcome(
+        self,
+        record: Mapping[str, Any],
+        *,
+        authority_ref: Optional[Mapping[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+        expected_revision: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Persist evidence for reopening a non-exhausted stopped loop."""
+
+        try:
+            checked = validate_resume_record(record)
+        except LoopContractError as exc:
+            raise CommandValidationError("loop resume record is invalid: %s" % exc) from exc
+        payload = {"record": checked}
+        return self._loop_command(
+            "resume_loop_outcome",
+            payload,
+            authority_ref=authority_ref,
+            idempotency_key=idempotency_key or "loop-resume:" + _digest(payload),
+            expected_revision=expected_revision,
+        )
 
     @staticmethod
     def _bare_digest(value: Any) -> str:
@@ -5463,6 +6327,8 @@ class ControlKernel:
         return body
 
     def _review_terminal_reason(self, state: Mapping[str, Any], operation: str, finding_id: Optional[str] = None) -> Optional[str]:
+        if "review_budget" not in state:
+            return None
         budget = state["review_budget"]
         now = _datetime.datetime.fromisoformat(_now().replace("Z", "+00:00"))
         deadline = _datetime.datetime.fromisoformat(str(budget["deadline"]).replace("Z", "+00:00"))
@@ -5503,12 +6369,277 @@ class ControlKernel:
             if task.get("lease_status") == "leased":
                 task["lease_status"] = "released"
 
+    def _loop_phase_transition_reducer(
+        self, state: Dict[str, Any], command: Mapping[str, Any], stage: Path
+    ) -> Dict[str, Any]:
+        loop = state.get("loop_control")
+        if not isinstance(loop, Mapping):
+            raise AuthorizationError("loop-control operation requires loop_control state")
+        old_history = self._loop_history(state)
+        if old_history and old_history[-1]["status"] in {"reserved", "running", "execution-unknown"}:
+            raise RecoveryRequiredError("phase transition requires an evaluated or explicitly recovered loop")
+        active_terminal = loop.get("terminal_record")
+        if isinstance(active_terminal, Mapping) and active_terminal.get("outcome") != "completed":
+            raise RecoveryRequiredError("phase transition requires the incomplete loop to be explicitly resumed")
+        try:
+            new_identity = validate_work_identity(command["payload"]["identity"])
+            old_counter = loop_counter_identity(loop["identity"])
+            new_counter = loop_counter_identity(new_identity)
+        except LoopContractError as exc:
+            raise CommandValidationError("loop phase identity is invalid: %s" % exc) from exc
+        if new_identity["work_lineage_id"] != loop["identity"]["work_lineage_id"]:
+            raise AuthorizationError("phase transition cannot change work lineage")
+        if old_counter == new_counter:
+            raise KernelError("phase transition cannot reset an existing counter identity")
+        archives = list(loop.get("archives", []))
+        archive = {
+            "identity": _copy(loop["identity"]),
+            "event_refs": _copy(loop["event_refs"]),
+            "counter_identity": _copy(loop["counter_identity"]),
+            "counters": _copy(loop["counters"]),
+            "status": loop["status"],
+            "outcome": loop["outcome"],
+            "terminal_outcome": loop["terminal_outcome"],
+            "recovery_required": loop["recovery_required"],
+            "dispatch_allowed": loop["dispatch_allowed"],
+            "recovery": _copy(loop.get("recovery")),
+            "control_refs": _copy(loop.get("control_refs", [])),
+            "terminal_ref": _copy(loop.get("terminal_ref")),
+            "terminal_record": _copy(loop.get("terminal_record")),
+        }
+        restored = next(
+            (
+                (index, item)
+                for index, item in enumerate(archives)
+                if item.get("counter_identity") == new_counter
+            ),
+            None,
+        )
+        archives.append(archive)
+        if restored is None:
+            event_refs: List[Mapping[str, Any]] = []
+            recovery = None
+            projection = reduce_history([], identity=new_identity)
+            control_refs: List[Mapping[str, Any]] = []
+            terminal_ref = None
+            terminal_record = None
+        else:
+            index, prior = restored
+            # A downstream return resumes the original logical counter.  Move
+            # that archived projection back to the frontier instead of
+            # resetting it or creating a same-name counter.
+            archives.pop(index)
+            event_refs = _copy(prior["event_refs"])
+            recovery = _copy(prior.get("recovery"))
+            control_refs = _copy(prior.get("control_refs", []))
+            terminal_ref = _copy(prior.get("terminal_ref"))
+            terminal_record = _copy(prior.get("terminal_record"))
+            restored_history = self._loop_history_for_refs(
+                state,
+                new_identity,
+                event_refs,
+                "loop_control.resume.event_refs",
+            )
+            projection = reduce_history(restored_history, identity=new_identity)
+        state["loop_control"] = self._loop_projection(
+            projection,
+            new_identity,
+            event_refs,
+            recovery,
+            archives,
+            control_refs,
+            terminal_ref,
+            terminal_record,
+        )
+        return state
+
+    def _record_loop_terminal_reducer(
+        self, state: Dict[str, Any], command: Mapping[str, Any], stage: Path
+    ) -> Dict[str, Any]:
+        loop = state["loop_control"]
+        if loop.get("terminal_ref") is not None:
+            raise LifecycleClosedError("loop outcome is already recorded")
+        record = validate_terminal_record(command["payload"]["record"])
+        if record["identity"] != loop["identity"]:
+            raise CommandValidationError("loop terminal record is not bound to the current identity")
+        history = self._loop_history(state)
+        projection = reduce_history(history, identity=loop["identity"])
+        if projection.get("recovery_required") and record["outcome"] != "recovery-required":
+            raise RecoveryRequiredError("execution-unknown can only record recovery-required")
+        if record["outcome"] == "recovery-required" and not projection.get("recovery_required"):
+            raise CommandValidationError("recovery-required needs an execution-unknown event")
+        if projection.get("status") in {"reserved", "running"}:
+            raise RecoveryRequiredError("a running or reserved attempt cannot be terminalized")
+        if record["outcome"] == "iteration-limit":
+            counters = projection["counters"]
+            policy = counters["policy"]
+            if (
+                counters["additional_iterations"] < policy["additional_iteration_limit"]
+                and counters["technical_retries"] < policy["technical_retry_limit"]
+            ):
+                raise CommandValidationError("iteration-limit was recorded before a finite limit was reached")
+        if record["outcome"] == "completed":
+            if projection.get("status") != "evaluated":
+                raise CommandValidationError("completed requires an evaluated loop event")
+            latest_result = history[-1].get("result_ref") if history else None
+            if (
+                not isinstance(latest_result, Mapping)
+                or latest_result.get("digest") != record["candidate_ref"]["digest"]
+            ):
+                raise CommandValidationError(
+                    "completed terminal candidate does not match the latest evaluated result"
+                )
+            package_digests = {review["package_digest"] for review in record["reviews"]}
+            if len(package_digests) != 1:
+                raise CommandValidationError("completed terminal reviews must bind one package")
+            completion = classify_completion({
+                "identity": record["identity"],
+                "candidate_digest": record["candidate_ref"]["digest"],
+                "package_digest": next(iter(package_digests)),
+                "requirements": record["requirements"],
+                "reviews": record["reviews"],
+                "evidence": record["evidence"],
+                "findings": [],
+            })
+            if completion.get("outcome") != "completed":
+                raise CommandValidationError("completed terminal record does not satisfy the machine predicate")
+        ref = self._new_object(stage, "loop-terminal-record", record)
+        self._add_object_ref(state, ref)
+        control_refs = [*_copy(loop.get("control_refs", [])), ref]
+        state["loop_control"] = self._loop_projection(
+            projection,
+            loop["identity"],
+            loop["event_refs"],
+            loop.get("recovery"),
+            loop.get("archives", []),
+            control_refs,
+            ref,
+            record,
+        )
+        return state
+
+    def _resume_loop_terminal_reducer(
+        self, state: Dict[str, Any], command: Mapping[str, Any], stage: Path
+    ) -> Dict[str, Any]:
+        loop = state["loop_control"]
+        terminal_ref = loop.get("terminal_ref")
+        terminal_record = loop.get("terminal_record")
+        if not isinstance(terminal_ref, Mapping) or not isinstance(terminal_record, Mapping):
+            raise LifecycleClosedError("loop has no recorded outcome to resume")
+        record = validate_resume_record(command["payload"]["record"])
+        if record["identity"] != loop["identity"]:
+            raise CommandValidationError("loop resume record is not bound to the current identity")
+        if record["terminal_ref"] != self._loop_payload_ref(terminal_ref):
+            raise CommandValidationError("loop resume record does not bind the active terminal")
+        if terminal_record.get("outcome") == "recovery-required":
+            raise RecoveryRequiredError("execution-unknown requires recover_loop_execution")
+        if terminal_record.get("outcome") == "iteration-limit":
+            raise LifecycleClosedError("an exhausted counter cannot be resumed")
+        ref = self._new_object(stage, "loop-resume-record", record)
+        self._add_object_ref(state, ref)
+        history = self._loop_history(state)
+        projection = reduce_history(history, identity=loop["identity"])
+        state["loop_control"] = self._loop_projection(
+            projection,
+            loop["identity"],
+            loop["event_refs"],
+            loop.get("recovery"),
+            loop.get("archives", []),
+            [*_copy(loop.get("control_refs", [])), ref],
+            None,
+            None,
+        )
+        return state
+
+    def _loop_reducer(self, state: Dict[str, Any], command: Mapping[str, Any], stage: Path) -> Dict[str, Any]:
+        """Apply one loop transition through the pure history reducer."""
+
+        if stage is None:
+            raise KernelError("loop-control mutation requires a staging directory")
+        loop = state.get("loop_control")
+        if not isinstance(loop, Mapping):
+            raise AuthorizationError("loop-control operation requires loop_control state")
+        old_history = self._loop_history(state)
+        identity = loop["identity"]
+        payload = command["payload"]
+        operation = command["command_type"]
+        if operation == "record_loop_outcome":
+            return self._record_loop_terminal_reducer(state, command, stage)
+        if operation == "resume_loop_outcome":
+            return self._resume_loop_terminal_reducer(state, command, stage)
+        if operation == "reserve_loop_event":
+            if loop.get("terminal_ref") is not None:
+                raise LifecycleClosedError("loop outcome must be explicitly resumed before dispatch")
+            result = reserve_iteration(old_history, payload["event"], identity=identity)
+        elif operation == "mark_loop_running":
+            result = reduce_loop_running(old_history, payload["event_id"])
+        elif operation == "accept_loop_result":
+            result = reduce_loop_result(old_history, payload["event_id"], payload["result_ref"])
+        elif operation == "mark_loop_execution_unknown":
+            result = reduce_execution_unknown(old_history, payload["event_id"])
+        elif operation == "recover_loop_execution":
+            result = reduce_execution_recovery(
+                old_history,
+                payload["event_id"],
+                resolution=payload["resolution"],
+                evidence_ref=payload["evidence_ref"],
+                result_ref=payload.get("result_ref"),
+                retry_event=payload.get("retry_event"),
+                retry_command_id=payload.get("retry_command_id"),
+                retry_event_id=payload.get("retry_event_id"),
+            )
+        elif operation == "transition_loop_phase":
+            return self._loop_phase_transition_reducer(state, command, stage)
+        else:
+            raise KernelError("unknown loop-control command: %s" % operation)
+        try:
+            new_history = validate_history(result.get("history"), identity=identity)
+            projection = reduce_history(new_history, identity=identity)
+        except LoopContractError as exc:
+            raise IntegrityBlockedError("loop-control reducer produced invalid history") from exc
+        recovery = loop.get("recovery")
+        if operation == "recover_loop_execution":
+            recovery = result.get("recovery")
+        self._sync_loop_history(state, old_history, new_history, stage, projection, recovery)
+        if (
+            operation == "recover_loop_execution"
+            and isinstance(loop.get("terminal_ref"), Mapping)
+            and isinstance(loop.get("terminal_record"), Mapping)
+            and loop["terminal_record"].get("outcome") == "recovery-required"
+        ):
+            terminal_ref = loop["terminal_ref"]
+            resume_record = {
+                "schema": "loop-resume-record/v1",
+                "resume_id": "resume-recovery-" + terminal_ref["digest"][7:31],
+                "identity": _copy(identity),
+                "terminal_ref": self._loop_payload_ref(terminal_ref),
+                "reason": "explicit execution recovery",
+                "evidence_ref": _copy(payload["evidence_ref"]),
+                "non_authorizing": True,
+            }
+            resume_ref = self._new_object(stage, "loop-resume-record", resume_record)
+            self._add_object_ref(state, resume_ref)
+            current = state["loop_control"]
+            state["loop_control"] = self._loop_projection(
+                projection,
+                identity,
+                current["event_refs"],
+                recovery,
+                current.get("archives", []),
+                [*_copy(loop.get("control_refs", [])), resume_ref],
+                None,
+                None,
+            )
+        return state
+
     def _generic_reducer(self, state: Dict[str, Any], command: Mapping[str, Any], stage: Optional[Path]) -> Dict[str, Any]:
         operation = command["command_type"]
         payload = command["payload"]
         # Source fixtures are copied values, not a bypass around the durable
         # boundary.  Validate the complete payload before any object is staged.
         self._ensure_durable_payload(payload, operation)
+        if operation in LOOP_COMMAND_TYPES:
+            return self._loop_reducer(state, command, stage)  # type: ignore[arg-type]
         if operation in {"claim_task", "open_review", "validate_findings", "accept_resolution_claim"}:
             reason = self._review_terminal_reason(state, operation, payload.get("finding_id"))
             if reason is not None:
@@ -5551,9 +6682,19 @@ class ControlKernel:
             if next_group == "E":
                 grant = self._operational_execution_grant(state, payload["input_ref"])
                 state["metadata"]["operational_task_grant"] = grant
-                state["authority"] = {**state["authority"], "scopes": ["entry", "claim_task"],
-                                      "write_scopes": sorted({scope for task in grant["tasks"].values() for scope in task["write_scope"]}),
-                                      "expires_at": state["review_budget"]["deadline"]}
+                authority = {
+                    **state["authority"],
+                    "scopes": ["entry", "claim_task"],
+                    "write_scopes": sorted({scope for task in grant["tasks"].values() for scope in task["write_scope"]}),
+                }
+                # Legacy Runs bind the operational grant to their review
+                # deadline.  Loop-control Runs have no review deadline; the
+                # task lease remains the execution authority instead.
+                if "review_budget" in state:
+                    authority["expires_at"] = state["review_budget"]["deadline"]
+                else:
+                    authority.pop("expires_at", None)
+                state["authority"] = authority
             history.append({"group": _copy(state["group"]), "epoch": _copy(state["epoch"])})
             state["group"] = {"id": next_group, "status": "open", "next_group": None}
             state["epoch"] = {"id": epoch_id, "group_id": next_group, "status": "open", "boundary_reason": operation, "clear_before_next": False}
@@ -5704,7 +6845,6 @@ class ControlKernel:
             for input_ref in payload.get("input_refs", []):
                 if not isinstance(input_ref, Mapping):
                     raise IntegrityBlockedError("task input reference is malformed")
-                safe_input = _safe_ref(input_ref, "task input reference")
                 loaded_input = self._validate_input_ref_binding(state, input_ref, "task input reference")
                 node = input_ref.get("node_id")
                 if not node and input_ref.get("artifact_id"):
@@ -6288,7 +7428,7 @@ class ControlKernel:
             state["verdicts"][review_id] = {"review_id": review_id, "verdict": verdict, "derived": True}
             epoch_context["status"] = "reviewed"
             epoch_context["review_id"] = review_id
-            if new_findings:
+            if new_findings and "review_budget" in state:
                 state["review_budget"]["rounds_used"] += 1
         elif operation == "validate_findings":
             review = state["reviews"].get(payload["review_id"])
@@ -6338,7 +7478,7 @@ class ControlKernel:
             epoch["status"] = "reviewed"
             if any(item["disposition"] == "required" for item in outcomes):
                 task["status"] = "blocked_review"
-            if any(item["disposition"] == "needs-user" for item in outcomes):
+            if any(item["disposition"] == "needs-user" for item in outcomes) and "review_budget" in state:
                 self._terminalize_review(state, stage, "needs_user")
         elif operation == "terminal_review":
             if state.get("budget_terminal") is not None:
@@ -6379,8 +7519,9 @@ class ControlKernel:
             finding["resolution_ref"] = ref
             finding["resolution_claimed_by"] = payload["worker_assignment_id"]
             task["status"] = "fix_claimed"
-            attempts = state["review_budget"]["finding_attempts"]
-            attempts[finding_id] = attempts.get(finding_id, 0) + 1
+            if "review_budget" in state:
+                attempts = state["review_budget"]["finding_attempts"]
+                attempts[finding_id] = attempts.get(finding_id, 0) + 1
         elif operation == "accept_finding_closure":
             finding_id = payload["finding_id"]
             finding = state["findings"].get(finding_id)

@@ -17,12 +17,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I1)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I1.json",
-        "digest": "sha256:0598c3ddc2408e43310af687ec235767f6af9022f4efa7d9d2cdc36e1d895511"
+        "digest": "sha256:5cbbc814d1558d1bdfe7298734eb1019b56c9a9de0052c53d160a2e193554486"
       }
     },
     {
@@ -38,12 +38,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I2)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I2.json",
-        "digest": "sha256:64a081f59cbbbaa73500cf54845a575e4fd60ffa1e6ccc84663511052ddbc1bd"
+        "digest": "sha256:97a7a58636444d97dd2809269df9c709e0d4542698ea6928ddabb59dc5fcf0db"
       }
     },
     {
@@ -59,12 +59,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I3)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I3.json",
-        "digest": "sha256:54bc75f7f635e167b894f48cbdeaf393db3902e5b611e453b077bf23e5b572db"
+        "digest": "sha256:c43faaabae22e7660459c63bc4519c6b404aa5cd0776e54db4e5c8c849e27dbd"
       }
     },
     {
@@ -80,12 +80,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I4)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I4.json",
-        "digest": "sha256:bc0f7b347e2417526a1481d6cf09eada63c5afd9cd8fef402f85c7b488313843"
+        "digest": "sha256:a20ffbba16baed1f403872d4d8a69caa1e40c40a66f5fd38ff8cc7cbb86d5694"
       }
     },
     {
@@ -101,12 +101,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I5)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I5.json",
-        "digest": "sha256:65f4dffec429af2f7c2e866f8c50509f9ac6d18b9c261ccbf1ee6784ada632ce"
+        "digest": "sha256:b4d50adc0d434ad45521b90b3038138c27b0d957359c8181edb8a24bfa9af910"
       }
     },
     {
@@ -122,12 +122,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I6)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I6.json",
-        "digest": "sha256:33eec23b5f75e21a3970336b4c8873c7adba1a4938585c4de680365a681f6a7b"
+        "digest": "sha256:2b6f29b629914e9dcf0741e659b83960d3d4f5b56221a13ef516eba2e2c11063"
       }
     },
     {
@@ -143,12 +143,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.improvement.I7)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/improvement/I7.json",
-        "digest": "sha256:b63cd8f35a5edc039667e9a8945b17f6bf1a2a92573b678fe2b2bc9b9791dd80"
+        "digest": "sha256:17db5fde8fc7ad7db3ad51f6ef9c1ba5de7a55cb537c12cd8220cca358ca33ca"
       }
     }
   ]

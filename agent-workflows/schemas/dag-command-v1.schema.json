@@ -48,7 +48,15 @@
         "close_group",
         "open_section",
         "open_group",
-        "open_operational_group"
+        "open_operational_group",
+        "reserve_loop_event",
+        "mark_loop_running",
+        "accept_loop_result",
+        "mark_loop_execution_unknown",
+        "recover_loop_execution",
+        "transition_loop_phase",
+        "record_loop_outcome",
+        "resume_loop_outcome"
       ]
     },
     "run_id": {"type":"string","minLength":1},
@@ -161,7 +169,15 @@
             "close_group",
             "open_section",
             "open_group",
-            "open_operational_group"
+            "open_operational_group",
+            "reserve_loop_event",
+            "mark_loop_running",
+            "accept_loop_result",
+            "mark_loop_execution_unknown",
+            "recover_loop_execution",
+            "transition_loop_phase",
+            "record_loop_outcome",
+            "resume_loop_outcome"
           ]
         }
       }

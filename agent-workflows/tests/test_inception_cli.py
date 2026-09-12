@@ -65,11 +65,23 @@ class InceptionCliTests(unittest.TestCase):
         self.assertEqual(Path(self.intake["request"]["path"]).read_bytes(), self.request.read_bytes())
         self.assertFalse((self.root / ".local/agent/runs").exists())
 
-    def test_init_duplicate_preserves_request_and_budget(self):
+    def test_init_duplicate_preserves_request_and_loop_contract(self):
         before = self.intake_path.read_bytes()
         with self.assertRaisesRegex(cli.InceptionError, "exists"):
             cli.init(self.root, "sample", self.request, budget_seconds=9999)
         self.assertEqual(self.intake_path.read_bytes(), before)
+
+    def test_normal_intake_uses_iteration_control_without_wall_clock_budget(self):
+        self.assertEqual("inception-intake/v2", self.intake["schema"])
+        self.assertNotIn("budget_seconds", self.intake)
+        self.assertEqual("iteration-and-evidence", self.intake["loop_control"]["progress_control"])
+        out = self.entry()
+        with patch.object(cli, "now", return_value="2099-01-01T00:00:00+00:00"):
+            resumed = cli.resume(out["handoff"]["path"])
+        self.assertFalse(resumed["budget_exhausted"])
+        self.assertIsNone(resumed["remaining_seconds"])
+        self.assertEqual("iteration-and-evidence", resumed["progress_control"])
+        self.assertIsNotNone(resumed["invocation"])
 
     def test_ignore_required_before_request_saved(self):
         (self.root / ".gitignore").write_text("!.local/\n!.local/**\n")
@@ -162,15 +174,21 @@ class InceptionCliTests(unittest.TestCase):
             cli.resume(out["handoff"]["path"])
 
     def test_budget_does_not_reset_on_resume_or_save(self):
-        out = self.entry()
+        start = cli.init(self.root, "legacy", self.request, "rehearsal", budget_seconds=1800)
+        intake_path = Path(start["intake"]["path"])
+        intake = cli.read_json(intake_path)
+        output = self.output("legacy-entry.json", {
+            "raw_request_ref": intake["request"], "interpretation": "legacy",
+            "assumptions": [], "unknowns": []})
+        out = cli.save(intake_path, "entry", output, "recorded")
         with patch.object(cli, "now", return_value="2099-01-01T00:00:00+00:00"):
             resumed = cli.resume(out["handoff"]["path"])
             self.assertTrue(resumed["budget_exhausted"])
             self.assertEqual(resumed["remaining_seconds"], 0)
             self.assertIsNone(resumed["invocation"])
             with self.assertRaisesRegex(cli.InceptionError, "budget exhausted"):
-                cli.save(self.intake_path, "discover-context", self.request, "recorded", out["handoff"]["path"])
-            blocked = cli.save(self.intake_path, "discover-context", self.request, "blocked", out["handoff"]["path"])
+                cli.save(intake_path, "discover-context", self.request, "recorded", out["handoff"]["path"])
+            blocked = cli.save(intake_path, "discover-context", self.request, "blocked", out["handoff"]["path"])
             self.assertEqual(blocked["next_skill"], "discover-context")
 
     def test_rehearsal_cannot_be_real(self):

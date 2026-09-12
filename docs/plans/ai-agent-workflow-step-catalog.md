@@ -35,7 +35,7 @@ AIにAI向け指示を書かせると、主作業は残っても小さな制約�
 | Artifact Bundle | canonical artifactsのpath/version/digest、acceptance evidence、approved decisions、unresolved items、invalidated artifacts、next inputs | 下流が会話や本文コピーへ依存する |
 | Context budget | target `200K`、通常上限`300K`、絶対上限`500K`、`exact`/`estimated`/`unavailable` | token数を捏造して境界を誤る |
 | Package handoff | Task/Review package ID、artifact path/version/digest、authority、write scope、acceptance、stop、freshness、独立Epoch | Controllerへ全文tool outputを戻し、自己reviewやcontext肥大を起こす |
-| Review budget | deadlineまたはtimebox、最大review round、Findingごとの最大fix attempt、残量、枯渇時のstop reason | 軽微・重複した指摘で修正loopが終わらない |
+| Loop policy | `workflow-loop/v1`、論理作業ID、phase別追加反復上限、技術的retry 1回、進捗・停滞・回復条件 | clear・rename・差し戻しで回数がresetされる、または無限に修正を続ける |
 
 ### 2.1 完了の共通定義
 
@@ -68,9 +68,9 @@ Workerはwork productとFindingのresolution claimを提出できるが、自分
 
 同じ入力、同じ方法、同じmodelでの同一retryを繰り返さない。再試行時は不足context、task size、仮説、tool、model escalationのいずれを変えたか記録する。成功済みの独立成果物は、別taskの失敗を理由に破棄しない。
 
-実行前に`review_budget`として、deadlineまたはwall-clock timebox、最大review round、Findingごとの最大fix attemptを有限値で固定する。利用者や会社の運用規則に明示値がなければWorkflow profileが有限のdefaultを与え、未設定のままE2へ進まない。残り時間がbounded fixとfresh rereviewを収められない、最大roundへ達した、または同じFindingが最大attemptへ達した場合、新しいworkerを発行しない。DAG Orchestratorは消費済みbudget、成功済みartifact refs、未解決Finding IDs、stop reasonを一つのimmutable transaction、HEAD、Checkpointへ固定し、active leaseを閉じ、未受理dispatch commandを無効化するdurable non-dispatch terminal transitionをcommitする。required Findingが残る場合は完了扱いにせず、E10またはhuman gateへ渡す。`resume`、E1、E2はこのterminalからのdispatchを拒否する。再開できるのは、利用者または権限者がreplacement budgetのversion/valueとexpected HEADを新しく明示承認し、validated reopen commandが新revisionを作る場合だけであり、旧budgetまたはterminal transactionを上書きしない。
+実行前に`workflow-loop/v1`の論理作業IDとphase policyを固定する。追加反復上限はB=2、C=2、D1-D4=2、D5=1、D6-D12共有2、E3-E7=3、E8-E9=2、G/H=1で、initial attemptは数えず、技術的retryは別枠1回とする。counter identityはclear、resume、rename、candidate更新、差し戻しで変えない。上限到達、進捗停滞、実行失敗、execution-unknown、回復証拠待ちはtyped non-dispatch terminalとしてimmutable history、成功済みartifact refs、未解決Finding IDsと共に保存する。required Findingが残る場合は完了扱いにせず、E10またはhuman gateへ渡す。process/tool timeoutは一回の呼出し監視として保持し、phase全体の残時間へ変換しない。
 
-candidate Findingはfixへ直結させない。すべてE6の独立評価を通し、再reviewが見つけた新規candidateも同じ入口へ戻す。すでに評価済みの同一fingerprintは元Finding IDへ束ね、canonical requirement、承認済みdecision、対象diffまたは証拠が変わらない限り新しいreview roundやfix attemptを消費しない。
+candidate Findingはfixへ直結させない。すべてE6の独立評価を通し、再reviewが見つけた新規candidateも同じ入口へ戻す。互換なrequired Findingは一つのbatchで修正し、影響範囲を検査してfresh delta reviewへ渡す。すでに評価済みの同一fingerprintは元Finding IDへ束ね、同じevent/commandの再送で追加反復を二重計上しない。
 
 ### 2.3 completion scopeの共通定義
 
@@ -177,7 +177,7 @@ A5の出口はBootstrap Epoch-01のArtifact Bundle兼Checkpointとする。bundl
 - 開始条件: A6成果をmigration sourceとしてfreezeし、A7、P5/P6、live config、stage/commit/pushが未承認のまま保たれている。
 - 行うこと: 現行fieldからcontent-addressed object、initial Artifact/Task DAG、immutable transaction、atomic HEADへのmappingとconverterを作る。isolated copied fixtureでold/new reader、projection rebuild、cutover、rollbackをrehearsalする。minimal sliceは`entry → two Task packages → partial success → independent candidate review → fresh Finding validation → required-only fix claim → fresh rereview → finite stop/close → crash recovery → fresh resume/status`とする。
 - 成果物: mapping、converter、fixture、command/role guard、Task/Review package、Finding/Verdict、transaction/HEAD、fault-injection receipt、old/new reader receipt、rollback receipt、G1-G8 evidence matrix。
-- 完了: stale approval/role/HEAD拒否、Worker self-close拒否、candidate Findingからfixへの直行拒否、重複Finding統合、承認済みdecision尊重、軽微指摘のnon-blocking化、review/time/attempt budget枯渇時の有限停止、fresh resume、context safety、one-off/managed分離、token status、publish前/HEAD前/projection前crash、duplicate command、digest破損が証拠付きで通る。全projectionがHEADから再生成できる。
+- 完了: stale approval/role/HEAD拒否、Worker self-close拒否、candidate Findingからfixへの直行拒否、重複Finding統合、承認済みdecision尊重、軽微指摘のnon-blocking化、phase iteration-limit・stall・execution-unknownでの有限停止、fresh resume、context safety、one-off/managed分離、token status、publish前/HEAD前/projection前crash、duplicate command、digest破損が証拠付きで通る。全projectionがHEADから再生成できる。
 - 停止: G1-G8の未検証または失敗、converterが完成履歴を再解釈する、rollback不能、personal coreにgraph DB/daemon/company serviceが必要になる、利用者のmigration approvalがない。
 - 参照要素: 4案比較のCandidate 3 DAG、Candidate 2 Thin Controller/file-only review、Candidate 4 command/integrity guard、現行三層/Context Epoch。
 
@@ -400,9 +400,9 @@ D5-D7のbundleは選択理由、design、contracts/schema、互換性、acceptan
 ### D11 `plan-verification-and-recovery`
 
 - 入力: tasks、risk、delivery surface。
-- 行うこと: test level、independent review、Finding validation、E2E、dry-run、rollback、post-check、activation/commit/push gateを定義する。各taskにdeadlineまたはwall-clock timebox、最大review round、Findingごとの最大fix attemptを有限値で割り当てる。
+- 行うこと: test level、independent review、Finding validation、E2E、dry-run、rollback、post-check、activation/commit/push gateを定義する。各taskを正確なphase policy、logical task ID、verification scope、技術的retry 1回、回復経路へ対応付ける。process/tool timeoutは進捗制御と分離する。
 - 成果物: `planning/verification-plan.md`、`recovery-plan.md`。
-- 完了: 失敗時にどこまで戻すか、何を保持するか、誰の承認が必要か、どの予算枯渇で新規workerを止めるかが明記される。
+- 完了: 失敗時にどこまで戻すか、何を保持するか、誰の承認が必要か、iteration-limit・stall・execution-failed・recovery-requiredで新規workerを止める条件が明記される。
 
 ### D12 `implementation-readiness-review`
 
@@ -477,9 +477,9 @@ EはArtifact依存からcompileされたready frontierのbatchごとにContext E
 ### E1 `execution-preflight`
 
 - 入力: readiness approval、Artifact/Task DAG、current HEAD、workspace、Git状態。
-- 行うこと: expected HEAD revision/digest、objective/workflow/graph version、write lease、依存artifact、authority、open blocking Finding、context budget、有限のreview/time/attempt budget、context status、rollback、durable non-dispatch terminalの有無を再確認する。
+- 行うこと: expected HEAD revision/digest、objective/workflow/graph version、write lease、依存artifact、authority、open blocking Finding、context status、loop identity/history、phase counter、証拠鮮度、rollback、durable non-dispatch terminalの有無を再確認する。
 - 成果物: preflight receipt。
-- 完了: plan作成後のdriftがなく、あれば再計画済み。review budgetが未設定、不足、またはbudget terminalが新しい明示budget approvalとexpected HEADへbindされたreopen commandで解除されていない場合はdispatchしない。
+- 完了: plan作成後のdriftがなく、あれば再計画済み。phase policy欠落、上限到達、停滞、またはexecution-unknownが明示的な回復証拠で解消されていない場合はdispatchしない。
 
 ### E2 `dispatch-task`
 
@@ -512,18 +512,18 @@ EはArtifact依存からcompileされたready frontierのbatchごとにContext E
 
 ### E6 `validate-review-findings`
 
-- 入力: E4/E5のcandidate Finding set、canonical spec/design/non-goals、承認済みdecision/accepted risk、過去Finding index、対象diff、review budget。
+- 入力: E4/E5のcandidate Finding set、canonical spec/design/non-goals、承認済みdecision/accepted risk、過去Finding index、対象diff、loop identity/history、current evidence。
 - 行うこと: 元Reviewerおよび実装Workerと異なるfresh Finding Validatorが、各candidateについてBackground、As-Is、canonical To-Be、Gap、evidenceを照合し、`required / defer / reject / needs-user`へ分類する。exactで事前承認済みの機械predicateは同じ第二段階をdeterministicに実行できるが、predicate ID/version/digest、pre-approval/authority ref、入力Review packageとcandidate digest、実行結果をimmutable receiptへbindする。predicateは解釈、適用資格の自己申告、fix authority発行を行わず、DAG Orchestratorがreceipt、approval、expected HEADを検証する。解釈を要するcandidateは独立Validatorを省略しない。
-- 判定規則: 現taskのmandatory requirement/acceptance、correctness、security、integrity、regressionを満たすため今直す必要があるものだけを`required`とする。妥当だが現taskの受入条件や観測結果を変えない軽微な改善は`defer`、根拠のないstyle preference、scope外、既解決、superseded、重複は`reject`とする。理由付きで承認済みの選択は、新しい証拠がmandatory requirement、安全性、互換性との衝突を示さない限り再修正しない。spec/scope/risk/budgetの選択を変えるものは`needs-user`とする。
-- 成果物: validation attempt ID/Epoch、元Review package ID/digestとReviewer actor/Epoch、Validator actor/Epochまたはpredicate ID/version/digest、pre-approval/authority ref、predicate execution receipt、independence/provenance check、candidate ID、canonical Finding ID、fingerprint、disposition、reason、materiality、requirement/decision ref、`duplicate_of`、許可するfix scope、budget残量を持つFinding validation setとadmissibility Verdict。
+- 判定規則: 現taskのmandatory requirement/acceptance、correctness、security、integrity、regressionを満たすため今直す必要があるものだけを`required`とする。妥当だが現taskの受入条件や観測結果を変えない軽微な改善は`defer`、根拠のないstyle preference、scope外、既解決、superseded、重複は`reject`とする。理由付きで承認済みの選択は、新しい証拠がmandatory requirement、安全性、互換性との衝突を示さない限り再修正しない。spec/scope/risk/authorityの選択を変えるものは`needs-user`とする。
+- 成果物: validation attempt ID/Epoch、元Review package ID/digestとReviewer actor/Epoch、Validator actor/Epochまたはpredicate ID/version/digest、pre-approval/authority ref、predicate execution receipt、independence/provenance check、candidate ID、canonical Finding ID、fingerprint、disposition、reason、materiality、requirement/decision ref、`duplicate_of`、許可するfix scope、loop counterを持つFinding validation setとadmissibility Verdict。
 - 完了: 全candidateが一度だけ分類され、同一fingerprintは元Finding IDへ統合される。`required`だけがopen Findingとfix authorityの候補になり、`defer/reject`は完了をblockせず、`needs-user`は該当枝を停止する。Validatorは実装せず、required Findingの修正後closeも行わない。
 
 ### E7 `fix-and-rereview`
 
-- 入力: E6で`required`と認められたopen Finding、元Task package、review/time/attempt budget。
-- 行うこと: 残りbudget内で該当枝だけへfix Task packageを作る。Workerはresolution claimと証拠を出し、別のfresh Review attemptまたは事前承認された機械predicateが同じFinding IDと必要な回帰範囲だけを検査する。rereview中の新規candidateはfixへ直行させずE6へ戻す。
+- 入力: E6で`required`と認められた互換なopen Finding batch、元Task package、loop identity/history。
+- 行うこと: batch全体を一つのfix Task packageで処理する。WorkerはFinding別resolution claimと影響検査の証拠を出し、別のfresh delta Review attemptが全Finding IDと必要な回帰範囲を検査する。rereview中の新規candidateはfixへ直行させずE6へ戻す。
 - 成果物: fix result、resolution claim、fresh Verdict attempt。
-- 完了: blocking FindingがReviewerにより`resolved/superseded`へ遷移、またはaccepted-risk/human/Arbiter待ちになる。Worker self-closeは拒否される。budget枯渇時は新規fixを発行せず、部分成功、未解決Finding、stop reasonをdurable non-dispatch terminal transitionへ保存する。
+- 完了: blocking FindingがReviewerにより`resolved/superseded`へ遷移、またはaccepted-risk/human/Arbiter待ちになる。Worker self-closeは拒否される。上限到達・停滞・回復待ちでは新規fixを発行せず、部分成功、未解決Finding、immutable history、typed stopを保存する。
 
 ### E8 `converge-parallel-batch`
 
@@ -533,7 +533,7 @@ EはArtifact依存からcompileされたready frontierのbatchごとにContext E
 - 完了: 各部分の成功を保持しつつ、次batchが依存できる一つのreview済みcanonical resultがある。Controller/Orchestratorは統合判断を作らない。
 - 停止: 暗黙知の分断を回収できず、密なtaskとしてやり直す必要がある。
 
-E8のbatch終了時にEpochを閉じ、HEADに束縛されたbatch Artifact Bundleを作る。bundleは各result/review/validation objectのpath/version/digest、Finding、検証、未解決事項、budget消費、次frontierを含み、Controllerは全文ログを取り込まない。
+E8のbatch終了時にEpochを閉じ、HEADに束縛されたbatch Artifact Bundleを作る。bundleは各result/review/validation objectのpath/version/digest、Finding、検証、未解決事項、loop counters、次frontierを含み、Controllerは全文ログを取り込まない。
 
 ### E9 `verify-whole-change`
 
@@ -544,10 +544,10 @@ E8のbatch終了時にEpochを閉じ、HEADに束縛されたbatch Artifact Bund
 
 ### E10 `arbitrate-exception`
 
-- 入力: valid review/validation conflict、同一Finding反復、review/time/attempt budget枯渇、spec defect、failed decomposition、root-cause/whole-design conflictのいずれかと、関連artifact refs。
+- 入力: valid review/validation conflict、同一Finding反復、phase iteration-limit、stall、execution-failed、recovery-required、spec defect、failed decomposition、root-cause/whole-design conflictのいずれかと、関連artifact refs。
 - 行うこと: 通常loopを止め、一つのArbiter packageを作る。既定はLuna maxとし、通常モデルで実際に解決不能な問題だけこのattemptをSol highへ上げる。Arbiterは原因分類、選択肢、推奨、必要なhuman decisionを返す。
 - 成果物: Arbiter recommendationまたはhuman approval request。
-- 完了: 次の機械的transition、上流差し戻し、human gate、有限停止のいずれかが証拠付きで決まる。budget terminalから新attemptへ戻すtransitionは発行せず、利用者または権限者によるreplacement budgetとexpected HEADの新しい明示承認を要求する。
+- 完了: 次の機械的transition、上流差し戻し、human gate、有限停止のいずれかが証拠付きで決まる。停止状態から新attemptへ戻す場合は、同じcounter identityを保つ有効なphase transitionまたはexecution-unknownを解消する明示的な回復証拠を要求する。
 - 停止: objective、scope、authority、material riskを承認なしに変える必要がある。Arbiterはprotected approvalを発行しない。
 
 ## 10. 共通closure protocol（旧Group F: Group終了、clear、resume）
@@ -777,11 +777,15 @@ FはLevel 2 Groupではない。以下のF1-F8は全Groupが共有するclosure 
 
 既存のGroup/Skill履歴と目的candidate `v001`は変更しない。上記は境界と契約の追補であり、既存成果物の本文を再解釈しない。
 
-## 18. 2026-09-03 Finding validationと有限収束の決定
+## 18. 2026-09-03 Finding validationと有限収束の旧決定
+
+このsectionのwall-clock/review/fix budget条項は、2026-09-12の
+`workflow-loop/v1`契約により置き換えられた。二段階reviewとrequired-only
+repairは維持するが、進行可否を残時間・配分・追加予算承認で決めない。
 
 利用者承認により、reviewは「candidate Findingを作る段階」と「そのFindingが現在の仕事で本当に修正必須かを評価する段階」の二段階を通常経路とする。元Reviewerとfresh Finding Validatorを分離し、`required`だけがfix authorityへ進む。`defer/reject/needs-user`を明示し、重複、承認済みの理由ある選択、根拠のない好み、受入条件へ影響しない軽微事項から修正loopを開始しない。
 
-仕事用Workflowを含む全profileは有限のreview budgetを持つ。deadlineまたはtimebox、最大review round、Findingごとの最大fix attemptをdispatch前に固定し、枯渇後はworkerを追加発行せず、成功済み成果、未解決Finding、stop reasonを返す。budgetの自動延長や、同一fingerprintを新Findingとして再発行することは禁止する。
+仕事用Workflowを含む全profileはphase別の追加反復上限と技術的retry 1回を持つ。上限到達、停滞、実行失敗、回復待ちではworkerを追加発行せず、成功済み成果、未解決Finding、immutable history、typed stopを返す。同一fingerprintを新Findingとして再発行したり、clearやrenameでcounterをresetしたりすることは禁止する。
 
 ## 19. 2026-09-05 Workflow Execution V2共通contract
 
@@ -806,12 +810,12 @@ shard、receipt aggregation、finalizationはordinary DAG Taskまたはdeep Modu
   二つのfresh ordinary review Taskが別actor/Epoch/packageで検査する。両terminal reportのexact closure join後、
   一つのfresh `FindingValidator`が `required | duplicate | invalid | deliberate-design | downstream-only | too-minor |
   test-evidence-debt | needs-user` をadvisory出力する。Validatorはfix、counter、transition authorityを持たない。
-- DAG Orchestratorだけがrole、authority、lease、expected HEAD、budgetを検証し、canonical round/attemptを導出し、
+- DAG Orchestratorだけがrole、authority、lease、expected HEAD、loop identity/historyを検証し、canonical iteration/retry countを導出し、
   fix/refusal/HEAD transitionを発行する。Workerはcloseせず、Reviewerは実装せず、Orchestratorはdomain correctnessを
   裁定しない。candidate、receipt、review、disposition、repair、close setを別immutable nodeにする。
 - `EvidenceFinalizer`は全declared branchがknown/complete/acceptedで、join/refがintegral、open `required`、
   `needs-user`、incomplete、unknownがない時だけaccepted refを機械的にclose setへ組み立てる。test、Finding、
-  product fix、budget stopの再解釈、reopenは行わない。
+  product fix、typed stopの再解釈、recovery authorityの発行は行わない。
 
 ### 19.2 closure、persistent receipt、timing
 
@@ -834,12 +838,12 @@ reused-receipt`、closure digest、loop level、outcome、retry class、capture 
 retry counterは`product_fix_attempt`、`test_fixture_correction`、`command_or_capture_retry`、
 `package_or_report_correction`、`review_round`を混ぜない。
 
-### 19.3 finite stop、ownership、cutover
+### 19.3 phase stop、ownership、cutover
 
-full timeout/grace/terminal allowanceが残budgetへ収まらない、overrun、round/attempt exhaustionでは
-`stopped_budget` immutable non-dispatch terminalへ進み、leaseと未受理authorityを閉じる。再開はprior terminal
-digest、expected HEAD、新lease、新budgetへbindしたversioned authorizationだけを受理する。stopをpass/finalize
-してはならない。
+追加反復上限、技術的retry上限、停滞、execution failure、execution-unknownでは
+対応するtyped immutable non-dispatch terminalへ進み、leaseと未受理authorityを閉じる。再開は同じcounter
+identityを保つ有効なphase transition、またはprior terminal digest、expected HEAD、回復証拠へbindした
+versioned recovery commandだけを受理する。stopをpass/finalizeしてはならない。
 
 portable source、generated native projection、managed destination、unmanaged user state、app-owned runtime、secret、
 cacheを別owner classにする。`~/.codex`/`~/.claude` rootをapp-owned directoryとして保持し、owned child/keyだけを

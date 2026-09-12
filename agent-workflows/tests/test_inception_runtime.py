@@ -2,19 +2,20 @@
 import copy
 import unittest
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 import test_runtime_approval as approval_helpers
+from ai_agent_workflow.control_kernel import StaleHeadError
 from ai_agent_workflow.inception_cli import InceptionError
 from ai_agent_workflow.inception_runtime import (
-    InceptionRuntime,
     _REPAIR_ACTIONS,
+    SOURCE,
+    InceptionRuntime,
+    execute_group_e,
     execute_repair_e,
     file_ref,
-    SOURCE,
 )
 from ai_agent_workflow.runtime_approval import adopt_approved_objective
-from ai_agent_workflow.control_kernel import StaleHeadError
 
 
 class InceptionRuntimeTests(unittest.TestCase):
@@ -45,7 +46,9 @@ class InceptionRuntimeTests(unittest.TestCase):
         return {"outcome_map": {"schema": "outcome-map/v1", "outcomes": [{"outcome_id": "observable", "achieved_state": "The outcome is observable", "why_required": "Objective evidence", "objective_contribution": ["main"], "exclusion_conditions": ["No unrelated output"], "owner_ref": owner, "acceptance_predicate_refs": [ref]}], "coverage_refs": [ref]}, "required_contributions": ["main"]}
 
     def step(self, short, values):
-        return self.runtime.step("group.%s.%s" % (short[0], short), values, actor_ref=self.args["actor_ref"])
+        return self.runtime.step(
+            f"group.{short[0]}.{short}", values, actor_ref=self.args["actor_ref"]
+        )
 
     def complete_c(self, stop_before_validation=False):
         self.step("C1", self.c1())
@@ -65,8 +68,39 @@ class InceptionRuntimeTests(unittest.TestCase):
         self.prepare()
         cold = InceptionRuntime(self.project, "sample")
         self.assertEqual(cold.status()["next_id"], "group.C.C1")
+        self.assertEqual(cold.status()["progress_control"], "iteration-and-evidence")
+        self.assertEqual(cold.state["loop_control"]["identity"]["phase"], "C")
+        self.assertEqual(len(cold.state["loop_control"]["archives"]), 1)
         self.assertEqual(cold.status()["objective_approval_source"], "mock")
         self.assertEqual(len(cold.state["metadata"]["operational_group_history"]), 1)
+
+    def test_advance_replay_repairs_interrupted_loop_phase_rotation(self):
+        self.args = self.arguments("rehearsal")
+        self.args["preapproval_steps"] = self.steps(self.args)
+        adopt_approved_objective(self.project, "sample", **self.args)
+        self.runtime = InceptionRuntime(self.project, "sample")
+        self.close_group("B")
+        authority = {
+            "approved": True,
+            "scopes": ["open_operational_group"],
+            "runtime_identity": self.runtime.identity,
+            "run_id": self.runtime.state["run_id"],
+            "write_scopes": [self.runtime.identity["namespace"]],
+            "protected_fields": ["group", "epoch", "ready"],
+            "human_receipt": self.runtime.approval["receipt"],
+        }
+        self.runtime.kernel.open_operational_group(
+            "C",
+            "C-01",
+            self.runtime.state["group"]["bundle_ref"],
+            authority_ref=authority,
+        )
+        cold = InceptionRuntime(self.project, "sample")
+
+        status = cold.advance()
+
+        self.assertEqual(status["group"]["id"], "C")
+        self.assertEqual(status["loop_control"]["identity"]["phase"], "C")
 
     def test_c_compiler_refusal_does_not_advance(self):
         runtime = self.prepare()
@@ -100,7 +134,7 @@ class InceptionRuntimeTests(unittest.TestCase):
         self.assertEqual(before, runtime.kernel.head())
 
     def test_complete_c_closure_and_d_compiler_refusal(self):
-        runtime = self.prepare()
+        self.prepare()
         self.complete_c()
         self.close_group("C")
         cold = InceptionRuntime(self.project, "sample")
@@ -128,6 +162,7 @@ class InceptionRuntimeTests(unittest.TestCase):
         self.runtime.advance()
         manifest = file_ref(SOURCE / "agent-workflows/workflows/feature-bounded.json")
         self.step("D1", {"domain": "software", "workflow_manifest_ref": manifest, "input_refs": [self.args["candidate_ref"]]})
+        self.assertEqual(self.runtime.state["loop_control"]["identity"]["phase"], "D1")
         before = self.runtime.kernel.head()
         with self.assertRaises(InceptionError):
             self.step("D2", {"input_refs": [self.args["candidate_ref"]]})
@@ -209,6 +244,152 @@ class InceptionRuntimeTests(unittest.TestCase):
                 self.assertEqual(result["status"], action + "-accepted")
                 getattr(coordinator, method_name).assert_called_once_with(cas, broker_factory.return_value)
                 broker_factory.return_value.close.assert_called_once_with()
+
+    def test_execute_e_routes_explicit_loop_envelope_without_legacy_broker_inputs(self):
+        request = {
+            "schema": "workflow-loop/v1",
+            "identity": {"logical_task_id": "task-1"},
+            "phase": "E3",
+        }
+        result_ref = {"id": "result-1", "digest": "sha256:" + "a" * 64}
+        with patch("ai_agent_workflow.runtime_execution.RuntimeExecution") as runtime_type, \
+                patch("ai_agent_workflow.macos_task_process.MacOSTaskProcessBroker") as broker_type:
+            runtime_type.return_value.execute_loop.return_value = {"outcome": "continue"}
+            result = execute_group_e(
+                self.project,
+                "sample",
+                {"task_id": "task-1", "workflow_loop": request, "result_ref": result_ref},
+            )
+        self.assertEqual("continue", result["outcome"])
+        runtime_type.return_value.execute_loop.assert_called_once_with(
+            "task-1",
+            request,
+            result_ref=result_ref,
+            phase="E3",
+            integration=False,
+            process_timeout=None,
+            metric_events=None,
+        )
+        broker_type.assert_not_called()
+
+    def test_execute_e_routes_canonical_top_level_loop_request(self):
+        request = {
+            "schema": "workflow-loop/v1",
+            "identity": {"logical_task_id": "task-1"},
+            "phase": "E3",
+            "result_ref": {"id": "result-1", "digest": "sha256:" + "a" * 64},
+        }
+        with patch("ai_agent_workflow.runtime_execution.RuntimeExecution") as runtime_type, \
+                patch("ai_agent_workflow.macos_task_process.MacOSTaskProcessBroker") as broker_type:
+            runtime_type.return_value.execute_loop.return_value = {"outcome": "continue"}
+            result = execute_group_e(self.project, "sample", request)
+        self.assertEqual("continue", result["outcome"])
+        runtime_type.return_value.execute_loop.assert_called_once_with(
+            "task-1",
+            request,
+            result_ref=request["result_ref"],
+            phase="E3",
+            integration=False,
+            process_timeout=None,
+            metric_events=None,
+        )
+        broker_type.assert_not_called()
+
+    def test_execute_e_loop_envelope_rejects_legacy_or_secret_sidecars(self):
+        base = {
+            "task_id": "task-1",
+            "workflow_loop": {"schema": "workflow-loop/v1"},
+        }
+        for extra in (
+            {"stage_inputs": {}},
+            {"loop_request": {}},
+            {"broker": {"capability": "caller-secret"}},
+        ):
+            with self.subTest(extra=extra), self.assertRaises(InceptionError):
+                execute_group_e(self.project, "sample", {**base, **extra})
+        with self.assertRaisesRegex(InceptionError, "legacy broker inputs"):
+            execute_group_e(
+                self.project,
+                "sample",
+                {
+                    "schema": "workflow-loop/v1",
+                    "identity": {"logical_task_id": "task-1"},
+                    "stage_inputs": {},
+                },
+            )
+        with self.assertRaisesRegex(InceptionError, "cannot mix"):
+            execute_group_e(
+                self.project,
+                "sample",
+                {
+                    "schema": "workflow-loop/v1",
+                    "identity": {"logical_task_id": "task-1"},
+                    "workflow_loop": {"schema": "workflow-loop/v1"},
+                },
+            )
+
+    def test_repair_e_routes_workflow_loop_actions_to_the_explicit_v1_coordinator(self):
+        actions = (
+            ("loop-status", "status"),
+            ("loop-policy", "loop-policy"),
+            ("loop-phase-transition", "phase-transition"),
+            ("reserve", "reserve"),
+            ("loop-reserve", "reserve"),
+            ("loop-running", "running"),
+            ("loop-accept-result", "accept-result"),
+            ("loop-execution-unknown", "execution-unknown"),
+            ("loop-recover", "recover"),
+            ("loop-repair-batch", "repair-batch"),
+            ("loop-review-packages", "review-packages"),
+            ("loop-review-results", "review-results"),
+            ("loop-evidence-validity", "evidence-validity"),
+            ("loop-completion", "completion"),
+        )
+        with patch("ai_agent_workflow.runtime_repair.WorkflowLoopRepairCoordinator") as loop_type, \
+                patch("ai_agent_workflow.runtime_repair.RuntimeRepairCoordinator") as legacy_type:
+            coordinator = loop_type.return_value
+            coordinator.dispatch.side_effect = lambda name, payload: {
+                "action": name, "payload": payload,
+            }
+            for index, (external, canonical) in enumerate(actions):
+                payload = {"schema": "workflow-loop/v1", "marker": f"loop-{index}"}
+                result = execute_repair_e(self.project, "sample", external, payload)
+                self.assertEqual(canonical, result["action"])
+                self.assertNotIn("schema", result["payload"])
+                self.assertEqual(payload["marker"], result["payload"]["marker"])
+            legacy_type.assert_not_called()
+            self.assertEqual(len(actions), coordinator.dispatch.call_count)
+
+    def test_repair_e_detects_loop_control_runs_and_preserves_replay_cas_inputs(self):
+        first = {
+            "command_id": "loop-command-1",
+            "event_id": "loop-event-1",
+            "attempt": 0,
+            "expected_revision": 7,
+            "idempotency_key": "loop-reserve:loop-command-1",
+        }
+        with patch("ai_agent_workflow.inception_runtime._has_loop_control_run", return_value=True), \
+                patch("ai_agent_workflow.runtime_repair.WorkflowLoopRepairCoordinator") as loop_type, \
+                patch("ai_agent_workflow.runtime_repair.RuntimeRepairCoordinator") as legacy_type:
+            coordinator = loop_type.return_value
+            coordinator.dispatch.side_effect = lambda name, payload: {
+                "action": name, "payload": payload,
+            }
+            first_result = execute_repair_e(self.project, "sample", "reserve", first)
+            second_result = execute_repair_e(self.project, "sample", "reserve", copy.deepcopy(first))
+            self.assertEqual(first_result, second_result)
+            coordinator.dispatch.assert_has_calls([call("reserve", first), call("reserve", first)])
+            legacy_type.assert_not_called()
+
+    def test_repair_e_rejects_caller_authority_claims_on_workflow_loop_route(self):
+        with patch("ai_agent_workflow.runtime_repair.WorkflowLoopRepairCoordinator") as loop_type:
+            for payload in (
+                {"schema": "workflow-loop/v1", "passed": True},
+                {"schema": "workflow-loop/v1", "broker": {"capability": "caller"}},
+            ):
+                with self.subTest(payload=payload), self.assertRaises(InceptionError):
+                    execute_repair_e(self.project, "sample", "loop-completion", payload)
+            loop_type.assert_not_called()
 
     def test_repair_e_rejects_secret_result_and_terminal_claims_before_broker(self):
         cas = {

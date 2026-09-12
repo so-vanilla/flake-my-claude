@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-metric-event-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "event_id", "work_id", "scenario", "stage", "model", "reasoning_effort", "duration_ms", "llm_calls", "read_bytes", "test_invocations", "status", "source_ref"],
+  "properties": {
+    "schema": {"const": "loop-metric-event/v1"},
+    "event_id": {"$ref": "#/$defs/id"},
+    "work_id": {"$ref": "#/$defs/id"},
+    "scenario": {"$ref": "#/$defs/id"},
+    "stage": {"$ref": "#/$defs/id"},
+    "model": {"$ref": "#/$defs/id"},
+    "reasoning_effort": {"$ref": "#/$defs/id"},
+    "duration_ms": {"type": ["integer", "null"], "minimum": 0},
+    "llm_calls": {"type": ["integer", "null"], "minimum": 0},
+    "read_bytes": {"type": ["integer", "null"], "minimum": 0},
+    "test_invocations": {"type": ["integer", "null"], "minimum": 0},
+    "status": {"enum": ["completed", "stopped", "failed", "unavailable"]},
+    "source_ref": {"$ref": "#/$defs/ref"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["digest"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "path": {"type": "string", "minLength": 1}, "digest": {"$ref": "#/$defs/digest"}},
+      "anyOf": [{"required": ["id"]}, {"required": ["path"]}]
+    }
+  }
+}

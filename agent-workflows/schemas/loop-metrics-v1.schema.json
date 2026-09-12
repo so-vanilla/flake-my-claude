@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-metrics-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "work_id", "scenario", "model", "reasoning_effort", "event_refs", "event_count", "totals", "unavailable", "run_status", "observed_statuses", "metrics_digest"],
+  "properties": {
+    "schema": {"const": "loop-metrics/v1"},
+    "work_id": {"$ref": "#/$defs/id"},
+    "scenario": {"$ref": "#/$defs/id"},
+    "model": {"$ref": "#/$defs/id"},
+    "reasoning_effort": {"$ref": "#/$defs/id"},
+    "event_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/ref"}},
+    "event_count": {"type": "integer", "minimum": 1},
+    "totals": {"$ref": "#/$defs/measures"},
+    "unavailable": {"type": "array", "uniqueItems": true, "items": {"enum": ["duration_ms", "llm_calls", "read_bytes", "test_invocations"]}},
+    "run_status": {"enum": ["completed", "incomplete"]},
+    "observed_statuses": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["completed", "stopped", "failed", "unavailable"]}},
+    "metrics_digest": {"$ref": "#/$defs/digest"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "ref": {
+      "type": "object", "additionalProperties": false, "required": ["digest"],
+      "properties": {"id": {"$ref": "#/$defs/id"}, "path": {"type": "string", "minLength": 1}, "digest": {"$ref": "#/$defs/digest"}},
+      "anyOf": [{"required": ["id"]}, {"required": ["path"]}]
+    },
+    "measure": {"type": ["integer", "null"], "minimum": 0},
+    "measures": {
+      "type": "object", "additionalProperties": false,
+      "required": ["duration_ms", "llm_calls", "read_bytes", "test_invocations"],
+      "properties": {
+        "duration_ms": {"$ref": "#/$defs/measure"}, "llm_calls": {"$ref": "#/$defs/measure"},
+        "read_bytes": {"$ref": "#/$defs/measure"}, "test_invocations": {"$ref": "#/$defs/measure"}
+      }
+    }
+  }
+}

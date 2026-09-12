@@ -4,6 +4,7 @@ import json
 import unittest
 from pathlib import Path
 
+from ai_agent_workflow.loop_contracts import phase_policy
 from ai_agent_workflow.planning_system import PlanningSystemV1
 
 
@@ -123,11 +124,68 @@ class D10_WorkerBriefTests(PlanningTestCase):
 
 
 class D11_VerificationRecoveryTests(PlanningTestCase):
-    def test_finite_budgets_and_distinct_gates(self):
-        gates = {key: {"required": True} for key in ("test", "review", "finding_validation", "e2e", "dry_run", "rollback", "post_check", "activation", "git", "external")}
-        result = self.compile("group.D.D11", task_budgets=[{"wall_clock_minutes": 10, "review_rounds": 1, "fix_attempts": 5}], gates=gates)
+    @staticmethod
+    def gates():
+        return {key: {"required": True} for key in ("test", "review", "finding_validation", "e2e", "dry_run", "rollback", "post_check", "activation", "git", "external")}
+
+    @staticmethod
+    def policy(task_id, phase="E4", **changes):
+        result = {
+            "task_id": task_id,
+            "phase": phase,
+            "logical_task_id": task_id + "-logical",
+            "additional_iteration_limit": phase_policy(phase)["additional_iteration_limit"],
+            "technical_retry_limit": 1,
+            "verification_scope": ["test", "review"],
+            "recovery": {"on_failure": "stop-and-report", "on_unknown": "recovery-required"},
+        }
+        result.update(changes)
+        return result
+
+    def valid_inputs(self, **changes):
+        tasks = [{"task_id": "T1"}, {"task_id": "T2"}]
+        policies = [self.policy("T1"), self.policy("T2", phase="D11")]
+        values = {"tasks": tasks, "task_loop_policies": policies, "gates": self.gates()}
+        values.update(changes)
+        return values
+
+    def test_task_loop_policies_cover_d8_tasks_and_keep_gates_distinct(self):
+        result = self.compile("group.D.D11", **self.valid_inputs())
         self.assertEqual("verification_recovery", result["output"]["kind"])
-        self.assert_refusal(self.compile("group.D.D11", task_budgets=[{"wall_clock_minutes": 0, "review_rounds": 1, "fix_attempts": 6}], gates=gates), "blocked_unbounded_budget")
+        self.assertEqual(self.valid_inputs()["task_loop_policies"], result["output"]["task_loop_policies"])
+        self.assertEqual(set(self.gates()), set(result["output"]["gates"]))
+
+    def test_policy_limits_are_bound_to_phase_policy_and_technical_retry_one(self):
+        policies = self.valid_inputs()["task_loop_policies"]
+        policies[0]["additional_iteration_limit"] = 2
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=policies)), "blocked_invalid_loop_policy")
+        policies = self.valid_inputs()["task_loop_policies"]
+        policies[0]["technical_retry_limit"] = 2
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=policies)), "blocked_invalid_loop_policy")
+
+    def test_policy_requires_complete_coverage_and_explicit_recovery_scope(self):
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=[self.policy("T1")])), "blocked_invalid_loop_policy")
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=[self.policy("T1"), self.policy("T2"), self.policy("T3")])), "blocked_invalid_loop_policy")
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=[self.policy("T1"), self.policy("T2", verification_scope=[])])), "blocked_invalid_loop_policy")
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=[self.policy("T1"), self.policy("T2", recovery={})])), "blocked_invalid_loop_policy")
+
+    def test_old_budget_fields_cannot_control_progress_and_timeouts_remain_distinct(self):
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_budgets=[{"wall_clock_minutes": 10}])), "blocked_invalid_loop_policy")
+        policies = self.valid_inputs()["task_loop_policies"]
+        policies[0]["process_timeout"] = {"seconds": 30}
+        policies[0]["tool_timeout"] = {"seconds": 10}
+        result = self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=policies))
+        self.assertEqual({"seconds": 30}, result["output"]["task_loop_policies"][0]["process_timeout"])
+        self.assertEqual({"seconds": 10}, result["output"]["task_loop_policies"][0]["tool_timeout"])
+        policies[0]["wall_clock_minutes"] = 10
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(task_loop_policies=policies)), "blocked_invalid_loop_policy")
+
+    def test_required_delivery_gates_and_approval_boundary_are_preserved(self):
+        for gate in ("activation", "git", "external"):
+            gates = self.gates()
+            gates.pop(gate)
+            self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(gates=gates)), "blocked_incomplete_verification")
+        self.assert_refusal(self.compile("group.D.D11", **self.valid_inputs(gates_grant_approval=True)), "blocked_implicit_approval")
 
 
 class D12_ReadinessReviewTests(PlanningTestCase):

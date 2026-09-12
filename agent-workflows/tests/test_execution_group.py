@@ -13,7 +13,7 @@ from ai_agent_workflow.execution_group import ArtifactCandidateBuilder, Executio
 from ai_agent_workflow.macos_task_process import MacOSTaskProcessBroker, MacOSTaskProcessError  # noqa: E402
 from test_execution_v2_orchestrator import advisory as orchestrator_advice, command as orchestrator_command, state as orchestrator_state  # noqa: E402
 from test_persistent_receipts import package as persistent_package, policy as persistent_policy  # noqa: E402
-from test_execution_v2 import execution_input, candidate as v2_candidate, shards as v2_shards, receipt as v2_receipt, review as v2_review, object_digest  # noqa: E402
+from test_execution_v2 import execution_input, candidate as v2_candidate, shards as v2_shards, receipt as v2_receipt, review as v2_review, object_digest, workflow_loop_request  # noqa: E402
 from ai_agent_workflow.bounded_read_scope import observe_read_scope  # noqa: E402
 from ai_agent_workflow.execution_v2 import ExecutionClosureBuilder, RegressionFrontier, ReceiptAggregator, FindingValidator  # noqa: E402
 from ai_agent_workflow.schema_validation import SchemaValidationError, validate_document  # noqa: E402
@@ -279,6 +279,26 @@ class E6_ValidateReviewFindingsTests(unittest.TestCase):
         self.assertEqual(ExecutionGroupV1().compile("group.E.E6", no_required, authority(), HEAD)["next"], "E8")
         missing = copy.deepcopy(base); missing["dispositions"] = []
         self.assertEqual(ExecutionGroupV1().compile("group.E.E6", missing, authority(), HEAD)["schema"], "execution-group-refusal/v1")
+
+    def test_workflow_loop_zero_finding_routes_to_mechanical_completion(self):
+        result = ExecutionGroupV1().compile("group.E.E6", inputs(workflow_loop=workflow_loop_request()), authority(), HEAD)
+        self.assertEqual("E8", result["next"])
+        self.assertTrue(result["validation"]["validator"]["skipped"])
+        validate_execution(result)
+
+    def test_workflow_loop_required_finding_routes_to_repair_batch(self):
+        request = workflow_loop_request(required_finding=True)
+        result = ExecutionGroupV1().compile("group.E.E6", inputs(workflow_loop=request), authority(), HEAD)
+        self.assertEqual("E7", result["next"])
+        self.assertEqual("loop-repair-batch-plan/v1", result["validation"]["repair_batch_plan"]["schema"])
+        validate_execution(result)
+
+    def test_workflow_loop_e8_emits_non_authorizing_mechanical_close(self):
+        result = ExecutionGroupV1().compile("group.E.E8", inputs(workflow_loop=workflow_loop_request()), authority(), HEAD)
+        self.assertEqual("converged", result["status"])
+        self.assertTrue(result["validation"]["validator"]["skipped"])
+        self.assertEqual("loop-machine-decision-receipt/v1", result["aggregate"]["machine_decision_receipt"]["schema"])
+        validate_execution(result)
 
 
 class E7_FixAndRereviewTests(unittest.TestCase):

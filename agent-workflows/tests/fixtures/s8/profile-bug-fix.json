@@ -6,12 +6,12 @@
   "workflow_manifest_ref": {
     "path": "agent-workflows/workflows/bug-fix-standard.json",
     "version": "workflow-manifest/v1",
-    "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151"
+    "digest": "sha256:132f7d7546eacb15638eea441a7322d139a41ab9ef3e6e0fa2de6d541a43de1d"
   },
   "profile_manifest_ref": {
     "path": "agent-workflows/profiles/bug-fix.json",
     "version": "software-profile-manifest/v1",
-    "digest": "sha256:25cc7ef5e6ab54762d3d8952df71c5ae2043bc0801a0d397f32ff448087b5de8"
+    "digest": "sha256:38c5f6d8091d77bbeea20131cef3475b557dae087629c538c5ce033a0d1ce836"
   },
   "claimed_stage_order": [
     "purpose",

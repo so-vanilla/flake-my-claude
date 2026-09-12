@@ -9,12 +9,12 @@
   "workflow_manifest_ref": {
     "path": "agent-workflows/workflows/bug-fix-standard.json",
     "version": "workflow-manifest/v1",
-    "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151"
+    "digest": "sha256:132f7d7546eacb15638eea441a7322d139a41ab9ef3e6e0fa2de6d541a43de1d"
   },
   "profile_manifest_ref": {
     "path": "agent-workflows/profiles/bug-fix.json",
     "version": "software-profile-manifest/v1",
-    "digest": "sha256:25cc7ef5e6ab54762d3d8952df71c5ae2043bc0801a0d397f32ff448087b5de8"
+    "digest": "sha256:38c5f6d8091d77bbeea20131cef3475b557dae087629c538c5ce033a0d1ce836"
   },
   "s7_surface_manifest_ref": {
     "path": "agent-workflows/manifests/additional-required-surfaces.json",
@@ -205,7 +205,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/planning.json",
         "version": "group-d-manifest/v1",
-        "digest": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5"
+        "digest": "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80"
       },
       "selectors": [
         "group.D.D1",
@@ -225,7 +225,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/planning_system.py",
           "version": "python-source/v1",
-          "digest": "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660"
+          "digest": "sha256:bfcddf4d99d2c4584225bfe75e9be09bb969a8c121b1b095a50496a97403e2c0"
         }
       ],
       "implementation_embedded": false
@@ -235,7 +235,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/execution.json",
         "version": "group-e-manifest/v1",
-        "digest": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52"
+        "digest": "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc"
       },
       "selectors": [
         "group.E.E1",
@@ -252,7 +252,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/execution_group.py",
           "version": "python-source/v1",
-          "digest": "sha256:a6718485618f2d9d5f72b82b20d797c181829d0e990adfbc9e148765608fd2d2"
+          "digest": "sha256:745c63fd8ca761148b91d116549a71bb140d02e65ada39b8a1148e67abaeba9a"
         }
       ],
       "implementation_embedded": false
@@ -287,7 +287,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/decisions.json",
         "version": "group-g-manifest/v1",
-        "digest": "sha256:627e8a8b1e707f8799898e1d5fbf16cbdfc6a18995a17f7c4f5eb4ed4eb35e07"
+        "digest": "sha256:8e97bc08f4ec116d0fad326e5a2307158e94d68ecc7f4741d4895cdb417b5494"
       },
       "selectors": [
         "group.G.G1",
@@ -301,7 +301,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
           "version": "python-source/v1",
-          "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+          "digest": "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b"
         }
       ],
       "implementation_embedded": false
@@ -311,7 +311,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/completion.json",
         "version": "group-h-manifest/v1",
-        "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a"
+        "digest": "sha256:c80f220222fb6ac3e5b38bd6f2b63c18a5b2c815411464a5e5bf86ac18455782"
       },
       "selectors": [
         "group.H.H1",
@@ -322,7 +322,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
           "version": "python-source/v1",
-          "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+          "digest": "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b"
         }
       ],
       "implementation_embedded": false
@@ -338,12 +338,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF1)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF1.json",
-        "digest": "sha256:aa579a8da125c260968f2cfdbcc21ca3bbaeee0d5ab06f5b9814be0f840d3a48"
+        "digest": "sha256:66509de28e1955283306efa53d289a4bbe42f5358b159d681515651dbd79c28f"
       }
     },
     {
@@ -355,12 +355,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF2)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF2.json",
-        "digest": "sha256:349a18a34185c1717eb88278bd7d4ead7bc65e2d6c939b10c2f3e4118d54f776"
+        "digest": "sha256:e9bbd6945451ea72e2632db3aeee5a987aef578d73927514011eddf356b6006d"
       }
     },
     {
@@ -372,12 +372,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF3)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF3.json",
-        "digest": "sha256:c4ed5b5d59dfa6ae62917f461069f06abcbdf7c033621691d78a9189cbb630a1"
+        "digest": "sha256:6f877a238f12047f6e5b00daab7d6330b728dd869e9895566c21bfb8364b651b"
       }
     },
     {
@@ -389,12 +389,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF4)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF4.json",
-        "digest": "sha256:77c91fb3604208f41bcc4d789e3759f44d6f6fe4aed38ff8491bf016bf85fc9b"
+        "digest": "sha256:0ada8293b0ebaea7508096c762e3c86bfaba7451bdac251cc11c0eba8a1b749c"
       }
     },
     {
@@ -406,12 +406,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF5)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF5.json",
-        "digest": "sha256:8feeaefb687d6dab4ea3efd083c9d0527cf452cda7223650256e216bf03840ce"
+        "digest": "sha256:eda2d66a7b24fd4f29ca516b4ff041be697f0a8c6782d772531a8ff33cbf1897"
       }
     },
     {
@@ -423,12 +423,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF6)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF6.json",
-        "digest": "sha256:14098e2bd0f0959b472b2a8e46fdfcc77ecd2cb52e263171530e425259800507"
+        "digest": "sha256:e065da5d089dabb6004eb1dda4c96d99adb3661d1d98a73ec565188c3ad3cb78"
       }
     },
     {
@@ -440,12 +440,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF7)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF7.json",
-        "digest": "sha256:f4b6e423372cc02b376509a56892b9d1d73e09a97bcb31bbb10d2e10ee4bdbe2"
+        "digest": "sha256:cf4e719feb88650e77dd9d53252e1513a401f081f7aa1238d05990c173019c8a"
       }
     },
     {
@@ -457,12 +457,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.bug-fix.BGF8)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/bug-fix/BGF8.json",
-        "digest": "sha256:085781cb2751bd6517506d094bb1eea6450f2cfffd58ccbf4759c7547c7ef748"
+        "digest": "sha256:44754922f2af95bf67bf3b0149ee106250ac622fd0b5199b309a9a545a992638"
       }
     }
   ],
@@ -624,5 +624,5 @@
     "run_completion_claimed": false,
     "full_workflow_ready": false
   },
-  "result_digest": "sha256:ee3869180cfaf91c337cbfd1bee8c704e125855226dd9a7b814e3757090126d0"
+  "result_digest": "sha256:9a14c77ce14dba4eb66caddf2a491a426cc603d1c2dcbf7b8d30b4e5100a9f1a"
 }

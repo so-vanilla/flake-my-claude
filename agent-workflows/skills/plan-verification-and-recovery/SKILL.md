@@ -19,12 +19,13 @@ task-plan, risk, and delivery-surface references.
 
 Define test levels, independent review, Finding validation, E2E, dry-run,
 rollback, post-check, and activation, commit, and push gates. Assign every task
-a finite deadline or wall-clock timebox, maximum review rounds, and maximum fix
-attempts per Finding. Produce `planning/verification-plan.md` and
+to the exact `workflow-loop/v1` phase policy, logical counter identity,
+verification scope, one technical retry, and explicit recovery route. Keep
+process/tool timeout separate from progress. Produce `planning/verification-plan.md` and
 `recovery-plan.md`.
 
 Complete when rollback depth, retained successes, required approver, and each
-budget-exhaustion stop are explicit. Stop on an unbounded budget or unspecified
-delivery authority. Hand both plans and their references to
+iteration-limit, stall, execution-failure, and recovery stop are explicit.
+Stop on a missing loop policy or unspecified delivery authority. Hand both plans and their references to
 `implementation-readiness-review`; planning a gate neither grants nor consumes
 approval.

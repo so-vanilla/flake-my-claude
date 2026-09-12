@@ -31,7 +31,11 @@ def validate_document(
 ) -> None:
     """Validate local schemas' type, shape, digest, and enum constraints."""
 
-    registry = registry or {}
+    # Local definitions are scoped to the schema currently being evaluated.
+    # Merge them on entry so a referenced schema can resolve its own
+    # ``#/$defs/...`` members rather than accidentally consulting only the
+    # caller's registry.
+    registry = {**(registry or {}), **dict(schema.get("$defs", {}))}
     reference = schema.get("$ref")
     if reference:
         name = str(reference).rsplit("/", 1)[-1]
@@ -99,6 +103,14 @@ def validate_document(
             raise SchemaValidationError("%s: oneOf constraint failed" % path)
         if keyword == "allOf" and successes != len(alternatives):
             raise SchemaValidationError("%s: allOf constraint failed" % path)
+    forbidden = schema.get("not")
+    if isinstance(forbidden, Mapping):
+        try:
+            validate_document(document, forbidden, registry, path)
+        except SchemaValidationError:
+            pass
+        else:
+            raise SchemaValidationError("%s: not constraint failed" % path)
 
 
 __all__ = ["SchemaValidationError", "validate_document"]

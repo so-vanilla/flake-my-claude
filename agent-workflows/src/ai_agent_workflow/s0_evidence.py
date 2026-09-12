@@ -21,16 +21,16 @@ _AUTHORITY_PATH = "agent-workflows/manifests/s0-source-transition-authority.json
 _AUTHORITY_DIGEST = "sha256:673114ec3e1ea69fcd9580805b7f872895062253a0a1ccc352f40f281ccc3070"
 _CURRENT_AUTHORITY_PATH = "agent-workflows/manifests/s0-source-transition-current-authority.json"
 # This successor trust root is supplied by the reviewed evaluator package too.
-_CURRENT_AUTHORITY_DIGEST = "sha256:195b5260d899cd9763469ffb8dc0084e2c0fbc8039da6288ee170abf172ffec6"
+_CURRENT_AUTHORITY_DIGEST = "sha256:2eb8aa269082dffa04485715fee32d6aa6ad7a71ec2df2ca8656f8865f476b69"
 _CURRENT_AUTHORITY_SCHEMA_PATH = (
     "agent-workflows/schemas/s0-source-transition-current-authority-v1.schema.json"
 )
 _CURRENT_AUTHORITY_SCHEMA_DIGEST = (
-    "sha256:4f9f4940cb820f4c71eeae770f6cd6d8ec3b0dce56e625642c431722f0bbf68e"
+    "sha256:715a831b79e85420302ea4ba57cc50d5dc1479647098e8cd4de9d79672d9071f"
 )
 _CURRENT_LINEAGE_REF = {
     "path": "agent-workflows/evidence/current-canonical-lineage.json",
-    "digest": "sha256:2359bc900a2124995c7347ab6ddb4e5e7353a1eb79c648d40cbdaf4fa943013f",
+    "digest": "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822",
 }
 _CURRENT_SOURCE_REFS = [
     {
@@ -41,7 +41,7 @@ _CURRENT_SOURCE_REFS = [
     {
         "role": "step-catalog",
         "path": "docs/plans/ai-agent-workflow-step-catalog.md",
-        "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+        "digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
     },
 ]
 _ROTATED_SOURCE_PATHS = {item["path"] for item in _CURRENT_SOURCE_REFS}

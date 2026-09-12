@@ -1,19 +1,24 @@
 """Focused staged-CAS tests for the post-E6 practical repair protocol."""
 import copy
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import shutil
 import subprocess
 import sys
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / "src"), str(ROOT / "tests"), str(ROOT / "examples" / "support-report")]
 
-from ai_agent_workflow.execution_group import ArtifactCandidateBuilder, ExecutionGroupV1  # noqa: E402
+from ai_agent_workflow.control_kernel import ControlKernel  # noqa: E402
+from ai_agent_workflow.execution_group import (  # noqa: E402
+    ArtifactCandidateBuilder,
+    ExecutionGroupV1,
+)
 from ai_agent_workflow.inception_runtime import InceptionRuntime  # noqa: E402
+from ai_agent_workflow.loop_contracts import canonical_digest  # noqa: E402
 from ai_agent_workflow.macos_task_process import MacOSTaskProcessBroker  # noqa: E402
 from ai_agent_workflow.runtime_execution import RuntimeExecution  # noqa: E402
 from ai_agent_workflow.runtime_repair import (  # noqa: E402
@@ -21,13 +26,209 @@ from ai_agent_workflow.runtime_repair import (  # noqa: E402
     TRUST_PROFILE,
     RuntimeRepairCoordinator,
     RuntimeRepairError,
+    WorkflowLoopRepairCoordinator,
     assert_production_adoptable,
 )
-from test_execution_group import HEAD, authority as compiler_authority, inputs as compiler_inputs  # noqa: E402
-from test_runtime_execution import RuntimeExecutionIntegrationTests, digest_bytes  # noqa: E402
-
+from test_execution_group import HEAD  # noqa: E402
+from test_execution_group import authority as compiler_authority
+from test_execution_group import inputs as compiler_inputs
+from test_runtime_execution import (  # noqa: E402
+    RuntimeExecutionIntegrationTests,
+    digest_bytes,
+)
 
 AXES = ("architecture/safety", "integration/operability/time/dotfiles")
+LOOP_AXES = ("architecture-safety", "integration-operability")
+LOOP_DIGEST = "sha256:" + "b" * 64
+
+
+class WorkflowLoopRepairProtocolTests(unittest.TestCase):
+    """Focused tests for the additive workflow-loop/v1 repair adapter."""
+
+    def setUp(self):
+        self._temporary = TemporaryDirectory()
+        root = Path(self._temporary.name)
+        self.kernel = ControlKernel(root, "loop-repair")
+        self.authority = {
+            "status": "approved",
+            "scopes": ["*"],
+            "fixture_identity": {
+                "schema": "canonical-fixture-identity/v1",
+                "run_id": "loop-repair",
+                "namespace": "fixture:loop-repair",
+                "approval_scope": "fixture-only",
+            },
+        }
+        self.identity = {
+            "schema": "loop-work-identity/v1",
+            "work_lineage_id": "lineage-repair",
+            "logical_task_id": "task-repair",
+            "phase": "E3",
+            "scope_revision": "scope-r1",
+            "requirements_digest": LOOP_DIGEST,
+            "predecessor_ref": None,
+        }
+        self.kernel.entry(
+            {"path": "objectives/loop.md", "version": "v001", "digest": "c" * 64},
+            authority_ref=self.authority,
+            loop_control={"identity": self.identity, "history": []},
+        )
+        self.coordinator = WorkflowLoopRepairCoordinator(kernel=self.kernel, run_id="loop-repair")
+
+    def tearDown(self):
+        self._temporary.cleanup()
+
+    @staticmethod
+    def _finding(identifier="F1"):
+        return {
+            "finding_id": identifier,
+            "fingerprint": "fingerprint-" + identifier,
+            "classification": "required",
+            "candidate_digest": LOOP_DIGEST,
+            "batch_key": "root-a",
+            "root_cause": "same-root",
+            "write_scope": ["src/a.py"],
+            "verification": ["test-a"],
+            "depends_on": [],
+            "conflicts_with": [],
+            "resolution_conditions": ["test-a passes"],
+        }
+
+    @staticmethod
+    def _evidence():
+        value = {
+            "schema": "loop-evidence-record/v1",
+            "evidence_id": "evidence-1",
+            "evidence_digest": "",
+            "candidate_digest": LOOP_DIGEST,
+            "spec_digest": LOOP_DIGEST,
+            "source_digest": LOOP_DIGEST,
+            "dependency_digest": LOOP_DIGEST,
+            "environment_digest": LOOP_DIGEST,
+            "check_definition_digest": LOOP_DIGEST,
+            "coverage": ["R1"],
+            "status": "pass",
+        }
+        value["evidence_digest"] = canonical_digest(
+            {key: item for key, item in value.items() if key != "evidence_digest"}
+        )
+        return value
+
+    def test_durable_reserve_running_accept_and_explicit_unknown_recovery(self):
+        reserved = self.coordinator.reserve({"command_id": "command-initial"})
+        self.assertEqual("reserved", reserved["event"]["status"])
+        self.assertEqual(3, reserved["policy"]["additional_iteration_limit"])
+        self.assertEqual(1, reserved["policy"]["technical_retry_limit"])
+        self.assertNotIn("review_budget", self.kernel.read_state())
+        replayed = self.coordinator.reserve({"command_id": "command-initial"})
+        self.assertEqual(reserved["revision"], replayed["revision"])
+
+        running = self.coordinator.mark_running({"event_id": "event-command-initial"})
+        self.assertEqual("running", running["event"]["status"])
+        unknown = self.coordinator.mark_execution_unknown({"event_id": "event-command-initial"})
+        self.assertEqual("recovery-required", unknown["loop_control"]["outcome"])
+        with self.assertRaises(RuntimeRepairError):
+            self.coordinator.accept_result(
+                {"event_id": "event-command-initial", "result_ref": {"id": "late", "digest": LOOP_DIGEST}}
+            )
+        recovered = self.coordinator.recover_execution(
+            {
+                "event_id": "event-command-initial",
+                "resolution": "retry",
+                "evidence_ref": {"id": "recovery-proof", "digest": LOOP_DIGEST},
+                "retry_command_id": "command-retry",
+                "retry_event_id": "event-command-retry",
+            }
+        )
+        self.assertEqual("technical-retry", recovered["event"]["kind"])
+        self.assertEqual(1, recovered["event"]["attempt"])
+
+    def test_repair_batch_and_fresh_two_axis_delta_review(self):
+        finding = self._finding()
+        batch_result = self.coordinator.repair_batch(
+            {
+                "findings": [finding],
+                "candidate_digest": LOOP_DIGEST,
+                "resolutions": [
+                    {
+                        "finding_id": "F1",
+                        "status": "resolved",
+                        "evidence_refs": [{"id": "fix-proof", "digest": LOOP_DIGEST}],
+                        "unresolved_conditions": [],
+                    }
+                ],
+            }
+        )
+        self.assertTrue(batch_result["complete"])
+
+        candidate = {
+            "candidate_ref": {"id": "candidate", "digest": LOOP_DIGEST},
+            "spec_ref": {"id": "spec", "digest": LOOP_DIGEST},
+            "dependency_refs": [{"id": "dependency", "digest": LOOP_DIGEST}],
+            "environment_ref": {"id": "environment", "digest": LOOP_DIGEST},
+            "source_paths": ["src/a.py"],
+        }
+        requirements = [{"requirement_id": "R1", "requirement_ref": {"id": "R1", "digest": LOOP_DIGEST}, "scope": ["src/a.py"]}]
+        prior = [{
+            "finding_id": "F1", "finding_ref": {"id": "F1", "digest": LOOP_DIGEST},
+            "status": "resolved", "scope": ["src/a.py"],
+            "resolution_ref": {"id": "resolution-F1", "digest": LOOP_DIGEST},
+        }]
+        impact = {
+            "known": True, "changed_paths": ["src/a.py"],
+            "affected_requirements": ["R1"], "affected_interfaces": [], "affected_tests": ["test-a"],
+        }
+        package_set = self.coordinator.build_review_packages(
+            candidate,
+            requirements,
+            prior,
+            impact,
+            assignments={
+                "architecture-safety": {"assignment_id": "a", "actor_id": "actor-a", "context_epoch": "epoch-a"},
+                "integration-operability": {"assignment_id": "b", "actor_id": "actor-b", "context_epoch": "epoch-b"},
+            },
+        )
+        self.assertEqual({"delta"}, {item["mode"] for item in package_set["packages"]})
+        results = [
+            {
+                "schema": "loop-review-assessment/v1", "review_id": "review-" + axis,
+                "axis": axis, "actor_id": package["assignment"]["actor_id"],
+                "context_epoch": package["assignment"]["context_epoch"],
+                "candidate_digest": LOOP_DIGEST, "package_digest": package["package_digest"],
+                "coverage": ["R1"], "completed": True, "unevaluated": [], "finding_refs": [],
+            }
+            for axis, package in ((item["axis"], item) for item in package_set["packages"])
+        ]
+        accepted = self.coordinator.accept_review_packages(package_set, results)
+        self.assertTrue(accepted["complete"])
+
+    def test_strict_zero_finding_completion_issues_machine_receipt_only(self):
+        evidence = self._evidence()
+        request = {
+            "schema": "workflow-loop/v1",
+            "identity": self.identity,
+            "candidate_digest": LOOP_DIGEST,
+            "package_digest": LOOP_DIGEST,
+            "requirements": [{
+                "schema": "loop-requirement-assessment/v1", "requirement_id": "R1",
+                "status": "pass", "scope": ["src/a.py"],
+                "evidence_refs": [{"id": evidence["evidence_id"], "digest": evidence["evidence_digest"]}],
+            }],
+            "reviews": [
+                {"schema": "loop-review-assessment/v1", "review_id": "review-a", "axis": "architecture-safety", "actor_id": "actor-a", "context_epoch": "epoch-a", "candidate_digest": LOOP_DIGEST, "package_digest": LOOP_DIGEST, "coverage": ["R1"], "completed": True, "unevaluated": [], "finding_refs": []},
+                {"schema": "loop-review-assessment/v1", "review_id": "review-b", "axis": "integration-operability", "actor_id": "actor-b", "context_epoch": "epoch-b", "candidate_digest": LOOP_DIGEST, "package_digest": LOOP_DIGEST, "coverage": ["R1"], "completed": True, "unevaluated": [], "finding_refs": []},
+            ],
+            "evidence": [evidence],
+            "findings": [],
+            "remaining_seconds": 0,
+            "wall_clock_minutes": 0,
+        }
+        result = self.coordinator.complete(request, receipt_id="machine-repair-1")
+        self.assertTrue(result["validator"]["skipped"])
+        self.assertEqual("loop-machine-decision-receipt/v1", result["machine_decision_receipt"]["schema"])
+        self.assertFalse(result["machine_decision_receipt"]["human_approval"])
+        self.assertTrue(self.coordinator.classify_completion(request)["completed"])
+
 
 
 class ProductionAdoptionGateTests(unittest.TestCase):

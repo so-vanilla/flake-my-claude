@@ -23,7 +23,9 @@ The installed absolute
 entrypoint provides pre-Run draft persistence
 without requiring an invented Kernel HEAD. `init` requires ignored project
 storage; `save` appends one immutable handoff; `resume` verifies input digests
-and returns the remaining wall-clock budget. It never invokes the next Skill.
+and returns the immutable frontier plus loop-control mode. New intakes use
+iteration-and-evidence progress control; `--legacy-budget-seconds` exists only
+to read or rehearse the old intake form. It never invokes the next Skill.
 For a repository-local Codex setup, install Skills and the matching runtime as
 one create-only snapshot, then use its wrapper rather than guessing `PATH` or
 a relative `PYTHONPATH`:
@@ -53,7 +55,7 @@ entrypoint is the separate project-local execution
 adapter. `adopt --inputs adoption-args.json` validates a supplied physical
 human receipt (or an explicitly isolated mock receipt), compiles B7, and
 commits an actual Kernel objective approval. Its JSON binds intake, candidate,
-proposal, actor and receipt refs, mode and a finite budget; optional
+proposal, actor and receipt refs, mode and `workflow-loop/v1`; optional
 `preapproval_steps` recompiles saved B1–B6 inputs without invoking AI Skills.
 Draft storage by itself remains candidate-only.
 

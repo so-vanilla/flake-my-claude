@@ -14,9 +14,32 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any, Dict, Iterable, List
 
+from .completion import (
+    CompletionError,
+    classify_completion,
+    create_machine_decision_receipt,
+)
+from .evidence_validity import EvidenceValidityError, assess_evidence
+from .repair_batch import RepairBatchError, plan_fix_batches
+from .review_packages import ReviewPackageError, build_review_package
+
 
 _DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$")
+_LOOP_SCHEMA = "workflow-loop/v1"
+_LOOP_AXES = {"architecture-safety", "integration-operability"}
+_LOOP_IGNORED_BUDGET_FIELDS = {
+    "budget", "observed_budget", "remaining_seconds", "wall_clock_minutes",
+    "review_round", "product_fix_attempt", "product_fix_attempts", "task_budgets",
+}
+_LOOP_SIDECAR_FIELDS = {
+    "current_inputs", "change_impact", "required_checks", "required_coverage",
+    "repair_findings", "repair_batch_findings", "required_findings",
+    "review_package_inputs", "delta_review_inputs", "review_candidate",
+    "review_requirements", "package_requirements", "prior_findings", "impact",
+    "assignments", "review_assignments", "review_mode", "review_results",
+    "rereview_results", "batch_resolutions", "resolutions", "receipt_id",
+}
 
 
 class V2ContractError(ValueError):
@@ -389,7 +412,26 @@ class FindingValidator:
 
     _CLASSES = {"required", "duplicate", "invalid", "deliberate-design", "downstream-only", "too-minor", "test-evidence-debt", "needs-user"}
 
-    def validate(self, reviews: Sequence[Mapping[str, Any]], dispositions: Sequence[Mapping[str, Any]], observed_budget: Mapping[str, Any]) -> Dict[str, Any]:
+    def validate(
+        self,
+        reviews: Sequence[Mapping[str, Any]] | Mapping[str, Any],
+        dispositions: Sequence[Mapping[str, Any]] | None = None,
+        observed_budget: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Any]:
+        # Keep the historical three-argument disposition API intact while
+        # providing a discoverable one-argument workflow-loop seam.
+        if (
+            dispositions is None
+            and observed_budget is None
+            and isinstance(reviews, Mapping)
+            and (
+                reviews.get("schema") == _LOOP_SCHEMA
+                or any(key in reviews for key in ("workflow_loop", "loop_request", "completion_request"))
+            )
+        ):
+            return self.validate_workflow_loop(reviews)
+        if dispositions is None or observed_budget is None:
+            raise V2ContractError("legacy FindingValidator requires reviews, dispositions, and observed_budget")
         if not isinstance(reviews, Sequence) or isinstance(reviews, (str, bytes)) or len(reviews) != 2:
             raise V2ContractError("exactly two review reports are required")
         normalized = [self._review(item, index) for index, item in enumerate(reviews)]
@@ -470,6 +512,426 @@ class FindingValidator:
             normalized.append(copy.deepcopy(finding))
         review["findings"] = sorted(normalized, key=lambda item: item["finding_id"])
         return copy.deepcopy(review)
+
+    def validate_workflow_loop(self, request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        """Validate the workflow-loop/v1 review/completion path.
+
+        ``validate`` is the historical E6 disposition seam and intentionally
+        retains its observed-budget argument.  This method is the additive
+        workflow-loop/v1 seam: it never consumes that budget and only omits a
+        Validator when the mechanical zero-finding proof is complete.
+        """
+        return WorkflowLoopValidator().validate(request, receipt_id=receipt_id)
+
+    # A short alias keeps callers that use the loop terminology independent of
+    # the historical E6 class name.
+    validate_loop = validate_workflow_loop
+
+
+def _loop_payload(value: Any) -> tuple[dict[str, Any], bool]:
+    """Unwrap the additive loop envelope while preserving caller bytes."""
+    if not isinstance(value, Mapping):
+        raise V2ContractError("workflow-loop request must be a mapping")
+    envelope = copy.deepcopy(dict(value))
+    nested = False
+    for key in ("workflow_loop", "loop_request", "completion_request"):
+        if key in envelope:
+            candidate = envelope.pop(key)
+            if not isinstance(candidate, Mapping):
+                raise V2ContractError("workflow-loop request is malformed")
+            supplied = copy.deepcopy(dict(candidate))
+            for sidecar in _LOOP_SIDECAR_FIELDS:
+                if sidecar in envelope and sidecar not in supplied:
+                    supplied[sidecar] = copy.deepcopy(envelope[sidecar])
+            envelope = supplied
+            nested = True
+            break
+    if envelope.get("schema") == _LOOP_SCHEMA:
+        nested = True
+        envelope.pop("schema", None)
+        for key in ("request", "completion_request", "completion", "assessment", "payload"):
+            if key not in envelope:
+                continue
+            supplied = envelope.pop(key)
+            if supplied is None:
+                continue
+            if not isinstance(supplied, Mapping):
+                raise V2ContractError("workflow-loop request payload is malformed")
+            # A canonical completion request is the authoritative projection;
+            # command-level phase/history fields must not leak into it.
+            projected = copy.deepcopy(dict(supplied))
+            for sidecar in _LOOP_SIDECAR_FIELDS:
+                if sidecar in envelope and sidecar not in projected:
+                    projected[sidecar] = copy.deepcopy(envelope[sidecar])
+            envelope = projected
+            break
+    return envelope, nested
+
+
+def _loop_completion_request(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Project loop inputs onto the strict completion classifier contract."""
+    result = copy.deepcopy(dict(value))
+    # These values may be present in a larger execution status projection, but
+    # they are deliberately not allowed to decide loop progress.
+    for key in _LOOP_IGNORED_BUDGET_FIELDS:
+        result.pop(key, None)
+    result.pop("schema", None)
+    result.pop("current_inputs", None)
+    result.pop("change_impact", None)
+    result.pop("evidence_assessments", None)
+    result.pop("required_checks", None)
+    result.pop("required_coverage", None)
+    for key in (
+        "repair_findings", "repair_batch_findings", "required_findings",
+        "review_package_inputs", "delta_review_inputs", "review_candidate",
+        "review_requirements", "package_requirements", "prior_findings", "impact",
+        "assignments", "review_assignments", "review_mode", "review_results",
+        "rereview_results", "batch_resolutions", "resolutions", "candidate",
+        "receipt_id",
+    ):
+        result.pop(key, None)
+    return result
+
+
+def _loop_evidence_current(
+    value: Mapping[str, Any],
+    completion_request: dict[str, Any],
+) -> list[str]:
+    """Check optional full evidence validity inputs without using time budgets."""
+    current = value.get("current_inputs")
+    if current is None:
+        return []
+    impact = value.get("change_impact", {"known": True, "invalidated_dimensions": [], "impacted_coverage": []})
+    evidence = completion_request.get("evidence", [])
+    invalid: list[str] = []
+    for item in evidence:
+        try:
+            assessment = assess_evidence(item, current, impact)
+        except EvidenceValidityError:
+            invalid.append(str(item.get("evidence_id", "unknown")) if isinstance(item, Mapping) else "unknown")
+            continue
+        if assessment["status"] != "valid":
+            invalid.append(assessment["evidence_id"])
+    return sorted(set(invalid))
+
+
+def _loop_required_coverage(value: Mapping[str, Any], completion_request: dict[str, Any]) -> list[str]:
+    required = value.get("required_checks", value.get("required_coverage"))
+    if required is None:
+        required = completion_request.get("required_requirement_ids")
+    if required is None:
+        requirements = completion_request.get("requirements", [])
+        return [item["requirement_id"] for item in requirements if isinstance(item, Mapping) and isinstance(item.get("requirement_id"), str)]
+    if not isinstance(required, list) or not required or any(not isinstance(item, str) or not item for item in required) or len(required) != len(set(required)):
+        raise V2ContractError("workflow-loop required coverage is malformed")
+    completion_request["required_requirement_ids"] = copy.deepcopy(required)
+    return sorted(required)
+
+
+def _loop_coverage_blockers(value: Mapping[str, Any], completion_request: dict[str, Any]) -> list[str]:
+    required = set(_loop_required_coverage(value, completion_request))
+    if not required:
+        return []
+    evidence_coverage = {
+        item
+        for evidence in completion_request.get("evidence", [])
+        if isinstance(evidence, Mapping)
+        for item in evidence.get("coverage", [])
+        if isinstance(item, str)
+    }
+    blockers = ["evidence:" + item for item in sorted(required - evidence_coverage)]
+    for review in completion_request.get("reviews", []):
+        if not isinstance(review, Mapping):
+            continue
+        coverage = set(review.get("coverage", [])) if isinstance(review.get("coverage"), list) else set()
+        blockers.extend("review:" + item for item in sorted(required - coverage))
+    return blockers
+
+
+def _loop_completion_projection(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Build the strict completion projection and add explicit freshness stops."""
+    completion_request = _loop_completion_request(value)
+    invalid_evidence = _loop_evidence_current(value, completion_request)
+    coverage_blockers = _loop_coverage_blockers(value, completion_request)
+    blockers = invalid_evidence + coverage_blockers
+    if blockers:
+        mandatory = (
+            list(completion_request.get("mandatory_unknowns", []))
+            if isinstance(completion_request.get("mandatory_unknowns"), list)
+            else []
+        )
+        completion_request["mandatory_unknowns"] = sorted(
+            set(mandatory + ["current-evidence:" + item for item in blockers])
+        )
+    return completion_request
+
+
+def _loop_finding_is_required(value: Mapping[str, Any]) -> bool:
+    disposition = value.get("classification", value.get("disposition"))
+    state = value.get("state", value.get("status"))
+    required = value.get("required") is True or disposition in {"required", "open-required", "needs-user"} or state in {"needs-input", "unknown"}
+    closed = value.get("closed") is True or state in {"closed", "resolved", "accepted", "fixed", "superseded"}
+    return bool(required and not closed)
+
+
+def _loop_repair_findings(value: Mapping[str, Any], candidate_digest: str) -> list[dict[str, Any]]:
+    supplied = value.get(
+        "repair_findings",
+        value.get("repair_batch_findings", value.get("required_findings")),
+    )
+    if supplied is None:
+        supplied = value.get("findings", [])
+    if not isinstance(supplied, list):
+        raise V2ContractError("workflow-loop repair findings must be a list")
+    result: list[dict[str, Any]] = []
+    for raw in supplied:
+        if not isinstance(raw, Mapping) or not _loop_finding_is_required(raw):
+            continue
+        if {"finding_id", "fingerprint", "classification", "candidate_digest", "batch_key", "root_cause", "write_scope", "verification", "depends_on", "conflicts_with", "resolution_conditions"}.issubset(raw):
+            canonical = copy.deepcopy(dict(raw))
+            if canonical["candidate_digest"] != candidate_digest:
+                raise V2ContractError("required Finding belongs to another candidate")
+            result.append(canonical)
+            continue
+        finding_id = raw.get("finding_id", raw.get("id"))
+        fingerprint = raw.get("fingerprint", finding_id)
+        scope = raw.get("write_scope", raw.get("scope"))
+        verification = raw.get("verification", raw.get("verification_scope"))
+        if not isinstance(finding_id, str) or not isinstance(fingerprint, str) or not isinstance(scope, list) or not scope or not isinstance(verification, list) or not verification:
+            raise V2ContractError("required Finding lacks explicit repair scope or verification")
+        result.append({
+            "finding_id": finding_id,
+            "fingerprint": fingerprint,
+            "classification": "required",
+            "candidate_digest": candidate_digest,
+            "batch_key": raw.get("batch_key"),
+            "root_cause": raw.get("root_cause", finding_id),
+            "write_scope": copy.deepcopy(scope),
+            "verification": copy.deepcopy(verification),
+            "depends_on": copy.deepcopy(raw.get("depends_on", [])),
+            "conflicts_with": copy.deepcopy(raw.get("conflicts_with", [])),
+            "resolution_conditions": copy.deepcopy(raw.get("resolution_conditions", ["fresh evidence and independent delta review"])),
+        })
+    return result
+
+
+def _loop_declared_repair_ids(value: Mapping[str, Any]) -> list[str]:
+    """Expose explicit repair blockers before completion classification."""
+    supplied = value.get(
+        "repair_findings",
+        value.get("repair_batch_findings", value.get("required_findings")),
+    )
+    if supplied is None:
+        return []
+    if not isinstance(supplied, list):
+        raise V2ContractError("workflow-loop repair findings must be a list")
+    identifiers = []
+    for item in supplied:
+        if isinstance(item, Mapping) and _loop_finding_is_required(item):
+            finding_id = item.get("finding_id", item.get("id"))
+            if isinstance(finding_id, str) and finding_id:
+                identifiers.append(finding_id)
+    return sorted(set(identifiers))
+
+
+def _loop_delta_packages(value: Mapping[str, Any], required_findings: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    supplied = value.get("review_package_inputs", value.get("delta_review_inputs"))
+    if supplied is None and any(
+        key in value
+        for key in (
+            "review_candidate", "review_requirements", "package_requirements",
+            "prior_findings", "impact", "review_assignments", "assignments",
+        )
+    ):
+        supplied = {
+            "candidate": value.get("review_candidate", value.get("candidate")),
+            "requirements": value.get("review_requirements", value.get("package_requirements")),
+            "prior_findings": value.get("prior_findings"),
+            "impact": value.get("impact"),
+            "assignments": value.get("review_assignments", value.get("assignments")),
+        }
+    if supplied is None:
+        return []
+    if not isinstance(supplied, Mapping):
+        raise V2ContractError("workflow-loop delta review inputs are malformed")
+    supplied = copy.deepcopy(dict(supplied))
+    for alias, canonical in (
+        ("review_candidate", "candidate"),
+        ("review_requirements", "requirements"),
+        ("package_requirements", "requirements"),
+        ("findings", "prior_findings"),
+        ("change_impact", "impact"),
+        ("review_assignments", "assignments"),
+    ):
+        if canonical not in supplied and alias in supplied:
+            supplied[canonical] = supplied[alias]
+    required = {"candidate", "requirements", "prior_findings", "impact"}
+    if not required.issubset(supplied):
+        raise V2ContractError("workflow-loop delta review inputs are incomplete")
+    assignments = supplied.get("assignments")
+    if assignments is None:
+        axis = supplied.get("axis")
+        assignment = supplied.get("assignment")
+        if axis is None or assignment is None:
+            raise V2ContractError("workflow-loop delta review assignment is missing")
+        assignments = {axis: assignment}
+    if isinstance(assignments, Mapping) and {"assignment_id", "actor_id", "context_epoch"}.issubset(assignments):
+        assignments = {axis: copy.deepcopy(dict(assignments)) for axis in sorted(_LOOP_AXES)}
+    elif isinstance(assignments, list):
+        normalized: dict[str, Any] = {}
+        for item in assignments:
+            if not isinstance(item, Mapping) or "axis" not in item:
+                raise V2ContractError("workflow-loop delta review assignment is malformed")
+            axis = item["axis"]
+            normalized[axis] = {key: copy.deepcopy(item[key]) for key in item if key != "axis"}
+        assignments = normalized
+    if not isinstance(assignments, Mapping) or not assignments:
+        raise V2ContractError("workflow-loop delta review assignments are malformed")
+    packages: list[dict[str, Any]] = []
+    for axis in sorted(assignments):
+        if axis not in _LOOP_AXES:
+            raise V2ContractError("workflow-loop delta review axis is unsupported")
+        try:
+            package = build_review_package(
+                supplied["candidate"],
+                supplied["requirements"],
+                supplied["prior_findings"],
+                supplied["impact"],
+                requested_mode="delta",
+                axis=axis,
+                assignment=assignments[axis],
+            )
+        except ReviewPackageError as error:
+            raise V2ContractError(str(error)) from error
+        if package["candidate"]["candidate_ref"]["digest"] != required_findings[0]["candidate_digest"]:
+            raise V2ContractError("delta review package belongs to another candidate")
+        packages.append(package)
+    return packages
+
+
+class WorkflowLoopValidator:
+    """Join v1 reviews and evidence without silently invoking an LLM."""
+
+    def validate(self, request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        payload, _ = _loop_payload(request)
+        receipt_id = receipt_id or payload.get("receipt_id")
+        completion_request = _loop_completion_projection(payload)
+        declared_repair_ids = _loop_declared_repair_ids(payload)
+        if declared_repair_ids:
+            existing = completion_request.get("open_required_findings")
+            if existing is None:
+                existing = []
+            if isinstance(existing, list):
+                completion_request["open_required_findings"] = sorted(
+                    set(existing + declared_repair_ids)
+                )
+        try:
+            classification = classify_completion(completion_request)
+        except CompletionError as error:
+            raise V2ContractError(str(error)) from error
+
+        reviews = completion_request.get("reviews", [])
+        finding_refs = [
+            ref
+            for review in reviews
+            if isinstance(review, Mapping)
+            for ref in review.get("finding_refs", [])
+            if isinstance(review.get("finding_refs"), list)
+        ]
+        findings = completion_request.get("findings", [])
+        declared_repair_entries = any(
+            isinstance(payload.get(key), list) and bool(payload.get(key))
+            for key in ("repair_findings", "repair_batch_findings", "required_findings")
+        )
+        zero_findings = not findings and not finding_refs and not declared_repair_entries
+        strict_zero = bool(
+            zero_findings
+            and classification["outcome"] == "completed"
+            and all(classification["checks"].values())
+        )
+        result: dict[str, Any] = {
+            "schema": _LOOP_SCHEMA,
+            "candidate_digest": classification["candidate_digest"],
+            "package_digest": classification["package_digest"],
+            "reviews": copy.deepcopy(reviews),
+            "classification": copy.deepcopy(classification),
+            "mechanical_completion": copy.deepcopy(classification),
+            "validator": {
+                "kind": "deterministic-zero-finding" if strict_zero else "llm-validator-required",
+                "skipped": strict_zero,
+                "required": not strict_zero,
+                "reason": "all-required-checks-pass-and-findings-empty" if strict_zero else "mechanical-zero-finding-proof-incomplete",
+            },
+            "non_authorizing": True,
+        }
+        if strict_zero:
+            try:
+                result["machine_decision_receipt"] = create_machine_decision_receipt(classification, receipt_id)
+            except CompletionError as error:
+                raise V2ContractError(str(error)) from error
+
+        required_findings = _loop_repair_findings(payload, classification["candidate_digest"])
+        if required_findings:
+            try:
+                result["repair_batch_plan"] = plan_fix_batches(required_findings)
+            except RepairBatchError as error:
+                raise V2ContractError(str(error)) from error
+            result["delta_review_packages"] = _loop_delta_packages(payload, required_findings)
+            result["next"] = "repair-and-delta-rereview"
+        elif strict_zero:
+            result["next"] = "complete"
+        else:
+            result["next"] = "validator-required"
+        unsigned = copy.deepcopy(result)
+        result["result_digest"] = _canonical_digest(unsigned)
+        return result
+
+    compile = validate
+
+
+class MechanicalCompletion:
+    """Public mechanical completion facade for workflow-loop/v1 callers."""
+
+    def classify(self, request: Mapping[str, Any]) -> dict[str, Any]:
+        payload, _ = _loop_payload(request)
+        completion_request = _loop_completion_projection(payload)
+        declared_repair_ids = _loop_declared_repair_ids(payload)
+        if declared_repair_ids:
+            existing = completion_request.get("open_required_findings")
+            if existing is None:
+                existing = []
+            if isinstance(existing, list):
+                completion_request["open_required_findings"] = sorted(
+                    set(existing + declared_repair_ids)
+                )
+        return classify_completion(completion_request)
+
+    def evaluate(self, request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        return WorkflowLoopValidator().validate(request, receipt_id=receipt_id)
+
+    def complete(self, request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        return self.evaluate(request, receipt_id=receipt_id)
+
+    compile = evaluate
+
+
+# Descriptive aliases keep the additive seam discoverable without changing the
+# historical E6 class or its validate signature.
+LoopReviewValidator = WorkflowLoopValidator
+WorkflowLoopCompletion = MechanicalCompletion
+
+
+def validate_workflow_loop(request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+    """Validate the additive workflow-loop/v1 review/validator path."""
+    return WorkflowLoopValidator().validate(request, receipt_id=receipt_id)
+
+
+def mechanical_completion(request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+    """Return a non-authorizing mechanical completion decision and receipt."""
+    return WorkflowLoopValidator().validate(request, receipt_id=receipt_id)
+
+
+mechanical_complete = mechanical_completion
 
 
 class EvidenceFinalizer:
@@ -704,4 +1166,10 @@ def _resource_claims(value: Any, workspace_identity: str) -> Dict[str, List[str]
     return result
 
 
-__all__ = ["EvidenceFinalizer", "ExecutionClosureBuilder", "FindingValidator", "IssuanceWatermarkCutoverPlanner", "ReceiptAggregator", "RegressionFrontier", "V2ContractError"]
+__all__ = [
+    "EvidenceFinalizer", "ExecutionClosureBuilder", "FindingValidator",
+    "IssuanceWatermarkCutoverPlanner", "LoopReviewValidator", "MechanicalCompletion",
+    "ReceiptAggregator", "RegressionFrontier", "V2ContractError",
+    "WorkflowLoopCompletion", "WorkflowLoopValidator", "mechanical_complete",
+    "mechanical_completion", "validate_workflow_loop",
+]

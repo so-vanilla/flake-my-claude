@@ -66,11 +66,11 @@ class CatalogCoverageTests(unittest.TestCase):
 
         self.assertTrue(verify_current_canonical_lineage(root))
         self.assertEqual(
-            "sha256:61b8328298b04c3f90b4532bb89a99fa378ef8ee7e5cb88f71eadb233a850057",
+            "sha256:a7bf4460fb65e4a0fbd15f8a2414e0731d6a590226239d2b0843f7ad0c90d928",
             lineage["implementation_status"]["digest"],
         )
         self.assertEqual(
-            "sha256:2359bc900a2124995c7347ab6ddb4e5e7353a1eb79c648d40cbdaf4fa943013f",
+            "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822",
             inventory["current_lineage"]["digest"],
         )
         self.assertEqual(
@@ -82,7 +82,7 @@ class CatalogCoverageTests(unittest.TestCase):
             section_transition_evidence._CHECKED_IN_AUTHORITY_DIGEST,
         )
         self.assertEqual(
-            "sha256:9e4999bc80f86f75f5c8089f4571d4072212f12b0fa2dc7fe3c60469a80b7c4b",
+            "sha256:d09cef633373a211edef1c7c2c92efe65074db7384e11ce6126d5971398ed571",
             section_transition_evidence._CURRENT_INVENTORY_DIGEST,
         )
         bound_paths = {

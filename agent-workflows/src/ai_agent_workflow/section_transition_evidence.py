@@ -18,7 +18,7 @@ from .s0_evidence import evaluate_source_transition_fixture
 from .schema_validation import SchemaValidationError, validate_document
 from .runtime_source_extension import is_extended_historical_source
 
-_RUNTIME_EXTENSION_VERIFIER_DIGEST = "sha256:aa049bc378517c86f64fddf8d8b1893a5fa72007f07de5065d2e93e806cf527e"
+_RUNTIME_EXTENSION_VERIFIER_DIGEST = "sha256:25e12be9b43d207029fa109b9577f55a8c1e43448fa35b8c2b27e959b204aff9"
 
 
 _AUTHORITY_PATH = "agent-workflows/manifests/section-transition-compatibility-authority.json"
@@ -34,10 +34,10 @@ _S0_AUTHORITY_PATH = "agent-workflows/manifests/s0-source-transition-authority.j
 
 _CURRENT_LINEAGE_PATH = "agent-workflows/evidence/current-canonical-lineage.json"
 _CURRENT_LINEAGE_SCHEMA_PATH = "agent-workflows/schemas/current-canonical-lineage-v1.schema.json"
-_CURRENT_LINEAGE_DIGEST = "sha256:2359bc900a2124995c7347ab6ddb4e5e7353a1eb79c648d40cbdaf4fa943013f"
+_CURRENT_LINEAGE_DIGEST = "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822"
 _CURRENT_INVENTORY_PATH = "agent-workflows/manifests/catalog-contract-inventory.json"
-_CURRENT_INVENTORY_DIGEST = "sha256:9e4999bc80f86f75f5c8089f4571d4072212f12b0fa2dc7fe3c60469a80b7c4b"
-_CURRENT_CANDIDATE_AGGREGATE = "sha256:06a8020960bd25112feba3d89be26d2f6cda898e18ec1c7be49c054ff8bdf90b"
+_CURRENT_INVENTORY_DIGEST = "sha256:d09cef633373a211edef1c7c2c92efe65074db7384e11ce6126d5971398ed571"
+_CURRENT_CANDIDATE_AGGREGATE = "sha256:d778694e4c8f00f4067fe8bef70ebdcbb0d0e41139168091e09dd27f6646b29f"
 _CURRENT_CANONICAL_INPUTS = (
     ("rebuild-plan", "docs/plans/ai-agent-workflow-rebuild.md"),
     ("step-catalog", "docs/plans/ai-agent-workflow-step-catalog.md"),
@@ -45,9 +45,9 @@ _CURRENT_CANONICAL_INPUTS = (
 )
 _CURRENT_STATUS_PATH = "agent-workflows/manifests/implementation-status.json"
 _S0_EVIDENCE_PATH = "agent-workflows/src/ai_agent_workflow/s0_evidence.py"
-_S0_EVIDENCE_DIGEST = "sha256:13578dc5b4d22e1019206c7d5340d78a79c8ff660bdd23ee187a51e0c5640849"
+_S0_EVIDENCE_DIGEST = "sha256:1bb1af3dcbe501751307f76d3ed1849124076d0a9110c786aa2229ae2fc040e6"
 _S0_INTEGRATION_TEST_PATH = "agent-workflows/tests/test_s0_integration.py"
-_S0_INTEGRATION_TEST_DIGEST = "sha256:51907a2c9c3d92f46e9e8eeb81f740129c9b0a3be0f25f11ba5925fe3e681ebe"
+_S0_INTEGRATION_TEST_DIGEST = "sha256:879ef0137c84ef0b0db0f083bb94e33840f802bfa37dcb4cb6d2b58fd5fb45b6"
 
 _NORMAL_PATH = re.compile(r"^[.A-Za-z0-9][A-Za-z0-9._/-]*$")
 

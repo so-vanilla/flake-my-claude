@@ -17,9 +17,9 @@ from ai_agent_workflow.schema_validation import SchemaValidationError, validate_
 
 
 COMPILER_PATH = "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
-COMPILER_DIGEST = "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+COMPILER_DIGEST = "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b"
 FIXED_HEAD = "e5b87e08d0730e0f2a2c99c9a4883a172c0078e7"
-FROZEN_WAVE_1 = {
+CURRENT_WAVE_2 = {
     COMPILER_PATH: COMPILER_DIGEST,
     "agent-workflows/schemas/decision-outcome-lifecycle-v1.schema.json": "sha256:91dc5009bf771f078cdd2b0e46c8cf69de755e8c70c830a203b4bd851e55f57e",
     "agent-workflows/tests/test_decision_outcome_lifecycle.py": "sha256:658ab36733fbcc131eeae8b47d0cff46fa8d8684af0dc6379f4486c90eef48db",
@@ -168,8 +168,8 @@ class DecisionOutcomePhysicalBindingTests(unittest.TestCase):
             {item["qualified_id"] for manifest in manifests.values() for item in manifest["contracts"]},
         )
 
-    def test_frozen_wave_one_is_unchanged_and_baseline_is_retained(self):
-        for path, digest in FROZEN_WAVE_1.items():
+    def test_current_wave_two_is_unchanged_and_baseline_is_retained(self):
+        for path, digest in CURRENT_WAVE_2.items():
             with self.subTest(path=path):
                 self.assertEqual(digest, raw(path))
         if not (REPO / ".git").exists():

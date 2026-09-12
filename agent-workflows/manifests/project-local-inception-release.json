@@ -20,19 +20,19 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/groups/completion.json",
-      "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a",
+      "digest": "sha256:c80f220222fb6ac3e5b38bd6f2b63c18a5b2c815411464a5e5bf86ac18455782",
       "mode": "0644",
       "source": "agent-workflows/groups/completion.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/groups/decisions.json",
-      "digest": "sha256:627e8a8b1e707f8799898e1d5fbf16cbdfc6a18995a17f7c4f5eb4ed4eb35e07",
+      "digest": "sha256:8e97bc08f4ec116d0fad326e5a2307158e94d68ecc7f4741d4895cdb417b5494",
       "mode": "0644",
       "source": "agent-workflows/groups/decisions.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/groups/execution.json",
-      "digest": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52",
+      "digest": "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc",
       "mode": "0644",
       "source": "agent-workflows/groups/execution.json"
     },
@@ -50,13 +50,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/groups/planning.json",
-      "digest": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5",
+      "digest": "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80",
       "mode": "0644",
       "source": "agent-workflows/groups/planning.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/groups/required-only-feedback-execution-policy-v1.json",
-      "digest": "sha256:0ba45de33e42ab7b7127f62b35f04e168e2cb43300dcbcda8012c6f615f55c34",
+      "digest": "sha256:f59bd06c35019def7d69f63e1b2a176b491f78b485451b9dfe056769a19c1060",
       "mode": "0644",
       "source": "agent-workflows/groups/required-only-feedback-execution-policy-v1.json"
     },
@@ -182,7 +182,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/dag-command-v1.schema.json",
-      "digest": "sha256:045ce5ade6e9a0ef8fe2000f85596ce230f975a2d0fe008369d65478afb8eabf",
+      "digest": "sha256:96e4b8887ca3faf94f207fffb1b497a4afabcf669aed913f288d783e6c442777",
       "mode": "0644",
       "source": "agent-workflows/schemas/dag-command-v1.schema.json"
     },
@@ -206,7 +206,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/dag-state-v1.schema.json",
-      "digest": "sha256:d58d79e0005ecf2a5929ed8f0ef74672eb21daac7bcaf57090c6d4562bda153d",
+      "digest": "sha256:0f448f5ab506509deb985074a8020803d4d70c79c6966ab6a99e0569aa664266",
       "mode": "0644",
       "source": "agent-workflows/schemas/dag-state-v1.schema.json"
     },
@@ -302,13 +302,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/group-g-manifest-v1.schema.json",
-      "digest": "sha256:f9b6015403dd43a3f3b1f6b63ac3d536021114e1bd378f339f5575b8cb9db0b3",
+      "digest": "sha256:f9a681e260fd2cfe3a4b346b9cda665e30d4988a57043f426f021c350efd1fd6",
       "mode": "0644",
       "source": "agent-workflows/schemas/group-g-manifest-v1.schema.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/group-h-manifest-v1.schema.json",
-      "digest": "sha256:02c5177b0d8779d231ee718aaa4119da0024e73e6bea14d16b2d0c083d33de7b",
+      "digest": "sha256:c5d91f5ed1d68429ebddb7527b8481ae1e7cd5f5719b171c4966d34308bce9e1",
       "mode": "0644",
       "source": "agent-workflows/schemas/group-h-manifest-v1.schema.json"
     },
@@ -335,6 +335,72 @@
       "digest": "sha256:3b665f7536c887d0e47e332049b5b0cc28a7e96d0be892bd69f99bfb43aed007",
       "mode": "0644",
       "source": "agent-workflows/schemas/legacy-migration-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-control-state-v1.schema.json",
+      "digest": "sha256:57214627bafc261f37e4c9690e1ed13d417c2fd96471bab99c1ff9bc5ee030b0",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-control-state-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-evidence-record-v1.schema.json",
+      "digest": "sha256:8e25d6f901d76e91a16fdf8c1023c4d7b965dc4ab629b4da7b84c5ae2f1520fe",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-evidence-record-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-iteration-event-v1.schema.json",
+      "digest": "sha256:f84caf87f72df142890532a0369e0b1fecf0c3e3d551ea516fef3af1cf20e2e2",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-iteration-event-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-metric-event-v1.schema.json",
+      "digest": "sha256:aced0d1f90706ea8b7ab0de2dd1d3c1c45272fb4440e50ac29f64698a335b26f",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-metric-event-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-metrics-comparison-v1.schema.json",
+      "digest": "sha256:718d9d0b37072f1b991ea47c13376f8864256caaa6137ed67781c9a2aa576bf3",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-metrics-comparison-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-metrics-v1.schema.json",
+      "digest": "sha256:5e4ac75f2f18941d10bbae735621e8cce18adb6d61dcccd2330e6699d7242f80",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-metrics-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-requirement-assessment-v1.schema.json",
+      "digest": "sha256:2cc39a1220bf40cac7c1e7e18a584792457857818af30465399a6f369ce85611",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-requirement-assessment-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-resume-record-v1.schema.json",
+      "digest": "sha256:545302c1c4d104464dc6226323f40c880f98d741f012e23c4f49d8941795588f",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-resume-record-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-review-assessment-v1.schema.json",
+      "digest": "sha256:fb952eff0d8b9a880608e097e10a478b5737ab3a261c06ca34a13bb3f60dbdbf",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-review-assessment-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-terminal-record-v1.schema.json",
+      "digest": "sha256:f1ea7bb8ca83a8ca33d9342c23247dcaddfe60386e277f3d2ee349386bc6f428",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-terminal-record-v1.schema.json"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/schemas/loop-work-identity-v1.schema.json",
+      "digest": "sha256:2f3805c98822ae514d907e0c464f7724ce0665f397c62d9018e4f6ba95616e10",
+      "mode": "0644",
+      "source": "agent-workflows/schemas/loop-work-identity-v1.schema.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/macos-practical-threat-profile-v1.schema.json",
@@ -512,7 +578,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/s0-source-transition-current-authority-v1.schema.json",
-      "digest": "sha256:4f9f4940cb820f4c71eeae770f6cd6d8ec3b0dce56e625642c431722f0bbf68e",
+      "digest": "sha256:715a831b79e85420302ea4ba57cc50d5dc1479647098e8cd4de9d79672d9071f",
       "mode": "0644",
       "source": "agent-workflows/schemas/s0-source-transition-current-authority-v1.schema.json"
     },
@@ -620,7 +686,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/schemas/software-profile-manifest-v1.schema.json",
-      "digest": "sha256:cde057c4ad565f13b5ba330afb96169257d566dea7beb5a8fce7de76b2f60bee",
+      "digest": "sha256:1c090552dffcec60cd64c8395b091ab843cf674f7570fcb97bd7f1f9c05f016d",
       "mode": "0644",
       "source": "agent-workflows/schemas/software-profile-manifest-v1.schema.json"
     },
@@ -746,9 +812,15 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/company_governance.py",
-      "digest": "sha256:b20b5f9c7b57b91da38791cd8999d725ebed0e03161b5078f9341b2c798b9e51",
+      "digest": "sha256:7333108e86a4d7483d84d0c6c00606af59c8383dbb7ed177534f0a515784ad8d",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/company_governance.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/completion.py",
+      "digest": "sha256:819d6a28b381dd675c98536327ad9fc455fcc5a3d4f9007daa24043b57bf284c",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/completion.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/config_cli.py",
@@ -764,7 +836,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/control_kernel.py",
-      "digest": "sha256:a5b56437c50093c745d62d5c7c1e4c10b03f2081621b7a44486956a4030d25b6",
+      "digest": "sha256:462241f6fc79a6e4d4159070500d161cc36359ebe9a91b861d7d112bf5cf0c69",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/control_kernel.py"
     },
@@ -776,7 +848,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
-      "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d",
+      "digest": "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py"
     },
@@ -787,20 +859,26 @@
       "source": "agent-workflows/src/ai_agent_workflow/distribution_planning.py"
     },
     {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/evidence_validity.py",
+      "digest": "sha256:658ab66d78ae43e17289e1dfcdaede34c7f9e7080c699f46f30dbf077df27335",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/evidence_validity.py"
+    },
+    {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/execution_group.py",
-      "digest": "sha256:a6718485618f2d9d5f72b82b20d797c181829d0e990adfbc9e148765608fd2d2",
+      "digest": "sha256:745c63fd8ca761148b91d116549a71bb140d02e65ada39b8a1148e67abaeba9a",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/execution_group.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/execution_v2.py",
-      "digest": "sha256:6dda9f347c4866a4da86d5b23102eecae7895f899f094be5f310d358edd92f9d",
+      "digest": "sha256:041a2d8260bc1ad8fa9337679248113f6c1c6075c09f52b51c9685fe40f77e33",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/execution_v2.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/execution_v2_orchestrator.py",
-      "digest": "sha256:bcad30294a8cd3f0f5ba9eb8124f04585c5223e665fc4a9c8481d5ee9e1da673",
+      "digest": "sha256:e3948692f61ad676e1319feca78ddcc6ba843e2f648efb26213e29fc6ac81648",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/execution_v2_orchestrator.py"
     },
@@ -812,15 +890,45 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/inception_cli.py",
-      "digest": "sha256:31d49cdbb68e2550bb651a5540a3eb35bcb6735e1184dd4c812e29454826760d",
+      "digest": "sha256:79c9c0a46c6094e821c87fa038241f1e7ae4ab2dbfb77b91bddbbaeba36fa21f",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/inception_cli.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/inception_runtime.py",
-      "digest": "sha256:4f05fe60352afb6dc599750a347ed29527429fb24ed5b2f5ac2aa539eccaca33",
+      "digest": "sha256:e94a1dcfd8c09d592648e8a46f5595f1056d0919c1ad0abb9363a218c3e01abb",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/inception_runtime.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/loop_compatibility.py",
+      "digest": "sha256:990aef0db8980cf8daf7040aef7f8f1562f8e87675d16e45167a71106c923b1b",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/loop_compatibility.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/loop_contracts.py",
+      "digest": "sha256:7cd6320b96f569e69db02158e93ea8d19c923a013d2bf2b12a826bbce26ddf01",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/loop_contracts.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/loop_metrics.py",
+      "digest": "sha256:9a26d7063a549a038e51758daed5be4418fdaa59f4aa8b4ca2b92368969f8404",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/loop_metrics.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/loop_policy.py",
+      "digest": "sha256:bafb9ce5cdbab5286f44ab7a2d0a425e6b8ba13073de0f56fa4cedc9a7b06996",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/loop_policy.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/loop_state.py",
+      "digest": "sha256:cd419e67f489704228a883fde469913aed34d68fb66967d356ee60fbe9f476e2",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/loop_state.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/macos_task_process.py",
@@ -860,49 +968,61 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/planning_system.py",
-      "digest": "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660",
+      "digest": "sha256:bfcddf4d99d2c4584225bfe75e9be09bb969a8c121b1b095a50496a97403e2c0",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/planning_system.py"
     },
     {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/repair_batch.py",
+      "digest": "sha256:93cc61edbcb3f0bd84295767ebc5fc90ca762bf721017fe2a2b1150cab98c666",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/repair_batch.py"
+    },
+    {
+      "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/review_packages.py",
+      "digest": "sha256:3621fbcd271fcac61390bdea947de4e125543d0d2e66a05d387ade282b3d0130",
+      "mode": "0644",
+      "source": "agent-workflows/src/ai_agent_workflow/review_packages.py"
+    },
+    {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/runtime_approval.py",
-      "digest": "sha256:e66bdf7f1b42664637b2db5e5f73a3edabf3d1eedbc5a81148cae67a12abe19d",
+      "digest": "sha256:af5574c64c98ef4a9e7dfc598f6d244a963d24c1c64746d7e5d2c44be7445422",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/runtime_approval.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/runtime_closure.py",
-      "digest": "sha256:3d54d9b92507653224548f9fc618e312a9be3fdaa126a9ab98d47a1cbaca6ede",
+      "digest": "sha256:120ece0dfbfe32b0bf466eafce7455b957c2396cc53af9a253f5b9d73bb1f575",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/runtime_closure.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/runtime_execution.py",
-      "digest": "sha256:f3be54143fb2edfcf11971f00c6ecd7d667e91e4fe77a4cf4ee1f64c54d6db5e",
+      "digest": "sha256:02a3cdb646b9ed7ba350247fac6ffaf0d21f355eda5c93354082c5d846323687",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/runtime_execution.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/runtime_repair.py",
-      "digest": "sha256:8543e19655bd0d8c9e1805a63c3d632ca195168b512f93e13352223b11753b45",
+      "digest": "sha256:d92ef209d9c86d81045c6d3ccb4e87f407e11389ea293556814f95c482114f94",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/runtime_repair.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/runtime_source_extension.py",
-      "digest": "sha256:aa049bc378517c86f64fddf8d8b1893a5fa72007f07de5065d2e93e806cf527e",
+      "digest": "sha256:25e12be9b43d207029fa109b9577f55a8c1e43448fa35b8c2b27e959b204aff9",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/runtime_source_extension.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/s0_evidence.py",
-      "digest": "sha256:13578dc5b4d22e1019206c7d5340d78a79c8ff660bdd23ee187a51e0c5640849",
+      "digest": "sha256:1bb1af3dcbe501751307f76d3ed1849124076d0a9110c786aa2229ae2fc040e6",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/s0_evidence.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/s1_evidence.py",
-      "digest": "sha256:a63146e465fc2bf3aded908bc168f2e708ca154393021ea184da70efd0b73930",
+      "digest": "sha256:9e3a79c98a8e21b6b12c75937b0292aee284be4aad9722752c9c2957b392ebe1",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/s1_evidence.py"
     },
@@ -920,7 +1040,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/schema_validation.py",
-      "digest": "sha256:6fabd76cd2cca3f4ed2df156c0286247c006bc12ee6527cebf633c5306d91504",
+      "digest": "sha256:1350d7ff2f363e0408c93c7df6f5b54a8d6c8e4b94f3087cc6cf5693f1ce23c0",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/schema_validation.py"
     },
@@ -932,13 +1052,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/section_transition_evidence.py",
-      "digest": "sha256:3b9f6eb5413bed2d721e19b79776a63bbe3a3ee354f481ebfb44ab1d3f145d1e",
+      "digest": "sha256:9256ea68e63896132bb7d64f60812013af08e80aefdf2c903c79cbbb3cc2fbe5",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/section_transition_evidence.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/software_profiles.py",
-      "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+      "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py"
     },
@@ -950,13 +1070,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/source_wide_fixtures.py",
-      "digest": "sha256:cd3279f3655c0dc72a92e4fd9039b19843f6204fcb51f5f13ca9ab68188cabe2",
+      "digest": "sha256:994d1f9f21d7170839434872bb7f5494ed30d8010f14b4856781e241e9e74453",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/source_wide_fixtures.py"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/src/ai_agent_workflow/workflow_composition.py",
-      "digest": "sha256:07562ee404381b9d40c7e7ef9e22f20af068c4e5b96461134e3684ee2cfb4fe6",
+      "digest": "sha256:380d7186ea66bfec18491deaee3d0439f3d93f100ac7fbc5109842b453fe40c3",
       "mode": "0644",
       "source": "agent-workflows/src/ai_agent_workflow/workflow_composition.py"
     },
@@ -968,25 +1088,25 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/bug-fix-hotfix.json",
-      "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92",
+      "digest": "sha256:3dab98e9d1d6e901482689fca2c3e8b5cdb1040373e6ead80dfc2deee2d1d634",
       "mode": "0644",
       "source": "agent-workflows/workflows/bug-fix-hotfix.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/bug-fix-standard.json",
-      "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151",
+      "digest": "sha256:132f7d7546eacb15638eea441a7322d139a41ab9ef3e6e0fa2de6d541a43de1d",
       "mode": "0644",
       "source": "agent-workflows/workflows/bug-fix-standard.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/company-governed-change.json",
-      "digest": "sha256:bf1412aff99852269c921a4790107e4a50f7a9cdaf9b10f44e1f26828d575d4a",
+      "digest": "sha256:8f7f154b937e9e1c92ee2682eae0ca54387de627615f58cae95933e7b8ca350c",
       "mode": "0644",
       "source": "agent-workflows/workflows/company-governed-change.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/configuration-dotfiles-source.json",
-      "digest": "sha256:120ebe4b08c37eb5ebf65ba2a1467cbb8419019afec3d169fa58e13b5d439019",
+      "digest": "sha256:93ea666eff9eebeda34dfc4df217483e134e90f6d78f31b5ebab347dfdd5a186",
       "mode": "0644",
       "source": "agent-workflows/workflows/configuration-dotfiles-source.json"
     },
@@ -998,13 +1118,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/documentation-change.json",
-      "digest": "sha256:cc9ff2f43d6dbd0dd3cfb35690433761a65c7426298a52c294c2a1f16ea7b965",
+      "digest": "sha256:8877a1e80e8811c33a13eb9ec62bd7c22ea9159a9b48d4c5b0939d7a231073ff",
       "mode": "0644",
       "source": "agent-workflows/workflows/documentation-change.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/execution-exception-arbitration.json",
-      "digest": "sha256:aa0500c243777dd8f9e624577bee199cf23f87653613b32748aff41573efe001",
+      "digest": "sha256:f00068f805b59c9001f402c247b9c5bfc1a01713db4cddc022c046254650f6e8",
       "mode": "0644",
       "source": "agent-workflows/workflows/execution-exception-arbitration.json"
     },
@@ -1016,25 +1136,25 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/feature-architectural.json",
-      "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e",
+      "digest": "sha256:e90121b68966fc8f2ac9202347e8a94f1509015db6d379d00046803f9b8e38a0",
       "mode": "0644",
       "source": "agent-workflows/workflows/feature-architectural.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/feature-bounded.json",
-      "digest": "sha256:0e017ddb9a5fc9d9bbfc1cca86ee2a2ce82e2a8a94aac64e77917792c03f1db3",
+      "digest": "sha256:5233e4037d1aa16111d93d6cfb3b9ed671cfc77cbd07d39b0f9838440940fec0",
       "mode": "0644",
       "source": "agent-workflows/workflows/feature-bounded.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/improvement-measured.json",
-      "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d",
+      "digest": "sha256:b89d9262f7943ba6107e9789412a143e4cff92dc1907f995d9e3758ad5f55354",
       "mode": "0644",
       "source": "agent-workflows/workflows/improvement-measured.json"
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/incident-response.json",
-      "digest": "sha256:7963d6e2ffd6d136a3c14181401fadea2e14724d2ec8887c0b05c89253613e06",
+      "digest": "sha256:2e0155b99c3224e011779b543261c9c68bd53b96296d18cbf99d14da877c370f",
       "mode": "0644",
       "source": "agent-workflows/workflows/incident-response.json"
     },
@@ -1046,7 +1166,7 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/refactor-behavior-preserving.json",
-      "digest": "sha256:e5960af1a90d241338b060961870bbb3a53de268b84f8f9f8290a5862bed50f7",
+      "digest": "sha256:2b22cdcdffd8cdf495d4566ee9853bfe2f1ef2ca955b36177588fb41d353a2be",
       "mode": "0644",
       "source": "agent-workflows/workflows/refactor-behavior-preserving.json"
     },
@@ -1064,13 +1184,13 @@
     },
     {
       "destination": ".agent-workflow/runtime/agent-workflows/workflows/security-sensitive-change.json",
-      "digest": "sha256:f2b31de36827f5a9b3e97f015eee4805b2d25b93a7a80fd174133fa484c08370",
+      "digest": "sha256:25f737add05f44efbf951825f5be8b56e30d20b926e7ff837abd07d44d37146f",
       "mode": "0644",
       "source": "agent-workflows/workflows/security-sensitive-change.json"
     },
     {
       "destination": ".agent-workflow/runtime/docs/plans/ai-agent-workflow-step-catalog.md",
-      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d",
+      "digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
       "mode": "0644",
       "source": "docs/plans/ai-agent-workflow-step-catalog.md"
     },
@@ -1088,7 +1208,7 @@
     },
     {
       "destination": ".agents/skills/arbitrate-exception/SKILL.md",
-      "digest": "sha256:677b15b0959d86c9ec015bfbd2e992c9d27739f0c22b90f297bd9a29f3e7be42",
+      "digest": "sha256:9701dbb8041fb1e51d94916dba127191d5fc374eb122187ed0f90023667caf46",
       "mode": "0644",
       "source": "agent-workflows/skills/arbitrate-exception/SKILL.md"
     },
@@ -1184,7 +1304,7 @@
     },
     {
       "destination": ".agents/skills/converge-parallel-batch/SKILL.md",
-      "digest": "sha256:cbc67ecbc056e46164df80b5a4d2f234d5249960998f1952a82c25fb3c49d3ad",
+      "digest": "sha256:c7a7b7e30cb16dd690571bdd1c2916e64fdd18f3a1e33152ecd5eb4e6fefc72c",
       "mode": "0644",
       "source": "agent-workflows/skills/converge-parallel-batch/SKILL.md"
     },
@@ -1250,7 +1370,7 @@
     },
     {
       "destination": ".agents/skills/dispatch-task/SKILL.md",
-      "digest": "sha256:165e5bdcaf3a48c0fd6d18aeabf4f7085ac8d4031e024ef87292841baa9c43f9",
+      "digest": "sha256:15d5d8069f44150d4bdd85bdd050b4618bc63b0215abd9f793285d90450d4417",
       "mode": "0644",
       "source": "agent-workflows/skills/dispatch-task/SKILL.md"
     },
@@ -1268,19 +1388,19 @@
     },
     {
       "destination": ".agents/skills/entry/references/inception-single-skill.md",
-      "digest": "sha256:d74338f9474df953995c11af8f80525a00a07e40b73c0e7c4cd3855e332b721d",
+      "digest": "sha256:f5ed83ccc05934b5a80684fd0ff1283572547532bd8a219e8ce93635cc0e5692",
       "mode": "0644",
       "source": "agent-workflows/skills/entry/references/inception-single-skill.md"
     },
     {
       "destination": ".agents/skills/execute-small-loop/SKILL.md",
-      "digest": "sha256:67e99ee1e9064d6c008cc80e70949fec20c8cecdc3e9a51dc3386547b142758c",
+      "digest": "sha256:c17951bf7653b0a58f0232e451b26371beec7c68da65d2114faf93c999bb66bb",
       "mode": "0644",
       "source": "agent-workflows/skills/execute-small-loop/SKILL.md"
     },
     {
       "destination": ".agents/skills/execution-preflight/SKILL.md",
-      "digest": "sha256:4167e97b6a17b95be76c8bcacee7ad334612b34c0a3cba47b4c49b7355b9861b",
+      "digest": "sha256:9f78260ca8cb60dbce4953d9b0bbfd242d55bba1dac276e0f4866fbbe8552aaa",
       "mode": "0644",
       "source": "agent-workflows/skills/execution-preflight/SKILL.md"
     },
@@ -1292,7 +1412,7 @@
     },
     {
       "destination": ".agents/skills/fix-and-rereview/SKILL.md",
-      "digest": "sha256:0e53eba0302d3b77aeddf451fa76ef0d89da40006d238a161c0df9984ce61280",
+      "digest": "sha256:ccee1d9f0dea5807acd5620594aee73bade25a447736cd14b2d0a09dba25d2fd",
       "mode": "0644",
       "source": "agent-workflows/skills/fix-and-rereview/SKILL.md"
     },
@@ -1310,7 +1430,7 @@
     },
     {
       "destination": ".agents/skills/plan-verification-and-recovery/SKILL.md",
-      "digest": "sha256:0448b4ff700e93c17544ad3a64662dc94f79eff4046a3777dd4edc9311a0631d",
+      "digest": "sha256:2b6413541f8fea1636b10bfe66420ed882f3c7d60792271258412bb07ef081ec",
       "mode": "0644",
       "source": "agent-workflows/skills/plan-verification-and-recovery/SKILL.md"
     },
@@ -1340,13 +1460,13 @@
     },
     {
       "destination": ".agents/skills/review-task-quality/SKILL.md",
-      "digest": "sha256:2e9ee45215681541de8f6ba027b17893f4295c9cf34529ac67f4a87a5f94d2d4",
+      "digest": "sha256:1c3388df90da7431a6027e8bd7a8b6430b79d77ae5fd21e55905379b864b5816",
       "mode": "0644",
       "source": "agent-workflows/skills/review-task-quality/SKILL.md"
     },
     {
       "destination": ".agents/skills/review-task-spec/SKILL.md",
-      "digest": "sha256:dbf862f00f62e363dfa934f52131e92b448ddfe3066d3b9d8e8d4ddef858383b",
+      "digest": "sha256:76eff0d75cfaba8cbe1d8ef4f3ef2f727fe3d71b5ad8a0d644455fe6bf0fdbf5",
       "mode": "0644",
       "source": "agent-workflows/skills/review-task-spec/SKILL.md"
     },
@@ -1382,13 +1502,13 @@
     },
     {
       "destination": ".agents/skills/validate-review-findings/SKILL.md",
-      "digest": "sha256:341b3df8c299b332cefed9b2bd70b008507be3a640b4bf4dcf3204eff6836347",
+      "digest": "sha256:c847b700a877f9188cb5748edf8a18e2fe094193ac629ec16e45ffa960f70833",
       "mode": "0644",
       "source": "agent-workflows/skills/validate-review-findings/SKILL.md"
     },
     {
       "destination": ".agents/skills/verify-whole-change/SKILL.md",
-      "digest": "sha256:3f7723eab488f433083097ac73caf755fd14c6c51304bbe829cff30202a2530d",
+      "digest": "sha256:1e0eaf88f7d969ad230f7dc55d529e05ac031dd36b1dfe4ab85ac959ec1d59d9",
       "mode": "0644",
       "source": "agent-workflows/skills/verify-whole-change/SKILL.md"
     }

@@ -10,12 +10,24 @@ import copy
 import hashlib
 import json
 import os
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from .closure_protocol import ClosureProtocolError, SharedClosureProtocolV1
+from .completion import CompletionError
 from .control_kernel import ControlKernel, canonical_digest
-
+from .evidence_validity import EvidenceValidityError, assess_evidence
+from .execution_v2 import MechanicalCompletion, WorkflowLoopValidator
+from .loop_contracts import (
+    LOOP_CONTRACT_VERSION,
+    LoopContractError,
+    counter_identity,
+    validate_terminal_record,
+    validate_work_identity,
+)
+from .loop_metrics import LoopMetricsError, derive_metrics
+from .loop_state import event_ref
 
 GROUPS = ("B", "C", "D", "E", "H", "completed")
 
@@ -46,9 +58,304 @@ def _snapshot(root: Path, object_type: str, payload: Mapping[str, Any], **metada
     return {"digest": digest, "object_type": object_type, "path": "objects/" + path.name, **metadata}
 
 
+def _loop_history(kernel: ControlKernel, state: Mapping[str, Any]) -> list[dict[str, Any]]:
+    loader = getattr(kernel, "_loop_history", None)
+    if callable(loader):
+        try:
+            value = loader(state)
+        except Exception as error:
+            raise ClosureProtocolError("workflow-loop history is unavailable: " + str(error)) from error
+        if isinstance(value, list):
+            return copy.deepcopy(value)
+    loop = state.get("loop_control", {})
+    value = loop.get("history", loop.get("events")) if isinstance(loop, Mapping) else None
+    if isinstance(value, list):
+        return copy.deepcopy(value)
+    refs = loop.get("event_refs", []) if isinstance(loop, Mapping) else []
+    if not isinstance(refs, list):
+        raise ClosureProtocolError("workflow-loop event references are malformed")
+    result = []
+    for ref in refs:
+        loaded = kernel.read_object(ref)
+        if not isinstance(loaded, Mapping) or not isinstance(loaded.get("payload"), Mapping):
+            raise ClosureProtocolError("workflow-loop event reference is malformed")
+        result.append(copy.deepcopy(dict(loaded["payload"])))
+    return result
+
+
+def _loop_completion_request(value: Any, identity: Mapping[str, Any]) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise ClosureProtocolError("workflow-loop closure requires a completion request")
+    request = copy.deepcopy(dict(value))
+    for field in ("workflow_loop", "loop_request", "completion_request"):
+        nested = request.get(field)
+        if nested is not None:
+            if not isinstance(nested, Mapping):
+                raise ClosureProtocolError("workflow-loop completion request is malformed")
+            supplied = copy.deepcopy(dict(nested))
+            for key, item in request.items():
+                if key not in {"workflow_loop", "loop_request", "completion_request"}:
+                    supplied.setdefault(key, copy.deepcopy(item))
+            request = supplied
+            break
+    request["schema"] = LOOP_CONTRACT_VERSION
+    request.setdefault("identity", copy.deepcopy(dict(identity)))
+    for field in ("phase", "profile", "events", "history", "state_entries", "iteration_events", "loop_control"):
+        request.pop(field, None)
+    return request
+
+
+def record_workflow_loop_outcome(
+    kernel: ControlKernel,
+    authority: Mapping[str, Any],
+    *,
+    record: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Persist one explicit, non-authorizing workflow-loop terminal record.
+
+    ``close_workflow_loop`` remains a read/validate close-set compiler so a
+    caller can inspect strict completion before choosing a durable stop.  This
+    separate seam is the only runtime-closure helper that records a loop
+    outcome; it never advances Group/H state or claims objective achievement.
+    """
+
+    state, initial_head = _current(kernel)
+    if not isinstance(state.get("loop_control"), Mapping):
+        raise ClosureProtocolError("workflow-loop outcome requires loop_control state")
+    if authority.get("approved") is not True and authority.get("status") != "approved":
+        raise ClosureProtocolError("approved loop outcome authority is required")
+    if authority.get("expected_head") not in (None, initial_head):
+        raise ClosureProtocolError("workflow-loop outcome authority HEAD is stale")
+    try:
+        checked = validate_terminal_record(record)
+        identity = validate_work_identity(state["loop_control"].get("identity"))
+    except (LoopContractError, TypeError, ValueError) as error:
+        raise ClosureProtocolError("workflow-loop terminal record is invalid: " + str(error)) from error
+    if checked["identity"] != identity:
+        raise ClosureProtocolError("workflow-loop terminal record identity differs from current Run")
+    existing = state["loop_control"].get("terminal_record")
+    if existing is not None:
+        if existing != checked:
+            raise ClosureProtocolError("workflow-loop Run already has a different terminal record")
+        return {
+            "schema": "workflow-loop-runtime-outcome/v1",
+            "status": "already-recorded",
+            "outcome": checked["outcome"],
+            "record": checked,
+            "terminal_ref": copy.deepcopy(state["loop_control"].get("terminal_ref")),
+            "state": state,
+            "head": initial_head,
+            "non_authorizing": True,
+            "objective_achievement": False,
+            "activation": False,
+        }
+    try:
+        updated = kernel.record_loop_outcome(
+            checked,
+            authority_ref=authority,
+            expected_revision=state["revision"],
+        )
+    except Exception as error:
+        raise ClosureProtocolError("workflow-loop terminal outcome was rejected: " + str(error)) from error
+    final_head = _current(kernel)[1]
+    return {
+        "schema": "workflow-loop-runtime-outcome/v1",
+        "status": "recorded",
+        "outcome": checked["outcome"],
+        "record": checked,
+        "terminal_ref": copy.deepcopy(updated["loop_control"].get("terminal_ref")),
+        "state": updated,
+        "head": final_head,
+        "non_authorizing": True,
+        "objective_achievement": False,
+        "activation": False,
+    }
+
+
+def close_workflow_loop(
+    kernel: ControlKernel,
+    authority: Mapping[str, Any],
+    *,
+    next_group: str,
+    evidence_refs: Sequence[Mapping[str, Any]] = (),
+    completion_request: Mapping[str, Any] | None = None,
+    workflow_loop: Mapping[str, Any] | None = None,
+    loop_request: Mapping[str, Any] | None = None,
+    metrics_events: Sequence[Mapping[str, Any]] | None = None,
+    integration_identity: Mapping[str, Any] | None = None,
+    accepted_decisions: Sequence[Mapping[str, Any]] = (),
+) -> dict[str, Any]:
+    """Validate a strict workflow-loop close set without composing H.
+
+    The legacy ``close_runtime_group`` path owns F1--F7 and remains unchanged.
+    A loop-control Run uses this additive, non-authorizing boundary: current
+    Kernel state/HEAD, immutable loop history, current evidence, two-axis
+    review, required findings, and integration identity are checked, then a
+    digest-bound close candidate is returned.  Group/H advancement, objective
+    achievement, activation, and external writes are deliberately outside this
+    function.
+    """
+
+    state, initial_head = _current(kernel)
+    loop = state.get("loop_control")
+    if not isinstance(loop, Mapping):
+        raise ClosureProtocolError("workflow-loop closure requires loop_control state")
+    if authority.get("approved") is not True and authority.get("status") != "approved":
+        raise ClosureProtocolError("approved closure authority is required")
+    if authority.get("expected_head") not in (None, initial_head):
+        raise ClosureProtocolError("workflow-loop closure authority HEAD is stale")
+    if accepted_decisions:
+        raise ClosureProtocolError("workflow-loop closure does not compose objective decisions")
+    if not isinstance(next_group, str) or not next_group:
+        raise ClosureProtocolError("workflow-loop closure next_group is malformed")
+    try:
+        identity = validate_work_identity(loop.get("identity"))
+    except LoopContractError as error:
+        raise ClosureProtocolError("workflow-loop identity is invalid: " + str(error)) from error
+    history = _loop_history(kernel, state)
+    if not history:
+        raise ClosureProtocolError("workflow-loop closure requires an evaluated loop event")
+    latest = history[-1]
+    if latest.get("status") == "execution-unknown" or loop.get("recovery_required"):
+        raise ClosureProtocolError("workflow-loop closure requires execution recovery evidence")
+    if latest.get("status") != "evaluated":
+        raise ClosureProtocolError("workflow-loop closure requires an accepted result")
+    if state.get("leases") or any(
+        item.get("status") in {"running", "needs_decision"}
+        for item in state.get("tasks", {}).values()
+        if isinstance(item, Mapping)
+    ):
+        raise ClosureProtocolError("workflow-loop closure has unfinished active tasks")
+
+    supplied_integration = integration_identity
+    if supplied_integration is None and isinstance(workflow_loop, Mapping):
+        supplied_integration = workflow_loop.get("integration_identity")
+    if supplied_integration is None and isinstance(loop_request, Mapping):
+        supplied_integration = loop_request.get("integration_identity")
+    # A caller-supplied E8/E9 value cannot substitute for a durable Kernel
+    # transition.  The current Run must already be in an integration phase;
+    # this keeps the E8-E9 counter and evaluated event in the same identity.
+    if identity["phase"] not in {"E8", "E9"}:
+        raise ClosureProtocolError("workflow-loop closure requires a durable E8-E9 integration identity")
+    if supplied_integration is not None:
+        try:
+            checked = validate_work_identity(supplied_integration)
+        except LoopContractError as error:
+            raise ClosureProtocolError("integration identity is invalid: " + str(error)) from error
+        if checked != identity:
+            raise ClosureProtocolError("integration identity differs from current loop identity")
+        supplied_integration = checked
+    else:
+        supplied_integration = copy.deepcopy(identity)
+
+    request_value = (
+        completion_request
+        if completion_request is not None
+        else workflow_loop
+        if workflow_loop is not None
+        else loop_request
+    )
+    request = _loop_completion_request(request_value, identity)
+    try:
+        request_identity = validate_work_identity(request.get("identity"))
+    except LoopContractError as error:
+        raise ClosureProtocolError("workflow-loop completion identity is invalid: " + str(error)) from error
+    if counter_identity(request_identity) != counter_identity(identity):
+        raise ClosureProtocolError("workflow-loop completion identity differs from current integration")
+    try:
+        validation = WorkflowLoopValidator().validate(request)
+        # MechanicalCompletion is a named B4 facade; its output must agree
+        # with the joined validator before a close candidate can be returned.
+        mechanical = MechanicalCompletion().evaluate(request)
+    except (CompletionError, ValueError, TypeError) as error:
+        raise ClosureProtocolError("workflow-loop completion is not mechanically valid: " + str(error)) from error
+    classification = mechanical.get("classification", validation.get("classification"))
+    if not isinstance(classification, Mapping) or classification.get("outcome") != "completed":
+        outcome = classification.get("outcome") if isinstance(classification, Mapping) else "needs-input"
+        raise ClosureProtocolError("workflow-loop closure rejected: " + str(outcome))
+    if validation.get("validator", {}).get("skipped") is not True or validation.get("next") != "complete":
+        raise ClosureProtocolError("workflow-loop closure requires strict mechanical zero-finding completion")
+
+    current_inputs = request.get("current_inputs")
+    change_impact = request.get("change_impact")
+    evidence_assessments = []
+    if current_inputs is not None or change_impact is not None:
+        if current_inputs is None or change_impact is None:
+            raise ClosureProtocolError("workflow-loop evidence validity inputs are incomplete")
+        for evidence in request.get("evidence", []):
+            try:
+                assessment = assess_evidence(evidence, current_inputs, change_impact)
+            except EvidenceValidityError as error:
+                raise ClosureProtocolError("workflow-loop evidence validity is unknown: " + str(error)) from error
+            evidence_assessments.append(assessment)
+            if assessment.get("status") != "valid":
+                raise ClosureProtocolError("workflow-loop closure rejects stale or invalid evidence")
+
+    loaded_evidence = []
+    for ref in evidence_refs:
+        try:
+            loaded = kernel.read_object(ref)
+        except Exception as error:
+            raise ClosureProtocolError("workflow-loop closure evidence is unavailable") from error
+        if loaded.get("digest") not in state.get("object_refs", {}):
+            raise ClosureProtocolError("workflow-loop closure evidence is not in the current Run")
+        loaded_evidence.append({
+            "digest": loaded["digest"],
+            "object_type": loaded.get("object_type"),
+            "path": "objects/" + loaded["digest"][7:] + ".json",
+        })
+    if len({item["digest"] for item in loaded_evidence}) != len(loaded_evidence):
+        raise ClosureProtocolError("workflow-loop closure evidence must be unique")
+
+    metrics = None
+    if metrics_events is not None:
+        try:
+            metrics = derive_metrics(metrics_events)
+        except (LoopMetricsError, TypeError, ValueError) as error:
+            raise ClosureProtocolError("workflow-loop metrics are malformed: " + str(error)) from error
+    close_set = {
+        "schema": "workflow-loop-close-set/v1",
+        "contract_version": LOOP_CONTRACT_VERSION,
+        "run_id": state.get("run_id"),
+        "group": state.get("group"),
+        "next_group": next_group,
+        "identity": identity,
+        "integration_identity": copy.deepcopy(supplied_integration),
+        "head": initial_head,
+        "history": history,
+        "event_ref": event_ref(latest),
+        "completion": copy.deepcopy(classification),
+        "validation": copy.deepcopy(validation),
+        "evidence_refs": loaded_evidence,
+        "evidence_assessments": evidence_assessments,
+        "metrics": metrics,
+        "non_authorizing": True,
+        "objective_achievement": False,
+        "activation": False,
+    }
+    close_set["close_set_digest"] = canonical_digest(close_set)
+    return {
+        "schema": "workflow-loop-runtime-closure/v1",
+        "status": "ready",
+        "outcome": "completed",
+        "close_set": close_set,
+        "close_set_digest": close_set["close_set_digest"],
+        "state": state,
+        "head": initial_head,
+        "non_authorizing": True,
+        "objective_achievement": False,
+        "activation": False,
+    }
+
+
 def close_runtime_group(
     kernel: ControlKernel, authority: Mapping[str, Any], *, next_group: str,
     evidence_refs: Sequence[Mapping[str, Any]], accepted_decisions: Sequence[Mapping[str, Any]] = (),
+    completion_request: Mapping[str, Any] | None = None,
+    workflow_loop: Mapping[str, Any] | None = None,
+    loop_request: Mapping[str, Any] | None = None,
+    metrics_events: Sequence[Mapping[str, Any]] | None = None,
+    integration_identity: Mapping[str, Any] | None = None,
 ) -> dict:
     """Compile every F gate, then delegate the actual close to ControlKernel.
 
@@ -57,6 +364,27 @@ digest, approval ID, or receipt ID.  Rehearsal provenance remains in both the
 Run and the published closure record; no human approval is synthesized.
     """
     state, initial_head = _current(kernel)
+    # Existing InceptionRuntime Runs may contain loop_control while still
+    # using the historical F1-F7 closure (notably B/C/D bootstrap).  Opt into
+    # the additive workflow-loop closure only through its explicit request or
+    # the dedicated close_workflow_loop API; a bare legacy close remains
+    # byte-compatible.
+    if "loop_control" in state and any(
+        value is not None
+        for value in (completion_request, workflow_loop, loop_request, integration_identity, metrics_events)
+    ):
+        return close_workflow_loop(
+            kernel,
+            authority,
+            next_group=next_group,
+            evidence_refs=evidence_refs,
+            accepted_decisions=accepted_decisions,
+            completion_request=completion_request,
+            workflow_loop=workflow_loop,
+            loop_request=loop_request,
+            metrics_events=metrics_events,
+            integration_identity=integration_identity,
+        )
     identity = state.get("metadata", {}).get("runtime_identity")
     if not isinstance(identity, Mapping) or identity.get("mode") not in {"real", "rehearsal"}:
         raise ClosureProtocolError("runtime closure requires a project-local Run identity")
@@ -283,3 +611,11 @@ def _resume_accepted_epoch(kernel, state, current_head, identity, approval_ref, 
     return {"state": final, "closure_bundle_ref": final["group"]["bundle_ref"], "checkpoint_ref": final["group"]["checkpoint_ref"],
             "epoch_close_receipt_ref": epoch_ref, "group_close_receipt_ref": final["group"]["bundle_ref"],
             "closure_report_ref": report_ref, "evidence_root": str(root)}
+
+
+__all__ = [
+    "GROUPS",
+    "close_runtime_group",
+    "close_workflow_loop",
+    "record_workflow_loop_outcome",
+]

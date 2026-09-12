@@ -14,6 +14,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from .loop_contracts import LoopContractError, phase_policy, require_identifier
 from .schema_validation import SchemaValidationError, validate_document
 from .workflow_composition import WorkflowCompositionError, WorkflowCompositionV1
 
@@ -28,6 +29,13 @@ _INVENTORY_AREAS = {
 }
 _SPEC_AREAS = {"behavior", "scenarios", "capabilities", "constraints", "non_goals", "edges", "errors", "acceptance"}
 _DESIGN_AREAS = {"architecture", "responsibilities", "interfaces", "flow", "errors", "compatibility", "migration", "observability", "security", "test_seams"}
+_D11_GATES = frozenset({"test", "review", "finding_validation", "e2e", "dry_run", "rollback", "post_check", "activation", "git", "external"})
+_D11_POLICY_FIELDS = frozenset({
+    "task_id", "phase", "logical_task_id", "additional_iteration_limit",
+    "technical_retry_limit", "verification_scope", "recovery",
+})
+_D11_TIMEOUT_FIELDS = frozenset({"process_timeout", "tool_timeout"})
+_D11_LEGACY_FIELDS = frozenset({"task_budgets", "wall_clock_minutes", "review_rounds", "fix_attempts"})
 
 
 class PlanningSystemError(ValueError):
@@ -54,6 +62,80 @@ def _contains_placeholder(value: Any) -> bool:
     if isinstance(value, list):
         return any(_contains_placeholder(item) for item in value)
     return False
+
+
+def _d11_task_ids(value: Any) -> list[str] | None:
+    """Extract the explicit D8 task identity set without inventing coverage."""
+    if isinstance(value, Mapping):
+        value = value.get("tasks")
+    if not isinstance(value, list) or not value:
+        return None
+    result: list[str] = []
+    for item in value:
+        task_id = item if isinstance(item, str) else item.get("task_id") if isinstance(item, Mapping) else None
+        try:
+            require_identifier(task_id, "task_id")
+        except LoopContractError:
+            return None
+        result.append(task_id)
+    if len(result) != len(set(result)):
+        return None
+    return result
+
+
+def _d11_explicit_recovery(value: Any, *, nested: bool = False) -> bool:
+    """Require an actual recovery instruction, not an absent or placeholder one."""
+    if value is None or _contains_placeholder(value):
+        return False
+    if isinstance(value, bool):
+        return nested
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, Mapping):
+        return bool(value) and all(_d11_explicit_recovery(item, nested=True) for item in value.values())
+    if isinstance(value, list):
+        return bool(value) and all(_d11_explicit_recovery(item, nested=True) for item in value)
+    return nested and isinstance(value, (int, float))
+
+
+def _d11_timeout(value: Any) -> bool:
+    """Validate an optional process/tool timeout without making it a loop budget."""
+    if isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return value > 0
+    if isinstance(value, Mapping):
+        return bool(value) and not bool(_D11_LEGACY_FIELDS.intersection(value)) and not any("wall_clock" in str(key).lower() for key in value)
+    return False
+
+
+def _d11_policy(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, Mapping):
+        return None
+    fields = set(value)
+    if not _D11_POLICY_FIELDS.issubset(fields) or not fields.issubset(_D11_POLICY_FIELDS | _D11_TIMEOUT_FIELDS):
+        return None
+    try:
+        require_identifier(value.get("task_id"), "task_loop_policy.task_id")
+        require_identifier(value.get("logical_task_id"), "task_loop_policy.logical_task_id")
+        expected = phase_policy(value.get("phase"))
+    except LoopContractError:
+        return None
+    additional = value.get("additional_iteration_limit")
+    technical = value.get("technical_retry_limit")
+    if isinstance(additional, bool) or not isinstance(additional, int) or additional != expected["additional_iteration_limit"]:
+        return None
+    if isinstance(technical, bool) or not isinstance(technical, int) or technical != 1:
+        return None
+    scope = value.get("verification_scope")
+    if not isinstance(scope, list) or not scope or any(not isinstance(item, str) or not item for item in scope) or len(scope) != len(set(scope)):
+        return None
+    if _contains_placeholder(scope) or not _d11_explicit_recovery(value.get("recovery")):
+        return None
+    for timeout in _D11_TIMEOUT_FIELDS.intersection(fields):
+        if not _d11_timeout(value[timeout]):
+            return None
+    return copy.deepcopy(dict(value))
 
 
 class PlanningSystemV1:
@@ -251,16 +333,42 @@ class PlanningSystemV1:
         return {"kind": "worker_briefs", "briefs": briefs}
 
     def _d11(self, v: Mapping[str, Any], _: Mapping[str, Any]) -> dict[str, Any] | str:
-        budgets, gates = v.get("task_budgets"), v.get("gates")
-        required_gates = {"test", "review", "finding_validation", "e2e", "dry_run", "rollback", "post_check", "activation", "git", "external"}
-        if not isinstance(budgets, list) or not budgets or not isinstance(gates, Mapping) or not required_gates.issubset(gates):
+        gates = v.get("gates")
+        if not isinstance(gates, Mapping) or not _D11_GATES.issubset(gates):
             return "blocked_incomplete_verification"
-        for budget in budgets:
-            if not isinstance(budget, Mapping) or not isinstance(budget.get("wall_clock_minutes"), int) or budget["wall_clock_minutes"] <= 0 or not isinstance(budget.get("review_rounds"), int) or budget["review_rounds"] <= 0 or not isinstance(budget.get("fix_attempts"), int) or not 0 <= budget["fix_attempts"] <= 5:
-                return "blocked_unbounded_budget"
         if v.get("gates_grant_approval"):
             return "blocked_implicit_approval"
-        return {"kind": "verification_recovery", "task_budgets": budgets, "gates": gates}
+        if _D11_LEGACY_FIELDS.intersection(v):
+            return "blocked_invalid_loop_policy"
+
+        task_source = v.get("tasks")
+        if task_source is None:
+            task_source = v.get("d8_tasks")
+        if task_source is None:
+            task_source = v.get("task_ids")
+        task_ids = _d11_task_ids(task_source)
+        policies = v.get("task_loop_policies")
+        if task_ids is None or not isinstance(policies, list) or not policies:
+            return "blocked_invalid_loop_policy"
+
+        validated: list[dict[str, Any]] = []
+        policy_task_ids: set[str] = set()
+        logical_ids: set[str] = set()
+        for policy in policies:
+            candidate = _d11_policy(policy)
+            if candidate is None or candidate["task_id"] not in task_ids or candidate["task_id"] in policy_task_ids or candidate["logical_task_id"] in logical_ids:
+                return "blocked_invalid_loop_policy"
+            validated.append(candidate)
+            policy_task_ids.add(candidate["task_id"])
+            logical_ids.add(candidate["logical_task_id"])
+        if policy_task_ids != set(task_ids):
+            return "blocked_invalid_loop_policy"
+
+        return {
+            "kind": "verification_recovery",
+            "task_loop_policies": validated,
+            "gates": copy.deepcopy(dict(gates)),
+        }
 
     def _d12(self, v: Mapping[str, Any], _: Mapping[str, Any]) -> dict[str, Any] | str:
         route = v.get("upstream_route")
