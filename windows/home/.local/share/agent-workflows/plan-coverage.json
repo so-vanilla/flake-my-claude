@@ -1,0 +1,1179 @@
+{
+  "accepted_coverage": [
+    "group.A.A1",
+    "group.A.A2",
+    "group.A.A3",
+    "group.A.A4",
+    "group.A.A5",
+    "group.A.A6",
+    "group.A.A6R",
+    "group.A.A7",
+    "group.B.B1",
+    "group.B.B2",
+    "group.B.B3",
+    "group.B.B4",
+    "group.B.B5",
+    "group.B.B6",
+    "group.B.B7",
+    "group.C.C1",
+    "group.C.C2",
+    "group.C.C3",
+    "group.C.C4",
+    "group.C.C5",
+    "group.C.C6",
+    "group.D.D1",
+    "group.D.D10",
+    "group.D.D11",
+    "group.D.D12",
+    "group.D.D2",
+    "group.D.D3",
+    "group.D.D4",
+    "group.D.D5",
+    "group.D.D6",
+    "group.D.D7",
+    "group.D.D8",
+    "group.D.D9",
+    "group.E.E1",
+    "group.E.E10",
+    "group.E.E2",
+    "group.E.E3",
+    "group.E.E4",
+    "group.E.E5",
+    "group.E.E6",
+    "group.E.E7",
+    "group.E.E8",
+    "group.E.E9",
+    "group.F.F1",
+    "group.F.F2",
+    "group.F.F3",
+    "group.F.F4",
+    "group.F.F5",
+    "group.F.F6",
+    "group.F.F7",
+    "group.F.F8",
+    "group.G.G1",
+    "group.G.G2",
+    "group.G.G3",
+    "group.G.G4",
+    "group.G.G5",
+    "group.G.G6",
+    "group.H.H1",
+    "group.H.H2",
+    "group.H.H3",
+    "profile.bug-fix.BGF1",
+    "profile.bug-fix.BGF2",
+    "profile.bug-fix.BGF3",
+    "profile.bug-fix.BGF4",
+    "profile.bug-fix.BGF5",
+    "profile.bug-fix.BGF6",
+    "profile.bug-fix.BGF7",
+    "profile.bug-fix.BGF8",
+    "profile.feature.F1",
+    "profile.feature.F2",
+    "profile.feature.F3",
+    "profile.feature.F4",
+    "profile.feature.F5",
+    "profile.feature.F6",
+    "profile.feature.F7",
+    "profile.feature.F8",
+    "profile.improvement.I1",
+    "profile.improvement.I2",
+    "profile.improvement.I3",
+    "profile.improvement.I4",
+    "profile.improvement.I5",
+    "profile.improvement.I6",
+    "profile.improvement.I7"
+  ],
+  "claims": {
+    "actual_a7_handoff_complete": false,
+    "full_workflow_ready": false,
+    "s0_registry_ready": true
+  },
+  "planned": {
+    "additional_surfaces": 11,
+    "named": 60,
+    "profiles": 23
+  },
+  "schema": "plan-coverage/v1",
+  "source_inventory": [
+    {
+      "id": "group.A.A1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A1.json",
+        "evidence_digest": "sha256:dcbaf44748733eb38737d16100c53caeafd5527e0e00758d09bc1c1eac43f996",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A1_EnvironmentInventoryTests",
+        "source": "agent-workflows/skills/bootstrap-classify-environment/SKILL.md",
+        "source_digest": "sha256:de13657f7209eaafad3373d812b37465206fa235416abfb8ea21dcc94147f103",
+        "subject_id": "group.A.A1"
+      }
+    },
+    {
+      "id": "group.A.A2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A2.json",
+        "evidence_digest": "sha256:88c53406f109cbba0985e441c50aac5992ee70fa363e76c5b5cba1fe172771ef",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A2_WorkspaceIsolationTests",
+        "source": "agent-workflows/skills/bootstrap-isolate-workspace/SKILL.md",
+        "source_digest": "sha256:0a6063bd56e10aba2d3262a9cc7de5c2d0dc1be153798364843139c7f033b39d",
+        "subject_id": "group.A.A2"
+      }
+    },
+    {
+      "id": "group.A.A3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A3.json",
+        "evidence_digest": "sha256:b88688bf3d44516bebde8d57c224cb8b0499255a3059fa97dc3e2078e42934b9",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A3_RollbackDesignTests",
+        "source": "agent-workflows/skills/bootstrap-design-rollback/SKILL.md",
+        "source_digest": "sha256:48960aba99b7f3bb34cb3f56dfa7625519d7ca064ab917f65703d2043d4e16a8",
+        "subject_id": "group.A.A3"
+      }
+    },
+    {
+      "id": "group.A.A4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A4.json",
+        "evidence_digest": "sha256:04f2e50ea9fa219d4ebab4cb22ef4110769635e30a596126200358516c7b6765",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A4_RunInitializationTests",
+        "source": "agent-workflows/skills/bootstrap-initialize-run/SKILL.md",
+        "source_digest": "sha256:35d81f9f2ed377e593ed37ffae464f5ed95e0e9286fcceb9d6b7b54b6b19007d",
+        "subject_id": "group.A.A4"
+      }
+    },
+    {
+      "id": "group.A.A5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A5.json",
+        "evidence_digest": "sha256:cb6b81710bf90a736fb760e227040810530657f47096ba14a8b45041c8fb22bf",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_bootstrap_contracts.py::A5_LegacyDetachTests",
+        "source": "agent-workflows/skills/bootstrap-detach-legacy-owner/SKILL.md",
+        "source_digest": "sha256:2b6828daa2789cf310231cb34f9fee9a6b21b12b5d266be8ed0fdab764dbd4ce",
+        "subject_id": "group.A.A5"
+      }
+    },
+    {
+      "id": "group.A.A6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A6.json",
+        "evidence_digest": "sha256:7366d75dea974847f82fb1a4d9dd23761a56bea78a2b7b11a38dea7c3bd6cbc2",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "A6_WalkingSkeletonTests",
+        "source": "agent-workflows/skills/bootstrap-build-walking-skeleton/SKILL.md",
+        "source_digest": "sha256:5746e91d41ac3297cbb30bf88fe7c9846aa278c798763dba13167826c47bb133",
+        "subject_id": "group.A.A6"
+      }
+    },
+    {
+      "id": "group.A.A6R",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A6R.json",
+        "evidence_digest": "sha256:1eb28fc0dffed9e3eb8f764853a6096f5910129d185ebf66f42fdc576c31cf5e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "A6R_EvidenceTests",
+        "source": "agent-workflows/skills/bootstrap-migrate-control-kernel/SKILL.md",
+        "source_digest": "sha256:6301f4adeff6cbdc4d49e25bcce0e647fd8f05ce3adc278eaf86decde96fed59",
+        "subject_id": "group.A.A6R"
+      }
+    },
+    {
+      "id": "group.A.A7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/A7.json",
+        "evidence_digest": "sha256:0cb555c81965fefafa07acbd95c049c8d6b8df972d5f5b2d7ce3041f3c59aa67",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "A7_SelfHostHandoffTests",
+        "source": "agent-workflows/skills/bootstrap-self-host-handoff/SKILL.md",
+        "source_digest": "sha256:e2b061ee152163b2a3cd5659d240aaa3e28afe3d1af8bedede70a8257722c2fa",
+        "subject_id": "group.A.A7"
+      }
+    },
+    {
+      "id": "group.B.B1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B1.json",
+        "evidence_digest": "sha256:b866400c1f6c4ba6feebeaaa0cabc20f81caead07e770913dba50610434f6c82",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B1_EntryTests",
+        "source": "agent-workflows/skills/entry/SKILL.md",
+        "source_digest": "sha256:4ba4dd8396752c33780094a5121953271099f2c72c80ed4359ba63f2129eae16",
+        "subject_id": "group.B.B1"
+      }
+    },
+    {
+      "id": "group.B.B2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B2.json",
+        "evidence_digest": "sha256:e612a6cb3814419253a0125d622ea0bc10acd6559e58fa834bcaeb254ca15e96",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B2_DiscoverContextTests",
+        "source": "agent-workflows/skills/discover-context/SKILL.md",
+        "source_digest": "sha256:b33fb161b614c44cf08f004f92a77e02cf2a34bb9a6802c00ea12c6b7a9ed426",
+        "subject_id": "group.B.B2"
+      }
+    },
+    {
+      "id": "group.B.B3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B3.json",
+        "evidence_digest": "sha256:5ad422d45dd9bac02f1cd6ddd4299fc6b99cb84bd80c795d55ed23f2f70faf0e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B3_ClassifyScopeTests",
+        "source": "agent-workflows/skills/classify-scope/SKILL.md",
+        "source_digest": "sha256:688366f3ea54518fba4ab084146bb84cb936ddf2ab4c86be329b6daef5b36b66",
+        "subject_id": "group.B.B3"
+      }
+    },
+    {
+      "id": "group.B.B4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B4.json",
+        "evidence_digest": "sha256:13b4b0f384f97a6368d3baf75c69dc693c8aa345b40aa00f642519590b416b38",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B4_GrillPurposeTests",
+        "source": "agent-workflows/skills/grill-purpose/SKILL.md",
+        "source_digest": "sha256:210787c9acd7a3111e6abdc63d58213dff745802b47edbf981bab2f1e223bfe1",
+        "subject_id": "group.B.B4"
+      }
+    },
+    {
+      "id": "group.B.B5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B5.json",
+        "evidence_digest": "sha256:8e3cb56bc8000165466f1cd563f35e778d7f5984efb8d29e1d329b525c7b5f5e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B5_ProposePurposeTests",
+        "source": "agent-workflows/skills/propose-true-purpose/SKILL.md",
+        "source_digest": "sha256:87dc43e7d1f2e7606aa1bb1fdfe5b450bde18d54ed63108f892943a30e58b4b9",
+        "subject_id": "group.B.B5"
+      }
+    },
+    {
+      "id": "group.B.B6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B6.json",
+        "evidence_digest": "sha256:b0c614ff97c9875159c19fef689377fd5fdfc2bed9a2bf6bd887f0a83b5444ed",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B6_FeasibilityTests",
+        "source": "agent-workflows/skills/assess-feasibility-and-constraints/SKILL.md",
+        "source_digest": "sha256:db4ececfb4420b6a2f906014188fb960e11d82bcfccb6a9e823be3526e8b78da",
+        "subject_id": "group.B.B6"
+      }
+    },
+    {
+      "id": "group.B.B7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/B7.json",
+        "evidence_digest": "sha256:bdae01d710db58c522053661333313fa50c37089b254fe56feac8e3c424c8492",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_objective_system.py::B7_ApproveObjectiveTests",
+        "source": "agent-workflows/skills/approve-objective/SKILL.md",
+        "source_digest": "sha256:f0ceb2fd479799ae533bbc6923e05cd78dc99859c74fc1e6376f0cb9a61d4fc4",
+        "subject_id": "group.B.B7"
+      }
+    },
+    {
+      "id": "group.C.C1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C1.json",
+        "evidence_digest": "sha256:8f815d9197f270eb5b6d54e744cda73e8c1b7e23f64cbd1bbdaf2a78de4d39db",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C1_DecomposeOutcomesTests",
+        "source": "agent-workflows/skills/decompose-outcomes/SKILL.md",
+        "source_digest": "sha256:d05721de81aae76fe1b2f972d7769b6add81bae0d01131abaf37c0b693a19e22",
+        "subject_id": "group.C.C1"
+      }
+    },
+    {
+      "id": "group.C.C2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C2.json",
+        "evidence_digest": "sha256:afabaecf15b3b19f9e72c2368cd0aea139216bee329e4af746021673bb71c838",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C2_OutcomeDAGTests",
+        "source": "agent-workflows/skills/build-outcome-dependency-graph/SKILL.md",
+        "source_digest": "sha256:21dbb0d8b817e8b3f43c97e11e0d1c4a4fc36baa9ae03b662f046db0c2bd6620",
+        "subject_id": "group.C.C2"
+      }
+    },
+    {
+      "id": "group.C.C3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C3.json",
+        "evidence_digest": "sha256:2eab6a9445fbe3c56f336c6544f5ad581069552dec0ee43da8a24c52d3ef4e04",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C3_MeasurementDesignTests",
+        "source": "agent-workflows/skills/design-measurement/SKILL.md",
+        "source_digest": "sha256:4130fc9256b7b3fad4ee83b5574f6fe96fdad62bed4781b6ef0d04d25ea4e45f",
+        "subject_id": "group.C.C3"
+      }
+    },
+    {
+      "id": "group.C.C4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C4.json",
+        "evidence_digest": "sha256:87c57dc321101dcb937319d4af9b9e5c22dcdf948d0ec72ac67dcdde50b01ff4",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C4_TargetDefinitionTests",
+        "source": "agent-workflows/skills/define-targets/SKILL.md",
+        "source_digest": "sha256:50a3c94141dcb710fc45d9ad5b8d71d26cc1d0d3ec18dcac17c3af64f96c23de",
+        "subject_id": "group.C.C4"
+      }
+    },
+    {
+      "id": "group.C.C5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C5.json",
+        "evidence_digest": "sha256:8d03b75b37a8b1d89002dd6733ef95af7cbcdb9c1020bfb3016d80c99f62d98f",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C5_BaselineTests",
+        "source": "agent-workflows/skills/capture-baseline/SKILL.md",
+        "source_digest": "sha256:5e9b837ca92d55705d5345983d211e7f9f8d2cd468c3a570f29e134729e5b496",
+        "subject_id": "group.C.C5"
+      }
+    },
+    {
+      "id": "group.C.C6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/C6.json",
+        "evidence_digest": "sha256:f10f1820c3fdd45d6041182681e2bf97afa7962e226f1371dc20565a221fa22e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_outcome_system.py::C6_OutcomeValidationTests",
+        "source": "agent-workflows/skills/validate-outcome-system/SKILL.md",
+        "source_digest": "sha256:6d56e16603b2332e58663287170b1709ce2aeed227cb1d0640ba94ce95119565",
+        "subject_id": "group.C.C6"
+      }
+    },
+    {
+      "id": "group.D.D1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D1.json",
+        "evidence_digest": "sha256:7fe4b20b4dad9955e93545633a8397cff30c4f3eb6c46da68a98f4ec1180c8b4",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D1_ProfileSelectionTests",
+        "source": "agent-workflows/skills/select-workflow-profile/SKILL.md",
+        "source_digest": "sha256:ba2de0ee14adb17b7ab455a1688a09ddb61b4efe20f91535f21448e2cd8318b6",
+        "subject_id": "group.D.D1"
+      }
+    },
+    {
+      "id": "group.D.D10",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D10.json",
+        "evidence_digest": "sha256:01328e7558272aae394263f4a675fcf7468eb48e59631027c5291a08c23647a3",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D10_WorkerBriefTests",
+        "source": "agent-workflows/skills/prepare-worker-briefs/SKILL.md",
+        "source_digest": "sha256:b5ca137239f2aadebb64ecd808f23478c7e8c37526c8257b5fa5c752f5737830",
+        "subject_id": "group.D.D10"
+      }
+    },
+    {
+      "id": "group.D.D11",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D11.json",
+        "evidence_digest": "sha256:ccfe60d75c1ef446ef8f1af091788087426e69f1cfd65bbc8a3bcd7a6abf0797",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D11_VerificationRecoveryTests",
+        "source": "agent-workflows/skills/plan-verification-and-recovery/SKILL.md",
+        "source_digest": "sha256:0448b4ff700e93c17544ad3a64662dc94f79eff4046a3777dd4edc9311a0631d",
+        "subject_id": "group.D.D11"
+      }
+    },
+    {
+      "id": "group.D.D12",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D12.json",
+        "evidence_digest": "sha256:2cd2ee9321dd701447826e8a09512ecfcdc5d0b7ca3b8111280da481bedc462f",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D12_ReadinessReviewTests",
+        "source": "agent-workflows/skills/implementation-readiness-review/SKILL.md",
+        "source_digest": "sha256:19176f0bdac4fa188e0205aa5be45e0f72b4bf131ebf018cf29c355f8c8ef261",
+        "subject_id": "group.D.D12"
+      }
+    },
+    {
+      "id": "group.D.D2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D2.json",
+        "evidence_digest": "sha256:46cdd59d6938d30ab680fc5b5d1f4fe058d4ed2fb54f42f390b1b403f3d09ee6",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D2_CurrentSystemTests",
+        "source": "agent-workflows/skills/reverse-engineer-current-system/SKILL.md",
+        "source_digest": "sha256:29b7fe23c0c527f7afe3cd02836d39e4ca6777f179aff2540386efc9aba6e091",
+        "subject_id": "group.D.D2"
+      }
+    },
+    {
+      "id": "group.D.D3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D3.json",
+        "evidence_digest": "sha256:c131b57eea41a52a12d490ca505dcdd7d5cf3dadc5c64de994bb9aa39a83d9b9",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D3_PracticeDiscoveryTests",
+        "source": "agent-workflows/skills/discover-practices/SKILL.md",
+        "source_digest": "sha256:b95fc671e524346ead97a863c685b8c5ef2e3b9331817dc452a828c14ff383b6",
+        "subject_id": "group.D.D3"
+      }
+    },
+    {
+      "id": "group.D.D4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D4.json",
+        "evidence_digest": "sha256:433075d003b84f08d58e7a4ea437a14451923264c10492b58f6f45565d753bed",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D4_SpecificationTests",
+        "source": "agent-workflows/skills/specify-what-and-why/SKILL.md",
+        "source_digest": "sha256:a56012103cc3fd6e1e12e116d3310a1c95bcea78b5bbaa4236dc6c49e2e36473",
+        "subject_id": "group.D.D4"
+      }
+    },
+    {
+      "id": "group.D.D5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D5.json",
+        "evidence_digest": "sha256:a123b8f187060a5ad045086e184f181d5b3ec66c73f4ffe1b7266546f48a875f",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D5_OptionExplorationTests",
+        "source": "agent-workflows/skills/explore-options/SKILL.md",
+        "source_digest": "sha256:600f3af613fcec6b9e388799a6c5c63e25e9863be4601db30d9a040fc1b58c70",
+        "subject_id": "group.D.D5"
+      }
+    },
+    {
+      "id": "group.D.D6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D6.json",
+        "evidence_digest": "sha256:4bfd906129a7e2a32b1b65d0653e0945d85ad6b1a2e3da04b7840bd0ad69b6ea",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D6_SolutionDesignTests",
+        "source": "agent-workflows/skills/design-solution/SKILL.md",
+        "source_digest": "sha256:49d3a54d4998da9cf78d507caf3bbf1b96dccea1cf1a541a845129a6735846a7",
+        "subject_id": "group.D.D6"
+      }
+    },
+    {
+      "id": "group.D.D7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D7.json",
+        "evidence_digest": "sha256:84e659895f216a65f98349aeba99bd7ef4d59a9dfcf9c4769dfad070a8c32878",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D7_ContractDesignTests",
+        "source": "agent-workflows/skills/design-contracts/SKILL.md",
+        "source_digest": "sha256:264630721fa71ff9fa1167d68353d2c6887ccb6f48fe54ac9eb7d0bbf6e8f38c",
+        "subject_id": "group.D.D7"
+      }
+    },
+    {
+      "id": "group.D.D8",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D8.json",
+        "evidence_digest": "sha256:defc38531fc59a430759614922e8bf3f126d754c4a28546283ff8c535450be9a",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D8_TaskDecompositionTests",
+        "source": "agent-workflows/skills/decompose-tasks/SKILL.md",
+        "source_digest": "sha256:bbb15650126d31a00b11dd620e5f953c18f530597ff3732318d69b260b4766ff",
+        "subject_id": "group.D.D8"
+      }
+    },
+    {
+      "id": "group.D.D9",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/D9.json",
+        "evidence_digest": "sha256:93208dbff5f278d50caafb7ade42c8f6d7a4ddc38a263ab7bb1886aaf3120359",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_planning_system.py::D9_ExecutionDAGTests",
+        "source": "agent-workflows/skills/sequence-and-parallelize/SKILL.md",
+        "source_digest": "sha256:bd2c5c7f00a49b89e58f98df294557ac6c5a5d405d7eddbc3beea798393d9e7f",
+        "subject_id": "group.D.D9"
+      }
+    },
+    {
+      "id": "group.E.E1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E1.json",
+        "evidence_digest": "sha256:c2bfdbf6030a087e69a65411096fb1776ca4d58be75fbf8ac5c47db69cc39fb0",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E1_ExecutionPreflightTests",
+        "source": "agent-workflows/skills/execution-preflight/SKILL.md",
+        "source_digest": "sha256:4167e97b6a17b95be76c8bcacee7ad334612b34c0a3cba47b4c49b7355b9861b",
+        "subject_id": "group.E.E1"
+      }
+    },
+    {
+      "id": "group.E.E10",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E10.json",
+        "evidence_digest": "sha256:ecece5b5505918b763f749315d74607b70abafba33a4c251c6d49c4da251825e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E10_ArbitrateExceptionTests",
+        "source": "agent-workflows/skills/arbitrate-exception/SKILL.md",
+        "source_digest": "sha256:677b15b0959d86c9ec015bfbd2e992c9d27739f0c22b90f297bd9a29f3e7be42",
+        "subject_id": "group.E.E10"
+      }
+    },
+    {
+      "id": "group.E.E2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E2.json",
+        "evidence_digest": "sha256:822ebabb46a274902ae1065168a78d274793636bdc60e2199840ab0e97960b95",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E2_DispatchTaskTests",
+        "source": "agent-workflows/skills/dispatch-task/SKILL.md",
+        "source_digest": "sha256:165e5bdcaf3a48c0fd6d18aeabf4f7085ac8d4031e024ef87292841baa9c43f9",
+        "subject_id": "group.E.E2"
+      }
+    },
+    {
+      "id": "group.E.E3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E3.json",
+        "evidence_digest": "sha256:3a4b5d01f4bb75b8ef3feff6e961618f1c6fdf358a6a0bf01eded799f595afcb",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E3_ExecuteSmallLoopTests",
+        "source": "agent-workflows/skills/execute-small-loop/SKILL.md",
+        "source_digest": "sha256:67e99ee1e9064d6c008cc80e70949fec20c8cecdc3e9a51dc3386547b142758c",
+        "subject_id": "group.E.E3"
+      }
+    },
+    {
+      "id": "group.E.E4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E4.json",
+        "evidence_digest": "sha256:8aaacf13344f086142d664484f550e0f875511da40a391f246697691f9eef280",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E4_ReviewTaskSpecTests",
+        "source": "agent-workflows/skills/review-task-spec/SKILL.md",
+        "source_digest": "sha256:dbf862f00f62e363dfa934f52131e92b448ddfe3066d3b9d8e8d4ddef858383b",
+        "subject_id": "group.E.E4"
+      }
+    },
+    {
+      "id": "group.E.E5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E5.json",
+        "evidence_digest": "sha256:11e41147334cf54b6fa85837e9771c445c80fc1531df883361c19c04eda1b7fb",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E5_ReviewTaskQualityTests",
+        "source": "agent-workflows/skills/review-task-quality/SKILL.md",
+        "source_digest": "sha256:2e9ee45215681541de8f6ba027b17893f4295c9cf34529ac67f4a87a5f94d2d4",
+        "subject_id": "group.E.E5"
+      }
+    },
+    {
+      "id": "group.E.E6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E6.json",
+        "evidence_digest": "sha256:c443ff817ed71d504ece46f53024b231abfeea35d397f0c759abb33277e58e72",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E6_ValidateReviewFindingsTests",
+        "source": "agent-workflows/skills/validate-review-findings/SKILL.md",
+        "source_digest": "sha256:341b3df8c299b332cefed9b2bd70b008507be3a640b4bf4dcf3204eff6836347",
+        "subject_id": "group.E.E6"
+      }
+    },
+    {
+      "id": "group.E.E7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E7.json",
+        "evidence_digest": "sha256:e1a0fc7b5401c2f07ec3a2c945282fbf87e35a87fac72194e7329359bbd51f02",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E7_FixAndRereviewTests",
+        "source": "agent-workflows/skills/fix-and-rereview/SKILL.md",
+        "source_digest": "sha256:0e53eba0302d3b77aeddf451fa76ef0d89da40006d238a161c0df9984ce61280",
+        "subject_id": "group.E.E7"
+      }
+    },
+    {
+      "id": "group.E.E8",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E8.json",
+        "evidence_digest": "sha256:7a494e67ceb560927c5ba5b434432d12e0e5293997018e59df3a4550d26559f7",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E8_ConvergeParallelBatchTests",
+        "source": "agent-workflows/skills/converge-parallel-batch/SKILL.md",
+        "source_digest": "sha256:cbc67ecbc056e46164df80b5a4d2f234d5249960998f1952a82c25fb3c49d3ad",
+        "subject_id": "group.E.E8"
+      }
+    },
+    {
+      "id": "group.E.E9",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/E9.json",
+        "evidence_digest": "sha256:279a767a70fd203e041711f8e420f177e4e7bb83e157a8ace39f7fed02598a9a",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_execution_group.py::E9_VerifyWholeChangeTests",
+        "source": "agent-workflows/skills/verify-whole-change/SKILL.md",
+        "source_digest": "sha256:3f7723eab488f433083097ac73caf755fd14c6c51304bbe829cff30202a2530d",
+        "subject_id": "group.E.E9"
+      }
+    },
+    {
+      "id": "group.F.F1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F1.json",
+        "evidence_digest": "sha256:ee0bb219054f4137823080e2288ba73de73e01f4446c0111a66d4dafc8e49934",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f1_audit_group_purpose_requires_bound_objective_evidence",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F1"
+      }
+    },
+    {
+      "id": "group.F.F2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F2.json",
+        "evidence_digest": "sha256:ba05b8cdf2fa4518c0a1630eb0d26fd9e4da95e64d762a675105ee7c543648bd",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f2_collect_group_artifacts_keeps_all_classifications_and_required_entries",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F2"
+      }
+    },
+    {
+      "id": "group.F.F3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F3.json",
+        "evidence_digest": "sha256:6a178a7d23f3f3fa0861ef7deee3687c008e6e36298e3d2e496c395ac89742f9",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f3_extract_decision_candidates_never_promotes_unapproved_material",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F3"
+      }
+    },
+    {
+      "id": "group.F.F4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F4.json",
+        "evidence_digest": "sha256:096af5986a1e5364e71b8a0ec285c20946769d1314086c933f7941e3b6d600a4",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f4_replan_future_changes_only_the_future_frontier",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F4"
+      }
+    },
+    {
+      "id": "group.F.F5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F5.json",
+        "evidence_digest": "sha256:5ddcc12682825dba89f2e3356b35de9a0fe059285d8324d5db434d2356d804fe",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f5_advise_next_group_binds_all_prerequisites",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F5"
+      }
+    },
+    {
+      "id": "group.F.F6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F6.json",
+        "evidence_digest": "sha256:55fc196a63d6f1240cf7940ba778d1fa331ce9e147bb892d728124d740b34906",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f6_write_checkpoint_compiles_only_a_complete_close_epoch_command",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F6"
+      }
+    },
+    {
+      "id": "group.F.F7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F7.json",
+        "evidence_digest": "sha256:db51db403fbb5f3cd4db04d4e4563cb3b7300ed35edeba48ccd45d5f4fc08202",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f7_clear_boundary_refuses_preclose_or_stale_receipts",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F7"
+      }
+    },
+    {
+      "id": "group.F.F8",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/F8.json",
+        "evidence_digest": "sha256:4eb9aec1eef1eef10bb2b264f70fed7b3dc8a2a1a94dd801695bd2b999acdf8e",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_shared_closure_protocol.py::SharedClosureProtocolTests.test_f8_resume_reads_only_a_valid_s0_resume_head_chain",
+        "source": "agent-workflows/src/ai_agent_workflow/closure_protocol.py",
+        "source_digest": "sha256:5f6a7fd51b6d92733f03a36e5eaade48d16618ee771b05b38f5d97c875521b82",
+        "subject_id": "group.F.F8"
+      }
+    },
+    {
+      "id": "group.G.G1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G1.json",
+        "evidence_digest": "sha256:1af5c15300b90eb32cac45a3487faf95227acefe421a00693334e80cc4245a15",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g1_scan_decision_evidence",
+        "source": "agent-workflows/skills/scan-decision-evidence/SKILL.md",
+        "source_digest": "sha256:8a40892b412ea7e3de8ecfa8e84817e80d0e68345423c7596c093e2e9d88c9ef",
+        "subject_id": "group.G.G1"
+      }
+    },
+    {
+      "id": "group.G.G2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G2.json",
+        "evidence_digest": "sha256:5f81728a415b3a2774d31fc1ea37c7ec68b06ebc19e2fa18307674e24a4c2762",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g2_classify_decision_status",
+        "source": "agent-workflows/skills/classify-decision-status/SKILL.md",
+        "source_digest": "sha256:c09da4a0c6f1df6963e1acac216be33074f3c2b2b4901bc1827fbf2178d99a26",
+        "subject_id": "group.G.G2"
+      }
+    },
+    {
+      "id": "group.G.G3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G3.json",
+        "evidence_digest": "sha256:8adc0604dbe985833c54a32819e5abfb86733e47abe905197aef5ae7ddfd0126",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g3_deduplicate_and_link",
+        "source": "agent-workflows/skills/deduplicate-and-link/SKILL.md",
+        "source_digest": "sha256:dde08da45b2d3088d5b2b757ab9e3c318aa9213e6a5af4bec4aa476899752f41",
+        "subject_id": "group.G.G3"
+      }
+    },
+    {
+      "id": "group.G.G4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G4.json",
+        "evidence_digest": "sha256:ede457b57d64f9138d8107ca1260b0d49b3e52c0094e5ef44fa14730876c9451",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g4_draft_durable_records",
+        "source": "agent-workflows/skills/draft-durable-records/SKILL.md",
+        "source_digest": "sha256:371d82657aa9be0b03943fb451ec930b23dedffad96d955cf1b9e27a6179e2a1",
+        "subject_id": "group.G.G4"
+      }
+    },
+    {
+      "id": "group.G.G5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G5.json",
+        "evidence_digest": "sha256:7e8ba858df9881161b6d06977c70eb26a279e20b1b252242853d0639cf679cbe",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g5_approve_promotion",
+        "source": "agent-workflows/skills/approve-promotion/SKILL.md",
+        "source_digest": "sha256:630f4783f3a14c3601ba5ce90c81496bdd24645bbacf3c1472ad70e39069d539",
+        "subject_id": "group.G.G5"
+      }
+    },
+    {
+      "id": "group.G.G6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/G6.json",
+        "evidence_digest": "sha256:0121fc1bb0d6faba78c99f8731904f71529007eb46305f04f1a8f54a9f3101f1",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_g6_promote_and_backlink",
+        "source": "agent-workflows/skills/promote-and-backlink/SKILL.md",
+        "source_digest": "sha256:496a3030bdf3cf82a1dc12176bfb9b9703f4ef7519f2027b75616783833ce779",
+        "subject_id": "group.G.G6"
+      }
+    },
+    {
+      "id": "group.H.H1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/H1.json",
+        "evidence_digest": "sha256:ad9323fe4dc4b3a234aea15dd900c17e8b8bddd8f887e268cace98a9546e497d",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h1_audit_objective",
+        "source": "agent-workflows/skills/audit-objective/SKILL.md",
+        "source_digest": "sha256:afca708f1be6f4ab96f163631c4bdc5d7556ccdb3eaa0d2966afbbd83902f8cc",
+        "subject_id": "group.H.H1"
+      }
+    },
+    {
+      "id": "group.H.H2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/H2.json",
+        "evidence_digest": "sha256:7a3513e455331454c35301bfb303e251156d8eb9695560d59accf90b567c1be8",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h2_decide_run_outcome",
+        "source": "agent-workflows/skills/decide-run-outcome/SKILL.md",
+        "source_digest": "sha256:3f190fa4dd4f0f94ad079f7834de2b08b8d7b784494d46d870f8ad6bf3042418",
+        "subject_id": "group.H.H2"
+      }
+    },
+    {
+      "id": "group.H.H3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/contracts/H3.json",
+        "evidence_digest": "sha256:04612c390e2203cb399ccd62d330daf51577a29d170669bbb1819c45c3c1390b",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_decision_outcome_binding.py::DecisionOutcomeSelectorEvidenceTests::test_h3_archive_or_continue",
+        "source": "agent-workflows/skills/archive-or-continue/SKILL.md",
+        "source_digest": "sha256:55ff582ef75b159bf850da1108a39bec64aee20b744dccb1a8226244a7353fc6",
+        "subject_id": "group.H.H3"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF1.json",
+        "evidence_digest": "sha256:aa579a8da125c260968f2cfdbcc21ca3bbaeee0d5ab06f5b9814be0f840d3a48",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf1",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF1"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF2.json",
+        "evidence_digest": "sha256:349a18a34185c1717eb88278bd7d4ead7bc65e2d6c939b10c2f3e4118d54f776",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf2",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF2"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF3.json",
+        "evidence_digest": "sha256:c4ed5b5d59dfa6ae62917f461069f06abcbdf7c033621691d78a9189cbb630a1",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf3",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF3"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF4.json",
+        "evidence_digest": "sha256:77c91fb3604208f41bcc4d789e3759f44d6f6fe4aed38ff8491bf016bf85fc9b",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf4",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF4"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF5.json",
+        "evidence_digest": "sha256:8feeaefb687d6dab4ea3efd083c9d0527cf452cda7223650256e216bf03840ce",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf5",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF5"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF6.json",
+        "evidence_digest": "sha256:14098e2bd0f0959b472b2a8e46fdfcc77ecd2cb52e263171530e425259800507",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf6",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF6"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF7.json",
+        "evidence_digest": "sha256:f4b6e423372cc02b376509a56892b9d1d73e09a97bcb31bbb10d2e10ee4bdbe2",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf7",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF7"
+      }
+    },
+    {
+      "id": "profile.bug-fix.BGF8",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF8.json",
+        "evidence_digest": "sha256:085781cb2751bd6517506d094bb1eea6450f2cfffd58ccbf4759c7547c7ef748",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf8",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.bug-fix.BGF8"
+      }
+    },
+    {
+      "id": "profile.feature.F1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F1.json",
+        "evidence_digest": "sha256:a3939d536920c3aa5d37de05eda8fb77ee20e2fb6ba82dd74eac9532931468f0",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f1",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F1"
+      }
+    },
+    {
+      "id": "profile.feature.F2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F2.json",
+        "evidence_digest": "sha256:51b0824d97e382bc31bcf90c7ad8de38743af0c688992a9a5181fc575e114896",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f2",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F2"
+      }
+    },
+    {
+      "id": "profile.feature.F3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F3.json",
+        "evidence_digest": "sha256:0f4a8230a374ddc9ee6c6ea33b1d8749c75cae85a3e655afe2bebd9c96841d93",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f3",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F3"
+      }
+    },
+    {
+      "id": "profile.feature.F4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F4.json",
+        "evidence_digest": "sha256:2dbed3ed67293a2e6bffdd548d0fe8cc2b25a65bf125031e0d96d730c4ff8359",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f4",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F4"
+      }
+    },
+    {
+      "id": "profile.feature.F5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F5.json",
+        "evidence_digest": "sha256:5a4c9743f82da96d422d81e9195ff919c444c880b7feadeb260c866c8113e647",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f5",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F5"
+      }
+    },
+    {
+      "id": "profile.feature.F6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F6.json",
+        "evidence_digest": "sha256:31a6f96bd049180d5a049245c561ebaa98fe2c51b90374740a6348534ef76407",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f6",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F6"
+      }
+    },
+    {
+      "id": "profile.feature.F7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F7.json",
+        "evidence_digest": "sha256:05db7129c3a68b5dbbdc56fb1cb3801876b4ff5994b61a80548c6f68b55e6e86",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f7",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F7"
+      }
+    },
+    {
+      "id": "profile.feature.F8",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/feature/F8.json",
+        "evidence_digest": "sha256:ea150287d4844ae27fe755e475af6cfecabfc2ce9811a9971b72b7662661f698",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f8",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.feature.F8"
+      }
+    },
+    {
+      "id": "profile.improvement.I1",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I1.json",
+        "evidence_digest": "sha256:0598c3ddc2408e43310af687ec235767f6af9022f4efa7d9d2cdc36e1d895511",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i1",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I1"
+      }
+    },
+    {
+      "id": "profile.improvement.I2",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I2.json",
+        "evidence_digest": "sha256:64a081f59cbbbaa73500cf54845a575e4fd60ffa1e6ccc84663511052ddbc1bd",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i2",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I2"
+      }
+    },
+    {
+      "id": "profile.improvement.I3",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I3.json",
+        "evidence_digest": "sha256:54bc75f7f635e167b894f48cbdeaf393db3902e5b611e453b077bf23e5b572db",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i3",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I3"
+      }
+    },
+    {
+      "id": "profile.improvement.I4",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I4.json",
+        "evidence_digest": "sha256:bc0f7b347e2417526a1481d6cf09eada63c5afd9cd8fef402f85c7b488313843",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i4",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I4"
+      }
+    },
+    {
+      "id": "profile.improvement.I5",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I5.json",
+        "evidence_digest": "sha256:65f4dffec429af2f7c2e866f8c50509f9ac6d18b9c261ccbf1ee6784ada632ce",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i5",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I5"
+      }
+    },
+    {
+      "id": "profile.improvement.I6",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I6.json",
+        "evidence_digest": "sha256:33eec23b5f75e21a3970336b4c8873c7adba1a4938585c4de680365a681f6a7b",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i6",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I6"
+      }
+    },
+    {
+      "id": "profile.improvement.I7",
+      "receipt": {
+        "evidence": "agent-workflows/evidence/profiles/improvement/I7.json",
+        "evidence_digest": "sha256:b63cd8f35a5edc039667e9a8945b17f6bf1a2a92573b678fe2b2bc9b9791dd80",
+        "result": "passed",
+        "schema": "coverage-receipt/v1",
+        "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i7",
+        "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
+        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "subject_id": "profile.improvement.I7"
+      }
+    }
+  ]
+}

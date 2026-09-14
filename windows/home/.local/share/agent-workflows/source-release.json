@@ -1,0 +1,197 @@
+{
+  "schema": "source-release/v1",
+  "source_only": true,
+  "compiler": {
+    "path": "agent-workflows/src/ai_agent_workflow/source_release.py",
+    "digest": "sha256:7b028b52e36ce005037071de592fdc48cb53d497c6700c27c827346349b3d272"
+  },
+  "authority": {
+    "plan": {
+      "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md",
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524"
+    },
+    "step_catalog": {
+      "path": "docs/plans/ai-agent-workflow-step-catalog.md",
+      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d"
+    }
+  },
+  "inputs": {
+    "catalog": {
+      "path": "agent-workflows/catalog.yaml",
+      "digest": "sha256:2fd1caaddf4509d2f56bd31a68b062290e70f2f2da33facf1d8187d476bb3f1d"
+    },
+    "schemas": [
+      {
+        "path": "agent-workflows/schemas/source-release-v1.schema.json",
+        "digest": "sha256:05edc82edeedd4ba970082104f54e373ef3df9a4a911f76c2bfa9d35ce87d232"
+      },
+      {
+        "path": "agent-workflows/schemas/source-evidence-index-v1.schema.json",
+        "digest": "sha256:a62740e7858255f6d8735d56fc1f6ae5265c23798a2ecf242531a5d7db8a8a26"
+      }
+    ],
+    "group_manifests": [
+      {
+        "path": "agent-workflows/groups/bootstrap.json",
+        "digest": "sha256:a20a031d2f2f3168fe036cf640d51408d669aca6fd04ad8df7b10ff50a16ab52"
+      },
+      {
+        "path": "agent-workflows/groups/objective.json",
+        "digest": "sha256:88ae5e0ad703935c5b15d8ca7c7127efd26103b8bc7e497e6ae832bc62027f12"
+      },
+      {
+        "path": "agent-workflows/groups/outcomes.json",
+        "digest": "sha256:3c5c7d7d049082d57ff07ece95273bc004f0bf86e3768544ebabfbaac601270e"
+      },
+      {
+        "path": "agent-workflows/groups/planning.json",
+        "digest": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5"
+      },
+      {
+        "path": "agent-workflows/groups/execution.json",
+        "digest": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52"
+      },
+      {
+        "path": "agent-workflows/groups/shared-closure.json",
+        "digest": "sha256:b56d74d6be80f031082f67f8811c70993c96ad99e82bb401bb2d2d229c0b837f"
+      },
+      {
+        "path": "agent-workflows/groups/decisions.json",
+        "digest": "sha256:627e8a8b1e707f8799898e1d5fbf16cbdfc6a18995a17f7c4f5eb4ed4eb35e07"
+      },
+      {
+        "path": "agent-workflows/groups/completion.json",
+        "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a"
+      }
+    ],
+    "profile_manifests": [
+      {
+        "path": "agent-workflows/profiles/feature.json",
+        "digest": "sha256:b7b82dbe8e3fdbddd290cbe4a84f169ebb06bb41d6a5c69fa67b7e058291c0b3"
+      },
+      {
+        "path": "agent-workflows/profiles/bug-fix.json",
+        "digest": "sha256:25cc7ef5e6ab54762d3d8952df71c5ae2043bc0801a0d397f32ff448087b5de8"
+      },
+      {
+        "path": "agent-workflows/profiles/improvement.json",
+        "digest": "sha256:86216b07c0271ffe9fe78b0709d1e151f29ba72f223a746c8bba307bf45385fd"
+      }
+    ],
+    "workflow_manifests": [
+      {
+        "path": "agent-workflows/workflows/bootstrap-new-workflow.json",
+        "digest": "sha256:1ec98e9834085d718ec0464b7be80334a328ea621e82e2fce1264ff26c65e6c1"
+      },
+      {
+        "path": "agent-workflows/workflows/bug-fix-hotfix.json",
+        "digest": "sha256:b10bc718d61fa0844c9e3124c844542eb806befba53568ee2375c4accbab1c92"
+      },
+      {
+        "path": "agent-workflows/workflows/bug-fix-standard.json",
+        "digest": "sha256:5944a15896cd3a28c0669cb6060915511c4dd44025a911639598647c0d403151"
+      },
+      {
+        "path": "agent-workflows/workflows/company-governed-change.json",
+        "digest": "sha256:bf1412aff99852269c921a4790107e4a50f7a9cdaf9b10f44e1f26828d575d4a"
+      },
+      {
+        "path": "agent-workflows/workflows/configuration-dotfiles-source.json",
+        "digest": "sha256:120ebe4b08c37eb5ebf65ba2a1467cbb8419019afec3d169fa58e13b5d439019"
+      },
+      {
+        "path": "agent-workflows/workflows/decision-consolidation.json",
+        "digest": "sha256:c07d7dc0d13d4d7368eb3058ec67f6bed54b6a64ed0637a334eabb0cf3206d3a"
+      },
+      {
+        "path": "agent-workflows/workflows/documentation-change.json",
+        "digest": "sha256:cc9ff2f43d6dbd0dd3cfb35690433761a65c7426298a52c294c2a1f16ea7b965"
+      },
+      {
+        "path": "agent-workflows/workflows/execution-exception-arbitration.json",
+        "digest": "sha256:aa0500c243777dd8f9e624577bee199cf23f87653613b32748aff41573efe001"
+      },
+      {
+        "path": "agent-workflows/workflows/external-operation-plan.json",
+        "digest": "sha256:6bed91a3bbd68b5b7c5e9bb3b0f55e675158aa420e5e811d1ee75b41b5a04a1e"
+      },
+      {
+        "path": "agent-workflows/workflows/feature-architectural.json",
+        "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e"
+      },
+      {
+        "path": "agent-workflows/workflows/feature-bounded.json",
+        "digest": "sha256:0e017ddb9a5fc9d9bbfc1cca86ee2a2ce82e2a8a94aac64e77917792c03f1db3"
+      },
+      {
+        "path": "agent-workflows/workflows/improvement-measured.json",
+        "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d"
+      },
+      {
+        "path": "agent-workflows/workflows/incident-response.json",
+        "digest": "sha256:7963d6e2ffd6d136a3c14181401fadea2e14724d2ec8887c0b05c89253613e06"
+      },
+      {
+        "path": "agent-workflows/workflows/migration-cutover-plan.json",
+        "digest": "sha256:fc211792986fc8abda3e42aeefe3cab97cc23321b244fe4631cc36ef584df039"
+      },
+      {
+        "path": "agent-workflows/workflows/refactor-behavior-preserving.json",
+        "digest": "sha256:e5960af1a90d241338b060961870bbb3a53de268b84f8f9f8290a5862bed50f7"
+      },
+      {
+        "path": "agent-workflows/workflows/research-discovery.json",
+        "digest": "sha256:0751518e0e410717900ef4b5fd2d9bbbe5cab8128819c34265e3c79792bb3017"
+      },
+      {
+        "path": "agent-workflows/workflows/resume-interrupted-work.json",
+        "digest": "sha256:d1a262dcad5e31996484fb92c78020dff51d1067fb0440e48f662f8655f11121"
+      },
+      {
+        "path": "agent-workflows/workflows/security-sensitive-change.json",
+        "digest": "sha256:f2b31de36827f5a9b3e97f015eee4805b2d25b93a7a80fd174133fa484c08370"
+      }
+    ],
+    "surface_manifest": {
+      "path": "agent-workflows/manifests/additional-required-surfaces.json",
+      "digest": "sha256:ffc43fe7f26e8d1ec34123d73f10e9f2cc08477665de51d6df9f4848e42f587f"
+    }
+  },
+  "coverage": {
+    "named_contracts": {
+      "catalog_total": 60,
+      "manifest_total": 60,
+      "accepted": 60,
+      "complete": true
+    },
+    "profile_steps": {
+      "catalog_total": 23,
+      "manifest_total": 23,
+      "accepted": 23,
+      "complete": true
+    },
+    "additional_required_surfaces": {
+      "manifest_total": 11,
+      "accepted": 11,
+      "complete": true
+    }
+  },
+  "evidence_index": {
+    "path": "agent-workflows/manifests/source-evidence-index.json",
+    "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+    "owner": "source-release/v1",
+    "entry_count": 94,
+    "entries_digest": "sha256:e6c406682a4dbf74d6a25fc04eee05f5407730d7ff7f629d5ea12eecd9989caf"
+  },
+  "claims": {
+    "canonical_source_projection_complete": true,
+    "source_wide_integration_complete": false,
+    "actual_a7_handoff_complete": false,
+    "current_objective_approved": false,
+    "current_run_objective_achieved": false,
+    "nix_rebuild_verified": false,
+    "migration_complete": false,
+    "activation_complete": false,
+    "full_workflow_ready": false
+  }
+}
