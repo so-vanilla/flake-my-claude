@@ -5,9 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable, Mapping
+from copy import deepcopy
 from pathlib import Path
 from typing import Any, Optional
 
+from .loop_contracts import LOOP_CONTRACT_VERSION, TERMINAL_OUTCOMES, phase_policy
 from .schema_validation import SchemaValidationError, validate_document
 
 
@@ -45,6 +47,34 @@ _PROFILE_GATES = {
     "bug-fix": "fix-option-approval",
     "improvement": "improvement-adoption-approval",
 }
+
+_LOOP_CONTROL_POLICY_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": [
+        "contract_version",
+        "phase",
+        "additional_iteration_limit",
+        "technical_retry_limit",
+        "terminal_statuses",
+        "completion",
+    ],
+    "properties": {
+        "contract_version": {"const": LOOP_CONTRACT_VERSION},
+        "phase": {"type": "string", "minLength": 1},
+        "additional_iteration_limit": {"type": "integer", "minimum": 1},
+        "technical_retry_limit": {"const": 1},
+        "terminal_statuses": {
+            "type": "array",
+            "minItems": len(TERMINAL_OUTCOMES),
+            "maxItems": len(TERMINAL_OUTCOMES),
+            "uniqueItems": True,
+            "items": {"enum": list(TERMINAL_OUTCOMES)},
+        },
+        "completion": {"const": "required-evidence-and-independent-review"},
+    },
+}
+_LEGACY_TERMINAL_FIELD = "budget" + "_terminal"
 
 
 def _normal_contract(
@@ -118,7 +148,7 @@ _WORKFLOW_CONTRACTS = {
     "execution-exception-arbitration": {
         "intent_class": "execution-exception", "entry_mode": "exception-resume", "profile": None,
         "risk_class": "protected", "planned_effect": "none", "scopes": (),
-        "gates": frozenset({"risk-acceptance", "replacement-budget-approval"}),
+        "gates": frozenset({"risk-acceptance"}),
     },
     "company-governed-change": _normal_contract(
         "company-change", protected=True, gates=("company-policy-approval",)
@@ -232,11 +262,27 @@ class WorkflowCompositionV1:
         actual_digest = _bytes_digest(policy_bytes)
         if reference["digest"] != actual_digest:
             raise WorkflowCompositionError("execution policy digest does not match physical source bytes")
+        if "loop_control" not in policy or _LEGACY_TERMINAL_FIELD in policy:
+            raise WorkflowCompositionError(
+                "execution policy must declare loop_control and must not declare a legacy terminal"
+            )
+        policy_schema = deepcopy(self.execution_policy_schema)
+        policy_schema["required"] = [
+            field for field in policy_schema.get("required", []) if field != _LEGACY_TERMINAL_FIELD
+        ]
+        if "loop_control" not in policy_schema["required"]:
+            policy_schema["required"].append("loop_control")
+        policy_schema["properties"] = {
+            field: value
+            for field, value in policy_schema.get("properties", {}).items()
+            if field != _LEGACY_TERMINAL_FIELD
+        }
+        policy_schema["properties"]["loop_control"] = _LOOP_CONTROL_POLICY_SCHEMA
         try:
             validate_document(
                 policy,
-                self.execution_policy_schema,
-                registry=dict(self.execution_policy_schema.get("$defs", {})),
+                policy_schema,
+                registry=dict(policy_schema.get("$defs", {})),
             )
         except SchemaValidationError as error:
             raise WorkflowCompositionError("execution policy schema: %s" % error) from error
@@ -282,11 +328,24 @@ class WorkflowCompositionV1:
             raise WorkflowCompositionError("execution policy convergence routing is invalid")
         if tuple(convergence["blocked_by_open"]) != ("required", "needs-user", "unresolved"):
             raise WorkflowCompositionError("E8/E9 must be blocked by every open required state")
-        budget = policy["budget_terminal"]
-        if (budget["status"], budget["non_dispatch"], budget["pass"]) != (
-            "stopped-budget", True, False
+        loop_control = policy["loop_control"]
+        expected_loop_policy = phase_policy("E3")
+        if (
+            loop_control["contract_version"],
+            loop_control["phase"],
+            loop_control["additional_iteration_limit"],
+            loop_control["technical_retry_limit"],
+            tuple(loop_control["terminal_statuses"]),
+            loop_control["completion"],
+        ) != (
+            LOOP_CONTRACT_VERSION,
+            expected_loop_policy["policy_id"],
+            expected_loop_policy["additional_iteration_limit"],
+            expected_loop_policy["technical_retry_limit"],
+            TERMINAL_OUTCOMES,
+            "required-evidence-and-independent-review",
         ):
-            raise WorkflowCompositionError("finite budget terminal must be non-dispatch and never pass")
+            raise WorkflowCompositionError("execution policy loop_control does not match workflow-loop/v1")
 
         blocked_by_open = list(convergence["blocked_by_open"])
         return {
@@ -303,8 +362,14 @@ class WorkflowCompositionV1:
                 {"from": "group.E.E8", "when": "no-open-" + "-or-".join(blocked_by_open), "to": convergence["next_selector"]},
                 {"from": "group.E.E9", "when": "new-candidate", "to": convergence["new_candidate_selector"], "fresh": True},
                 {"from": "group.E.E9", "when": "no-open-" + "-or-".join(blocked_by_open), "terminal": convergence["accepted_terminal"], "pass": True},
-                {"from": "any-active-E-state", "when": "finite-budget-exhausted", "terminal": budget["status"], "non_dispatch": budget["non_dispatch"], "pass": budget["pass"]},
+                {
+                    "from": "any-active-E-state",
+                    "when": "loop-control-terminal",
+                    "terminal_statuses": list(loop_control["terminal_statuses"]),
+                    "dispatch": False,
+                },
             ],
+            "loop_control": deepcopy(loop_control),
         }
 
     def validate(self, document: Mapping[str, Any]) -> dict[str, Any]:
@@ -476,7 +541,6 @@ class WorkflowCompositionV1:
                 raise WorkflowCompositionError("exception workflow must be F8 then E10")
             if document["completion"] != {"mode": "advisory-stop", "terminal_selector": _EXCEPTION}:
                 raise WorkflowCompositionError("exception workflow must stop advisably at E10")
-            self._require_gate(document, "replacement-budget-approval", "exception workflow")
 
         if "group.A.A7" in selector_positions:
             if "group.A.A6R" not in selector_positions or selector_positions["group.A.A6R"] > selector_positions["group.A.A7"]:

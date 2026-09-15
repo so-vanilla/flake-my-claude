@@ -17,11 +17,11 @@
   "status": "passed",
   "subject_refs": [
     {
-      "digest": "sha256:8450824b5f6dbe71e1cbc8e140d8298462534763c54cbeab3734d0913e2a27f0",
+      "digest": "sha256:7f814cac738a1fc68e187b9d1f7894582c07ee600c615e3d9de7f0f0a3f4635d",
       "path": "agent-workflows/manifests/source-release.json"
     },
     {
-      "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+      "digest": "sha256:fee49f4f5b1abfa497d9ca815477527439676153bdbfab94c1ec914af0bc0063",
       "path": "agent-workflows/manifests/source-evidence-index.json"
     },
     {
@@ -37,11 +37,11 @@
       "path": "agent-workflows/groups/outcomes.json"
     },
     {
-      "digest": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5",
+      "digest": "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80",
       "path": "agent-workflows/groups/planning.json"
     },
     {
-      "digest": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52",
+      "digest": "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc",
       "path": "agent-workflows/groups/execution.json"
     },
     {
@@ -49,11 +49,11 @@
       "path": "agent-workflows/groups/shared-closure.json"
     },
     {
-      "digest": "sha256:627e8a8b1e707f8799898e1d5fbf16cbdfc6a18995a17f7c4f5eb4ed4eb35e07",
+      "digest": "sha256:8e97bc08f4ec116d0fad326e5a2307158e94d68ecc7f4741d4895cdb417b5494",
       "path": "agent-workflows/groups/decisions.json"
     },
     {
-      "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a",
+      "digest": "sha256:c80f220222fb6ac3e5b38bd6f2b63c18a5b2c815411464a5e5bf86ac18455782",
       "path": "agent-workflows/groups/completion.json"
     }
   ]

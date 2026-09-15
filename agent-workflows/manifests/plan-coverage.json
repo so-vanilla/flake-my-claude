@@ -399,12 +399,12 @@
       "id": "group.D.D11",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/D11.json",
-        "evidence_digest": "sha256:ccfe60d75c1ef446ef8f1af091788087426e69f1cfd65bbc8a3bcd7a6abf0797",
+        "evidence_digest": "sha256:431f418526dc38d43e7906833ec8dde50c2c1785fe2d4b3e290a0f0fb7b18c9b",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_planning_system.py::D11_VerificationRecoveryTests",
         "source": "agent-workflows/skills/plan-verification-and-recovery/SKILL.md",
-        "source_digest": "sha256:0448b4ff700e93c17544ad3a64662dc94f79eff4046a3777dd4edc9311a0631d",
+        "source_digest": "sha256:2b6413541f8fea1636b10bfe66420ed882f3c7d60792271258412bb07ef081ec",
         "subject_id": "group.D.D11"
       }
     },
@@ -529,12 +529,12 @@
       "id": "group.E.E1",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E1.json",
-        "evidence_digest": "sha256:c2bfdbf6030a087e69a65411096fb1776ca4d58be75fbf8ac5c47db69cc39fb0",
+        "evidence_digest": "sha256:4a8a5efec0f374bba713565eafbe1c34c91d6f3030c9b868e802a3016f9fa08a",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E1_ExecutionPreflightTests",
         "source": "agent-workflows/skills/execution-preflight/SKILL.md",
-        "source_digest": "sha256:4167e97b6a17b95be76c8bcacee7ad334612b34c0a3cba47b4c49b7355b9861b",
+        "source_digest": "sha256:9f78260ca8cb60dbce4953d9b0bbfd242d55bba1dac276e0f4866fbbe8552aaa",
         "subject_id": "group.E.E1"
       }
     },
@@ -542,12 +542,12 @@
       "id": "group.E.E10",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E10.json",
-        "evidence_digest": "sha256:ecece5b5505918b763f749315d74607b70abafba33a4c251c6d49c4da251825e",
+        "evidence_digest": "sha256:6b8e84db5d88e613f67ab1682937d3d51c1aae3324d9ea4ed47f34bc240e9493",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E10_ArbitrateExceptionTests",
         "source": "agent-workflows/skills/arbitrate-exception/SKILL.md",
-        "source_digest": "sha256:677b15b0959d86c9ec015bfbd2e992c9d27739f0c22b90f297bd9a29f3e7be42",
+        "source_digest": "sha256:9701dbb8041fb1e51d94916dba127191d5fc374eb122187ed0f90023667caf46",
         "subject_id": "group.E.E10"
       }
     },
@@ -555,12 +555,12 @@
       "id": "group.E.E2",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E2.json",
-        "evidence_digest": "sha256:822ebabb46a274902ae1065168a78d274793636bdc60e2199840ab0e97960b95",
+        "evidence_digest": "sha256:5f8ba82cdb6a6225ac820f8acb4002e47afda20c4ce6fd46db07c249d8d71106",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E2_DispatchTaskTests",
         "source": "agent-workflows/skills/dispatch-task/SKILL.md",
-        "source_digest": "sha256:165e5bdcaf3a48c0fd6d18aeabf4f7085ac8d4031e024ef87292841baa9c43f9",
+        "source_digest": "sha256:15d5d8069f44150d4bdd85bdd050b4618bc63b0215abd9f793285d90450d4417",
         "subject_id": "group.E.E2"
       }
     },
@@ -568,12 +568,12 @@
       "id": "group.E.E3",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E3.json",
-        "evidence_digest": "sha256:3a4b5d01f4bb75b8ef3feff6e961618f1c6fdf358a6a0bf01eded799f595afcb",
+        "evidence_digest": "sha256:561373bb21fd926cbdd2b540d93268e72758c96c7cdb8c7515c54775d87b9c04",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E3_ExecuteSmallLoopTests",
         "source": "agent-workflows/skills/execute-small-loop/SKILL.md",
-        "source_digest": "sha256:67e99ee1e9064d6c008cc80e70949fec20c8cecdc3e9a51dc3386547b142758c",
+        "source_digest": "sha256:c17951bf7653b0a58f0232e451b26371beec7c68da65d2114faf93c999bb66bb",
         "subject_id": "group.E.E3"
       }
     },
@@ -581,12 +581,12 @@
       "id": "group.E.E4",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E4.json",
-        "evidence_digest": "sha256:8aaacf13344f086142d664484f550e0f875511da40a391f246697691f9eef280",
+        "evidence_digest": "sha256:79793b3302aa9d90c589f336a1ce7ff435234c7a8e32541ff8ed5c45674bb2bf",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E4_ReviewTaskSpecTests",
         "source": "agent-workflows/skills/review-task-spec/SKILL.md",
-        "source_digest": "sha256:dbf862f00f62e363dfa934f52131e92b448ddfe3066d3b9d8e8d4ddef858383b",
+        "source_digest": "sha256:76eff0d75cfaba8cbe1d8ef4f3ef2f727fe3d71b5ad8a0d644455fe6bf0fdbf5",
         "subject_id": "group.E.E4"
       }
     },
@@ -594,12 +594,12 @@
       "id": "group.E.E5",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E5.json",
-        "evidence_digest": "sha256:11e41147334cf54b6fa85837e9771c445c80fc1531df883361c19c04eda1b7fb",
+        "evidence_digest": "sha256:0700d2b450e9dd5181714462e17098fb29bdb85e3021d3d8f849ec3d79bc9cc6",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E5_ReviewTaskQualityTests",
         "source": "agent-workflows/skills/review-task-quality/SKILL.md",
-        "source_digest": "sha256:2e9ee45215681541de8f6ba027b17893f4295c9cf34529ac67f4a87a5f94d2d4",
+        "source_digest": "sha256:1c3388df90da7431a6027e8bd7a8b6430b79d77ae5fd21e55905379b864b5816",
         "subject_id": "group.E.E5"
       }
     },
@@ -607,12 +607,12 @@
       "id": "group.E.E6",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E6.json",
-        "evidence_digest": "sha256:c443ff817ed71d504ece46f53024b231abfeea35d397f0c759abb33277e58e72",
+        "evidence_digest": "sha256:70823858ca42338054b10cbd96ea063081632d44a491cf16d623071dd086f32d",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E6_ValidateReviewFindingsTests",
         "source": "agent-workflows/skills/validate-review-findings/SKILL.md",
-        "source_digest": "sha256:341b3df8c299b332cefed9b2bd70b008507be3a640b4bf4dcf3204eff6836347",
+        "source_digest": "sha256:c847b700a877f9188cb5748edf8a18e2fe094193ac629ec16e45ffa960f70833",
         "subject_id": "group.E.E6"
       }
     },
@@ -620,12 +620,12 @@
       "id": "group.E.E7",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E7.json",
-        "evidence_digest": "sha256:e1a0fc7b5401c2f07ec3a2c945282fbf87e35a87fac72194e7329359bbd51f02",
+        "evidence_digest": "sha256:57af72ddfb837167ee047f8fd4494e70cad856be29064417482c4638ae97c99a",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E7_FixAndRereviewTests",
         "source": "agent-workflows/skills/fix-and-rereview/SKILL.md",
-        "source_digest": "sha256:0e53eba0302d3b77aeddf451fa76ef0d89da40006d238a161c0df9984ce61280",
+        "source_digest": "sha256:ccee1d9f0dea5807acd5620594aee73bade25a447736cd14b2d0a09dba25d2fd",
         "subject_id": "group.E.E7"
       }
     },
@@ -633,12 +633,12 @@
       "id": "group.E.E8",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E8.json",
-        "evidence_digest": "sha256:7a494e67ceb560927c5ba5b434432d12e0e5293997018e59df3a4550d26559f7",
+        "evidence_digest": "sha256:98c47e6e08a32aad431330aed1d5031415051c38ed3aa1ceb780a29fcf532d7b",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E8_ConvergeParallelBatchTests",
         "source": "agent-workflows/skills/converge-parallel-batch/SKILL.md",
-        "source_digest": "sha256:cbc67ecbc056e46164df80b5a4d2f234d5249960998f1952a82c25fb3c49d3ad",
+        "source_digest": "sha256:c7a7b7e30cb16dd690571bdd1c2916e64fdd18f3a1e33152ecd5eb4e6fefc72c",
         "subject_id": "group.E.E8"
       }
     },
@@ -646,12 +646,12 @@
       "id": "group.E.E9",
       "receipt": {
         "evidence": "agent-workflows/evidence/contracts/E9.json",
-        "evidence_digest": "sha256:279a767a70fd203e041711f8e420f177e4e7bb83e157a8ace39f7fed02598a9a",
+        "evidence_digest": "sha256:4cf5f77938ab4f37cf0f0428f4a571e3d877bb10675c5ac9ab6adf37c0177853",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_execution_group.py::E9_VerifyWholeChangeTests",
         "source": "agent-workflows/skills/verify-whole-change/SKILL.md",
-        "source_digest": "sha256:3f7723eab488f433083097ac73caf755fd14c6c51304bbe829cff30202a2530d",
+        "source_digest": "sha256:1e0eaf88f7d969ad230f7dc55d529e05ac031dd36b1dfe4ab85ac959ec1d59d9",
         "subject_id": "group.E.E9"
       }
     },
@@ -880,12 +880,12 @@
       "id": "profile.bug-fix.BGF1",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF1.json",
-        "evidence_digest": "sha256:aa579a8da125c260968f2cfdbcc21ca3bbaeee0d5ab06f5b9814be0f840d3a48",
+        "evidence_digest": "sha256:66509de28e1955283306efa53d289a4bbe42f5358b159d681515651dbd79c28f",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf1",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF1"
       }
     },
@@ -893,12 +893,12 @@
       "id": "profile.bug-fix.BGF2",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF2.json",
-        "evidence_digest": "sha256:349a18a34185c1717eb88278bd7d4ead7bc65e2d6c939b10c2f3e4118d54f776",
+        "evidence_digest": "sha256:e9bbd6945451ea72e2632db3aeee5a987aef578d73927514011eddf356b6006d",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf2",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF2"
       }
     },
@@ -906,12 +906,12 @@
       "id": "profile.bug-fix.BGF3",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF3.json",
-        "evidence_digest": "sha256:c4ed5b5d59dfa6ae62917f461069f06abcbdf7c033621691d78a9189cbb630a1",
+        "evidence_digest": "sha256:6f877a238f12047f6e5b00daab7d6330b728dd869e9895566c21bfb8364b651b",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf3",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF3"
       }
     },
@@ -919,12 +919,12 @@
       "id": "profile.bug-fix.BGF4",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF4.json",
-        "evidence_digest": "sha256:77c91fb3604208f41bcc4d789e3759f44d6f6fe4aed38ff8491bf016bf85fc9b",
+        "evidence_digest": "sha256:0ada8293b0ebaea7508096c762e3c86bfaba7451bdac251cc11c0eba8a1b749c",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf4",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF4"
       }
     },
@@ -932,12 +932,12 @@
       "id": "profile.bug-fix.BGF5",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF5.json",
-        "evidence_digest": "sha256:8feeaefb687d6dab4ea3efd083c9d0527cf452cda7223650256e216bf03840ce",
+        "evidence_digest": "sha256:eda2d66a7b24fd4f29ca516b4ff041be697f0a8c6782d772531a8ff33cbf1897",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf5",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF5"
       }
     },
@@ -945,12 +945,12 @@
       "id": "profile.bug-fix.BGF6",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF6.json",
-        "evidence_digest": "sha256:14098e2bd0f0959b472b2a8e46fdfcc77ecd2cb52e263171530e425259800507",
+        "evidence_digest": "sha256:e065da5d089dabb6004eb1dda4c96d99adb3661d1d98a73ec565188c3ad3cb78",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf6",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF6"
       }
     },
@@ -958,12 +958,12 @@
       "id": "profile.bug-fix.BGF7",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF7.json",
-        "evidence_digest": "sha256:f4b6e423372cc02b376509a56892b9d1d73e09a97bcb31bbb10d2e10ee4bdbe2",
+        "evidence_digest": "sha256:cf4e719feb88650e77dd9d53252e1513a401f081f7aa1238d05990c173019c8a",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf7",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF7"
       }
     },
@@ -971,12 +971,12 @@
       "id": "profile.bug-fix.BGF8",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/bug-fix/BGF8.json",
-        "evidence_digest": "sha256:085781cb2751bd6517506d094bb1eea6450f2cfffd58ccbf4759c7547c7ef748",
+        "evidence_digest": "sha256:44754922f2af95bf67bf3b0149ee106250ac622fd0b5199b309a9a545a992638",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_bug_fix_bgf8",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.bug-fix.BGF8"
       }
     },
@@ -984,12 +984,12 @@
       "id": "profile.feature.F1",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F1.json",
-        "evidence_digest": "sha256:a3939d536920c3aa5d37de05eda8fb77ee20e2fb6ba82dd74eac9532931468f0",
+        "evidence_digest": "sha256:ed3db3cb794b87c94be7c51e64d7942b7e2b8ae5fc5f53a12d6b1caff8536ae2",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f1",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F1"
       }
     },
@@ -997,12 +997,12 @@
       "id": "profile.feature.F2",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F2.json",
-        "evidence_digest": "sha256:51b0824d97e382bc31bcf90c7ad8de38743af0c688992a9a5181fc575e114896",
+        "evidence_digest": "sha256:32d3f53eee257f81d67479e0bd9d6ba5e1178aa46a7331ca432e5e5b9f3a148a",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f2",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F2"
       }
     },
@@ -1010,12 +1010,12 @@
       "id": "profile.feature.F3",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F3.json",
-        "evidence_digest": "sha256:0f4a8230a374ddc9ee6c6ea33b1d8749c75cae85a3e655afe2bebd9c96841d93",
+        "evidence_digest": "sha256:99a4941fcc609c4ff6ce9f68aa3e01d61a8083575b61ffbd2f07604bf685f607",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f3",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F3"
       }
     },
@@ -1023,12 +1023,12 @@
       "id": "profile.feature.F4",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F4.json",
-        "evidence_digest": "sha256:2dbed3ed67293a2e6bffdd548d0fe8cc2b25a65bf125031e0d96d730c4ff8359",
+        "evidence_digest": "sha256:e204aff1ea3fd0e9da2a68870853ffffce1b0b0a0d0c8c7f84c63fa8e00f75f0",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f4",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F4"
       }
     },
@@ -1036,12 +1036,12 @@
       "id": "profile.feature.F5",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F5.json",
-        "evidence_digest": "sha256:5a4c9743f82da96d422d81e9195ff919c444c880b7feadeb260c866c8113e647",
+        "evidence_digest": "sha256:7fa6731bc85ff4d1ad0165bdb2f6aad7ec8f7415f9b5c679058a120ec413249d",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f5",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F5"
       }
     },
@@ -1049,12 +1049,12 @@
       "id": "profile.feature.F6",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F6.json",
-        "evidence_digest": "sha256:31a6f96bd049180d5a049245c561ebaa98fe2c51b90374740a6348534ef76407",
+        "evidence_digest": "sha256:0d05d54339eeb46a120d8aed2d88ec3fa078775497f261b71524fab423465f46",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f6",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F6"
       }
     },
@@ -1062,12 +1062,12 @@
       "id": "profile.feature.F7",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F7.json",
-        "evidence_digest": "sha256:05db7129c3a68b5dbbdc56fb1cb3801876b4ff5994b61a80548c6f68b55e6e86",
+        "evidence_digest": "sha256:efe385f83d94897774fe48cf10af1855a8a5dd7b91d967fe7a2536f5ddcef10b",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f7",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F7"
       }
     },
@@ -1075,12 +1075,12 @@
       "id": "profile.feature.F8",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/feature/F8.json",
-        "evidence_digest": "sha256:ea150287d4844ae27fe755e475af6cfecabfc2ce9811a9971b72b7662661f698",
+        "evidence_digest": "sha256:8a57816ab3ea8231df875d72374a8642544635f7ac3c6c9c2da5d23973e5c822",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_feature_f8",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.feature.F8"
       }
     },
@@ -1088,12 +1088,12 @@
       "id": "profile.improvement.I1",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I1.json",
-        "evidence_digest": "sha256:0598c3ddc2408e43310af687ec235767f6af9022f4efa7d9d2cdc36e1d895511",
+        "evidence_digest": "sha256:5cbbc814d1558d1bdfe7298734eb1019b56c9a9de0052c53d160a2e193554486",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i1",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I1"
       }
     },
@@ -1101,12 +1101,12 @@
       "id": "profile.improvement.I2",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I2.json",
-        "evidence_digest": "sha256:64a081f59cbbbaa73500cf54845a575e4fd60ffa1e6ccc84663511052ddbc1bd",
+        "evidence_digest": "sha256:97a7a58636444d97dd2809269df9c709e0d4542698ea6928ddabb59dc5fcf0db",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i2",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I2"
       }
     },
@@ -1114,12 +1114,12 @@
       "id": "profile.improvement.I3",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I3.json",
-        "evidence_digest": "sha256:54bc75f7f635e167b894f48cbdeaf393db3902e5b611e453b077bf23e5b572db",
+        "evidence_digest": "sha256:c43faaabae22e7660459c63bc4519c6b404aa5cd0776e54db4e5c8c849e27dbd",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i3",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I3"
       }
     },
@@ -1127,12 +1127,12 @@
       "id": "profile.improvement.I4",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I4.json",
-        "evidence_digest": "sha256:bc0f7b347e2417526a1481d6cf09eada63c5afd9cd8fef402f85c7b488313843",
+        "evidence_digest": "sha256:a20ffbba16baed1f403872d4d8a69caa1e40c40a66f5fd38ff8cc7cbb86d5694",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i4",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I4"
       }
     },
@@ -1140,12 +1140,12 @@
       "id": "profile.improvement.I5",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I5.json",
-        "evidence_digest": "sha256:65f4dffec429af2f7c2e866f8c50509f9ac6d18b9c261ccbf1ee6784ada632ce",
+        "evidence_digest": "sha256:b4d50adc0d434ad45521b90b3038138c27b0d957359c8181edb8a24bfa9af910",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i5",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I5"
       }
     },
@@ -1153,12 +1153,12 @@
       "id": "profile.improvement.I6",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I6.json",
-        "evidence_digest": "sha256:33eec23b5f75e21a3970336b4c8873c7adba1a4938585c4de680365a681f6a7b",
+        "evidence_digest": "sha256:2b6f29b629914e9dcf0741e659b83960d3d4f5b56221a13ef516eba2e2c11063",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i6",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I6"
       }
     },
@@ -1166,12 +1166,12 @@
       "id": "profile.improvement.I7",
       "receipt": {
         "evidence": "agent-workflows/evidence/profiles/improvement/I7.json",
-        "evidence_digest": "sha256:b63cd8f35a5edc039667e9a8945b17f6bf1a2a92573b678fe2b2bc9b9791dd80",
+        "evidence_digest": "sha256:17db5fde8fc7ad7db3ad51f6ef9c1ba5de7a55cb537c12cd8220cca358ca33ca",
         "result": "passed",
         "schema": "coverage-receipt/v1",
         "selector": "agent-workflows/tests/test_software_profiles_binding.py::SoftwareProfileSelectorEvidenceTests::test_improvement_i7",
         "source": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "source_digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "source_digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "subject_id": "profile.improvement.I7"
       }
     }

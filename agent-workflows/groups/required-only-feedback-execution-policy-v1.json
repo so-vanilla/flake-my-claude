@@ -43,9 +43,19 @@
     "accepted_terminal": "accepted",
     "blocked_by_open": ["required", "needs-user", "unresolved"]
   },
-  "budget_terminal": {
-    "status": "stopped-budget",
-    "non_dispatch": true,
-    "pass": false
+  "loop_control": {
+    "contract_version": "workflow-loop/v1",
+    "phase": "E3-E7",
+    "additional_iteration_limit": 3,
+    "technical_retry_limit": 1,
+    "terminal_statuses": [
+      "completed",
+      "needs-input",
+      "stalled",
+      "iteration-limit",
+      "execution-failed",
+      "recovery-required"
+    ],
+    "completion": "required-evidence-and-independent-review"
   }
 }

@@ -14,10 +14,13 @@ from ai_agent_workflow.execution_v2 import (  # noqa: E402
     ExecutionClosureBuilder,
     FindingValidator,
     IssuanceWatermarkCutoverPlanner,
+    MechanicalCompletion,
     ReceiptAggregator,
     RegressionFrontier,
     V2ContractError,
+    WorkflowLoopValidator,
 )
+from ai_agent_workflow.loop_contracts import canonical_digest  # noqa: E402
 from ai_agent_workflow.schema_validation import SchemaValidationError, validate_document  # noqa: E402
 
 
@@ -100,6 +103,78 @@ def review(axis, finding_id):
         "aggregate_digest": DIGESTS["d"],
         "findings": [{"finding_id": finding_id, "fingerprint": "same-root", "severity": "major", "summary": "same material concern"}],
     }
+
+
+def loop_identity():
+    return {
+        "schema": "loop-work-identity/v1",
+        "work_lineage_id": "lineage-001",
+        "logical_task_id": "task-001",
+        "phase": "E4",
+        "scope_revision": "scope-r1",
+        "requirements_digest": DIGESTS["b"],
+        "predecessor_ref": None,
+    }
+
+
+def loop_evidence(candidate_digest=DIGESTS["a"]):
+    value = {
+        "schema": "loop-evidence-record/v1",
+        "evidence_id": "evidence-1",
+        "evidence_digest": "",
+        "candidate_digest": candidate_digest,
+        "spec_digest": DIGESTS["b"],
+        "source_digest": DIGESTS["c"],
+        "dependency_digest": DIGESTS["d"],
+        "environment_digest": DIGESTS["e"],
+        "check_definition_digest": DIGESTS["f"],
+        "coverage": ["R1"],
+        "status": "pass",
+    }
+    value["evidence_digest"] = canonical_digest({key: item for key, item in value.items() if key != "evidence_digest"})
+    return value
+
+
+def loop_review(axis, actor, context, *, candidate=DIGESTS["a"], package=DIGESTS["b"], findings=None, completed=True, unevaluated=None):
+    return {
+        "schema": "loop-review-assessment/v1",
+        "review_id": "loop-review-" + axis,
+        "axis": axis,
+        "actor_id": actor,
+        "context_epoch": context,
+        "candidate_digest": candidate,
+        "package_digest": package,
+        "coverage": ["R1"],
+        "completed": completed,
+        "unevaluated": [] if unevaluated is None else unevaluated,
+        "finding_refs": [] if findings is None else findings,
+    }
+
+
+def workflow_loop_request(*, required_finding=False, **changes):
+    evidence = loop_evidence()
+    value = {
+        "schema": "workflow-loop/v1",
+        "identity": loop_identity(),
+        "candidate_digest": DIGESTS["a"],
+        "package_digest": DIGESTS["b"],
+        "requirements": [{"schema": "loop-requirement-assessment/v1", "requirement_id": "R1", "status": "pass", "scope": ["src/a.py"], "evidence_refs": [{"id": evidence["evidence_id"], "digest": evidence["evidence_digest"]}]}],
+        "reviews": [loop_review("architecture-safety", "reviewer-spec", "epoch-spec"), loop_review("integration-operability", "reviewer-quality", "epoch-quality")],
+        "evidence": [evidence],
+        "findings": [],
+    }
+    if required_finding:
+        finding_ref = {"id": "finding-1", "digest": DIGESTS["c"]}
+        value["reviews"][0]["finding_refs"] = [finding_ref]
+        value["findings"] = [{"finding_id": "finding-1", "required": True, "status": "open"}]
+        value["repair_findings"] = [{
+            "finding_id": "finding-1", "fingerprint": "fingerprint-1", "classification": "required",
+            "candidate_digest": DIGESTS["a"], "batch_key": "root-1", "root_cause": "cause-1",
+            "write_scope": ["src/a.py"], "verification": ["test-a"], "depends_on": [],
+            "conflicts_with": [], "resolution_conditions": ["test-a passes"],
+        }]
+    value.update(changes)
+    return value
 
 
 def issued_inventory(candidate_ref):
@@ -207,6 +282,60 @@ class ExecutionV2Tests(unittest.TestCase):
         same_actor[1]["actor_id"] = same_actor[0]["actor_id"]
         with self.assertRaises(V2ContractError):
             FindingValidator().validate(same_actor, [{"fingerprint": "same-root", "classification": "duplicate", "materiality": "material", "proposed_scope": []}], {"remaining_seconds": 120, "review_round": 2, "product_fix_attempt": 0})
+
+    def test_workflow_loop_zero_finding_uses_only_strict_mechanical_completion(self):
+        request = workflow_loop_request(remaining_seconds=0, wall_clock_minutes=0)
+        original = copy.deepcopy(request)
+        result = WorkflowLoopValidator().validate(request, receipt_id="machine-001")
+        self.assertEqual("workflow-loop/v1", result["schema"])
+        self.assertTrue(result["validator"]["skipped"])
+        self.assertEqual("complete", result["next"])
+        self.assertEqual("loop-machine-decision-receipt/v1", result["machine_decision_receipt"]["schema"])
+        self.assertEqual(original, request)
+        self.assertTrue(MechanicalCompletion().classify(request)["completed"])
+
+    def test_workflow_loop_stale_review_never_skips_validator(self):
+        request = workflow_loop_request()
+        request["reviews"][1]["candidate_digest"] = DIGESTS["c"]
+        result = WorkflowLoopValidator().validate(request)
+        self.assertFalse(result["validator"]["skipped"])
+        self.assertEqual("validator-required", result["next"])
+        self.assertFalse(result["classification"]["completed"])
+
+    def test_workflow_loop_required_finding_builds_compatible_repair_batch(self):
+        result = WorkflowLoopValidator().validate(workflow_loop_request(required_finding=True))
+        self.assertEqual("repair-and-delta-rereview", result["next"])
+        self.assertFalse(result["validator"]["skipped"])
+        self.assertEqual("loop-repair-batch-plan/v1", result["repair_batch_plan"]["schema"])
+        self.assertEqual(["finding-1"], result["repair_batch_plan"]["batches"][0]["finding_ids"])
+
+    def test_workflow_loop_nested_request_checks_current_evidence_and_keeps_legacy_seam(self):
+        current_inputs = {
+            "candidate_digest": DIGESTS["a"],
+            "spec_digest": DIGESTS["b"],
+            "source_digest": DIGESTS["c"],
+            "dependency_digest": DIGESTS["d"],
+            "environment_digest": DIGESTS["e"],
+            "check_definition_digest": DIGESTS["f"],
+            "required_coverage": ["R1"],
+        }
+        request = workflow_loop_request(
+            current_inputs=current_inputs,
+            change_impact={"known": True, "invalidated_dimensions": [], "impacted_coverage": []},
+        )
+        nested = {"schema": "workflow-loop/v1", "completion_request": request, "remaining_seconds": 0}
+        self.assertTrue(FindingValidator().validate(nested)["validator"]["skipped"])
+
+        stale = copy.deepcopy(nested)
+        stale["completion_request"]["current_inputs"]["source_digest"] = "sha256:" + "9" * 64
+        stale["completion_request"]["change_impact"] = {
+            "known": True,
+            "invalidated_dimensions": ["source"],
+            "impacted_coverage": ["R1"],
+        }
+        result = WorkflowLoopValidator().validate(stale)
+        self.assertFalse(result["validator"]["skipped"])
+        self.assertIn("mandatory-unknown:current-evidence:evidence-1", result["classification"]["reason_codes"])
 
     def test_finalization_requires_every_known_complete_accepted_branch(self):
         closure = ExecutionClosureBuilder().freeze(execution_input())

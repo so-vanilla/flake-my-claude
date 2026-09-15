@@ -1,6 +1,6 @@
 ---
 name: dispatch-task
-description: Compile one immutable, budget-bounded Task package for a ready Group E attempt.
+description: Compile one immutable, phase-bounded Task package for a ready Group E attempt.
 disable-model-invocation: true
 acceptance-test: agent-workflows/tests/test_execution_group.py::E2_DispatchTaskTests
 ---
@@ -10,12 +10,13 @@ acceptance-test: agent-workflows/tests/test_execution_group.py::E2_DispatchTaskT
 Use `group.E.E2` only with a passing E1 receipt, a ready attempt, current HEAD,
 and digest-bound dependency artifacts. The DAG Orchestrator validates role,
 assignment, lease, authority, expected HEAD, idempotency key, graph version,
-and remaining finite budget before issuing the package and dispatch receipt.
+loop identity, and reserved iteration event before issuing the package and
+dispatch receipt.
 
 Bind one independent Epoch, `artifact | section | workflow` loop level, exact
 execution-package closure, input refs, objective contribution, write scope,
 non-goals, acceptance, stop conditions, freshness, output namespace, timeout,
-grace, supervision, and retry counters. Use `gpt-5.6-luna` at maximum effort by
+grace, supervision, phase iteration counter, and technical retry counter. Use `gpt-5.6-luna` at maximum effort by
 default. Keep tightly coupled work in one package for one Worker.
 
 For confidential or case-isolated work on macOS, issue a broker-only task

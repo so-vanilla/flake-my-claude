@@ -17,55 +17,55 @@
   "status": "passed",
   "subject_refs": [
     {
-      "digest": "sha256:8450824b5f6dbe71e1cbc8e140d8298462534763c54cbeab3734d0913e2a27f0",
+      "digest": "sha256:7f814cac738a1fc68e187b9d1f7894582c07ee600c615e3d9de7f0f0a3f4635d",
       "path": "agent-workflows/manifests/source-release.json"
     },
     {
-      "digest": "sha256:d751ef4f0964312ebf8ecb9b538fe1741c8b625d2df8f8a985bc8993b5f671ea",
+      "digest": "sha256:fee49f4f5b1abfa497d9ca815477527439676153bdbfab94c1ec914af0bc0063",
       "path": "agent-workflows/manifests/source-evidence-index.json"
     },
     {
-      "digest": "sha256:0840707f06d2fb8bd357a44ea3ec4129e5e67ce52f32dbb6a9b33783b07fdf2c",
+      "digest": "sha256:767b34596a149ffcc289bad3ba8ff8a06ea5e2a7c44438bc56077c4ccf328271",
       "path": "agent-workflows/manifests/plan-coverage.json"
     },
     {
-      "digest": "sha256:d35c72242683ea9e710efb62a925877490f4769fd70d17e6fd3fefd3d5e85c33",
+      "digest": "sha256:fef9a5785d7a673043613f773e3b67482f4e59b27e387aa794810fa25234e7d2",
       "path": "agent-workflows/evidence/source-wide/profile-feature.json"
     },
     {
-      "digest": "sha256:7c1a1f398db5313ad977237e5642cf429e3440beebf0a4767ab35f18c7a671ab",
+      "digest": "sha256:d298d9cbdbdb34c0740a7c576918cbd6ab2b8b732acc92e33d97f92161af482a",
       "path": "agent-workflows/evidence/source-wide/profile-bug-fix.json"
     },
     {
-      "digest": "sha256:6ea4d1be582776ca89c94deb734385946262a71c7e04a4ff38ca6e4f53b3e2dd",
+      "digest": "sha256:dfaa7341c240811667c563b9bf3f0b8f1ce09be761bd3b32b4e92897199c6e5c",
       "path": "agent-workflows/evidence/source-wide/profile-improvement.json"
     },
     {
-      "digest": "sha256:b74e2cae76dcc5b7126d6835630ed320bd538b20e907595a6e9bff01c842f9f3",
+      "digest": "sha256:cd1daa92dffe8cd7389bd2d50c0fcca68328417efe3554ae62e3625d31b5013b",
       "path": "agent-workflows/evidence/source-wide/cold-resume.json"
     },
     {
-      "digest": "sha256:d3b4a19c1c58be45e429cbfa6f0e76a936f111f1eb19245f78a1bd0cd488ed17",
+      "digest": "sha256:341785403a0abc56c2b6c26e756e248a9b428711f437c6cfababc2b317f0827d",
       "path": "agent-workflows/evidence/source-wide/h1-h2-h3-skeleton.json"
     },
     {
-      "digest": "sha256:14f7f3bdec3e7054be5d8e29f5b2c9892605d5c94a6c5df2792147c8c86b870a",
+      "digest": "sha256:e074019300dfeccaa21a003497f4f86522e57554aa5fdb2439752ecaf58e3506",
       "path": "agent-workflows/evidence/compiled-catalog-present.json"
     },
     {
-      "digest": "sha256:8914ae8e6e29c51b0c1ef7fe2c8f260969f60838a45b5a4e502754ac2e42b1da",
+      "digest": "sha256:110b1c5738655a79c3abd48e42dcf223f7465340462586e0e36b1d224f68bd0d",
       "path": "agent-workflows/evidence/group-manifests-implemented.json"
     },
     {
-      "digest": "sha256:e1018b7e662b3b5e1941dfcb4d01444cef5e47c3764a89c645b3141f3853bc3b",
+      "digest": "sha256:3beadb121696efc800ed30a18f94442f644c2656db5aacc249ce70b59f5a9bb0",
       "path": "agent-workflows/evidence/workflow-profiles-implemented.json"
     },
     {
-      "digest": "sha256:691c927016eb47cb093f5282e7c64b5736d8565c50e6dd288241d7538716caba",
+      "digest": "sha256:02fa66944bdb3ebf73919189302b86c0850a93a4b63d89bf9c718fe193cb1c58",
       "path": "agent-workflows/evidence/two-stage-review-integrated-across-workflows.json"
     },
     {
-      "digest": "sha256:4f4d05e57278862d39c0a2905083943c924ce37aab21699f9d9e1f0ea0aed885",
+      "digest": "sha256:af45cdf7dc1f97158e012c04a110185b6a58a84f69cb8d5cebbdd71a64723d08",
       "path": "agent-workflows/evidence/release-readiness-review-completed.json"
     }
   ]

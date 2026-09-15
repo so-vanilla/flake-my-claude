@@ -32,9 +32,9 @@ adoption. Its `recorded` status means a saved **draft**, never Skill acceptance;
 
 1. Save the user's verbatim request into a file. Confirm `.local/` is ignored.
    Run `/absolute/project/.agent-workflow/bin/agent-workflow-inception init
-   --project /absolute/project --work-id task-id --request /absolute/request.txt
-   --budget-seconds 1800`. It saves intake/request, not a Run or HEAD. Existing
-   IDs refuse rather than overwrite a request or reset a budget.
+   --project /absolute/project --work-id task-id --request /absolute/request.txt`.
+   It saves intake/request with `workflow-loop/v1` progress control, not a Run
+   or HEAD. Existing IDs refuse rather than overwrite a request or reset loop history.
 2. For entry, write JSON with exactly `raw_request_ref` (copied from intake),
    `interpretation` (string), `assumptions` (array), and `unknowns` (array).
    Other draft outputs keep the selected Skill's substantive requirements.
@@ -54,8 +54,8 @@ adoption. Its `recorded` status means a saved **draft**, never Skill acceptance;
 5. After clear, run `/absolute/project/.agent-workflow/bin/agent-workflow-inception
    resume --handoff /absolute/handoff-NNNN.json` before reading the handoff as state. Continue
    only when it returns `frontier_status: helper-verified`; it verifies the
-   helper proof and every bound digest and reports the remaining wall-clock
-   budget. It executes no Skill. Store outputs as new immutable versions,
+   helper proof and every bound digest and reports the immutable frontier and
+   loop-control mode. It executes no Skill. Store outputs as new immutable versions,
    since changing a referenced file invalidates resume.
 
 Normal pre-Run drafts may be prepared through B7. Draft recording alone does
@@ -93,8 +93,9 @@ not a model runner: the caller still invokes one Skill, saves its output,
 stops, clears context, and explicitly invokes the next Skill.
 
 For the runtime adapter's `adopt` operation, prepare a JSON object with `intake_ref`, `candidate_ref`,
-`proposal_ref`, `actor_ref`, `receipt_ref`, `mode` (`real` or `rehearsal`), and
-positive `budget_seconds`. Each ref has an absolute project-local `path`,
+`proposal_ref`, `actor_ref`, `receipt_ref`, and `mode` (`real` or `rehearsal`).
+New Run adoption binds `workflow-loop/v1`; `legacy_budget_seconds` is accepted
+only for an explicit old-format adoption. Each ref has an absolute project-local `path`,
 `version`, and SHA-256 `digest` of the physical bytes. Candidate and intake
 versions must differ. The actor document identifies `actor_id` and `source`
 (`human` for real, `mock` for rehearsal).
@@ -104,8 +105,8 @@ binding fields for those inputs. It only returns context; it creates no
 approval. Persist the actual supplied decision with `receipt_id`, `issued_at`
 (timezone-aware), `decision: approve`, and `explicit: true`. Do not generate a
 human response. Adoption validates the receipt, invokes B7 and commits the
-Kernel objective-approval transaction; the wall-clock budget starts at the
-receipt's issue time and is retained across restarts.
+Kernel objective-approval transaction; immutable loop history and phase
+counters are retained across restarts and context changes.
 
 The required `preapproval_steps` is a JSON array of six
 `[qualified_id, inputs]` pairs, exactly B1 through B6 in order. Supply the
@@ -221,8 +222,8 @@ Keep handoffs as separate versioned files, for example
   SHA-256 of the physical bytes; include the applicable authority/approval
   receipts without treating a candidate as approved.
 - Checks actually run and results, unresolved questions, required corrections,
-  accepted decisions, and any existing attempt/time budgets. Clearing context
-  never replenishes a budget or discards an accepted decision.
+  accepted decisions, loop identity/history, phase counters, and any recovery
+  requirement. Clearing context never resets a counter or discards an accepted decision.
 - Exactly one next Skill, its start conditions, and a copyable invocation
   naming this handoff's absolute path. Record any group-closure work still
   pending. Include only inputs needed by the next Skill, not the entire chat.

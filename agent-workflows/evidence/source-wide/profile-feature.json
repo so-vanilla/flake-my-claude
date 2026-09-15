@@ -9,12 +9,12 @@
   "workflow_manifest_ref": {
     "path": "agent-workflows/workflows/feature-architectural.json",
     "version": "workflow-manifest/v1",
-    "digest": "sha256:d07f87b88421cd046af493ca0206f49fc67a3981bfc77f7ceb78f21a28380d8e"
+    "digest": "sha256:e90121b68966fc8f2ac9202347e8a94f1509015db6d379d00046803f9b8e38a0"
   },
   "profile_manifest_ref": {
     "path": "agent-workflows/profiles/feature.json",
     "version": "software-profile-manifest/v1",
-    "digest": "sha256:b7b82dbe8e3fdbddd290cbe4a84f169ebb06bb41d6a5c69fa67b7e058291c0b3"
+    "digest": "sha256:62c325e65513247a29932a333981cc9fae9cff3436cd7f2e026b75a117882cda"
   },
   "s7_surface_manifest_ref": {
     "path": "agent-workflows/manifests/additional-required-surfaces.json",
@@ -205,7 +205,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/planning.json",
         "version": "group-d-manifest/v1",
-        "digest": "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5"
+        "digest": "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80"
       },
       "selectors": [
         "group.D.D1",
@@ -225,7 +225,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/planning_system.py",
           "version": "python-source/v1",
-          "digest": "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660"
+          "digest": "sha256:bfcddf4d99d2c4584225bfe75e9be09bb969a8c121b1b095a50496a97403e2c0"
         }
       ],
       "implementation_embedded": false
@@ -235,7 +235,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/execution.json",
         "version": "group-e-manifest/v1",
-        "digest": "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52"
+        "digest": "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc"
       },
       "selectors": [
         "group.E.E1",
@@ -252,7 +252,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/execution_group.py",
           "version": "python-source/v1",
-          "digest": "sha256:a6718485618f2d9d5f72b82b20d797c181829d0e990adfbc9e148765608fd2d2"
+          "digest": "sha256:745c63fd8ca761148b91d116549a71bb140d02e65ada39b8a1148e67abaeba9a"
         }
       ],
       "implementation_embedded": false
@@ -287,7 +287,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/decisions.json",
         "version": "group-g-manifest/v1",
-        "digest": "sha256:627e8a8b1e707f8799898e1d5fbf16cbdfc6a18995a17f7c4f5eb4ed4eb35e07"
+        "digest": "sha256:8e97bc08f4ec116d0fad326e5a2307158e94d68ecc7f4741d4895cdb417b5494"
       },
       "selectors": [
         "group.G.G1",
@@ -301,7 +301,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
           "version": "python-source/v1",
-          "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+          "digest": "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b"
         }
       ],
       "implementation_embedded": false
@@ -311,7 +311,7 @@
       "manifest_ref": {
         "path": "agent-workflows/groups/completion.json",
         "version": "group-h-manifest/v1",
-        "digest": "sha256:bdc2c2e20e13179736711e4ecf51cc4fb8fdba1c312e4613d86e416f9c4b958a"
+        "digest": "sha256:c80f220222fb6ac3e5b38bd6f2b63c18a5b2c815411464a5e5bf86ac18455782"
       },
       "selectors": [
         "group.H.H1",
@@ -322,7 +322,7 @@
         {
           "path": "agent-workflows/src/ai_agent_workflow/decision_outcome_lifecycle.py",
           "version": "python-source/v1",
-          "digest": "sha256:1c4b18db6b490c8e452b6c12d44059ef1352523689c7fa2d4c738dfa6a638e7d"
+          "digest": "sha256:43bd36552dbba8fe37e074965fedae638093c704ca3caddfd6fb70b21863f22b"
         }
       ],
       "implementation_embedded": false
@@ -338,12 +338,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F1)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F1.json",
-        "digest": "sha256:a3939d536920c3aa5d37de05eda8fb77ee20e2fb6ba82dd74eac9532931468f0"
+        "digest": "sha256:ed3db3cb794b87c94be7c51e64d7942b7e2b8ae5fc5f53a12d6b1caff8536ae2"
       }
     },
     {
@@ -355,12 +355,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F2)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F2.json",
-        "digest": "sha256:51b0824d97e382bc31bcf90c7ad8de38743af0c688992a9a5181fc575e114896"
+        "digest": "sha256:32d3f53eee257f81d67479e0bd9d6ba5e1178aa46a7331ca432e5e5b9f3a148a"
       }
     },
     {
@@ -372,12 +372,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F3)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F3.json",
-        "digest": "sha256:0f4a8230a374ddc9ee6c6ea33b1d8749c75cae85a3e655afe2bebd9c96841d93"
+        "digest": "sha256:99a4941fcc609c4ff6ce9f68aa3e01d61a8083575b61ffbd2f07604bf685f607"
       }
     },
     {
@@ -389,12 +389,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F4)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F4.json",
-        "digest": "sha256:2dbed3ed67293a2e6bffdd548d0fe8cc2b25a65bf125031e0d96d730c4ff8359"
+        "digest": "sha256:e204aff1ea3fd0e9da2a68870853ffffce1b0b0a0d0c8c7f84c63fa8e00f75f0"
       }
     },
     {
@@ -406,12 +406,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F5)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F5.json",
-        "digest": "sha256:5a4c9743f82da96d422d81e9195ff919c444c880b7feadeb260c866c8113e647"
+        "digest": "sha256:7fa6731bc85ff4d1ad0165bdb2f6aad7ec8f7415f9b5c679058a120ec413249d"
       }
     },
     {
@@ -423,12 +423,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F6)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F6.json",
-        "digest": "sha256:31a6f96bd049180d5a049245c561ebaa98fe2c51b90374740a6348534ef76407"
+        "digest": "sha256:0d05d54339eeb46a120d8aed2d88ec3fa078775497f261b71524fab423465f46"
       }
     },
     {
@@ -440,12 +440,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F7)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F7.json",
-        "digest": "sha256:05db7129c3a68b5dbbdc56fb1cb3801876b4ff5994b61a80548c6f68b55e6e86"
+        "digest": "sha256:efe385f83d94897774fe48cf10af1855a8a5dd7b91d967fe7a2536f5ddcef10b"
       }
     },
     {
@@ -457,12 +457,12 @@
       },
       "selector_ref": {
         "path": "agent-workflows/src/ai_agent_workflow/software_profiles.py",
-        "digest": "sha256:93cb44ac60fa95cc5545a0567968e59ebf984be4ac8ef8aac6fe61e6fe598d6a",
+        "digest": "sha256:e0618b987f356e6348c28bf51c952586fdd21e894fa014c36434d56fc06af12c",
         "selector": "SoftwareProfileV1.compile(profile.feature.F8)"
       },
       "evidence_ref": {
         "path": "agent-workflows/evidence/profiles/feature/F8.json",
-        "digest": "sha256:ea150287d4844ae27fe755e475af6cfecabfc2ce9811a9971b72b7662661f698"
+        "digest": "sha256:8a57816ab3ea8231df875d72374a8642544635f7ac3c6c9c2da5d23973e5c822"
       }
     }
   ],
@@ -546,5 +546,5 @@
     "run_completion_claimed": false,
     "full_workflow_ready": false
   },
-  "result_digest": "sha256:482225509e93c5395d33e93304670e7cacd516da4fa2baea0a861d12d0142496"
+  "result_digest": "sha256:35ef2c04d32b2070bcb739df1c2b6b1c4f74ccd1b335765fe40ded499f6337f5"
 }

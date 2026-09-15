@@ -47,7 +47,7 @@
 対象プロジェクト：/absolute/project
 目的：問い合わせ対応の見落としを減らしたい。
 欲しい成果物：現状整理、改善案、採用案の検証結果。
-期限・予算：計画段階で相談。実行前にwall-clock上限を固定する。
+反復上限：計画段階でphase policy、論理作業ID、検証範囲、回復経路を固定する。process timeoutは進捗制御と分離する。
 制約：実顧客情報は使わない。外部送信・本番変更は別承認。
 今回はentryだけを実行し、出力と物理handoffを保存してください。
 終了時に、保存先・未解決事項・次Skillの呼び出し文を返してください。</code></pre>
@@ -245,7 +245,7 @@ review候補は単一の独立Validatorで評価し、requiredだけを修正し
 <section id="tips">
 <span class="num">10 / OPERATING NOTES</span><h2>時間・承認・止まったときの扱い</h2>
 <h3>時間を守るには、最初に「今回の上限」を置く</h3>
-<p>実行前にwall-clock期限、レビュー回数、Findingごとの修正回数を固定します。現行のruntime採用処理はreview budgetに<strong>最大2 round・Findingあたり最大5 attempt</strong>を記録します。期限は承認receiptの発行時刻とbudget_secondsから算出され、clearや再開でも動きません。</p>
+<p>実行前に<code>workflow-loop/v1</code>のphase policy、論理作業ID、検証範囲、回復経路を固定します。initial attemptは追加反復に数えず、技術的retryは別枠1回です。clear、再開、rename、candidate更新で同じ仕事のcounterはresetしません。process/tool timeoutは一回の呼出し監視として保持し、phase全体の残時間には変換しません。</p>
 <p>予算不足でrequiredが残れば停止であり、完成ではありません。軽微な問題は根拠付きでdeferし、成功した成果物も保存します。ループ名やFinding IDを変えてやり直し回数を消す運用にしません。予算切れからの再開は、新しい明示承認と検証されたreopenが必要です。</p>
 <div class="warning">過去のこの開発セッションで使った「Section-wide fast mode」「全体5時間」「修正wave数」等の一時的な指示を、全案件の製品defaultとみなさないでください。また、helperの期限チェックは次の操作を拒否するもので、動作中の外部AIプロセスを時刻どおり強制終了する監督ではありません。</div>
 <h3>承認を軽くできるところ・別扱いにするところ</h3>

@@ -184,27 +184,41 @@ def locked(directory):
         yield
 
 
-def init(project, work_id, request, mode="real", budget_seconds=1800):
+def init(project, work_id, request, mode="real", budget_seconds=None):
     root = safe_project(project)
     snapshot = runtime_snapshot(root)
     directory = workdir(root, work_id)
     raw = regular(Path(request).resolve()).read_bytes()
-    if not raw.strip() or budget_seconds <= 0 or mode not in ("real", "rehearsal"):
-        raise InceptionError("nonempty request, positive budget and supported mode required")
+    if not raw.strip() or mode not in ("real", "rehearsal"):
+        raise InceptionError("nonempty request and supported mode required")
+    if budget_seconds is not None and (
+            type(budget_seconds) is not int or budget_seconds <= 0):
+        raise InceptionError("legacy budget must be a positive integer")
     directory.mkdir(parents=True, exist_ok=True)
     with locked(directory):
         intake_path = directory / "intake.json"
         if intake_path.exists():
-            raise InceptionError("intake exists; resume it instead of resetting the budget")
+            raise InceptionError("intake exists; resume it instead of creating a new frontier")
         if (directory / "request.txt").exists() or (directory / ".helper-key").exists():
             raise InceptionError("partial init; inspect retained request/key and choose a new work id")
         create_file(directory / "request.txt", raw)
         create_file(directory / ".helper-key", os.urandom(32))
-        record = {"schema": "inception-intake/v1", "project": str(root), "work_id": work_id,
-                  "mode": mode, "started_at": now(), "budget_seconds": budget_seconds,
+        record = {"schema": "inception-intake/v2", "project": str(root), "work_id": work_id,
+                  "mode": mode, "started_at": now(),
+                  "loop_control": {"contract_version": "workflow-loop/v1",
+                                   "progress_control": "iteration-and-evidence",
+                                   "operation_timeout": "caller-owned",
+                                   "metrics": "enabled"},
                   "request": reference(directory / "request.txt"), "objective": None,
                   "run": None, "authority": "candidate-recording-only", "route": list(SKILLS),
                   "runtime_snapshot": snapshot}
+        # A v1 intake remains available only for explicit legacy recovery and
+        # compatibility tests.  The ordinary CLI/API path creates v2 and has
+        # no wall-clock progress budget.
+        if budget_seconds is not None:
+            record["schema"] = "inception-intake/v1"
+            record.pop("loop_control")
+            record["budget_seconds"] = budget_seconds
         create_file(intake_path, encoded(record))
         return {"intake": reference(intake_path), "next_skill": "entry", "mode": mode,
                 "kernel_authority": False}
@@ -213,10 +227,20 @@ def init(project, work_id, request, mode="real", budget_seconds=1800):
 def load_intake(path):
     path = regular(Path(path).resolve())
     intake = read_json(path)
-    if intake.get("schema") != "inception-intake/v1" or intake.get("route") != list(SKILLS):
+    if intake.get("schema") not in {"inception-intake/v1", "inception-intake/v2"} or intake.get("route") != list(SKILLS):
         raise InceptionError("unsupported intake schema/route")
     if intake.get("mode") not in ("real", "rehearsal") or intake.get("authority") != "candidate-recording-only":
         raise InceptionError("invalid intake mode/authority")
+    if intake["schema"] == "inception-intake/v1":
+        if type(intake.get("budget_seconds")) is not int or intake["budget_seconds"] <= 0:
+            raise InceptionError("invalid legacy intake budget")
+    elif intake.get("loop_control") != {
+        "contract_version": "workflow-loop/v1",
+        "progress_control": "iteration-and-evidence",
+        "operation_timeout": "caller-owned",
+        "metrics": "enabled",
+    } or "budget_seconds" in intake:
+        raise InceptionError("invalid loop-control intake")
     root = safe_project(intake["project"])
     if workdir(root, intake["work_id"]) != path.parent or path.name != "intake.json":
         raise InceptionError("intake location mismatch")
@@ -299,9 +323,15 @@ def resume(handoff, require_real=False):
     proof = record.get("helper_proof")
     if not isinstance(proof, str) or not hmac.compare_digest(proof, helper_proof(path.parent, record)):
         raise InceptionError("handoff lacks a valid helper-generated proof")
-    elapsed = (stamp(now()) - stamp(intake["started_at"])).total_seconds()
-    record["remaining_seconds"] = max(0, intake["budget_seconds"] - elapsed)
-    record["budget_exhausted"] = elapsed >= intake["budget_seconds"]
+    if intake["schema"] == "inception-intake/v1":
+        elapsed = (stamp(now()) - stamp(intake["started_at"])).total_seconds()
+        record["remaining_seconds"] = max(0, intake["budget_seconds"] - elapsed)
+        record["budget_exhausted"] = elapsed >= intake["budget_seconds"]
+        record["progress_control"] = "legacy-wall-clock-budget"
+    else:
+        record["remaining_seconds"] = None
+        record["budget_exhausted"] = False
+        record["progress_control"] = intake["loop_control"]["progress_control"]
     latest = sorted(path.parent.glob("handoff-*.json"))[-1]
     record["stale_frontier"] = handoff != latest
     snapshot = intake.get("runtime_snapshot")
@@ -344,7 +374,8 @@ def save(intake_path, skill, output, status, previous=None, inputs=(), receipt=N
         if skill != expected:
             raise InceptionError("expected one selected Skill: %s" % expected)
         elapsed = (stamp(end) - stamp(intake["started_at"])).total_seconds()
-        if elapsed >= intake["budget_seconds"] and status == "recorded":
+        if (intake["schema"] == "inception-intake/v1"
+                and elapsed >= intake["budget_seconds"] and status == "recorded"):
             raise InceptionError("budget exhausted; save blocked, never reset through clear")
         input_refs = list(prior["inputs"]) + [prior["output"]] if prior else []
         if prior and prior.get("receipt") and prior["receipt"] not in input_refs:
@@ -413,7 +444,7 @@ def main(argv=None):
     start.add_argument("--work-id", required=True)
     start.add_argument("--request", required=True)
     start.add_argument("--mode", choices=("real", "rehearsal"), default="real")
-    start.add_argument("--budget-seconds", type=int, default=1800)
+    start.add_argument("--legacy-budget-seconds", type=int)
     write = commands.add_parser("save")
     write.add_argument("--intake", required=True)
     write.add_argument("--skill", choices=SKILLS, required=True)
@@ -431,7 +462,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "init":
-            result = init(args.project, args.work_id, args.request, args.mode, args.budget_seconds)
+            result = init(args.project, args.work_id, args.request, args.mode, args.legacy_budget_seconds)
         elif args.command == "resume":
             result = resume(args.handoff, args.require_real)
         else:

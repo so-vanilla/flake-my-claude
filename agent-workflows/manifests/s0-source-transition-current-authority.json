@@ -1,24 +1,24 @@
 {
-  "schema": "s0-source-transition-current-authority/v1",
   "authority_id": "ai-agent-workflow-s0-current-source-transition-v1",
-  "predecessor_authority": {
-    "path": "agent-workflows/manifests/s0-source-transition-authority.json",
-    "digest": "sha256:673114ec3e1ea69fcd9580805b7f872895062253a0a1ccc352f40f281ccc3070"
-  },
   "current_canonical_lineage": {
-    "path": "agent-workflows/evidence/current-canonical-lineage.json",
-    "digest": "sha256:2359bc900a2124995c7347ab6ddb4e5e7353a1eb79c648d40cbdaf4fa943013f"
+    "digest": "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822",
+    "path": "agent-workflows/evidence/current-canonical-lineage.json"
   },
   "current_sources": [
     {
-      "role": "full-implementation-plan",
+      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524",
       "path": "docs/plans/ai-agent-workflow-full-implementation-plan.md",
-      "digest": "sha256:c8e10469fcf310e913f7520990b833e259daf5d0d3144defdcd4ba31d5b46524"
+      "role": "full-implementation-plan"
     },
     {
-      "role": "step-catalog",
+      "digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
       "path": "docs/plans/ai-agent-workflow-step-catalog.md",
-      "digest": "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d"
+      "role": "step-catalog"
     }
-  ]
+  ],
+  "predecessor_authority": {
+    "digest": "sha256:673114ec3e1ea69fcd9580805b7f872895062253a0a1ccc352f40f281ccc3070",
+    "path": "agent-workflows/manifests/s0-source-transition-authority.json"
+  },
+  "schema": "s0-source-transition-current-authority/v1"
 }

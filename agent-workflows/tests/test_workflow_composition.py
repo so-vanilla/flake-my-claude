@@ -12,7 +12,6 @@ from ai_agent_workflow.workflow_composition import (
     WorkflowCompositionV1,
 )
 
-
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / "agent-workflows" / "workflows"
 
@@ -47,7 +46,18 @@ class WorkflowCompositionTests(unittest.TestCase):
     def _normal(self, *, profile=None, include_g_h=False):
         self.assertIn(profile, (None, "feature"))
         _ = include_g_h
-        return self._load("feature-bounded" if profile == "feature" else "documentation-change")
+        return self._bind_current_policy_digest(
+            self._load("feature-bounded" if profile == "feature" else "documentation-change")
+        )
+
+    @staticmethod
+    def _bind_current_policy_digest(document):
+        reference = document.get("execution_policy")
+        if reference is not None:
+            policy_path = ROOT / reference["path"]
+            raw = policy_path.read_bytes()
+            reference["digest"] = "sha256:" + hashlib.sha256(raw).hexdigest()
+        return document
 
     def _policy_mutation(self, document, mutate):
         policy_path = ROOT / document["execution_policy"]["path"]
@@ -85,14 +95,39 @@ class WorkflowCompositionTests(unittest.TestCase):
         self.assertEqual(forward, reverse)
 
     def test_required_only_policy_compiles_two_positive_paths_and_rejects_representative_drift(self):
-        feature = self._load("feature-bounded")
+        feature = self._bind_current_policy_digest(self._load("feature-bounded"))
         receipt = self.validator.validate(feature)
         self.assertEqual(receipt, self.validator.validate(copy.deepcopy(feature)))
         policy = receipt["execution_policy"]
         self.assertEqual("v1", policy["version"])
         self.assertEqual(feature["execution_policy"]["path"], policy["path"])
         self.assertEqual(feature["execution_policy"]["digest"], policy["digest"])
+        self.assertEqual(
+            {
+                "contract_version": "workflow-loop/v1",
+                "phase": "E3-E7",
+                "additional_iteration_limit": 3,
+                "technical_retry_limit": 1,
+                "terminal_statuses": [
+                    "completed",
+                    "needs-input",
+                    "stalled",
+                    "iteration-limit",
+                    "execution-failed",
+                    "recovery-required",
+                ],
+                "completion": "required-evidence-and-independent-review",
+            },
+            policy["loop_control"],
+        )
         transitions = policy["compiled_conditional_transitions"]
+        terminal_transitions = [
+            item for item in transitions if item.get("from") == "any-active-E-state"
+        ]
+        self.assertEqual(
+            [{"from": "any-active-E-state", "when": "loop-control-terminal", "terminal_statuses": policy["loop_control"]["terminal_statuses"], "dispatch": False}],
+            terminal_transitions,
+        )
         self.assertIn(
             {"from": "group.E.E6", "when": "no-open-required-needs-user-or-unresolved", "to": "group.E.E8"},
             transitions,
@@ -118,6 +153,7 @@ class WorkflowCompositionTests(unittest.TestCase):
         for mutate in (
             lambda policy: policy["resolution"].update({"fresh_rereview": False}),
             lambda policy: policy["resolution"].update({"return_to_selector": "group.E.E8"}),
+            lambda policy: policy.pop("loop_control"),
         ):
             with self.assertRaises(WorkflowCompositionError):
                 self._policy_mutation(copy.deepcopy(feature), mutate)
@@ -190,11 +226,18 @@ class WorkflowCompositionTests(unittest.TestCase):
         bootstrap["required_human_gates"].remove("migration-approval")
         cases["migration"] = bootstrap
         exception = self._load("execution-exception-arbitration")
-        exception["required_human_gates"].remove("replacement-budget-approval")
-        cases["replacement-budget"] = exception
+        exception["required_human_gates"] = []
+        cases["exception-risk"] = exception
         for name, document in cases.items():
             with self.subTest(name=name), self.assertRaises(WorkflowCompositionError):
                 self.validator.validate(document)
+
+    def test_exception_manifest_uses_evidence_bounded_gates(self):
+        document = self._load("execution-exception-arbitration")
+        self.assertEqual(["risk-acceptance"], document["required_human_gates"])
+        self.assertIn("evidence-bounded", document["title"])
+        receipt = self.validator.validate(document)
+        self.assertEqual(["risk-acceptance"], receipt["required_human_gates"])
 
     def test_f8_is_resume_only_dynamic_and_e10_follows_it(self):
         wrong_completion = self._load("resume-interrupted-work")

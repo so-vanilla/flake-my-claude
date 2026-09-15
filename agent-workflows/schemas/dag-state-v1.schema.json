@@ -4,7 +4,21 @@
   "title": "Reducer state reconstructed from the canonical DAG",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "run_id", "workflow_version", "graph_version", "revision", "state_revision", "graph_revision", "status", "objective_ref", "objective_history", "objective_approvals", "objective_events", "authority", "group", "epoch", "epoch_contexts", "context_budget", "review_budget", "budget_terminal", "terminal_history", "object_refs", "artifacts", "tasks", "reviews", "findings", "verdicts", "finding_validations", "edges", "leases", "idempotency", "nodes", "metadata", "updated_at"],
+  "required": ["schema", "run_id", "workflow_version", "graph_version", "revision", "state_revision", "graph_revision", "status", "objective_ref", "objective_history", "objective_approvals", "objective_events", "authority", "group", "epoch", "epoch_contexts", "context_budget", "object_refs", "artifacts", "tasks", "reviews", "findings", "verdicts", "finding_validations", "edges", "leases", "idempotency", "nodes", "metadata", "updated_at"],
+  "oneOf": [
+    {
+      "required": ["review_budget", "budget_terminal", "terminal_history"],
+      "properties": {"loop_control": {"not": {}}}
+    },
+    {
+      "required": ["loop_control"],
+      "properties": {
+        "review_budget": {"not": {}},
+        "budget_terminal": {"not": {}},
+        "terminal_history": {"not": {}}
+      }
+    }
+  ],
   "properties": {
     "schema": {"const": "dag-state/v1"},
     "run_id": {"type": "string"},
@@ -24,6 +38,7 @@
     "epoch_contexts": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["id", "group_id", "status", "boundary_reason", "started_at_revision"], "properties": {"id": {"type": "string", "minLength": 1}, "group_id": {"type": "string", "minLength": 1}, "status": {"enum": ["open", "reviewed", "closed"]}, "boundary_reason": {"type": "string", "minLength": 1}, "started_at_revision": {"type": "integer", "minimum": 1}, "input_ref": {"type": ["object", "null"]}, "reviewer_assignment_id": {"type": ["string", "null"]}, "candidate_task_id": {"type": ["string", "null"]}, "finding_id": {"type": ["string", "null"]}, "review_id": {"type": ["string", "null"]}, "clear_before_next": {"type": "boolean"}, "closed_at_revision": {"type": "integer", "minimum": 1}, "bundle_ref": {"type": "object"}, "checkpoint_ref": {"type": "object"}}}},
     "context_budget": {"type": "object", "required": ["target", "normal_limit", "absolute_limit", "token_status", "token_count"], "properties": {"target": {"const": 200000}, "normal_limit": {"const": 300000}, "absolute_limit": {"const": 500000}, "token_status": {"enum": ["exact", "estimated", "unavailable"]}, "token_count": {"type": ["integer", "null"], "minimum": 0}}},
     "review_budget": {"type": "object"},
+    "loop_control": {"$ref": "loop-control-state-v1.schema.json"},
     "budget_terminal": {"type": ["object", "null"]},
     "terminal_history": {"type": "array"},
     "object_refs": {"type": "object"},

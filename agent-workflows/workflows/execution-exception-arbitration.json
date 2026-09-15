@@ -1,7 +1,7 @@
 {
   "schema": "workflow-manifest/v1",
   "workflow_id": "execution-exception-arbitration",
-  "title": "Resume and arbitrate a bounded execution exception",
+  "title": "Resume and arbitrate an evidence-bounded execution exception",
   "intent_class": "execution-exception",
   "entry_mode": "exception-resume",
   "profile": null,
@@ -9,8 +9,7 @@
   "source_only": true,
   "planned_effect": "none",
   "required_human_gates": [
-    "risk-acceptance",
-    "replacement-budget-approval"
+    "risk-acceptance"
   ],
   "stages": [
     {

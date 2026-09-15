@@ -61,8 +61,10 @@ class RuntimeApprovalAdapterTests(unittest.TestCase):
         state = kernel.read_state()
         self.assertEqual(len(state["objective_approvals"]), 1)
         self.assertIn("runtime-B7", state["artifacts"])
-        self.assertEqual(state["review_budget"]["max_rounds"], 2)
-        self.assertEqual(state["review_budget"]["max_attempts_per_finding"], 5)
+        self.assertNotIn("review_budget", state)
+        self.assertEqual(state["workflow_version"], "operational-workflow/v2")
+        self.assertEqual(state["loop_control"]["identity"]["phase"], "B")
+        self.assertEqual(state["loop_control"]["counters"]["additional_iterations"], 0)
         head = kernel.head()
         retry = adopt_approved_objective(self.project, "sample", **args)
         self.assertEqual(head, retry.head())
@@ -144,15 +146,32 @@ class RuntimeApprovalAdapterTests(unittest.TestCase):
             adopt_approved_objective(self.project, "sample", **args)
         self.assertEqual(before, kernel.head())
 
-    def test_future_or_expired_receipt_never_registers_run(self):
+    def test_future_receipt_and_expired_explicit_legacy_budget_never_register_run(self):
         args = self.arguments()
         receipt = json.loads(Path(args["receipt_ref"]["path"]).read_text())
-        for delta in (timedelta(hours=1), timedelta(hours=-1)):
-            receipt["issued_at"] = (datetime.now(timezone.utc) + delta).isoformat()
-            args["receipt_ref"] = self.write("receipt.json", receipt)
-            with self.assertRaises(RuntimeApprovalError):
-                adopt_approved_objective(self.project, "sample", **args)
-            self.assertIsNone(ControlKernel(self.project, "sample").head())
+        receipt["issued_at"] = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+        args["receipt_ref"] = self.write("receipt.json", receipt)
+        with self.assertRaises(RuntimeApprovalError):
+            adopt_approved_objective(self.project, "sample", **args)
+        self.assertIsNone(ControlKernel(self.project, "sample").head())
+
+        receipt["issued_at"] = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
+        args["receipt_ref"] = self.write("receipt.json", receipt)
+        with self.assertRaises(RuntimeApprovalError):
+            adopt_approved_objective(
+                self.project, "sample", **args, legacy_budget_seconds=1800
+            )
+        self.assertIsNone(ControlKernel(self.project, "sample").head())
+
+    def test_explicit_legacy_adoption_remains_readable(self):
+        args = self.arguments()
+        kernel = adopt_approved_objective(
+            self.project, "sample", **args, legacy_budget_seconds=1800
+        )
+        state = kernel.read_state()
+        self.assertEqual(state["workflow_version"], "operational-workflow/v1")
+        self.assertEqual(state["review_budget"]["max_rounds"], 2)
+        self.assertNotIn("loop_control", state)
 
 
 if __name__ == "__main__":

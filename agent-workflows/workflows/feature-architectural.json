@@ -295,7 +295,7 @@
     "schema": "workflow-execution-policy-ref/v1",
     "version": "v1",
     "path": "agent-workflows/groups/required-only-feedback-execution-policy-v1.json",
-    "digest": "sha256:0ba45de33e42ab7b7127f62b35f04e168e2cb43300dcbcda8012c6f615f55c34"
+    "digest": "sha256:f59bd06c35019def7d69f63e1b2a176b491f78b485451b9dfe056769a19c1060"
   },
   "completion": {
     "mode": "closed",

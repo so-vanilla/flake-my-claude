@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-evidence-record-v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "evidence_id", "evidence_digest", "candidate_digest", "spec_digest", "source_digest", "dependency_digest", "environment_digest", "check_definition_digest", "coverage", "status"],
+  "properties": {
+    "schema": {"const": "loop-evidence-record/v1"},
+    "evidence_id": {"type": "string", "minLength": 1},
+    "evidence_digest": {"$ref": "#/$defs/digest"},
+    "candidate_digest": {"$ref": "#/$defs/digest"},
+    "spec_digest": {"$ref": "#/$defs/digest"},
+    "source_digest": {"$ref": "#/$defs/digest"},
+    "dependency_digest": {"$ref": "#/$defs/digest"},
+    "environment_digest": {"$ref": "#/$defs/digest"},
+    "check_definition_digest": {"$ref": "#/$defs/digest"},
+    "coverage": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "status": {"enum": ["pass", "fail", "unknown"]}
+  },
+  "$defs": {"digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}}
+}

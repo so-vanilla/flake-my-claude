@@ -15,6 +15,7 @@ from typing import Mapping
 
 from .control_kernel import ControlKernel, canonical_digest
 from .inception_cli import create_file, encoded, locked, read_json
+from .loop_contracts import LOOP_CONTRACT_VERSION
 from .objective_system import ObjectiveSystemV1
 
 
@@ -76,7 +77,20 @@ def _snapshot(directory, value, raw=None):
     return path
 
 
-def adopt_approved_objective(project, run_id, *, intake_ref, candidate_ref, proposal_ref, actor_ref, receipt_ref, mode, budget_seconds=1800, preapproval_steps=None):
+def adopt_approved_objective(
+    project,
+    run_id,
+    *,
+    intake_ref,
+    candidate_ref,
+    proposal_ref,
+    actor_ref,
+    receipt_ref,
+    mode,
+    legacy_budget_seconds=None,
+    budget_seconds=None,
+    preapproval_steps=None,
+):
     """Validate the supplied receipt, compile B7, then commit actual approval."""
     project = Path(project).resolve(strict=True)
     context = approval_context(project, run_id, intake_ref=intake_ref, candidate_ref=candidate_ref, proposal_ref=proposal_ref, actor_ref=actor_ref, mode=mode)
@@ -86,19 +100,33 @@ def adopt_approved_objective(project, run_id, *, intake_ref, candidate_ref, prop
         raise RuntimeApprovalError("receipt does not bind these exact physical inputs")
     if receipt.get("decision") != "approve" or receipt.get("explicit") is not True:
         raise RuntimeApprovalError("an explicit supplied approval receipt is required")
-    if type(budget_seconds) is not int or budget_seconds <= 0:
-        raise RuntimeApprovalError("finite positive approval budget required")
+    if legacy_budget_seconds is not None and budget_seconds is not None:
+        raise RuntimeApprovalError("only one explicit legacy budget field is permitted")
+    legacy_seconds = budget_seconds if budget_seconds is not None else legacy_budget_seconds
+    if legacy_seconds is not None and (
+        type(legacy_seconds) is not int or legacy_seconds <= 0
+    ):
+        raise RuntimeApprovalError("legacy budget must be a positive integer")
     approval = {key: receipt[key] for key in ("approval_id", "run_id", "namespace", "approval_scope", "decision", "candidate_digest", "candidate_version", "prior_objective_digest", "prior_objective_version", "proposal_digest", "project_root", "mode")}
     approval.update(schema="objective-approval/v1", actor={"kind": context["source"], "actor_id": receipt["actor_id"]}, receipt=receipt)
     # Full Kernel receipt validation happens before a genesis transaction exists.
     ControlKernel._validate_objective_approval_payload(approval)
     issued_at = datetime.fromisoformat(receipt["issued_at"].replace("Z", "+00:00"))
-    deadline = issued_at + timedelta(seconds=budget_seconds)
     if issued_at > datetime.now(timezone.utc):
         raise RuntimeApprovalError("approval receipt cannot be issued in the future")
     identity = {key: context[key] for key in ("run_id", "namespace", "approval_scope", "project_root", "mode")}
     identity["schema"] = "project-local-run-identity/v1"
     candidate = {**dict(candidate_ref), "namespace": context["namespace"]}
+    loop_identity = {
+        "schema": "loop-work-identity/v1",
+        "work_lineage_id": run_id,
+        "logical_task_id": "group-B-purpose",
+        "phase": "B",
+        "scope_revision": candidate["version"],
+        "requirements_digest": candidate["digest"],
+        "predecessor_ref": None,
+    }
+    loop_control = {"identity": loop_identity, "history": []}
     payload = {"candidate_ref": candidate, "prior_objective": {key: intake_ref[key] for key in ("version", "digest")}, "proposal_digest": proposal_ref["digest"], "approval": approval}
     steps = copy.deepcopy(preapproval_steps)
     if (not isinstance(steps, list) or len(steps) != 6
@@ -117,11 +145,17 @@ def adopt_approved_objective(project, run_id, *, intake_ref, candidate_ref, prop
             for item in value:
                 verify_step_refs(item)
     verify_step_refs(steps)
-    adoption = {"intake": dict(intake_ref), "candidate": dict(candidate_ref), "proposal": dict(proposal_ref), "actor": dict(actor_ref), "receipt": dict(receipt_ref), "identity": identity, "budget_seconds": budget_seconds, "preapproval_steps": steps}
+    progress_control = (
+        {"schema": "legacy-review-budget/v1", "budget_seconds": legacy_seconds}
+        if legacy_seconds is not None
+        else {"schema": LOOP_CONTRACT_VERSION, "loop_control": loop_control}
+    )
+    adoption = {"intake": dict(intake_ref), "candidate": dict(candidate_ref), "proposal": dict(proposal_ref), "actor": dict(actor_ref), "receipt": dict(receipt_ref), "identity": identity, "progress_control": progress_control, "preapproval_steps": steps}
     adoption_digest = canonical_digest(adoption)
     kernel = ControlKernel(project, run_id)
-    if kernel.head() is None and deadline <= datetime.now(timezone.utc):
-        raise RuntimeApprovalError("approval budget expired before Run registration")
+    deadline = issued_at + timedelta(seconds=legacy_seconds) if legacy_seconds is not None else None
+    if kernel.head() is None and deadline is not None and deadline <= datetime.now(timezone.utc):
+        raise RuntimeApprovalError("legacy approval budget expired before Run registration")
     kernel._validate_runtime_identity(identity)
     kernel._validate_runtime_approval_binding(identity, approval, candidate)
     directory = project / ".local" / "agent" / "runtime-approvals" / run_id
@@ -178,11 +212,19 @@ def adopt_approved_objective(project, run_id, *, intake_ref, candidate_ref, prop
             for qualified_id, step_inputs in steps:
                 compile_step(qualified_id, step_inputs, {"revision": 0, "transaction_digest": None})
             compile_b7({"revision": 0, "transaction_digest": None})
-            if deadline <= datetime.now(timezone.utc):
-                raise RuntimeApprovalError("approval budget expired before Run registration")
-            kernel.entry(dict(intake_ref), workflow_version="operational-workflow/v1", group_id="B", epoch_id="B-01",
-                         authority_ref={"approved": True, "scopes": ["entry"], "human_receipt": receipt, "runtime_identity": identity, "runtime_adoption_digest": adoption_digest},
-                         review_budget={"version": "v1", "deadline": deadline.isoformat(), "max_rounds": 2, "max_attempts_per_finding": 5, "rounds_used": 0, "finding_attempts": {}})
+            if deadline is not None and deadline <= datetime.now(timezone.utc):
+                raise RuntimeApprovalError("legacy approval budget expired before Run registration")
+            entry = {
+                "workflow_version": "operational-workflow/v1" if deadline is not None else "operational-workflow/v2",
+                "group_id": "B",
+                "epoch_id": "B-01",
+                "authority_ref": {"approved": True, "scopes": ["entry"], "human_receipt": receipt, "runtime_identity": identity, "runtime_adoption_digest": adoption_digest},
+            }
+            if deadline is not None:
+                entry["review_budget"] = {"version": "v1", "deadline": deadline.isoformat(), "max_rounds": 2, "max_attempts_per_finding": 5, "rounds_used": 0, "finding_attempts": {}}
+            else:
+                entry["loop_control"] = loop_control
+            kernel.entry(dict(intake_ref), **entry)
         for qualified_id, step_inputs in steps:
             current = kernel.head()
             result = compile_step(qualified_id, step_inputs, {key: current[key] for key in ("revision", "transaction_digest")})

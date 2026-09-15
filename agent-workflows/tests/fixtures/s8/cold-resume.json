@@ -5,7 +5,7 @@
   "checkpoint_ref": {
     "path": "agent-workflows/tests/fixtures/s8/cold-checkpoint.json",
     "version": "source-wide-cold-checkpoint/v1",
-    "digest": "sha256:9f5632c7c3ee07de4b1d1536ff9576c1435f14a6fff70996bf6cec5b26f91428"
+    "digest": "sha256:2f63e12839fc35d12baf67115c93d16a1f28812fe8b314f175ebdb8406b2a892"
   },
   "observed_head": {
     "revision": 17,

@@ -8,21 +8,53 @@ cryptographic authentication of AI principals.
 from __future__ import annotations
 
 import copy
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import re
 import secrets
 import subprocess
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
 
+from .completion import (
+    CompletionError,
+    classify_completion,
+    create_machine_decision_receipt,
+)
+from .evidence_validity import EvidenceValidityError, assess_evidence
 from .execution_v2 import ExecutionClosureBuilder
 from .inception_cli import InceptionError
 from .inception_runtime import InceptionRuntime
-from .runtime_execution import RuntimeExecution, RuntimeExecutionError, _digest, _head
+from .loop_contracts import (
+    LOOP_CONTRACT_VERSION,
+    REQUIRED_REVIEW_AXES,
+    LoopContractError,
+    canonical_digest,
+    require_digest,
+    validate_iteration_event,
+    validate_ref,
+    validate_work_identity,
+)
+from .loop_policy import LoopPolicyError, phase_limits
+from .loop_state import build_iteration_event, event_ref
+from .repair_batch import RepairBatchError, assess_batch_resolution, plan_fix_batches
+from .review_packages import (
+    ReviewPackageError,
+    accept_review_result,
+    build_review_package,
+)
+from .runtime_execution import (  # noqa: F401
+    RuntimeExecution,
+    RuntimeExecutionError,
+    _digest,
+    _head,
+)
 
-
+# Keep the historical module attributes available to callers that imported
+# the runtime execution helpers through this module, even though the v1
+# adapter itself talks directly to the Kernel.
 TRUST_PROFILE = "practical/trusted-parent/v1"
 ACCEPTED_RESIDUAL = (
     "the trusted Codex host or parent Orchestrator could misrepresent role identity; "
@@ -103,6 +135,15 @@ class RuntimeRepairCoordinator:
         self.kernel = self.runtime.kernel
         self.project = self.runtime.project
         self.run_id = run_id
+
+    def workflow_loop(self):
+        """Return the additive workflow-loop/v1 repair adapter.
+
+        The practical E7 methods remain unchanged; callers opt in explicitly
+        to the Kernel loop-control protocol through this factory.
+        """
+
+        return WorkflowLoopRepairCoordinator(runtime=self.runtime)
 
     # -- public discovery -------------------------------------------------
 
@@ -962,10 +1003,924 @@ class RuntimeRepairCoordinator:
         }
 
 
+# The historical coordinator above is intentionally left on its practical
+# E7 protocol.  Workflow-loop/v1 has a different progress authority: the
+# Kernel's immutable loop event history.  Keeping the adapter separate makes
+# it impossible for a legacy deadline or review budget to accidentally become
+# a counter for the versioned path.
+_WORKFLOW_LOOP_TRANSITION_SCHEMA = "workflow-loop-repair-transition/v1"
+_WORKFLOW_LOOP_STATUS_SCHEMA = "workflow-loop-repair-status/v1"
+_WORKFLOW_LOOP_BATCH_SCHEMA = "workflow-loop-repair-batch-result/v1"
+_WORKFLOW_LOOP_REVIEW_SCHEMA = "workflow-loop-review-result-set/v1"
+_WORKFLOW_LOOP_FORBIDDEN_PROGRESS_FIELDS = frozenset(
+    {
+        "budget",
+        "deadline",
+        "observed_budget",
+        "product_fix_attempt",
+        "product_fix_attempts",
+        "wall_clock_deadline",
+        "wall_clock_minutes",
+        "review_budget",
+        "review_budget_remaining",
+        "review_round",
+        "iteration_limit",
+        "additional_iteration_limit",
+        "technical_retry_limit",
+        "remaining",
+        "remaining_seconds",
+        "task_budgets",
+    }
+)
+_WORKFLOW_LOOP_EVENT_KINDS = frozenset(
+    {"initial", "improvement", "integration-return", "technical-retry"}
+)
+
+
+class WorkflowLoopRepairCoordinator:
+    """Durable workflow-loop/v1 repair boundary.
+
+    This is an additive adapter for callers that already have a v1 Run.  It
+    deliberately does not inherit the practical E7 coordinator: all progress
+    transitions go through the Control Kernel's loop-control methods and are
+    guarded by the Kernel revision (CAS) at each boundary.  Batch planning,
+    review-package construction, evidence invalidation, and completion remain
+    pure contract operations; only loop events are persisted here.
+    """
+
+    contract_version = LOOP_CONTRACT_VERSION
+    review_axes = REQUIRED_REVIEW_AXES
+
+    def __init__(
+        self,
+        project: str | Path | None = None,
+        run_id: str | None = None,
+        *,
+        runtime: Any | None = None,
+        kernel: Any | None = None,
+    ) -> None:
+        if runtime is not None and kernel is not None and getattr(runtime, "kernel", kernel) is not kernel:
+            raise RuntimeRepairError("runtime and kernel refer to different Control Kernels")
+        if runtime is None and kernel is None:
+            if project is None or run_id is None:
+                raise RuntimeRepairError("workflow-loop coordinator requires project and run_id")
+            runtime = InceptionRuntime(project, run_id)
+            kernel = runtime.kernel
+        elif kernel is None:
+            kernel = getattr(runtime, "kernel", None)
+        if kernel is None:
+            raise RuntimeRepairError("workflow-loop coordinator requires a Kernel")
+        self.runtime = runtime
+        self.kernel = kernel
+        self.project = Path(project).resolve() if project is not None else getattr(runtime, "project", None)
+        self.run_id = run_id or getattr(runtime, "run_id", None) or getattr(kernel, "run_id", None)
+
+    # -- durable loop-control transitions ---------------------------------
+
+    def status(self) -> dict[str, Any]:
+        """Return a read-only status projection without consulting a clock."""
+
+        state = self._state()
+        loop = self._loop(state)
+        identity = self._identity(loop)
+        history = self._history(state)
+        policy = self._policy(identity)
+        latest = history[-1] if history else None
+        outcome = loop.get("outcome") or loop.get("terminal_outcome")
+        if latest is not None and latest.get("status") == "execution-unknown":
+            outcome = "recovery-required"
+        return {
+            "schema": _WORKFLOW_LOOP_STATUS_SCHEMA,
+            "contract_version": self.contract_version,
+            "run_id": self.run_id,
+            "revision": state.get("revision"),
+            "head": self._head(),
+            "identity": copy.deepcopy(identity),
+            "policy": policy,
+            "loop_control": copy.deepcopy(loop),
+            "history": copy.deepcopy(history),
+            "latest_event": copy.deepcopy(latest),
+            "status": loop.get("status", "idle"),
+            "outcome": outcome,
+            "recovery_required": outcome == "recovery-required" or bool(loop.get("recovery_required")),
+            "dispatch_allowed": bool(loop.get("dispatch_allowed", True)) and outcome != "recovery-required",
+            "durable": True,
+            "non_mutating": True,
+        }
+
+    def loop_policy(self, phase: str | None = None) -> dict[str, Any]:
+        """Expose the shared phase policy without creating runtime state."""
+
+        if phase is None:
+            state = self._state()
+            phase = self._identity(self._loop(state))["phase"]
+        try:
+            return phase_limits(phase)
+        except (LoopContractError, LoopPolicyError) as error:
+            raise RuntimeRepairError("loop policy is invalid: " + str(error)) from error
+
+    policy = loop_policy
+
+    def reserve(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Durably reserve one event before a worker/tool can be dispatched."""
+
+        raw_inputs: Any = inputs
+        if isinstance(inputs, Mapping) and isinstance(inputs.get("event"), Mapping):
+            raw_inputs = dict(inputs)
+            supplied_event = inputs["event"]
+            for field in (
+                "command_id", "event_id", "kind", "attempt", "identity", "predecessor_ref"
+            ):
+                if field not in raw_inputs and field in supplied_event:
+                    raw_inputs[field] = supplied_event[field]
+        values = self._inputs(
+            raw_inputs,
+            {
+                "identity", "event", "command_id", "event_id", "kind", "attempt",
+                "predecessor_ref", "expected_revision", "idempotency_key",
+            },
+            {"command_id"},
+            "reserve",
+        )
+        state = self._state()
+        loop = self._loop(state)
+        identity = self._input_identity(values, loop)
+        history = self._history(state)
+        command_id = values["command_id"]
+        requested_event_id = values.get("event_id")
+        replay_event = next(
+            (
+                item
+                for item in history
+                if item.get("command_id") == command_id
+                or (requested_event_id is not None and item.get("event_id") == requested_event_id)
+            ),
+            None,
+        )
+        kind = values.get("kind")
+        if kind is None:
+            kind = replay_event["kind"] if replay_event is not None else ("initial" if not history else "improvement")
+        if kind not in _WORKFLOW_LOOP_EVENT_KINDS:
+            raise RuntimeRepairError("reserve kind is unsupported")
+
+        supplied_attempt = values.get("attempt")
+        if supplied_attempt is None:
+            if replay_event is not None:
+                supplied_attempt = replay_event["attempt"]
+            elif history:
+                # Never silently turn a resumed loop into attempt zero.  A
+                # caller may derive the next number from durable history and
+                # resubmit it explicitly.
+                raise RuntimeRepairError("reserve requires an explicit attempt after the initial event")
+            supplied_attempt = 0
+        if type(supplied_attempt) is not int or supplied_attempt < 0:
+            raise RuntimeRepairError("reserve attempt must be a non-negative integer")
+        if replay_event is not None:
+            if (
+                replay_event["identity"] != identity
+                or replay_event["kind"] != kind
+                or replay_event["attempt"] != supplied_attempt
+                or (requested_event_id is not None and replay_event["event_id"] != requested_event_id)
+            ):
+                raise RuntimeRepairError("reserve replay does not bind the original event")
+        elif not history and (kind != "initial" or supplied_attempt != 0):
+            raise RuntimeRepairError("the first loop event must be initial attempt zero")
+        if replay_event is None and history and (kind == "initial" or supplied_attempt == 0):
+            raise RuntimeRepairError("a resumed loop cannot reuse initial attempt zero")
+
+        predecessor = replay_event.get("predecessor_ref") if replay_event is not None else values.get("predecessor_ref")
+        if replay_event is None and history:
+            expected_predecessor = event_ref(history[-1])
+            if predecessor is None:
+                predecessor = expected_predecessor
+            elif predecessor != expected_predecessor:
+                raise RuntimeRepairError("reserve predecessor does not bind the latest durable event")
+        elif replay_event is None and predecessor is not None:
+            raise RuntimeRepairError("the initial event cannot have a predecessor")
+
+        if replay_event is not None:
+            event = copy.deepcopy(replay_event)
+        else:
+            try:
+                event = build_iteration_event(
+                    identity,
+                    command_id,
+                    kind=kind,
+                    attempt=supplied_attempt,
+                    predecessor_ref=predecessor,
+                    event_id=requested_event_id,
+                    status="reserved",
+                    result_ref=None,
+                )
+            except (LoopContractError, TypeError, ValueError) as error:
+                raise RuntimeRepairError("reserve event is invalid: " + str(error)) from error
+        if values.get("event") is not None:
+            try:
+                supplied_event = validate_iteration_event(values["event"])
+            except LoopContractError as error:
+                raise RuntimeRepairError("reserve event is invalid: " + str(error)) from error
+            if supplied_event != event:
+                raise RuntimeRepairError("reserve event does not bind the supplied identity or attempt")
+
+        revision = self._expected_revision(values, state)
+        idempotency_key = values.get("idempotency_key", "workflow-loop-reserve:" + command_id)
+        if not isinstance(idempotency_key, str) or not idempotency_key:
+            raise RuntimeRepairError("reserve idempotency_key must be a non-empty string")
+        # The call is intentionally the first durable operation.  No dispatch
+        # or candidate acceptance is allowed before this CAS succeeds.
+        try:
+            result = self.kernel.reserve_loop_event(
+                event=event,
+                expected_revision=revision,
+                idempotency_key=idempotency_key,
+            )
+        except Exception as error:
+            raise RuntimeRepairError("loop reservation was rejected: " + str(error)) from error
+        return self._transition("reserve", result, event=event)
+
+    begin = reserve
+    reserve_iteration = reserve
+    begin_loop = reserve
+
+    def reserve_loop_event(self, inputs: Mapping[str, Any] | None = None, **kwargs: Any) -> dict[str, Any]:
+        """Kernel-shaped convenience seam for callers migrating incrementally."""
+
+        values = {} if inputs is None else dict(inputs)
+        values.update(kwargs)
+        return self.reserve(values)
+
+    def mark_running(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Record running only after a durable reservation exists."""
+
+        values = self._inputs(
+            inputs,
+            {"event_id", "expected_revision", "idempotency_key"},
+            {"event_id"},
+            "running",
+        )
+        state = self._state()
+        revision = self._expected_revision(values, state)
+        event_id = values["event_id"]
+        if not isinstance(event_id, str) or not event_id:
+            raise RuntimeRepairError("running event_id is required")
+        try:
+            result = self.kernel.mark_loop_running(
+                event_id,
+                expected_revision=revision,
+                idempotency_key=values.get("idempotency_key", "workflow-loop-running:" + event_id),
+            )
+        except Exception as error:
+            raise RuntimeRepairError("loop running transition was rejected: " + str(error)) from error
+        return self._transition("running", result)
+
+    running = mark_running
+
+    def mark_loop_running(self, event_id: str | Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+        values = dict(event_id) if isinstance(event_id, Mapping) else {"event_id": event_id}
+        values.update(kwargs)
+        return self.mark_running(values)
+
+    def accept_result(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Accept a digest-bound result for the latest running/reserved event."""
+
+        values = self._inputs(
+            inputs,
+            {"event_id", "result_ref", "expected_revision", "idempotency_key"},
+            {"event_id", "result_ref"},
+            "accept-result",
+        )
+        try:
+            result_ref = validate_ref(values["result_ref"], "result_ref")
+        except LoopContractError as error:
+            raise RuntimeRepairError(str(error)) from error
+        state = self._state()
+        revision = self._expected_revision(values, state)
+        event_id = values["event_id"]
+        if not isinstance(event_id, str) or not event_id:
+            raise RuntimeRepairError("accept-result event_id is required")
+        try:
+            result = self.kernel.accept_loop_result(
+                event_id,
+                result_ref,
+                expected_revision=revision,
+                idempotency_key=values.get("idempotency_key"),
+            )
+        except Exception as error:
+            if "unknown" in str(error).lower() or "recovery" in str(error).lower():
+                raise RuntimeRepairError("execution outcome is unknown; explicit recovery is required") from error
+            raise RuntimeRepairError("loop result was rejected: " + str(error)) from error
+        return self._transition("accept-result", result)
+
+    accept = accept_result
+
+    def accept_loop_result(
+        self,
+        event_id: str | Mapping[str, Any],
+        result_ref: Mapping[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        values = dict(event_id) if isinstance(event_id, Mapping) else {"event_id": event_id, "result_ref": result_ref}
+        if result_ref is not None and isinstance(event_id, Mapping):
+            values.setdefault("result_ref", result_ref)
+        values.update(kwargs)
+        return self.accept_result(values)
+
+    def mark_execution_unknown(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Persist an ambiguous dispatch result; callers must recover explicitly."""
+
+        values = self._inputs(
+            inputs,
+            {"event_id", "expected_revision", "idempotency_key"},
+            {"event_id"},
+            "execution-unknown",
+        )
+        state = self._state()
+        revision = self._expected_revision(values, state)
+        event_id = values["event_id"]
+        try:
+            result = self.kernel.mark_loop_execution_unknown(
+                event_id,
+                expected_revision=revision,
+                idempotency_key=values.get("idempotency_key", "workflow-loop-unknown:" + event_id),
+            )
+        except Exception as error:
+            raise RuntimeRepairError("could not persist execution-unknown: " + str(error)) from error
+        return self._transition("execution-unknown", result)
+
+    execution_unknown = mark_execution_unknown
+
+    def mark_loop_execution_unknown(self, event_id: str | Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+        values = dict(event_id) if isinstance(event_id, Mapping) else {"event_id": event_id}
+        values.update(kwargs)
+        return self.mark_execution_unknown(values)
+
+    def recover_execution(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        """Resolve execution-unknown only with an explicit, bound proof."""
+
+        values = self._inputs(
+            inputs,
+            {
+                "event_id", "resolution", "evidence_ref", "result_ref", "retry_event",
+                "retry_command_id", "retry_event_id", "expected_revision", "idempotency_key",
+            },
+            {"event_id", "resolution", "evidence_ref"},
+            "recover",
+        )
+        if values["resolution"] not in {"accept-result", "retry"}:
+            raise RuntimeRepairError("recovery requires an explicit accept-result or retry resolution")
+        try:
+            evidence_ref = validate_ref(values["evidence_ref"], "evidence_ref")
+        except LoopContractError as error:
+            raise RuntimeRepairError(str(error)) from error
+        result_ref = values.get("result_ref")
+        if values["resolution"] == "accept-result":
+            if result_ref is None:
+                raise RuntimeRepairError("accept-result recovery requires result_ref")
+            try:
+                result_ref = validate_ref(result_ref, "result_ref")
+            except LoopContractError as error:
+                raise RuntimeRepairError(str(error)) from error
+        elif values.get("retry_event") is None and not {
+            "retry_command_id", "retry_event_id"
+        }.issubset(values):
+            raise RuntimeRepairError("retry recovery requires an explicit retry event identity")
+
+        state = self._state()
+        revision = self._expected_revision(values, state)
+        kwargs: dict[str, Any] = {
+            "resolution": values["resolution"],
+            "evidence_ref": evidence_ref,
+            "result_ref": result_ref,
+            "retry_event": copy.deepcopy(values.get("retry_event")),
+            "retry_command_id": values.get("retry_command_id"),
+            "retry_event_id": values.get("retry_event_id"),
+            "expected_revision": revision,
+            "idempotency_key": values.get("idempotency_key"),
+        }
+        try:
+            result = self.kernel.recover_loop_execution(values["event_id"], **kwargs)
+        except Exception as error:
+            raise RuntimeRepairError("explicit execution recovery was rejected: " + str(error)) from error
+        return self._transition("recover", result)
+
+    recover = recover_execution
+
+    def recover_loop_execution(self, event_id: str | Mapping[str, Any], **kwargs: Any) -> dict[str, Any]:
+        values = dict(event_id) if isinstance(event_id, Mapping) else {"event_id": event_id}
+        values.update(kwargs)
+        return self.recover_execution(values)
+
+    def transition_phase(self, identity: Mapping[str, Any], *, reason: str = "phase-transition", expected_revision: int | None = None) -> dict[str, Any]:
+        """Advance the phase while preserving the Kernel's archived counters."""
+
+        try:
+            new_identity = validate_work_identity(identity)
+        except LoopContractError as error:
+            raise RuntimeRepairError(str(error)) from error
+        state = self._state()
+        revision = state.get("revision") if expected_revision is None else expected_revision
+        if type(revision) is not int or revision < 0:
+            raise RuntimeRepairError("phase transition expected_revision is invalid")
+        try:
+            result = self.kernel.transition_loop_phase(
+                new_identity,
+                reason=reason,
+                expected_revision=revision,
+            )
+        except Exception as error:
+            raise RuntimeRepairError("loop phase transition was rejected: " + str(error)) from error
+        return self._transition("phase-transition", result)
+
+    # -- pure repair, review, evidence, and completion seams --------------
+
+    def plan_repair_batch(self, findings: Sequence[Mapping[str, Any]], *, candidate_digest: str | None = None) -> dict[str, Any]:
+        if isinstance(findings, (str, bytes)) or not isinstance(findings, Sequence):
+            raise RuntimeRepairError("repair findings must be a sequence")
+        if candidate_digest is not None:
+            try:
+                require_digest(candidate_digest, "candidate_digest")
+            except LoopContractError as error:
+                raise RuntimeRepairError(str(error)) from error
+        for index, finding in enumerate(findings):
+            if candidate_digest is not None and isinstance(finding, Mapping) and finding.get("candidate_digest") != candidate_digest:
+                raise RuntimeRepairError(f"required Finding[{index}] belongs to another candidate")
+        try:
+            return plan_fix_batches(copy.deepcopy(list(findings)))
+        except (RepairBatchError, TypeError, ValueError) as error:
+            raise RuntimeRepairError("repair batch is invalid: " + str(error)) from error
+
+    build_repair_batch = plan_repair_batch
+    plan_fix_batches = plan_repair_batch
+
+    def resolve_repair_batch(self, batch: Mapping[str, Any], resolutions: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+        try:
+            return assess_batch_resolution(copy.deepcopy(dict(batch)), copy.deepcopy(list(resolutions)))
+        except (RepairBatchError, TypeError, ValueError) as error:
+            raise RuntimeRepairError("Finding resolution is invalid: " + str(error)) from error
+
+    assess_batch_resolution = resolve_repair_batch
+
+    def repair_batch(self, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        values = self._inputs(
+            inputs,
+            {"findings", "repair_findings", "candidate_digest", "batch_resolutions", "resolutions"},
+            set(),
+            "repair-batch",
+        )
+        findings = values.get("findings", values.get("repair_findings"))
+        if findings is None:
+            raise RuntimeRepairError("repair-batch requires findings")
+        plan = self.plan_repair_batch(findings, candidate_digest=values.get("candidate_digest"))
+        raw_resolutions = values.get("batch_resolutions", values.get("resolutions"))
+        resolutions: list[dict[str, Any]] = []
+        if raw_resolutions is not None:
+            for batch in plan["batches"]:
+                if isinstance(raw_resolutions, Mapping):
+                    supplied = raw_resolutions.get(batch["batch_id"])
+                    if supplied is None:
+                        supplied = [
+                            raw_resolutions[finding_id]
+                            for finding_id in batch["finding_ids"]
+                            if finding_id in raw_resolutions
+                        ]
+                else:
+                    supplied = [
+                        item
+                        for item in raw_resolutions
+                        if isinstance(item, Mapping)
+                        and item.get("finding_id") in batch["finding_ids"]
+                    ]
+                if supplied is None:
+                    continue
+                if isinstance(raw_resolutions, Mapping) and isinstance(supplied, Mapping):
+                    supplied = [supplied]
+                if not supplied:
+                    continue
+                resolutions.append(self.resolve_repair_batch(batch, supplied))
+        complete = bool(resolutions) and all(item["complete"] for item in resolutions)
+        return {
+            "schema": _WORKFLOW_LOOP_BATCH_SCHEMA,
+            "contract_version": self.contract_version,
+            "plan": plan,
+            "repair_batch_plan": copy.deepcopy(plan),
+            "resolutions": resolutions,
+            "batch_resolutions": copy.deepcopy(resolutions),
+            "complete": complete,
+            "next": "delta-review" if complete else "repair",
+            "non_mutating": True,
+        }
+
+    repair = repair_batch
+
+    def build_review_packages(
+        self,
+        candidate: Mapping[str, Any],
+        requirements: Sequence[Mapping[str, Any]] | None = None,
+        prior_findings: Sequence[Mapping[str, Any]] | None = None,
+        impact: Mapping[str, Any] | None = None,
+        *,
+        assignments: Any = None,
+        requested_mode: str = "delta",
+        worker_actor_id: str | None = None,
+        worker_context_epoch: str | None = None,
+        current_context_epoch: str | None = None,
+    ) -> dict[str, Any]:
+        """Build both independent fresh delta packages for a repair batch."""
+
+        if requirements is None and isinstance(candidate, Mapping) and {
+            "candidate", "requirements", "prior_findings", "impact"
+        }.issubset(candidate):
+            values = dict(candidate)
+            self._reject_progress_fields(values, "review packages")
+            requirements = values["requirements"]
+            prior_findings = values["prior_findings"]
+            impact = values["impact"]
+            assignments = values.get("assignments", values.get("review_assignments", values.get("assignment")))
+            requested_mode = values.get("requested_mode", "delta")
+            worker_actor_id = values.get("worker_actor_id")
+            worker_context_epoch = values.get("worker_context_epoch")
+            current_context_epoch = values.get("current_context_epoch")
+            candidate = values["candidate"]
+        if requirements is None or prior_findings is None or impact is None or assignments is None:
+            raise RuntimeRepairError("fresh delta review requires candidate, requirements, findings, impact, and assignments")
+        if requested_mode != "delta":
+            raise RuntimeRepairError("repair rereview packages must use delta mode")
+        normalized = self._review_assignments(assignments)
+        actor_ids = [normalized[axis]["actor_id"] for axis in REQUIRED_REVIEW_AXES]
+        contexts = [normalized[axis]["context_epoch"] for axis in REQUIRED_REVIEW_AXES]
+        if len(set(actor_ids)) != len(actor_ids) or len(set(contexts)) != len(contexts):
+            raise RuntimeRepairError("required review axes must use independent actors and contexts")
+        if worker_actor_id is not None and worker_actor_id in actor_ids:
+            raise RuntimeRepairError("review actor must differ from the repair Worker")
+        if worker_context_epoch is not None and worker_context_epoch in contexts:
+            raise RuntimeRepairError("review context must differ from the repair Worker context")
+        if current_context_epoch is not None and current_context_epoch in contexts:
+            raise RuntimeRepairError("review context must be fresh relative to the current context")
+        packages: list[dict[str, Any]] = []
+        try:
+            for axis in REQUIRED_REVIEW_AXES:
+                packages.append(
+                    build_review_package(
+                        candidate,
+                        requirements,
+                        prior_findings,
+                        impact,
+                        requested_mode="delta",
+                        axis=axis,
+                        assignment=normalized[axis],
+                    )
+                )
+        except (ReviewPackageError, TypeError, ValueError) as error:
+            raise RuntimeRepairError("review package is invalid: " + str(error)) from error
+        candidate_digest = packages[0]["candidate"]["candidate_ref"]["digest"]
+        if any(item["candidate"]["candidate_ref"]["digest"] != candidate_digest for item in packages):
+            raise RuntimeRepairError("review packages do not share one candidate")
+        unsigned = {"contract_version": self.contract_version, "candidate_digest": candidate_digest, "packages": packages}
+        return {
+            "schema": "loop-review-package-set/v1",
+            **unsigned,
+            "review_packages": copy.deepcopy(packages),
+            "package_set_digest": canonical_digest(unsigned),
+            "non_mutating": True,
+        }
+
+    review_packages = build_review_packages
+    build_delta_review_packages = build_review_packages
+    build_review_package_set = build_review_packages
+
+    def accept_review_packages(self, packages: Any, results: Any) -> dict[str, Any]:
+        if isinstance(packages, Mapping) and packages.get("schema") == "loop-review-package-set/v1":
+            package_values = packages.get("packages")
+            if "review_packages" in packages and packages["review_packages"] != package_values:
+                raise RuntimeRepairError("review package aliases disagree")
+            expected_set_digest = packages.get("package_set_digest")
+            unsigned = {
+                "contract_version": packages.get("contract_version"),
+                "candidate_digest": packages.get("candidate_digest"),
+                "packages": package_values,
+            }
+            if expected_set_digest != canonical_digest(unsigned):
+                raise RuntimeRepairError("review package set digest is stale")
+        else:
+            package_values = packages
+        if not isinstance(package_values, Sequence) or isinstance(package_values, (str, bytes)):
+            raise RuntimeRepairError("review packages must be a sequence")
+        by_axis = {}
+        for package in package_values:
+            if not isinstance(package, Mapping) or package.get("axis") not in REQUIRED_REVIEW_AXES:
+                raise RuntimeRepairError("review package does not identify a required axis")
+            if package.get("mode") not in {"delta", "full-impact-unknown"} or package.get("fresh_review_required") is not True:
+                raise RuntimeRepairError("fresh delta or explicit full-impact-unknown review package is required")
+            if package["axis"] in by_axis:
+                raise RuntimeRepairError("review packages repeat an axis")
+            by_axis[package["axis"]] = package
+        if set(by_axis) != set(REQUIRED_REVIEW_AXES):
+            raise RuntimeRepairError("both required review axes must be supplied")
+        candidate_digests = {
+            package["candidate"]["candidate_ref"]["digest"]
+            for package in by_axis.values()
+        }
+        if len(candidate_digests) != 1:
+            raise RuntimeRepairError("review packages must share one current candidate")
+        if (
+            isinstance(packages, Mapping)
+            and packages.get("candidate_digest") != next(iter(candidate_digests))
+        ):
+            raise RuntimeRepairError("review package set candidate binding is stale")
+        if isinstance(results, Mapping):
+            result_values = list(results.values()) if "schema" not in results else [results]
+        elif isinstance(results, Sequence) and not isinstance(results, (str, bytes)):
+            result_values = list(results)
+        else:
+            raise RuntimeRepairError("review results must be a sequence or axis mapping")
+        accepted = []
+        seen = set()
+        try:
+            for result in result_values:
+                if not isinstance(result, Mapping) or result.get("axis") not in by_axis:
+                    raise RuntimeRepairError("review result does not identify an issued package")
+                axis = result["axis"]
+                if axis in seen:
+                    raise RuntimeRepairError("review results repeat an axis")
+                seen.add(axis)
+                accepted.append(accept_review_result(by_axis[axis], result))
+        except ReviewPackageError as error:
+            raise RuntimeRepairError("review result is stale or incomplete: " + str(error)) from error
+        if seen != set(REQUIRED_REVIEW_AXES):
+            raise RuntimeRepairError("both fresh review results are required")
+        actors = [item["actor_id"] for item in accepted]
+        contexts = [item["context_epoch"] for item in accepted]
+        if len(set(actors)) != len(actors) or len(set(contexts)) != len(contexts):
+            raise RuntimeRepairError("review results must come from independent actors and contexts")
+        return {
+            "schema": _WORKFLOW_LOOP_REVIEW_SCHEMA,
+            "contract_version": self.contract_version,
+            "candidate_digest": next(iter(candidate_digests)),
+            "package_digests": {axis: by_axis[axis]["package_digest"] for axis in REQUIRED_REVIEW_AXES},
+            "reviews": accepted,
+            "accepted_reviews": copy.deepcopy(accepted),
+            "complete": True,
+            "non_mutating": True,
+        }
+
+    accept_reviews = accept_review_packages
+    accept_delta_reviews = accept_review_packages
+
+    def evidence_validity(self, receipt: Mapping[str, Any], current_inputs: Mapping[str, Any], change_impact: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return assess_evidence(copy.deepcopy(receipt), copy.deepcopy(current_inputs), copy.deepcopy(change_impact))
+        except EvidenceValidityError as error:
+            raise RuntimeRepairError("evidence validity could not be established: " + str(error)) from error
+
+    assess_evidence = evidence_validity
+    assess_evidence_validity = evidence_validity
+
+    def classify_completion(self, request: Mapping[str, Any]) -> dict[str, Any]:
+        # A larger status projection may carry legacy budget observations.
+        # They are stripped before the pure classifier and therefore cannot
+        # influence the result; they are not a progress authority here.
+        values = copy.deepcopy(dict(request))
+        values.pop("schema", None)
+        for field in _WORKFLOW_LOOP_FORBIDDEN_PROGRESS_FIELDS:
+            values.pop(field, None)
+        try:
+            return classify_completion(values)
+        except CompletionError as error:
+            raise RuntimeRepairError("completion classification was rejected: " + str(error)) from error
+
+    classify = classify_completion
+
+    def complete(self, request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        """Validate the full v1 repair/review path and issue no LLM verdict."""
+
+        try:
+            # WorkflowLoopValidator owns the strict-zero-finding predicate and
+            # invokes the pure batch/review/evidence seams before completion.
+            from .execution_v2 import WorkflowLoopValidator
+
+            result = WorkflowLoopValidator().validate(copy.deepcopy(dict(request)), receipt_id=receipt_id)
+        except Exception as error:
+            if isinstance(error, (RuntimeRepairError,)):
+                raise
+            raise RuntimeRepairError("workflow-loop completion was rejected: " + str(error)) from error
+        return result
+
+    evaluate_completion = complete
+    mechanical_completion = complete
+    validate_completion = complete
+    completion = complete
+
+    def machine_decision_receipt(self, classification: Mapping[str, Any], receipt_id: str | None = None) -> dict[str, Any]:
+        try:
+            return create_machine_decision_receipt(copy.deepcopy(dict(classification)), receipt_id)
+        except CompletionError as error:
+            raise RuntimeRepairError("machine completion receipt was rejected: " + str(error)) from error
+
+    # -- dispatch/read helpers -------------------------------------------
+
+    def dispatch(self, action: str, inputs: Mapping[str, Any]) -> dict[str, Any]:
+        actions = {
+            "status": lambda values: self.status(),
+            "loop-policy": lambda values: self.loop_policy(values.get("phase")),
+            "phase-transition": lambda values: self.transition_phase(
+                values["identity"],
+                reason=values.get("reason", "phase-transition"),
+                expected_revision=values.get("expected_revision"),
+            ),
+            "reserve": self.reserve,
+            "begin": self.reserve,
+            "running": self.mark_running,
+            "mark-running": self.mark_running,
+            "accept": self.accept_result,
+            "accept-result": self.accept_result,
+            "execution-unknown": self.mark_execution_unknown,
+            "mark-execution-unknown": self.mark_execution_unknown,
+            "recover": self.recover_execution,
+            "repair-batch": self.repair_batch,
+            "repair": self.repair_batch,
+            "review-packages": self.build_review_packages,
+            "review-results": lambda values: self.accept_review_packages(
+                values.get("packages", values.get("review_packages")),
+                values.get("results", values.get("reviews")),
+            ),
+            "evidence-validity": lambda values: self.evidence_validity(
+                values["receipt"], values["current_inputs"], values["change_impact"]
+            ),
+            "completion": self.complete,
+        }
+        method = actions.get(action)
+        if method is None:
+            raise RuntimeRepairError("workflow-loop action is unsupported: " + str(action))
+        return method(copy.deepcopy(dict(inputs)))
+
+    def _state(self) -> Mapping[str, Any]:
+        reader = getattr(self.kernel, "read_state", None) or getattr(self.kernel, "snapshot", None)
+        if not callable(reader):
+            raise RuntimeRepairError("workflow-loop Kernel must expose read_state()")
+        state = reader()
+        if not isinstance(state, Mapping):
+            raise RuntimeRepairError("workflow-loop Kernel state is malformed")
+        return state
+
+    @staticmethod
+    def _loop(state: Mapping[str, Any]) -> Mapping[str, Any]:
+        loop = state.get("loop_control")
+        if not isinstance(loop, Mapping):
+            raise RuntimeRepairError("workflow-loop/v1 requires loop_control state")
+        return loop
+
+    @staticmethod
+    def _identity(loop: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return validate_work_identity(loop.get("identity"))
+        except LoopContractError as error:
+            raise RuntimeRepairError("loop identity is invalid: " + str(error)) from error
+
+    def _history(self, state: Mapping[str, Any]) -> list[dict[str, Any]]:
+        loop = self._loop(state)
+        for key in ("history", "events"):
+            value = loop.get(key)
+            if isinstance(value, list):
+                return copy.deepcopy(value)
+        loader = getattr(self.kernel, "_loop_history", None)
+        if callable(loader):
+            try:
+                value = loader(state)
+            except Exception as error:
+                raise RuntimeRepairError("loop history cannot be loaded: " + str(error)) from error
+            if isinstance(value, list):
+                return copy.deepcopy(value)
+        refs = loop.get("event_refs")
+        reader = getattr(self.kernel, "read_object", None)
+        if isinstance(refs, list) and callable(reader):
+            result = []
+            try:
+                for ref in refs:
+                    result.append(copy.deepcopy(reader(ref)["payload"]))
+            except Exception as error:
+                raise RuntimeRepairError("loop event history is unavailable: " + str(error)) from error
+            return result
+        return []
+
+    def _head(self) -> dict[str, Any] | None:
+        getter = getattr(self.kernel, "head", None)
+        if not callable(getter):
+            return None
+        value = getter()
+        if not isinstance(value, Mapping):
+            return None
+        digest = value.get("transaction_digest") or value.get("digest")
+        if digest is None:
+            return copy.deepcopy(dict(value))
+        return {"revision": value.get("revision"), "transaction_digest": digest}
+
+    @staticmethod
+    def _policy(identity: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return phase_limits(identity["phase"])
+        except (LoopContractError, LoopPolicyError, KeyError) as error:
+            raise RuntimeRepairError("loop policy is invalid: " + str(error)) from error
+
+    @staticmethod
+    def _inputs(inputs: Any, allowed: set[str], required: set[str], label: str) -> dict[str, Any]:
+        if not isinstance(inputs, Mapping):
+            raise RuntimeRepairError(label + " inputs must be a mapping")
+        values = copy.deepcopy(dict(inputs))
+        unknown = set(values) - allowed
+        if unknown:
+            raise RuntimeRepairError(label + " inputs contain unsupported fields: " + ", ".join(sorted(unknown)))
+        missing = required - set(values)
+        if missing:
+            raise RuntimeRepairError(label + " inputs are missing: " + ", ".join(sorted(missing)))
+        WorkflowLoopRepairCoordinator._reject_progress_fields(values, label)
+        return values
+
+    @staticmethod
+    def _reject_progress_fields(values: Any, label: str) -> None:
+        if isinstance(values, Mapping):
+            forbidden = _WORKFLOW_LOOP_FORBIDDEN_PROGRESS_FIELDS.intersection(values)
+            if forbidden:
+                raise RuntimeRepairError(label + " may not use wall-clock or review-budget progress controls: " + ", ".join(sorted(forbidden)))
+
+    def _input_identity(self, values: Mapping[str, Any], loop: Mapping[str, Any]) -> dict[str, Any]:
+        identity = self._identity(loop)
+        if "identity" in values:
+            try:
+                supplied = validate_work_identity(values["identity"])
+            except LoopContractError as error:
+                raise RuntimeRepairError("reserve identity is invalid: " + str(error)) from error
+            if supplied != identity:
+                raise RuntimeRepairError("reserve identity does not match the current loop")
+        return identity
+
+    @staticmethod
+    def _expected_revision(values: Mapping[str, Any], state: Mapping[str, Any]) -> int:
+        revision = values.get("expected_revision", state.get("revision"))
+        if type(revision) is not int or revision < 0:
+            raise RuntimeRepairError("expected_revision must be a non-negative integer")
+        return revision
+
+    def _transition(self, operation: str, result: Any, *, event: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        state = result if isinstance(result, Mapping) and isinstance(result.get("loop_control"), Mapping) else self._state()
+        loop = self._loop(state)
+        history = self._history(state)
+        identity = self._identity(loop)
+        latest = history[-1] if history else None
+        return {
+            "schema": _WORKFLOW_LOOP_TRANSITION_SCHEMA,
+            "contract_version": self.contract_version,
+            "operation": operation,
+            "revision": state.get("revision"),
+            "head": self._head(),
+            "identity": copy.deepcopy(identity),
+            "policy": self._policy(identity),
+            "loop_control": copy.deepcopy(loop),
+            "event": copy.deepcopy(event if event is not None else latest),
+            "latest_event": copy.deepcopy(latest),
+            "durable": True,
+            "non_mutating": True,
+        }
+
+    @staticmethod
+    def _review_assignments(value: Any) -> dict[str, dict[str, Any]]:
+        if isinstance(value, Mapping) and {"assignment_id", "actor_id", "context_epoch"}.issubset(value):
+            values = {axis: copy.deepcopy(dict(value)) for axis in REQUIRED_REVIEW_AXES}
+        elif isinstance(value, Mapping):
+            values = {axis: copy.deepcopy(dict(value[axis])) for axis in REQUIRED_REVIEW_AXES if axis in value}
+            if set(value) - set(REQUIRED_REVIEW_AXES):
+                raise RuntimeRepairError("review assignments name an unsupported axis")
+        elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+            values = {}
+            for item in value:
+                if not isinstance(item, Mapping) or "axis" not in item:
+                    raise RuntimeRepairError("review assignment must name an axis")
+                axis = item["axis"]
+                if axis not in REQUIRED_REVIEW_AXES:
+                    raise RuntimeRepairError("review assignment names an unsupported axis")
+                values[axis] = {key: copy.deepcopy(item[key]) for key in item if key != "axis"}
+        else:
+            raise RuntimeRepairError("review assignments must be a mapping or list")
+        if set(values) != set(REQUIRED_REVIEW_AXES):
+            raise RuntimeRepairError("both required review assignments are required")
+        required = {"assignment_id", "actor_id", "context_epoch"}
+        if any(set(item) != required for item in values.values()):
+            raise RuntimeRepairError("review assignment has an unsupported shape")
+        return values
+
+
+WorkflowLoopRuntimeRepair = WorkflowLoopRepairCoordinator
+RuntimeRepairV1 = WorkflowLoopRepairCoordinator
+WorkflowLoopRepair = WorkflowLoopRepairCoordinator
+
+
 __all__ = [
+    "ACCEPTED_RESIDUAL",
+    "TRUST_PROFILE",
     "RuntimeRepairCoordinator",
     "RuntimeRepairError",
-    "TRUST_PROFILE",
-    "ACCEPTED_RESIDUAL",
+    "RuntimeRepairV1",
+    "WorkflowLoopRepair",
+    "WorkflowLoopRepairCoordinator",
+    "WorkflowLoopRuntimeRepair",
     "assert_production_adoptable",
 ]

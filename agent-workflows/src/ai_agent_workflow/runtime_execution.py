@@ -7,17 +7,71 @@ candidate, closure, aggregate, review, and validation binding from actual data.
 from __future__ import annotations
 
 import copy
-from datetime import datetime, timezone
 import hashlib
 import json
+from collections.abc import Mapping, Sequence
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
-from .execution_group import ArtifactCandidateBuilder, ExecutionGroupV1, _declared_source_path
-from .execution_v2 import ExecutionClosureBuilder, FindingValidator, ReceiptAggregator, RegressionFrontier, V2ContractError
+from .completion import CompletionError
+from .evidence_validity import EvidenceValidityError, assess_evidence
+from .execution_group import (
+    ArtifactCandidateBuilder,
+    ExecutionGroupV1,
+    _declared_source_path,
+)
+from .execution_v2 import (
+    ExecutionClosureBuilder,
+    FindingValidator,
+    MechanicalCompletion,
+    ReceiptAggregator,
+    RegressionFrontier,
+    V2ContractError,
+    WorkflowLoopValidator,
+)
 from .inception_cli import InceptionError
 from .inception_runtime import InceptionRuntime
+from .loop_contracts import (
+    LOOP_CONTRACT_VERSION,
+    TERMINAL_OUTCOMES,
+    LoopContractError,
+    canonical_digest,
+    counter_identity,
+    phase_policy,
+    validate_evidence_record,
+    validate_ref,
+    validate_requirement_assessment,
+    validate_resume_record,
+    validate_review_assessment,
+    validate_terminal_record,
+    validate_work_identity,
+)
+from .loop_metrics import LoopMetricsError, derive_metrics
+from .loop_policy import phase_limits
+from .loop_state import CounterExhaustedError, event_ref
 from .macos_task_process import MacOSTaskProcessBroker
+
+_LOOP_SCHEMA = LOOP_CONTRACT_VERSION
+_LOOP_PROGRESS_FIELDS = frozenset(
+    {
+        "allowances",
+        "budget",
+        "budget_digest",
+        "deadline",
+        "remaining_seconds",
+        "reopen_budget",
+        "replacement_budget",
+        "review_budget",
+        "review_budget_remaining",
+        "observed_budget",
+        "wall_clock_deadline",
+        "wall_clock_minutes",
+    }
+)
+_LOOP_TIMEOUT_FIELDS = frozenset(
+    {"process_timeout", "timeout_seconds", "supervision_timeout_seconds"}
+)
 
 
 class RuntimeExecutionError(InceptionError):
@@ -60,6 +114,57 @@ def _event(sequence: int, parent: str | None, event_type: str, payload: Mapping[
     return value
 
 
+def _loop_request(value: Any) -> Mapping[str, Any] | None:
+    """Return an explicit workflow-loop/v1 request, if one is present."""
+
+    if not isinstance(value, Mapping):
+        return None
+    if value.get("schema") == _LOOP_SCHEMA:
+        return value
+    for field in ("workflow_loop", "loop_request", "completion_request"):
+        nested = value.get(field)
+        if isinstance(nested, Mapping) and (
+            nested.get("schema") == _LOOP_SCHEMA
+            or "identity" in nested
+            or "candidate_digest" in nested
+        ):
+            return nested
+    return None
+
+
+def _loop_progress_fields(value: Any) -> set[str]:
+    """Find legacy progress controls without allowing them to decide progress."""
+
+    found: set[str] = set()
+    if isinstance(value, Mapping):
+        found.update(_LOOP_PROGRESS_FIELDS.intersection(value))
+        for item in value.values():
+            found.update(_loop_progress_fields(item))
+    elif isinstance(value, (list, tuple)):
+        for item in value:
+            found.update(_loop_progress_fields(item))
+    return found
+
+
+def _loop_timeout_values(value: Any) -> dict[str, Any]:
+    """Copy process-call monitoring values, never phase progress values."""
+
+    if not isinstance(value, Mapping):
+        return {}
+    return {
+        key: copy.deepcopy(value[key])
+        for key in sorted(_LOOP_TIMEOUT_FIELDS)
+        if key in value
+    }
+
+
+def _loop_ref(value: Any, label: str) -> dict[str, str]:
+    try:
+        return validate_ref(value, label)
+    except LoopContractError as error:
+        raise RuntimeExecutionError(str(error)) from error
+
+
 class RuntimeExecution:
     """Execute, review, optionally repair once, and persist one Group E route."""
 
@@ -73,9 +178,1054 @@ class RuntimeExecution:
         ("git-state-receipt", _POLICY),
     )
 
-    def __init__(self, project: str | Path, run_id: str) -> None:
-        self.runtime = InceptionRuntime(project, run_id)
-        self.kernel = self.runtime.kernel
+    def __init__(
+        self,
+        project: str | Path | None = None,
+        run_id: str | None = None,
+        *,
+        runtime: Any | None = None,
+        kernel: Any | None = None,
+    ) -> None:
+        """Create the legacy runtime or the additive loop facade.
+
+        ``project``/``run_id`` retain the historical constructor.  Supplying a
+        Kernel is a small boundary seam for the v1 loop path: it lets tests and
+        callers provide the already-selected Control Kernel without making the
+        loop facade discover files or create a second state owner.
+        """
+
+        if runtime is not None and kernel is not None and getattr(runtime, "kernel", kernel) is not kernel:
+            raise RuntimeExecutionError("runtime and kernel refer to different Control Kernels")
+        if runtime is None and kernel is None:
+            if project is None or run_id is None:
+                raise RuntimeExecutionError("runtime execution requires project and run_id")
+            runtime = InceptionRuntime(project, run_id)
+            kernel = runtime.kernel
+        elif kernel is None:
+            kernel = getattr(runtime, "kernel", None)
+        if kernel is None:
+            raise RuntimeExecutionError("runtime execution requires a Control Kernel")
+        self.runtime = runtime
+        self.kernel = kernel
+
+    # -- workflow-loop/v1 execution facade ---------------------------------
+
+    def loop_status(self) -> dict[str, Any]:
+        """Return the current immutable loop projection without a clock read."""
+
+        state = self._loop_state()
+        loop = state["loop_control"]
+        identity = self._loop_identity(loop)
+        history = self._loop_history(state)
+        latest = copy.deepcopy(history[-1]) if history else None
+        outcome = loop.get("outcome") or loop.get("terminal_outcome")
+        if latest is not None and latest.get("status") == "execution-unknown":
+            outcome = "recovery-required"
+        return {
+            "schema": "workflow-loop-runtime-status/v1",
+            "contract_version": _LOOP_SCHEMA,
+            "run_id": state.get("run_id"),
+            "revision": state.get("revision"),
+            "head": _head(self.kernel),
+            "identity": identity,
+            "policy": phase_limits(identity["phase"]),
+            "loop_control": copy.deepcopy(loop),
+            "history": history,
+            "latest_event": latest,
+            "status": loop.get("status", "idle"),
+            "outcome": outcome,
+            "recovery_required": outcome == "recovery-required" or bool(loop.get("recovery_required")),
+            "dispatch_allowed": bool(loop.get("dispatch_allowed", True)) and outcome != "recovery-required",
+            "durable": True,
+            "non_mutating": True,
+        }
+
+    def transition_loop_phase(
+        self,
+        phase: str,
+        logical_task_id: str,
+        *,
+        identity: Mapping[str, Any] | None = None,
+        reason: str = "operational-phase-entry",
+    ) -> dict[str, Any]:
+        """Enter one logical task phase through the Kernel's CAS boundary."""
+
+        state = self._loop_state()
+        current = self._loop_identity(state["loop_control"])
+        desired = self._desired_loop_identity(
+            state,
+            phase,
+            logical_task_id,
+            supplied=identity,
+        )
+        # Scope/candidate/session revisions are deliberately outside the
+        # counter identity.  Treating such a rename as a phase transition
+        # would make the Kernel reset or archive the same finite loop.
+        if counter_identity(current) == counter_identity(desired):
+            return self.loop_status()
+        try:
+            result = self.kernel.transition_loop_phase(
+                desired,
+                reason=reason,
+                expected_revision=state["revision"],
+            )
+        except Exception as error:
+            raise RuntimeExecutionError("loop phase transition was rejected: " + str(error)) from error
+        return self._loop_transition_result("phase-transition", result, desired)
+
+    def execute_loop(
+        self,
+        task_id: str | Mapping[str, Any] | None = None,
+        request: Mapping[str, Any] | None = None,
+        *,
+        dispatcher: Any | None = None,
+        result_ref: Mapping[str, Any] | None = None,
+        phase: str = "E3",
+        integration: bool = False,
+        process_timeout: float | None = None,
+        metric_events: Sequence[Mapping[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Run one workflow-loop/v1 dispatch and derive its next decision.
+
+        This is the additive path for loop-control Runs.  It performs only the
+        durable loop transitions required around one caller-supplied dispatch:
+        phase entry, reserve, running, and result acceptance (or
+        ``execution-unknown``).  B4/B5 review, repair-batch, evidence, and
+        completion facades remain non-authorizing derivations over the supplied
+        request and current state.
+        """
+
+        if isinstance(task_id, Mapping) and request is None:
+            request = task_id
+            task_id = None
+        if request is None or not isinstance(request, Mapping):
+            raise RuntimeExecutionError("workflow-loop execution requires a request mapping")
+        values = copy.deepcopy(dict(request))
+        nested = _loop_request(values)
+        if nested is None:
+            raise RuntimeExecutionError("workflow-loop execution requires workflow-loop/v1")
+        if nested is not values:
+            # Keep envelope sidecars (notably review/evidence inputs) while
+            # treating the explicit nested request as the canonical payload.
+            merged = copy.deepcopy(dict(nested))
+            for key, value in values.items():
+                if key not in {"workflow_loop", "loop_request", "completion_request"}:
+                    merged.setdefault(key, copy.deepcopy(value))
+            values = merged
+
+        state = self._loop_state()
+        current_identity = self._loop_identity(state["loop_control"])
+        supplied_identity = values.get("identity")
+        requested_identity = supplied_identity if isinstance(supplied_identity, Mapping) else None
+        requested_task = task_id or (
+            requested_identity.get("logical_task_id") if requested_identity else None
+        )
+        if not isinstance(requested_task, str) or not requested_task:
+            requested_task = current_identity["logical_task_id"]
+        self._validate_loop_task_grant(state, requested_task)
+        requested_phase = values.get("phase", phase)
+        if requested_identity is not None:
+            try:
+                requested_phase = validate_work_identity(requested_identity)["phase"]
+            except LoopContractError as error:
+                raise RuntimeExecutionError("workflow-loop identity is invalid: " + str(error)) from error
+        if integration or str(requested_phase).startswith("E8") or str(requested_phase).startswith("E9"):
+            requested_phase = "E8" if str(requested_phase) in {"E8", "E8-E9"} else "E9"
+        else:
+            # E3 is the explicit logical-task entry point.  E4-E7 are review
+            # sub-stages of the same E3-E7 counter identity and do not create a
+            # second task identity here.
+            requested_phase = "E3"
+
+        supplied_result = result_ref if result_ref is not None else values.get("result_ref")
+        facade_preflight = self._loop_facades(values)
+        if facade_preflight.get("error"):
+            raise RuntimeExecutionError(
+                "workflow-loop completion input is invalid: "
+                + str(facade_preflight["error"])
+            )
+        if dispatcher is None and supplied_result is not None:
+            # A caller-supplied result has no ambiguous external side effect.
+            # Reject malformed references before reserve/running can mutate
+            # durable history.
+            self._dispatch_result_ref(supplied_result, "preflight")
+
+        # Caller validation and phase-selection refusals are not execution
+        # outcomes.  In particular, a foreign lineage must not be able to
+        # close an otherwise untouched Run by presenting invalid input.
+        self.transition_loop_phase(
+            requested_phase,
+            requested_task,
+            identity=requested_identity,
+            reason="logical-task-entry" if requested_phase == "E3" else "integration-entry",
+        )
+
+        state = self._loop_state()
+        identity_value = self._loop_identity(state["loop_control"])
+        history = self._loop_history(state)
+        progress_fields = _loop_progress_fields(values)
+        monitor = _loop_timeout_values(values)
+        if process_timeout is not None:
+            monitor["process_timeout"] = copy.deepcopy(process_timeout)
+        if not monitor:
+            monitor = _loop_timeout_values({"process_timeout": values.get("process_timeout")})
+
+        # A current recovery terminal is never silently re-dispatched.
+        if state["loop_control"].get("recovery_required") or (
+            history and history[-1].get("status") == "execution-unknown"
+        ):
+            return self._loop_terminal_result(
+                state,
+                outcome="recovery-required",
+                reason="execution outcome is unknown; explicit recovery is required",
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+        terminal = state["loop_control"].get("terminal_record")
+        if isinstance(terminal, Mapping):
+            resume_evidence = values.get("resume_evidence_ref")
+            integration_return = values.get("iteration_kind") in {"integration-return", "integration"}
+            if resume_evidence is None and integration_return and terminal.get("outcome") == "completed":
+                resume_evidence = identity_value.get("predecessor_ref")
+            if resume_evidence is not None:
+                try:
+                    self.resume_loop_outcome(
+                        resume_evidence,
+                        reason=values.get("resume_reason", "integration return" if integration_return else "required input received"),
+                    )
+                    state = self._loop_state()
+                    history = self._loop_history(state)
+                except RuntimeExecutionError as error:
+                    return self._loop_terminal_result(
+                        state,
+                        outcome=terminal["outcome"],
+                        reason="workflow-loop resume was rejected: " + str(error),
+                        task_id=requested_task,
+                        progress_fields=progress_fields,
+                        monitor=monitor,
+                        record_values=values,
+                    )
+            else:
+                return self._loop_terminal_result(
+                    state,
+                    outcome=terminal["outcome"],
+                    reason="workflow-loop outcome is terminal; explicit resume evidence is required",
+                    task_id=requested_task,
+                    progress_fields=progress_fields,
+                    monitor=monitor,
+                    record_values=values,
+                )
+
+        callback = dispatcher
+        if callback is None and supplied_result is None:
+            return self._loop_terminal_result(
+                state,
+                outcome="needs-input",
+                reason="a dispatcher or result_ref is required before reservation",
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+        explicit_kind = values.get("iteration_kind", values.get("event_kind"))
+        if explicit_kind == "integration":
+            explicit_kind = "integration-return"
+        if explicit_kind == "retry":
+            explicit_kind = "technical-retry"
+        kind = explicit_kind
+        if kind is None:
+            kind = "initial" if not history else "improvement"
+        explicit_command_id = values.get("command_id")
+        if explicit_command_id is None:
+            implicit_identity = {
+                "counter_identity": counter_identity(identity_value),
+                "iteration_kind": explicit_kind or "default",
+            }
+            request_digest = canonical_digest(implicit_identity)[7:31]
+            command_id = f"workflow-loop-{requested_task}-{requested_phase}-{request_digest}"
+        else:
+            command_id = explicit_command_id
+        if not isinstance(command_id, str) or not command_id:
+            raise RuntimeExecutionError("workflow-loop command_id must be a stable identifier")
+
+        requested_event_id = values.get("event_id")
+        if explicit_command_id is not None:
+            frozen_request = {
+                key: copy.deepcopy(value)
+                for key, value in values.items()
+                if key not in {"command_id", "event_id", "idempotency_key"}
+            }
+            payload_digest = canonical_digest(frozen_request)[7:31]
+            bound_event_id = f"event-{command_id}-{payload_digest}"
+            if requested_event_id is not None and requested_event_id != bound_event_id:
+                raise RuntimeExecutionError(
+                    "explicit event_id does not bind the workflow-loop request payload"
+                )
+            requested_event_id = bound_event_id
+
+        matching = [item for item in history if item.get("command_id") == command_id]
+        if len(matching) > 1:
+            raise RuntimeExecutionError("workflow-loop command_id is not unique in durable history")
+        event = copy.deepcopy(matching[0]) if matching else None
+        if event is not None:
+            incompatible = (
+                event.get("identity") != identity_value
+                or (explicit_kind is not None and event.get("kind") != explicit_kind)
+                or (values.get("attempt") is not None and event.get("attempt") != values["attempt"])
+            )
+            if incompatible:
+                raise RuntimeExecutionError(
+                    "workflow-loop command_id was replayed with a different reservation payload"
+                )
+            if event.get("status") == "evaluated":
+                if supplied_result is not None:
+                    replay_ref, _ = self._dispatch_result_ref(
+                        supplied_result, event["event_id"]
+                    )
+                    if replay_ref != event.get("result_ref"):
+                        raise RuntimeExecutionError(
+                            "workflow-loop command_id was replayed with a different result"
+                        )
+                if requested_event_id is not None and event.get("event_id") != requested_event_id:
+                    raise RuntimeExecutionError(
+                        "workflow-loop command_id was replayed with a different request payload"
+                    )
+                return self._derive_loop_decision(
+                    values,
+                    state,
+                    task_id=requested_task,
+                    event=event,
+                    progress_fields=progress_fields,
+                    monitor=monitor,
+                    metric_events=metric_events,
+                )
+            if event.get("status") == "running":
+                return self._mark_loop_unknown_result(
+                    state,
+                    event["event_id"],
+                    "replayed command has a running dispatch with an ambiguous outcome",
+                    task_id=requested_task,
+                    progress_fields=progress_fields,
+                    monitor=monitor,
+                    record_values=values,
+                )
+            if requested_event_id is not None and event.get("event_id") != requested_event_id:
+                raise RuntimeExecutionError(
+                    "workflow-loop command_id was replayed with a different request payload"
+                )
+            if event.get("status") != "reserved":
+                raise RuntimeExecutionError(
+                    "workflow-loop command cannot be replayed from its current status"
+                )
+            after_reserve = state
+        else:
+            attempt = values.get("attempt")
+            if attempt is None:
+                attempt = 0 if not history else history[-1]["attempt"] + 1
+            predecessor = event_ref(history[-1]) if history else None
+            event_id = requested_event_id
+            try:
+                self.kernel.reserve_loop_event(
+                    identity=identity_value,
+                    command_id=command_id,
+                    event_id=event_id,
+                    kind=kind,
+                    attempt=attempt,
+                    predecessor_ref=predecessor,
+                    expected_revision=state["revision"],
+                    idempotency_key=values.get("idempotency_key", "workflow-loop-reserve:" + command_id),
+                )
+            except CounterExhaustedError as error:
+                return self._loop_terminal_result(
+                    state,
+                    outcome="iteration-limit",
+                    reason=str(error),
+                    task_id=requested_task,
+                    progress_fields=progress_fields,
+                    monitor=monitor,
+                    record_values=values,
+                )
+            except Exception as error:  # validation/CAS refusal, no dispatch occurred
+                raise RuntimeExecutionError(
+                    "workflow-loop reservation was rejected: " + str(error)
+                ) from error
+
+            after_reserve = self._loop_state()
+            reserved_history = self._loop_history(after_reserve)
+            event = reserved_history[-1] if reserved_history else None
+        if not isinstance(event, Mapping):
+            return self._loop_terminal_result(
+                after_reserve,
+                outcome="execution-failed",
+                reason="Kernel accepted a reservation without an event",
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+        # A replayed evaluated command has a durable result already; invoking a
+        # dispatcher again would violate exactly-once execution.
+        if event.get("status") == "evaluated":
+            return self._derive_loop_decision(
+                values,
+                after_reserve,
+                task_id=requested_task,
+                event=event,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                metric_events=metric_events,
+            )
+        try:
+            running = self.kernel.mark_loop_running(
+                event["event_id"],
+                expected_revision=after_reserve["revision"],
+                idempotency_key="workflow-loop-running:" + event["event_id"],
+            )
+            running_state = self._loop_state(running)
+        except Exception as error:
+            # The event is durably reserved and no external dispatch has run,
+            # so this is a retryable control-plane refusal, not a Run outcome.
+            raise RuntimeExecutionError(
+                "loop running transition was rejected: " + str(error)
+            ) from error
+
+        dispatch_result: Any = supplied_result
+        if callback is not None:
+            package = {
+                "schema": "workflow-loop-dispatch/v1",
+                "identity": copy.deepcopy(identity_value),
+                "event": copy.deepcopy(event),
+                "request": copy.deepcopy(values),
+                "process_timeout": copy.deepcopy(monitor),
+                "non_authorizing": True,
+            }
+            try:
+                dispatch_result = callback(package)
+            except Exception as error:  # noqa: BLE001 - dispatch outcome is unknown
+                return self._mark_loop_unknown_result(
+                    running_state,
+                    event["event_id"],
+                    "dispatch outcome is ambiguous: " + str(error),
+                    task_id=requested_task,
+                    progress_fields=progress_fields,
+                    monitor=monitor,
+                    record_values=values,
+                )
+
+        if dispatch_result is None:
+            return self._mark_loop_unknown_result(
+                running_state,
+                event["event_id"],
+                "dispatch returned no terminal result reference",
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+        if isinstance(dispatch_result, Mapping) and str(
+            dispatch_result.get("status", dispatch_result.get("outcome", ""))
+        ).lower() in {"unknown", "ambiguous", "execution-unknown", "recovery-required"}:
+            return self._mark_loop_unknown_result(
+                running_state,
+                event["event_id"],
+                "dispatch reported an ambiguous execution outcome",
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+        try:
+            accepted_ref, dispatch_status = self._dispatch_result_ref(
+                dispatch_result, event["event_id"]
+            )
+            accepted = self.kernel.accept_loop_result(
+                event["event_id"],
+                accepted_ref,
+                expected_revision=running_state["revision"],
+                idempotency_key="workflow-loop-accept:" + event["event_id"],
+            )
+        except Exception as error:  # noqa: BLE001 - acceptance outcome is unknown
+            return self._mark_loop_unknown_result(
+                running_state,
+                event["event_id"],
+                "result acceptance is ambiguous: " + str(error),
+                task_id=requested_task,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=values,
+            )
+
+        accepted_state = self._loop_state(accepted)
+        if dispatch_status in {"failed", "error", "failure"}:
+            values["execution_status"] = "failed"
+        values.setdefault("events", self._loop_history(accepted_state))
+        return self._derive_loop_decision(
+            values,
+            accepted_state,
+            task_id=requested_task,
+            event=self._loop_history(accepted_state)[-1],
+            progress_fields=progress_fields,
+            monitor=monitor,
+            metric_events=metric_events,
+        )
+
+    def _loop_state(self, supplied: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        state = supplied
+        if state is None:
+            reader = getattr(self.kernel, "read_state", None) or getattr(self.kernel, "snapshot", None)
+            if not callable(reader):
+                raise RuntimeExecutionError("workflow-loop Kernel must expose read_state()")
+            state = reader()
+        if not isinstance(state, Mapping) or not isinstance(state.get("loop_control"), Mapping):
+            raise RuntimeExecutionError("workflow-loop/v1 requires loop_control state")
+        return copy.deepcopy(dict(state))
+
+    @staticmethod
+    def _loop_identity(loop: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            return validate_work_identity(loop.get("identity"))
+        except LoopContractError as error:
+            raise RuntimeExecutionError("loop identity is invalid: " + str(error)) from error
+
+    def _validate_loop_task_grant(self, state: Mapping[str, Any], task_id: str) -> None:
+        """Bind project-local loop dispatches to the accepted D8/D10 task set.
+
+        Kernel-only fixtures intentionally omit the operational grant.  A
+        project-local runtime, however, must never turn a renamed task id into
+        a fresh logical counter that evades the planning boundary.
+        """
+
+        if self.runtime is None:
+            return
+        metadata = state.get("metadata")
+        grant = metadata.get("operational_task_grant") if isinstance(metadata, Mapping) else None
+        tasks = grant.get("tasks") if isinstance(grant, Mapping) else None
+        if not isinstance(tasks, Mapping) or task_id not in tasks:
+            raise RuntimeExecutionError("Task is not present in the accepted D8/D10 operational grant")
+
+    def _loop_history(self, state: Mapping[str, Any]) -> list[dict[str, Any]]:
+        loader = getattr(self.kernel, "_loop_history", None)
+        if callable(loader):
+            try:
+                value = loader(state)
+            except Exception as error:
+                raise RuntimeExecutionError("loop history cannot be loaded: " + str(error)) from error
+            if isinstance(value, list):
+                return copy.deepcopy(value)
+        loop = state.get("loop_control", {})
+        value = loop.get("history", loop.get("events")) if isinstance(loop, Mapping) else None
+        if isinstance(value, list):
+            return copy.deepcopy(value)
+        refs = loop.get("event_refs", []) if isinstance(loop, Mapping) else []
+        reader = getattr(self.kernel, "read_object", None)
+        if isinstance(refs, list) and callable(reader):
+            result = []
+            for ref in refs:
+                loaded = reader(ref)
+                if not isinstance(loaded, Mapping) or not isinstance(loaded.get("payload"), Mapping):
+                    raise RuntimeExecutionError("loop event reference is malformed")
+                result.append(copy.deepcopy(dict(loaded["payload"])))
+            return result
+        return []
+
+    def _desired_loop_identity(
+        self,
+        state: Mapping[str, Any],
+        phase: str,
+        logical_task_id: str,
+        *,
+        supplied: Mapping[str, Any] | None,
+    ) -> dict[str, Any]:
+        current = self._loop_identity(state["loop_control"])
+        if supplied is not None:
+            try:
+                identity = validate_work_identity(supplied)
+            except LoopContractError as error:
+                raise RuntimeExecutionError("workflow-loop identity is invalid: " + str(error)) from error
+            if identity["work_lineage_id"] != current["work_lineage_id"]:
+                raise RuntimeExecutionError("workflow-loop identity changes work lineage")
+            if identity["logical_task_id"] != logical_task_id:
+                raise RuntimeExecutionError("workflow-loop identity changes logical task")
+            if phase_policy(identity["phase"])["policy_id"] != phase_policy(phase)["policy_id"]:
+                raise RuntimeExecutionError("workflow-loop identity phase is not the requested policy")
+            return identity
+        history = self._loop_history(state)
+        identity = copy.deepcopy(current)
+        identity["logical_task_id"] = logical_task_id
+        identity["phase"] = phase
+        identity["scope_revision"] = f"{current['scope_revision']}:{phase}"
+        identity["predecessor_ref"] = event_ref(history[-1]) if history else None
+        return validate_work_identity(identity)
+
+    def _loop_transition_result(
+        self, operation: str, state: Mapping[str, Any], identity: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        value = self._loop_state(state)
+        return {
+            "schema": "workflow-loop-transition/v1",
+            "contract_version": _LOOP_SCHEMA,
+            "operation": operation,
+            "revision": value.get("revision"),
+            "head": _head(self.kernel),
+            "identity": copy.deepcopy(dict(identity)),
+            "policy": phase_limits(identity["phase"]),
+            "loop_control": copy.deepcopy(value["loop_control"]),
+            "history": self._loop_history(value),
+            "durable": True,
+            "non_mutating": True,
+        }
+
+    @staticmethod
+    def _dispatch_result_ref(value: Any, event_id: str) -> tuple[dict[str, str], str | None]:
+        status = None
+        candidate = value
+        if isinstance(value, Mapping):
+            status = value.get("status", value.get("outcome"))
+            candidate = value.get("result_ref", value)
+        if isinstance(candidate, Mapping) and {"id", "digest"}.issubset(candidate):
+            return _loop_ref({"id": candidate["id"], "digest": candidate["digest"]}, "result_ref"), status
+        try:
+            generated = {"id": "result-" + event_id, "digest": canonical_digest(value)}
+            return _loop_ref(generated, "result_ref"), status
+        except (LoopContractError, RuntimeExecutionError, TypeError, ValueError) as error:
+            raise RuntimeExecutionError("dispatch result is not digest-bound: " + str(error)) from error
+
+    def _mark_loop_unknown_result(
+        self,
+        state: Mapping[str, Any],
+        event_id: str,
+        reason: str,
+        *,
+        task_id: str,
+        progress_fields: set[str],
+        monitor: Mapping[str, Any] | None = None,
+        record_values: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        try:
+            current = self._loop_state(state)
+            updated = self.kernel.mark_loop_execution_unknown(
+                event_id,
+                expected_revision=current["revision"],
+                idempotency_key="workflow-loop-unknown:" + event_id,
+            )
+            return self._loop_terminal_result(
+                updated,
+                outcome="recovery-required",
+                reason=reason,
+                task_id=task_id,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=record_values,
+            )
+        except Exception as error:  # noqa: BLE001 - inability to persist unknown is terminal
+            return self._loop_terminal_result(
+                current if "current" in locals() else state,
+                outcome="execution-failed",
+                reason=reason + "; could not persist execution-unknown: " + str(error),
+                task_id=task_id,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=record_values,
+            )
+
+    def _derive_loop_decision(
+        self,
+        values: Mapping[str, Any],
+        state: Mapping[str, Any],
+        *,
+        task_id: str,
+        event: Mapping[str, Any],
+        progress_fields: set[str],
+        monitor: Mapping[str, Any],
+        metric_events: Sequence[Mapping[str, Any]] | None,
+    ) -> dict[str, Any]:
+        current = self._loop_state(state)
+        history = self._loop_history(current)
+        command = copy.deepcopy(dict(values))
+        command["schema"] = _LOOP_SCHEMA
+        command["phase"] = self._loop_identity(current["loop_control"])["phase"]
+        command["identity"] = self._loop_identity(current["loop_control"])
+        command["events"] = history
+        try:
+            from .execution_v2_orchestrator import DAGOrchestrator
+
+            compiled = DAGOrchestrator().compile_workflow_loop(command, {"events": history})
+        except Exception as error:  # noqa: BLE001 - facade errors become explicit failure
+            compiled = {
+                "schema": "workflow-loop-transition/v1",
+                "phase": command["phase"],
+                "policy": phase_limits(command["phase"]),
+                "outcome": "execution-failed",
+                "reason": "workflow-loop facade failed",
+                "error": str(error),
+                "counters": {},
+            }
+        facade = self._loop_facades(command)
+        evidence_assessments = self._loop_evidence_assessments(command)
+        metrics = self._loop_metrics(metric_events or command.get("metric_events", command.get("metrics_events")))
+        result = {
+            "schema": "workflow-loop-runtime-execution/v1",
+            "contract_version": _LOOP_SCHEMA,
+            "task_id": task_id,
+            "phase": command["phase"],
+            "identity": copy.deepcopy(command["identity"]),
+            "event": copy.deepcopy(dict(event)),
+            "loop_control": copy.deepcopy(current["loop_control"]),
+            "history": history,
+            "head": _head(self.kernel),
+            "transition": compiled,
+            "policy": copy.deepcopy(compiled.get("policy", phase_limits(command["phase"]))),
+            "outcome": compiled.get("outcome", "execution-failed"),
+            "reason": compiled.get("reason", "workflow-loop decision unavailable"),
+            "counters": copy.deepcopy(compiled.get("counters", {})),
+            "completion": copy.deepcopy(compiled.get("completion")),
+            "validation": facade.get("validation"),
+            "facade_error": facade.get("error"),
+            "repair_plan": copy.deepcopy(compiled.get("repair_plan")),
+            "review_packages": copy.deepcopy(compiled.get("review_packages", [])),
+            "accepted_reviews": copy.deepcopy(compiled.get("accepted_reviews", [])),
+            "batch_resolutions": copy.deepcopy(compiled.get("batch_resolutions", [])),
+            "evidence_assessments": evidence_assessments,
+            "metrics": metrics,
+            "process_timeout": copy.deepcopy(dict(monitor)),
+            "ignored_progress_fields": sorted(progress_fields),
+            "hard_failure": compiled.get("hard_failure") is True,
+            "limit_exhausted": compiled.get("limit_exhausted") is True,
+            "execution_unknown": compiled.get("execution_unknown") is True,
+            "needs_recovery": compiled.get("needs_recovery") is True,
+            "needs_input": compiled.get("needs_input") is True,
+            "durable": True,
+            "non_mutating": True,
+        }
+        if facade.get("error") and result["outcome"] == "completed":
+            result["outcome"] = "execution-failed"
+            result["reason"] = facade["error"]
+            result["hard_failure"] = True
+        if result["outcome"] in TERMINAL_OUTCOMES:
+            return self._loop_terminal_result(
+                current,
+                outcome=result["outcome"],
+                reason=result["reason"],
+                task_id=task_id,
+                progress_fields=progress_fields,
+                monitor=monitor,
+                record_values=command,
+                completion=compiled.get("completion"),
+                base_result=result,
+            )
+        return result
+
+    @staticmethod
+    def _loop_facades(values: Mapping[str, Any]) -> dict[str, Any]:
+        explicit_completion = "completion_request" in values
+        candidate = values.get("completion_request", values)
+        if not isinstance(candidate, Mapping):
+            return {"validation": None, "error": "completion request is malformed"}
+        request = copy.deepcopy(dict(candidate))
+        request.pop("phase", None)
+        request.pop("profile", None)
+        request.pop("events", None)
+        request.pop("history", None)
+        request.pop("state_entries", None)
+        request.pop("iteration_events", None)
+        request.pop("loop_control", None)
+        request.pop("schema", None)
+        for field in _LOOP_PROGRESS_FIELDS:
+            request.pop(field, None)
+        required_identity = {"identity", "candidate_digest", "package_digest"}
+        if explicit_completion and not required_identity.issubset(request):
+            return {
+                "validation": None,
+                "error": "completion request is missing identity or digest bindings",
+            }
+        if not required_identity.issubset(request):
+            return {"validation": None, "error": None}
+        try:
+            validation = WorkflowLoopValidator().validate(
+                {"schema": _LOOP_SCHEMA, **request}
+            )
+            # Evaluate through the named B4 facade as well.  The result is
+            # intentionally advisory and never grants dispatch or closure.
+            MechanicalCompletion().evaluate({"schema": _LOOP_SCHEMA, **request})
+            return {"validation": validation, "error": None}
+        except (V2ContractError, CompletionError, ValueError, TypeError) as error:
+            return {"validation": None, "error": str(error)}
+
+    @staticmethod
+    def _loop_evidence_assessments(values: Mapping[str, Any]) -> list[dict[str, Any]]:
+        candidate = values.get("completion_request")
+        if not isinstance(candidate, Mapping):
+            candidate = values
+        current = candidate.get("current_inputs", values.get("current_inputs"))
+        impact = candidate.get("change_impact", values.get("change_impact"))
+        evidence = candidate.get("evidence", values.get("evidence", []))
+        if current is None or impact is None or not isinstance(evidence, list):
+            return []
+        result = []
+        for item in evidence:
+            try:
+                result.append(assess_evidence(item, current, impact))
+            except EvidenceValidityError as error:
+                result.append({
+                    "schema": "loop-evidence-assessment/v1",
+                    "evidence_id": item.get("evidence_id", "unknown") if isinstance(item, Mapping) else "unknown",
+                    "status": "unknown",
+                    "reasons": [str(error)],
+                })
+        return result
+
+    @staticmethod
+    def _loop_metrics(events: Any) -> dict[str, Any] | None:
+        if events is None:
+            return None
+        try:
+            return derive_metrics(events)
+        except (LoopMetricsError, TypeError, ValueError) as error:
+            return {"schema": "loop-metrics-error/v1", "error": str(error)}
+
+    def _loop_terminal_result(
+        self,
+        state: Mapping[str, Any],
+        *,
+        outcome: str,
+        reason: str,
+        task_id: str,
+        progress_fields: set[str],
+        monitor: Mapping[str, Any] | None = None,
+        record_values: Mapping[str, Any] | None = None,
+        completion: Mapping[str, Any] | None = None,
+        base_result: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        value = self._loop_state(state)
+        requested_outcome = outcome
+        recorded = False
+        terminal_error = None
+        terminal = value["loop_control"].get("terminal_record")
+        if isinstance(terminal, Mapping):
+            outcome = terminal["outcome"]
+            reason = terminal["reason"]
+            recorded = True
+        elif outcome in TERMINAL_OUTCOMES:
+            try:
+                record = self._build_loop_terminal_record(
+                    value,
+                    outcome=outcome,
+                    reason=reason,
+                    record_values=record_values,
+                    completion=completion,
+                )
+                value = self._loop_state(
+                    self.kernel.record_loop_outcome(
+                        record,
+                        expected_revision=value["revision"],
+                        idempotency_key="workflow-loop-terminal:" + record["terminal_id"],
+                    )
+                )
+                terminal = value["loop_control"].get("terminal_record")
+                recorded = isinstance(terminal, Mapping)
+            except Exception as error:  # noqa: BLE001 - report a non-durable stop honestly
+                terminal_error = str(error)
+        durable_recovery = bool(value["loop_control"].get("recovery_required"))
+        if (
+            requested_outcome in TERMINAL_OUTCOMES
+            and not recorded
+            and not (requested_outcome == "recovery-required" and durable_recovery)
+        ):
+            outcome = "execution-failed"
+            reason = (
+                f"could not durably record {requested_outcome} outcome: "
+                f"{terminal_error or 'terminal record was not accepted'}"
+            )
+        identity = self._loop_identity(value["loop_control"])
+        policy = phase_limits(identity["phase"])
+        history = self._loop_history(value)
+        result = copy.deepcopy(dict(base_result or {}))
+        result.update({
+            "schema": "workflow-loop-runtime-execution/v1",
+            "contract_version": _LOOP_SCHEMA,
+            "task_id": task_id,
+            "phase": identity["phase"],
+            "identity": identity,
+            "loop_control": copy.deepcopy(value["loop_control"]),
+            "history": history,
+            "head": _head(self.kernel),
+            "policy": policy,
+            "outcome": outcome,
+            "reason": reason,
+            "counters": copy.deepcopy(value["loop_control"].get("counters", {})),
+            "process_timeout": copy.deepcopy(dict(monitor or {})),
+            "ignored_progress_fields": sorted(progress_fields),
+            "hard_failure": outcome == "execution-failed",
+            "limit_exhausted": outcome == "iteration-limit",
+            "execution_unknown": outcome == "recovery-required" or durable_recovery,
+            "needs_recovery": outcome == "recovery-required" or durable_recovery,
+            "needs_input": outcome == "needs-input",
+            "terminal_recorded": recorded,
+            "terminal_ref": copy.deepcopy(value["loop_control"].get("terminal_ref")),
+            "terminal_record": copy.deepcopy(terminal),
+            "terminal_error": terminal_error,
+            "requested_outcome": requested_outcome,
+            "durable": recorded,
+            "non_mutating": True,
+        })
+        return result
+
+    @staticmethod
+    def _validated_terminal_assessments(
+        values: Mapping[str, Any],
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
+        aliases = (
+            (("requirements", "completion_requirements", "requirement_assessments"), validate_requirement_assessment),
+            (("reviews", "completion_reviews", "review_assessments"), validate_review_assessment),
+            (("evidence", "completion_evidence", "evidence_records"), validate_evidence_record),
+        )
+        outputs: list[list[dict[str, Any]]] = []
+        invalid: list[str] = []
+        for fields, validator in aliases:
+            raw = next((values[field] for field in fields if field in values), [])
+            if not isinstance(raw, list):
+                outputs.append([])
+                invalid.append(fields[0] + "-malformed")
+                continue
+            checked = []
+            try:
+                checked = [validator(item) for item in raw]
+            except (LoopContractError, TypeError, ValueError):
+                checked = []
+                invalid.append(fields[0] + "-malformed")
+            outputs.append(checked)
+        return outputs[0], outputs[1], outputs[2], invalid
+
+    def _build_loop_terminal_record(
+        self,
+        state: Mapping[str, Any],
+        *,
+        outcome: str,
+        reason: str,
+        record_values: Mapping[str, Any] | None,
+        completion: Mapping[str, Any] | None,
+    ) -> dict[str, Any]:
+        identity = self._loop_identity(state["loop_control"])
+        values = copy.deepcopy(dict(record_values or {}))
+        classification = completion if isinstance(completion, Mapping) else None
+        source = classification.get("source_request") if classification is not None else None
+        if not isinstance(source, Mapping):
+            source = values.get("completion_request")
+        if not isinstance(source, Mapping):
+            source = values
+        requirements, reviews, evidence, invalid = self._validated_terminal_assessments(source)
+
+        candidate_digest = classification.get("candidate_digest") if classification is not None else None
+        if candidate_digest is None:
+            candidate_digest = source.get("candidate_digest", values.get("candidate_digest"))
+        candidate_ref = source.get("candidate_ref", values.get("candidate_ref"))
+        try:
+            candidate_ref = validate_ref(candidate_ref, "candidate_ref", nullable=True)
+        except LoopContractError:
+            candidate_ref = None
+            invalid.append("candidate-ref-malformed")
+        if candidate_ref is not None and candidate_digest is not None and candidate_ref["digest"] != candidate_digest:
+            candidate_ref = None
+            invalid.append("candidate-ref-mismatch")
+        if candidate_ref is None and isinstance(candidate_digest, str):
+            try:
+                candidate_ref = validate_ref(
+                    {"id": "candidate-" + candidate_digest.removeprefix("sha256:")[:24], "digest": candidate_digest},
+                    "candidate_ref",
+                )
+            except LoopContractError:
+                invalid.append("candidate-digest-malformed")
+        if candidate_ref is None:
+            history = self._loop_history(state)
+            latest_ref = history[-1].get("result_ref") if history else None
+            try:
+                candidate_ref = validate_ref(latest_ref, "candidate_ref", nullable=True)
+            except LoopContractError:
+                candidate_ref = None
+
+        resume_ref = values.get("resume_ref", values.get("next_input_ref"))
+        try:
+            resume_ref = validate_ref(resume_ref, "resume_ref", nullable=True)
+        except LoopContractError:
+            resume_ref = None
+            invalid.append("resume-ref-malformed")
+
+        open_items = []
+        if outcome != "completed":
+            explicit = values.get("open_items", [])
+            if isinstance(explicit, list):
+                open_items.extend(item for item in explicit if isinstance(item, str) and item)
+            if classification is not None and isinstance(classification.get("reason_codes"), list):
+                open_items.extend(
+                    item for item in classification["reason_codes"] if isinstance(item, str) and item
+                )
+            open_items.extend(invalid)
+            open_items.append(reason)
+        unsigned = {
+            "schema": "loop-terminal-record/v1",
+            "identity": identity,
+            "outcome": outcome,
+            "reason": reason,
+            "candidate_ref": candidate_ref,
+            "requirements": requirements,
+            "reviews": reviews,
+            "evidence": evidence,
+            "open_items": list(dict.fromkeys(open_items)),
+            "resume_ref": resume_ref if outcome != "completed" else None,
+            "non_authorizing": True,
+        }
+        record = {
+            "terminal_id": "terminal-" + canonical_digest(unsigned).removeprefix("sha256:")[:24],
+            **unsigned,
+        }
+        try:
+            return validate_terminal_record(record)
+        except LoopContractError as error:
+            raise RuntimeExecutionError("workflow-loop terminal record is invalid: " + str(error)) from error
+
+    def resume_loop_outcome(
+        self,
+        evidence_ref: Mapping[str, Any],
+        *,
+        reason: str,
+        resume_id: str | None = None,
+    ) -> dict[str, Any]:
+        """Persist evidence for reopening one non-exhausted terminal loop."""
+
+        state = self._loop_state()
+        loop = state["loop_control"]
+        terminal_ref = loop.get("terminal_ref")
+        if not isinstance(terminal_ref, Mapping):
+            raise RuntimeExecutionError("workflow-loop has no terminal outcome to resume")
+        terminal_payload_ref = {
+            key: terminal_ref[key] for key in ("path", "digest") if key in terminal_ref
+        }
+        checked_evidence = _loop_ref(evidence_ref, "evidence_ref")
+        unsigned = {
+            "schema": "loop-resume-record/v1",
+            "identity": self._loop_identity(loop),
+            "terminal_ref": _loop_ref(terminal_payload_ref, "terminal_ref"),
+            "reason": reason,
+            "evidence_ref": checked_evidence,
+            "non_authorizing": True,
+        }
+        record = {
+            "resume_id": resume_id
+            or "resume-" + canonical_digest(unsigned).removeprefix("sha256:")[:24],
+            **unsigned,
+        }
+        try:
+            checked = validate_resume_record(record)
+            updated = self.kernel.resume_loop_outcome(
+                checked,
+                expected_revision=state["revision"],
+                idempotency_key="workflow-loop-resume:" + checked["resume_id"],
+            )
+        except Exception as error:
+            raise RuntimeExecutionError("workflow-loop resume was rejected: " + str(error)) from error
+        return self._loop_transition_result("resume", updated, checked["identity"])
 
     def execute(
         self,
@@ -91,6 +1241,23 @@ class RuntimeExecution:
         changed_paths: Sequence[str],
         loop_level: str = "artifact",
     ) -> dict[str, Any]:
+        # A loop-control Run has an explicit additive facade.  Keep the old
+        # physical E1-E9 contract byte-for-byte for legacy review-budget Runs.
+        current = self.kernel.read_state()
+        loop_request = _loop_request(execution_package_input) or _loop_request(stage_inputs)
+        if (isinstance(current, Mapping) and "loop_control" in current) or loop_request is not None:
+            if loop_request is None:
+                raise RuntimeExecutionError("workflow-loop/v1 request is required for a loop-control Run")
+            callback = stage_inputs.get("dispatcher") if isinstance(stage_inputs, Mapping) else None
+            supplied_result = stage_inputs.get("result_ref") if isinstance(stage_inputs, Mapping) else None
+            return self.execute_loop(
+                task_id,
+                loop_request,
+                dispatcher=callback if callable(callback) else None,
+                result_ref=supplied_result,
+                phase=loop_request.get("phase", "E3"),
+                process_timeout=loop_request.get("process_timeout"),
+            )
         required = {"E4", "E5", "E6", "E8"}
         if not isinstance(stage_inputs, Mapping) or not required.issubset(stage_inputs) or any(not isinstance(stage_inputs[key], Mapping) for key in required):
             raise RuntimeExecutionError("Group E stage inputs are incomplete")

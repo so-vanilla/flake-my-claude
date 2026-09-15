@@ -1,0 +1,22 @@
+{
+  "schema": "loop-contract-cases/v1",
+  "identity": {
+    "schema": "loop-work-identity/v1",
+    "work_lineage_id": "lineage-001",
+    "logical_task_id": "task-001",
+    "phase": "E4",
+    "scope_revision": "scope-r1",
+    "requirements_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "predecessor_ref": null
+  },
+  "policy_examples": [
+    {"phase": "B2", "policy_id": "B", "limit": 2},
+    {"phase": "D5", "policy_id": "D5", "limit": 1},
+    {"phase": "D11", "policy_id": "D6-D12", "limit": 2},
+    {"phase": "E4", "policy_id": "E3-E7", "limit": 3},
+    {"phase": "E9", "policy_id": "E8-E9", "limit": 2},
+    {"phase": "H1", "policy_id": "G-H", "limit": 1}
+  ],
+  "counter_invariants": ["scope_revision", "candidate_digest", "session_id", "resume_id"],
+  "terminal_outcomes": ["completed", "needs-input", "stalled", "iteration-limit", "execution-failed", "recovery-required"]
+}

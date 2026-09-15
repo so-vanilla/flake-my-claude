@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 EVIDENCE_PATH = "agent-workflows/evidence/compatibility/runtime-source-extension.json"
-EVIDENCE_DIGEST = "sha256:eccd45a7b22cf0cb36cab0e1c279b2101efed36341d4dbf6776ae917f0a07f96"
+EVIDENCE_DIGEST = "sha256:db8283193f19d5b7925a0c2fd3afb71f75faba0f4fb25a0f9d368c901b6ed496"
 HISTORICAL_PATH = "agent-workflows/evidence/compatibility/S2-objective-transition.json"
 HISTORICAL_DIGEST = "sha256:e00285c0f2843ba52ea4df9f482c551e22953d73bd4d2f5a4d1ea7f448789cee"
 

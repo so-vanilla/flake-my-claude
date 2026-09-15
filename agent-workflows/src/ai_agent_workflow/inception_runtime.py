@@ -8,15 +8,15 @@ from __future__ import annotations
 
 import argparse
 import copy
-from datetime import datetime, timezone
 import hashlib
 import json
-from pathlib import Path
 import secrets
 import sys
+from datetime import datetime, timezone
+from pathlib import Path
 
 from .control_kernel import ControlKernel, KernelError
-from .inception_cli import InceptionError, SKILLS, create_file, encoded, read_json, regular
+from .inception_cli import SKILLS, InceptionError, read_json, regular
 from .outcome_system import OutcomeSystemV1
 from .planning_system import PlanningSystemV1
 
@@ -31,11 +31,25 @@ _EXECUTION_INPUTS = {
     "system_read_roots", "runtime_read_roots", "stage_inputs", "changed_paths",
 }
 _EXECUTION_OPTIONAL_INPUTS = {"loop_level"}
+_LOOP_EXECUTION_INPUTS = {
+    "task_id", "workflow_loop", "loop_request", "completion_request",
+    "result_ref", "phase", "integration", "process_timeout", "metric_events",
+}
 _REPAIR_ACTIONS = (
     "status", "begin", "worker", "focused", "reviews-issue", "reviews-accept",
     "validator-issue", "validator-accept", "whole", "finalize",
 )
 _REPAIR_CAS_INPUTS = {"attempt_id", "nonce", "previous_state_ref", "expected_head"}
+_WORKFLOW_LOOP_ACTIONS = (
+    "status", "begin", "reserve", "running", "mark-running", "accept", "accept-result",
+    "execution-unknown", "mark-execution-unknown", "recover", "repair", "repair-batch",
+    "review-packages", "review-results", "evidence-validity", "completion", "phase-transition",
+    "loop-policy", "loop-status", "loop-reserve", "loop-running", "loop-accept-result",
+    "loop-execution-unknown", "loop-recover", "loop-repair", "loop-repair-batch",
+    "loop-review-packages", "loop-review-results", "loop-evidence-validity",
+    "loop-completion", "loop-phase-transition",
+)
+_WORKFLOW_LOOP_ENVELOPES = ("workflow_loop", "loop_request", "completion_request")
 
 
 def _reject_durable_broker_secrets(value):
@@ -54,6 +68,70 @@ def _reject_durable_broker_secrets(value):
 
 def execute_group_e(project, run_id, inputs):
     """Construct the trusted E parent locally and consume one physical JSON input."""
+    if not isinstance(inputs, dict):
+        raise InceptionError("runtime execute-e requires one JSON object")
+    if inputs.get("schema") == "workflow-loop/v1":
+        if any(name in inputs for name in _WORKFLOW_LOOP_ENVELOPES):
+            raise InceptionError(
+                "runtime execute-e cannot mix a canonical loop request with an envelope"
+            )
+        legacy_fields = (set(inputs) & (_EXECUTION_INPUTS | _EXECUTION_OPTIONAL_INPUTS)) - {
+            "task_id"
+        }
+        if legacy_fields:
+            raise InceptionError(
+                "runtime execute-e canonical workflow-loop cannot carry legacy broker inputs"
+            )
+        identity = inputs.get("identity")
+        task_id = inputs.get("task_id")
+        if task_id is None and isinstance(identity, dict):
+            task_id = identity.get("logical_task_id")
+        if not isinstance(task_id, str) or not task_id:
+            raise InceptionError("runtime execute-e workflow-loop identity is incomplete")
+        _reject_durable_broker_secrets(inputs)
+        from .runtime_execution import RuntimeExecution
+
+        runtime = RuntimeExecution(project, run_id)
+        result = runtime.execute_loop(
+            task_id,
+            inputs,
+            result_ref=inputs.get("result_ref"),
+            phase=inputs.get("phase", "E3"),
+            integration=inputs.get("integration", False),
+            process_timeout=inputs.get("process_timeout"),
+            metric_events=inputs.get("metric_events"),
+        )
+        modules = ("inception_runtime", "runtime_execution")
+        result["runtime_module_paths"] = {
+            name: str(Path(sys.modules[__package__ + "." + name].__file__).resolve())
+            for name in modules
+        }
+        return result
+    loop_envelopes = [name for name in _WORKFLOW_LOOP_ENVELOPES if name in inputs]
+    if loop_envelopes:
+        if len(loop_envelopes) != 1 or set(inputs) - _LOOP_EXECUTION_INPUTS:
+            raise InceptionError("runtime execute-e workflow-loop inputs are unsupported")
+        if "task_id" not in inputs or not isinstance(inputs[loop_envelopes[0]], dict):
+            raise InceptionError("runtime execute-e workflow-loop inputs are incomplete")
+        _reject_durable_broker_secrets(inputs)
+        from .runtime_execution import RuntimeExecution
+
+        runtime = RuntimeExecution(project, run_id)
+        result = runtime.execute_loop(
+            inputs["task_id"],
+            inputs[loop_envelopes[0]],
+            result_ref=inputs.get("result_ref"),
+            phase=inputs.get("phase", "E3"),
+            integration=inputs.get("integration", False),
+            process_timeout=inputs.get("process_timeout"),
+            metric_events=inputs.get("metric_events"),
+        )
+        modules = ("inception_runtime", "runtime_execution")
+        result["runtime_module_paths"] = {
+            name: str(Path(sys.modules[__package__ + "." + name].__file__).resolve())
+            for name in modules
+        }
+        return result
     if not isinstance(inputs, dict) or set(inputs) - (_EXECUTION_INPUTS | _EXECUTION_OPTIONAL_INPUTS):
         raise InceptionError("runtime execute-e input fields are unsupported")
     if not _EXECUTION_INPUTS <= set(inputs):
@@ -115,14 +193,84 @@ def _repair_broker(project, run_id, action, attempt_id):
     )
 
 
+def _has_loop_control_run(project, run_id):
+    """Read-only detection for the explicit workflow-loop repair route."""
+    try:
+        kernel = ControlKernel(Path(project).resolve(strict=True), run_id)
+        state = kernel.read_state()
+    except (KernelError, KeyError, OSError, TypeError, ValueError):
+        return False
+    return isinstance(state, dict) and isinstance(state.get("loop_control"), dict)
+
+
+def _workflow_loop_requested(project, run_id, action, inputs):
+    """Select v1 only from a v1 envelope, alias, or loop-control Run."""
+    explicit = (
+        inputs.get("schema") == "workflow-loop/v1"
+        or any(name in inputs for name in _WORKFLOW_LOOP_ENVELOPES)
+        or action.startswith("loop-")
+    )
+    if explicit:
+        return True
+    # ``status`` and ``begin`` are historical repair actions.  Keep their
+    # unwrapped spelling on the legacy route even when a Run happens to carry
+    # loop-control state; v1 callers use the explicit loop-* aliases or the
+    # workflow-loop/v1 envelope.
+    if action in {"status", "begin"}:
+        return False
+    return action in _WORKFLOW_LOOP_ACTIONS and _has_loop_control_run(project, run_id)
+
+
+def _workflow_loop_action(action):
+    if action == "loop-policy":
+        return "loop-policy"
+    if action.startswith("loop-"):
+        return action[5:]
+    return {
+        "begin": "reserve",
+        "mark-running": "running",
+        "accept": "accept",
+        "mark-execution-unknown": "execution-unknown",
+        "repair": "repair-batch",
+    }.get(action, action)
+
+
+def _workflow_loop_payload(inputs):
+    """Unwrap one v1 envelope without accepting caller authority fields."""
+    payload = copy.deepcopy(inputs)
+    if payload.get("schema") == "workflow-loop/v1":
+        payload.pop("schema", None)
+    for name in _WORKFLOW_LOOP_ENVELOPES:
+        nested = payload.pop(name, None)
+        if nested is None:
+            continue
+        if not isinstance(nested, dict):
+            raise InceptionError("workflow-loop input envelope is malformed")
+        merged = {key: value for key, value in payload.items() if key not in nested}
+        merged.update(nested)
+        payload = merged
+        if payload.get("schema") == "workflow-loop/v1":
+            payload.pop("schema", None)
+        break
+    return payload
+
+
 def execute_repair_e(project, run_id, action, inputs):
     """Dispatch one staged repair action through the trusted parent adapter."""
-    if action not in _REPAIR_ACTIONS:
+    if action not in _REPAIR_ACTIONS and action not in _WORKFLOW_LOOP_ACTIONS:
         raise InceptionError("runtime repair-e action is unsupported")
     if not isinstance(inputs, dict):
         raise InceptionError("runtime repair-e requires one JSON object")
     _reject_durable_broker_secrets(inputs)
     _reject_repair_result_claims(inputs)
+
+    if _workflow_loop_requested(project, run_id, action, inputs):
+        from .runtime_repair import WorkflowLoopRepairCoordinator
+
+        coordinator = WorkflowLoopRepairCoordinator(project, run_id)
+        return coordinator.dispatch(
+            _workflow_loop_action(action), _workflow_loop_payload(inputs)
+        )
 
     from .runtime_repair import RuntimeRepairCoordinator
 
@@ -225,11 +373,75 @@ class InceptionRuntime:
         return file_ref(self.kernel.objects_dir / (record["ref"]["digest"][7:] + ".json"))
 
     def _budget(self):
-        # Kernel review budget is immutable across clear/restart; never reset it.
+        """Reject a non-dispatch state without turning elapsed time into progress.
+
+        The method name is retained for legacy callers.  A loop-control Run is
+        governed only by its immutable history and typed terminal state; only
+        an explicitly old Run reads the historical wall-clock field.
+        """
+        loop = self.state.get("loop_control")
+        if isinstance(loop, dict):
+            if loop.get("recovery_required"):
+                raise InceptionError("Run requires explicit execution recovery evidence")
+            terminal = loop.get("terminal_outcome") or loop.get("outcome")
+            if terminal is not None:
+                raise InceptionError("Run loop is non-dispatch: " + str(terminal))
+            if loop.get("dispatch_allowed") is not True:
+                raise InceptionError("Run loop does not permit dispatch")
+            return
+        # Explicit legacy Run: preserve its old deadline byte-for-byte and do
+        # not synthesize or extend it while resuming.
         budget = self.state.get("review_budget", {})
         deadline = budget.get("deadline") or budget.get("wall_clock_deadline")
         if deadline and datetime.now(timezone.utc) >= datetime.fromisoformat(deadline.replace("Z", "+00:00")):
             raise InceptionError("Run wall-clock budget exhausted")
+
+    def _desired_loop_identity(self, phase, logical_task_id):
+        predecessor = None
+        loop = self.state.get("loop_control")
+        refs = loop.get("event_refs", []) if isinstance(loop, dict) else []
+        if refs:
+            latest = self.kernel.read_object(refs[-1])["payload"]
+            predecessor = {"id": latest["event_id"], "digest": refs[-1]["digest"]}
+        objective = self.state["objective_ref"]
+        return {
+            "schema": "loop-work-identity/v1",
+            "work_lineage_id": self.state["run_id"],
+            "logical_task_id": logical_task_id,
+            "phase": phase,
+            "scope_revision": str(objective["version"]) + ":" + phase,
+            "requirements_digest": objective["digest"],
+            "predecessor_ref": predecessor,
+        }
+
+    def _ensure_loop_phase(self, phase, logical_task_id):
+        loop = self.state.get("loop_control")
+        if not isinstance(loop, dict):
+            return
+        desired = self._desired_loop_identity(phase, logical_task_id)
+        current = loop["identity"]
+        if all(
+            current.get(key) == desired[key]
+            for key in ("work_lineage_id", "logical_task_id", "phase")
+        ):
+            return
+        self.state = self.kernel.transition_loop_phase(
+            desired,
+            reason="operational-phase-entry",
+            authority_ref=self._authority("transition_loop_phase"),
+            expected_revision=self.state["revision"],
+        )
+        self._refresh()
+
+    def _ensure_step_loop_phase(self, short):
+        if short.startswith("C"):
+            self._ensure_loop_phase("C", "group-C-outcomes")
+        elif short in {"D1", "D2", "D3", "D4"}:
+            self._ensure_loop_phase("D1", "group-D-specification")
+        elif short == "D5":
+            self._ensure_loop_phase("D5", "group-D-option-set")
+        elif short.startswith("D"):
+            self._ensure_loop_phase("D6", "group-D-planning")
 
     def records(self, group=None):
         result = {}
@@ -263,6 +475,7 @@ class InceptionRuntime:
         missing = [step for step in route if step not in group_records]
         next_id = missing[0] if missing and group["status"] == "open" else None
         ids = [*ROUTES["B"], *ROUTES["C"], *ROUTES["D"]]
+        loop = self.state.get("loop_control")
         return {"run_id": self.state["run_id"], "mode": self.identity["mode"],
                 "head": self._head(), "group": group, "epoch": self.state["epoch"],
                 "record_refs": {key: copy.deepcopy(value["ref"]) for key, value in group_records.items()},
@@ -270,6 +483,8 @@ class InceptionRuntime:
                 "next_skill": SKILLS[ids.index(next_id)] if next_id in ids else None,
                 "next_id": "group.%s.%s" % (next_id[0], next_id) if next_id and next_id in ids else None,
                 "next_action": "execute-group-e-via-parent-runtime" if group["id"] == "E" and group["status"] == "open" and next_id else "invoke-one-skill-then-clear" if next_id else "close-group-with-audit" if group["status"] == "open" else "clear-then-advance",
+                "progress_control": "iteration-and-evidence" if isinstance(loop, dict) else "legacy-wall-clock-budget",
+                "loop_control": copy.deepcopy(loop),
                 "objective_approval_source": self.approval["receipt"]["source"],
                 "execution_authorized": False,
                 "execution_ready": (group["id"] == "E" and group["status"] == "open"
@@ -277,10 +492,11 @@ class InceptionRuntime:
 
     def step(self, qualified_id, inputs, *, actor_ref):
         status = self.status()
-        self._budget()
         short = qualified_id.split(".")[-1]
         if qualified_id != status["next_id"] or short[0] not in ("C", "D"):
             raise InceptionError("wrong frontier; use actual B approval adoption for Group B")
+        self._ensure_step_loop_phase(short)
+        self._budget()
         values = copy.deepcopy(inputs)
         verify_refs(values, self.project)
         physical(actor_ref, self.project)
@@ -297,7 +513,7 @@ class InceptionRuntime:
         b7_actor = records.get("B7", {}).get("value", {}).get("inputs", {}).get("approval_receipt", {}).get("actor_ref", {}).get("authority_ref")
         if b7_actor and actor_ref["digest"] != b7_actor["digest"]:
             raise InceptionError("actor bytes differ from the adopted approval actor")
-        predecessor = records.get((short[0] + str(int(short[1:]) - 1)))
+        predecessor = records.get(short[0] + str(int(short[1:]) - 1))
         self._bind_inputs(short, values, records, predecessor, objective)
         namespace = self.identity["namespace"]
         if short.startswith("C"):
@@ -368,10 +584,19 @@ class InceptionRuntime:
             if short == "D9" and values.get("tasks") != output("D8")["tasks"]:
                 raise InceptionError("execution DAG must bind the current D8 tasks")
             if short in {"D10", "D11"}:
-                ids = {task["task_id"] for task in output("D8")["tasks"]}
-                items = values.get("briefs" if short == "D10" else "task_budgets", [])
+                current_tasks = output("D8")["tasks"]
+                ids = {task["task_id"] for task in current_tasks}
+                items = values.get(
+                    "briefs" if short == "D10" else "task_loop_policies", []
+                )
                 if {item.get("task_id") for item in items} != ids or len(items) != len(ids):
-                    raise InceptionError("briefs and budgets must cover exact current D8 tasks")
+                    raise InceptionError(
+                        "briefs and loop policies must cover exact current D8 tasks"
+                    )
+                if short == "D11":
+                    if values.get("tasks", current_tasks) != current_tasks:
+                        raise InceptionError("loop policies must bind exact current D8 tasks")
+                    values["tasks"] = copy.deepcopy(current_tasks)
             if short == "D12":
                 supplied = values.get("evidence_refs", [])
                 if any(self._record_file_ref(records["D%d" % index]) not in supplied for index in range(1, 12)):
@@ -426,6 +651,19 @@ class InceptionRuntime:
         self.status()
         self._budget()
         group = self.state["group"]["id"]
+        # Opening the successor and rotating its loop identity are separate
+        # Kernel transactions. If the process stops between them, replaying
+        # ``advance`` finishes that already-authorized transition.
+        recovery_phase = {
+            "C": ("C", "group-C-outcomes"),
+            "D": ("D1", "group-D-specification"),
+            "H": ("H", "group-H-objective-audit"),
+        }.get(group)
+        if self.state["group"]["status"] == "open" and recovery_phase:
+            loop = self.state.get("loop_control")
+            if isinstance(loop, dict) and loop["identity"].get("phase") != recovery_phase[0]:
+                self._ensure_loop_phase(*recovery_phase)
+                return self.status()
         next_group = {"B": "C", "C": "D", "D": "E", "E": "H"}.get(group)
         if not next_group or self.state["group"]["status"] != "closed":
             raise InceptionError("advance requires a closed Group; it never closes implicitly")
@@ -433,6 +671,12 @@ class InceptionRuntime:
                      "run_id": self.state["run_id"], "write_scopes": [self.identity["namespace"]],
                      "protected_fields": ["group", "epoch", "ready"], "human_receipt": self.approval["receipt"]}
         self.state = self.kernel.open_operational_group(next_group, next_group + "-01", self.state["group"]["bundle_ref"], authority_ref=authority)
+        if next_group == "C":
+            self._ensure_loop_phase("C", "group-C-outcomes")
+        elif next_group == "D":
+            self._ensure_loop_phase("D1", "group-D-specification")
+        elif next_group == "H":
+            self._ensure_loop_phase("H", "group-H-objective-audit")
         return self.status()
 
 
@@ -444,12 +688,12 @@ def main(argv=None):
     parser.add_argument("--inputs")
     parser.add_argument("--qualified-id")
     parser.add_argument("--actor")
-    parser.add_argument("--action", choices=_REPAIR_ACTIONS)
+    parser.add_argument("--action", choices=(*_REPAIR_ACTIONS, *_WORKFLOW_LOOP_ACTIONS))
     args = parser.parse_args(argv)
     try:
         if args.operation == "adopt":
             from .runtime_approval import adopt_approved_objective
-            kernel = adopt_approved_objective(args.project, args.run_id, **read_json(args.inputs))
+            adopt_approved_objective(args.project, args.run_id, **read_json(args.inputs))
             result = InceptionRuntime(args.project, args.run_id).status()
         elif args.operation == "execute-e":
             result = execute_group_e(args.project, args.run_id, read_json(args.inputs))

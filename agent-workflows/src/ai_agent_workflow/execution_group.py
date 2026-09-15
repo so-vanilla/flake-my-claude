@@ -19,12 +19,14 @@ from typing import Any
 from .bounded_read_scope import (ReadScopeError, compile_read_scope,
                                  verify_read_scope_receipt)
 from .execution_v2 import (EvidenceFinalizer, ExecutionClosureBuilder, FindingValidator,
-                           ReceiptAggregator, V2ContractError)
+                           MechanicalCompletion, ReceiptAggregator, V2ContractError,
+                           WorkflowLoopValidator)
 from .execution_v2_orchestrator import DAGOrchestrator, OrchestratorContractError
 from .macos_task_process import (MacOSTaskProcessBroker,
                                  compile_macos_task_process_release)
 from .persistent_receipts import (DeterministicProcessAdapter, DuplicateReceiptConflict,
                                   PersistentReceiptError, PersistentReceiptRunner)
+from .review_packages import ReviewPackageError, accept_review_result
 
 _ROOT = Path(__file__).resolve().parents[2]
 _POLICY = "agent-workflows/groups/required-only-feedback-execution-policy-v1.json"
@@ -184,6 +186,20 @@ def _common(stage: str, inputs: Any, authority: Any, expected_head: Any) -> tupl
     return copy.deepcopy(dict(inputs)), bound_authority
 
 
+def _workflow_loop_input(value: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    """Return an additive workflow-loop request, if the caller supplied one."""
+    for key in ("workflow_loop", "loop_request", "completion_request"):
+        if key in value:
+            request = value[key]
+            _require(isinstance(request, Mapping), "workflow-loop request is malformed")
+            return request
+    if any(key in value for key in ("review_package", "review_assessment", "review_results")):
+        return value
+    if value.get("schema") == "workflow-loop/v1":
+        return value
+    return None
+
+
 class ArtifactCandidateBuilder:
     """Freeze one validated Task result and receipt; grant no lifecycle authority."""
 
@@ -267,6 +283,16 @@ class ExecutionGroupV1:
         dispositions = FindingValidator().validate(reviews, value["dispositions"], value["observed_budget"])
         finalized = EvidenceFinalizer().finalize(value["candidate"], aggregate, dispositions, value["inventory_ref"], value["inventory"], value["branches"])
         return {"aggregate": aggregate, "dispositions": dispositions, "finalization": finalized}
+
+    @staticmethod
+    def validate_workflow_loop(request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        """Compile the additive workflow-loop/v1 review and completion path."""
+        return WorkflowLoopValidator().validate(request, receipt_id=receipt_id)
+
+    @staticmethod
+    def compile_workflow_loop(request: Mapping[str, Any], *, receipt_id: str | None = None) -> dict[str, Any]:
+        """Compatibility name for callers that treat the loop as a compiler."""
+        return MechanicalCompletion().evaluate(request, receipt_id=receipt_id)
 
     def _1(self, v: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]:
         checks = v.get("readiness_checks")
@@ -400,6 +426,9 @@ class ExecutionGroupV1:
     def _5(self, v: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]: return self._review(v, a, "integration-operability", "E5")
 
     def _review(self, v: Mapping[str, Any], a: Mapping[str, Any], axis: str, stage: str) -> dict[str, Any]:
+        loop_request = _workflow_loop_input(v)
+        if loop_request is not None:
+            return self._workflow_loop_review(v, loop_request, axis, stage)
         actors = [v.get("actor_id"), v.get("worker_actor_id"), v.get("other_reviewer_actor_id")]
         epochs = [v.get("reviewer_epoch_id"), v.get("other_reviewer_epoch_id"), a["epoch_id"]]
         _require(v.get("axis") == axis and all(isinstance(item, str) and item for item in actors) and len(set(actors)) == len(actors), "review actors are not fresh and distinct")
@@ -416,7 +445,47 @@ class ExecutionGroupV1:
         report = {"axis": axis, "actor_id": v["actor_id"], "reviewer_epoch_id": v["reviewer_epoch_id"], "binding": copy.deepcopy(binding), "findings": copy.deepcopy(v["findings"])}
         return {"stage": stage, "status": "reviewed", "report": report, "report_digest": _digest(report), "findings": copy.deepcopy(v["findings"])}
 
+    @staticmethod
+    def _workflow_loop_review(value: Mapping[str, Any], request: Mapping[str, Any], axis: str, stage: str) -> dict[str, Any]:
+        review = request.get("review", request.get("review_assessment", request))
+        package = request.get("review_package", request.get("package"))
+        _require(isinstance(package, Mapping), "workflow-loop review package is missing")
+        try:
+            accepted = accept_review_result(package, review)
+        except ReviewPackageError as error:
+            raise ExecutionGroupRefusal(str(error)) from error
+        _require(accepted["axis"] == axis, "workflow-loop review axis does not match the Group E stage")
+        _require(accepted["completed"] is True, "workflow-loop review is incomplete")
+        report = {
+            "schema": "workflow-loop-review-report/v1",
+            "axis": axis,
+            "actor_id": accepted["actor_id"],
+            "context_epoch": accepted["context_epoch"],
+            "candidate_digest": accepted["candidate_digest"],
+            "package_digest": accepted["package_digest"],
+            "coverage": copy.deepcopy(accepted["coverage"]),
+            "unevaluated": copy.deepcopy(accepted["unevaluated"]),
+            "finding_refs": copy.deepcopy(accepted["finding_refs"]),
+        }
+        return {
+            "stage": stage,
+            "status": "reviewed",
+            "report": report,
+            "report_digest": _digest(report),
+            "findings": copy.deepcopy(accepted["finding_refs"]),
+        }
+
     def _6(self, v: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]:
+        loop_request = _workflow_loop_input(v)
+        if loop_request is not None:
+            validation = WorkflowLoopValidator().validate(loop_request, receipt_id=v.get("receipt_id"))
+            if validation.get("repair_batch_plan"):
+                route = "E7"
+            elif validation.get("validator", {}).get("skipped") is True:
+                route = "E8"
+            else:
+                route = "E6"
+            return {"stage": "E6", "status": "validated", "validation": validation, "next": route}
         reviews, dispositions, budget = v.get("reviews"), v.get("dispositions"), v.get("observed_budget")
         validation = FindingValidator().validate(reviews, dispositions, budget)
         classes = {item["classification"] for item in validation["dispositions"]}
@@ -424,6 +493,19 @@ class ExecutionGroupV1:
         return {"stage": "E6", "status": "validated", "validation": validation, "next": route}
 
     def _7(self, v: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]:
+        loop_request = _workflow_loop_input(v)
+        if loop_request is not None:
+            validation = WorkflowLoopValidator().validate(loop_request, receipt_id=v.get("receipt_id"))
+            _require(isinstance(validation.get("repair_batch_plan"), Mapping), "workflow-loop E7 requires required Finding repair batches")
+            transition = {
+                "schema": "workflow-loop-repair/v1",
+                "candidate_digest": validation["candidate_digest"],
+                "package_digest": validation["package_digest"],
+                "repair_batch_plan": copy.deepcopy(validation["repair_batch_plan"]),
+                "delta_review_packages": copy.deepcopy(validation.get("delta_review_packages", [])),
+                "non_authorizing": True,
+            }
+            return {"stage": "E7", "status": "rereview-required", "next": "E6", "worker_self_close": False, "orchestrator_transition": transition}
         _require(v.get("orchestrator_validated") is True and v.get("advice") == "required", "E7 cannot start without orchestrator-validated required advice")
         _require(a["budget"]["review_round"] < 2 and a["budget"]["product_fix_attempts"] < 5, "E7 bounded repair budget is exhausted")
         _require(isinstance(v.get("orchestrator_command"), Mapping) and isinstance(v.get("observed_state"), Mapping), "E7 requires the physical orchestrator command and observed state")
@@ -438,6 +520,35 @@ class ExecutionGroupV1:
         return {"stage": "E7", "status": "rereview-required" if transition.get("kind") == "fix-dispatch" else "stopped-budget", "next": "E6" if transition.get("kind") == "fix-dispatch" else "E10", "worker_self_close": False, "orchestrator_transition": transition}
 
     def _8(self, v: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]:
+        loop_request = _workflow_loop_input(v)
+        if loop_request is not None:
+            validation = WorkflowLoopValidator().validate(loop_request, receipt_id=v.get("receipt_id"))
+            _require(validation.get("validator", {}).get("skipped") is True and validation.get("next") == "complete", "E8 requires strict mechanical completion")
+            aggregate = {
+                "schema": "workflow-loop-aggregate/v1",
+                "candidate_digest": validation["candidate_digest"],
+                "package_digest": validation["package_digest"],
+                "classification": copy.deepcopy(validation["classification"]),
+                "machine_decision_receipt": copy.deepcopy(validation["machine_decision_receipt"]),
+                "non_authorizing": True,
+            }
+            aggregate["aggregate_digest"] = _digest(aggregate)
+            finalization = {
+                "schema": "workflow-loop-finalization/v1",
+                "candidate_digest": validation["candidate_digest"],
+                "aggregate_digest": aggregate["aggregate_digest"],
+                "completed": True,
+                "non_authorizing": True,
+            }
+            finalization["finalization_digest"] = _digest(finalization)
+            return {
+                "stage": "E8",
+                "status": "converged",
+                "head_advanced": False,
+                "aggregate": aggregate,
+                "finalization": finalization,
+                "validation": validation,
+            }
         _require(v.get("complete") is True and not v.get("conflicting") and not v.get("open_required"), "E8 rejects incomplete, conflicting, or open-required joins")
         joined = self.v2_join(v.get("v2_join"))
         refs = v.get("sibling_refs")

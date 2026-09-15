@@ -71,12 +71,12 @@ _APPROVALS = {
 }
 _ACCEPTED_UPSTREAM = {
     "catalog": ("agent-workflows/catalog.yaml", "sha256:2fd1caaddf4509d2f56bd31a68b062290e70f2f2da33facf1d8187d476bb3f1d"),
-    "workflow_composition": ("agent-workflows/src/ai_agent_workflow/workflow_composition.py", "sha256:07562ee404381b9d40c7e7ef9e22f20af068c4e5b96461134e3684ee2cfb4fe6"),
-    "planning_system": ("agent-workflows/src/ai_agent_workflow/planning_system.py", "sha256:a99dca831deb2055ae920d2bc34daa3e86b8e0d60ba9022e2335f1b924c41660"),
-    "execution_group": ("agent-workflows/src/ai_agent_workflow/execution_group.py", "sha256:a6718485618f2d9d5f72b82b20d797c181829d0e990adfbc9e148765608fd2d2"),
-    "planning_manifest": ("agent-workflows/groups/planning.json", "sha256:754f7ac80f6f563df34757e058a7a5aa12e818db318e2ee852493a4702bed3e5"),
-    "execution_manifest": ("agent-workflows/groups/execution.json", "sha256:2977b487dcc6a93ae5c7edb1dfb4e07f04a813a3c3d95d68e04923f0201a6e52"),
-    "step_catalog": ("docs/plans/ai-agent-workflow-step-catalog.md", "sha256:4ae2f11b89eedabc4c4a5cf71f96d4041c94ed58a48f6c1e75172ae648fe7c0d"),
+    "workflow_composition": ("agent-workflows/src/ai_agent_workflow/workflow_composition.py", "sha256:380d7186ea66bfec18491deaee3d0439f3d93f100ac7fbc5109842b453fe40c3"),
+    "planning_system": ("agent-workflows/src/ai_agent_workflow/planning_system.py", "sha256:bfcddf4d99d2c4584225bfe75e9be09bb969a8c121b1b095a50496a97403e2c0"),
+    "execution_group": ("agent-workflows/src/ai_agent_workflow/execution_group.py", "sha256:745c63fd8ca761148b91d116549a71bb140d02e65ada39b8a1148e67abaeba9a"),
+    "planning_manifest": ("agent-workflows/groups/planning.json", "sha256:8efffa6dcfadf818685dfd11658ab770828736ebe0a559ef1189b5ea8cd0ba80"),
+    "execution_manifest": ("agent-workflows/groups/execution.json", "sha256:00c97a8fa32c90048bfde36be9a4491ccb059da1a349b0615014a44da83775bc"),
+    "step_catalog": ("docs/plans/ai-agent-workflow-step-catalog.md", "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b"),
 }
 
 

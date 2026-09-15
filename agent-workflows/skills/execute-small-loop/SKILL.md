@@ -10,7 +10,9 @@ acceptance-test: agent-workflows/tests/test_execution_group.py::E3_ExecuteSmallL
 Use `group.E.E3` as the assigned Worker with one fresh Task package. Revalidate
 its package/closure digest, Epoch, objective contribution, inputs, freshness,
 write scope, non-goals, acceptance, stop conditions, supervision, and remaining
-finite budget before touching the scoped output.
+phase iterations before touching the scoped output. The initial attempt does
+not consume an additional iteration; the E3-E7 logical task may use at most
+three additional iterations and one technical retry under `workflow-loop/v1`.
 
 Implement one behavior, hypothesis, or artifact unit; inspect it; and preserve
 the result and evidence before the next bounded unit. A retry must record the
@@ -47,6 +49,6 @@ nor claim that a separate privileged state writer exists.
 Complete with the scoped change or artifact, result object, test receipt,
 changed paths, purpose audit, unresolved items, timing, and versioned handoff at
 the package output path. Stop on spec or objective change, write-scope escape,
-expired budget, missing authority, or required external critical action. The
+iteration-limit or stall, missing authority, execution-unknown, or required external critical action. The
 Worker submits work and resolution claims only; it never changes HEAD, issues a
 Verdict, closes a Finding, or acquires external authority.

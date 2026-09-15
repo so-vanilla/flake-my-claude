@@ -619,12 +619,12 @@ class S0IntegrationTests(unittest.TestCase):
         self.assertEqual(
             {
                 "path": "agent-workflows/evidence/current-canonical-lineage.json",
-                "digest": "sha256:2359bc900a2124995c7347ab6ddb4e5e7353a1eb79c648d40cbdaf4fa943013f",
+                "digest": "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822",
             },
             current["current_canonical_lineage"],
         )
         self.assertEqual(
-            "sha256:4f9f4940cb820f4c71eeae770f6cd6d8ec3b0dce56e625642c431722f0bbf68e",
+            "sha256:715a831b79e85420302ea4ba57cc50d5dc1479647098e8cd4de9d79672d9071f",
             s0_evidence._CURRENT_AUTHORITY_SCHEMA_DIGEST,
         )
         self.assertTrue(evaluate_source_transition_fixture(root))

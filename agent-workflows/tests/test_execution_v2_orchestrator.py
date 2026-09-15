@@ -5,21 +5,85 @@ import sys
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from ai_agent_workflow.execution_v2_orchestrator import (  # noqa: E402
+from ai_agent_workflow.execution_v2_orchestrator import (
     DAGOrchestrator,
     OrchestratorContractError,
 )
-from ai_agent_workflow.schema_validation import (  # noqa: E402
+from ai_agent_workflow.loop_contracts import canonical_digest
+from ai_agent_workflow.loop_state import build_iteration_event, event_ref
+from ai_agent_workflow.schema_validation import (
     SchemaValidationError,
     validate_document,
 )
 
-
 DIGESTS = {letter: "sha256:" + letter * 64 for letter in "abcdef"}
+LOOP_DIGEST = DIGESTS["b"]
+LOOP_IDENTITY = {
+    "schema": "loop-work-identity/v1",
+    "work_lineage_id": "lineage-001",
+    "logical_task_id": "task-001",
+    "phase": "E4",
+    "scope_revision": "scope-r1",
+    "requirements_digest": LOOP_DIGEST,
+    "predecessor_ref": None,
+}
+
+
+def loop_history(*kinds, status="reserved"):
+    history = []
+    for index, kind in enumerate(kinds):
+        history.append(
+            build_iteration_event(
+                LOOP_IDENTITY,
+                f"loop-command-{index}",
+                kind=kind,
+                attempt=index,
+                event_id=f"loop-event-{index}",
+                status=status if index == len(kinds) - 1 else "reserved",
+                predecessor_ref=event_ref(history[-1]) if history else None,
+            )
+        )
+    return history
+
+
+def loop_command(phase="E4", **values):
+    return {"schema": "workflow-loop/v1", "phase": phase, **values}
+
+
+def repair_finding(identifier, *, batch="root-a", root="cause-a"):
+    return {
+        "finding_id": identifier,
+        "fingerprint": "fingerprint-" + identifier,
+        "classification": "required",
+        "candidate_digest": LOOP_DIGEST,
+        "batch_key": batch,
+        "root_cause": root,
+        "write_scope": ["src/a.py"],
+        "verification": ["test-a"],
+        "depends_on": [],
+        "conflicts_with": [],
+        "resolution_conditions": ["test passes for " + identifier],
+    }
+
+
+def review_candidate():
+    return {
+        "candidate_ref": {"id": "candidate", "digest": LOOP_DIGEST},
+        "spec_ref": {"id": "spec", "digest": LOOP_DIGEST},
+        "dependency_refs": [{"id": "dependency", "digest": LOOP_DIGEST}],
+        "environment_ref": {"id": "environment", "digest": LOOP_DIGEST},
+        "source_paths": ["src/a.py", "src/b.py"],
+    }
+
+
+def review_requirements():
+    return [
+        {"requirement_id": "R1", "requirement_ref": {"id": "R1", "digest": LOOP_DIGEST}, "scope": ["src/a.py"]},
+        {"requirement_id": "R2", "requirement_ref": {"id": "R2", "digest": LOOP_DIGEST}, "scope": ["src/b.py"]},
+    ]
 
 
 def object_digest(value):
@@ -469,6 +533,288 @@ class ExecutionV2OrchestratorTests(unittest.TestCase):
                 invalid_review,
                 json.loads((ROOT / "schemas/ordinary-review-report-v1.schema.json").read_text()),
             )
+
+    def test_workflow_loop_route_ignores_v2_time_fields(self):
+        history = loop_history("initial")
+        state = {
+            "events": history,
+            "remaining_seconds": 0,
+            "allowances": {"command_timeout_seconds": 0},
+            "replacement_budget": {"version": "ignored", "value_seconds": 1},
+        }
+        original = copy.deepcopy(state)
+        result = DAGOrchestrator().compile(loop_command(), state)
+        changed = copy.deepcopy(state)
+        changed.update(
+            {
+                "remaining_seconds": 999999,
+                "allowances": {"parent_seconds": 999999},
+                "replacement_budget": {"version": "different", "value_seconds": 999999},
+            }
+        )
+        changed_result = DAGOrchestrator().compile(loop_command(), changed)
+        self.assertEqual("continue", result["outcome"])
+        self.assertEqual(result, changed_result)
+        self.assertNotIn("budget", result)
+        self.assertEqual(original, state)
+
+    def test_nested_workflow_loop_request_keeps_canonical_completion_projection(self):
+        evidence = {
+            "schema": "loop-evidence-record/v1",
+            "evidence_id": "evidence-nested",
+            "evidence_digest": "",
+            "candidate_digest": LOOP_DIGEST,
+            "spec_digest": LOOP_DIGEST,
+            "source_digest": LOOP_DIGEST,
+            "dependency_digest": LOOP_DIGEST,
+            "environment_digest": LOOP_DIGEST,
+            "check_definition_digest": LOOP_DIGEST,
+            "coverage": ["R1"],
+            "status": "pass",
+        }
+        evidence["evidence_digest"] = canonical_digest(
+            {key: value for key, value in evidence.items() if key != "evidence_digest"}
+        )
+        request = {
+            "schema": "workflow-loop/v1",
+            "identity": LOOP_IDENTITY,
+            "candidate_digest": LOOP_DIGEST,
+            "package_digest": LOOP_DIGEST,
+            "requirements": [{
+                "schema": "loop-requirement-assessment/v1",
+                "requirement_id": "R1",
+                "status": "pass",
+                "scope": ["src/a.py"],
+                "evidence_refs": [{"id": evidence["evidence_id"], "digest": evidence["evidence_digest"]}],
+            }],
+            "reviews": [
+                {
+                    "schema": "loop-review-assessment/v1",
+                    "review_id": "review-nested-a",
+                    "axis": "architecture-safety",
+                    "actor_id": "actor-a",
+                    "context_epoch": "epoch-a",
+                    "candidate_digest": LOOP_DIGEST,
+                    "package_digest": LOOP_DIGEST,
+                    "coverage": ["R1"],
+                    "completed": True,
+                    "unevaluated": [],
+                    "finding_refs": [],
+                },
+                {
+                    "schema": "loop-review-assessment/v1",
+                    "review_id": "review-nested-b",
+                    "axis": "integration-operability",
+                    "actor_id": "actor-b",
+                    "context_epoch": "epoch-b",
+                    "candidate_digest": LOOP_DIGEST,
+                    "package_digest": LOOP_DIGEST,
+                    "coverage": ["R1"],
+                    "completed": True,
+                    "unevaluated": [],
+                    "finding_refs": [],
+                },
+            ],
+            "evidence": [evidence],
+            "findings": [],
+        }
+        result = DAGOrchestrator().compile(
+            {"schema": "workflow-loop/v1", "completion_request": request, "remaining_seconds": 0},
+            {},
+        )
+        self.assertEqual("completed", result["outcome"])
+        self.assertTrue(result["completion"]["completed"])
+
+    def test_explicit_state_entries_charge_each_supplied_counter_identity(self):
+        wire_event = loop_history("initial", "integration-return")[-1]
+        integration_identity = copy.deepcopy(LOOP_IDENTITY)
+        integration_identity.update({"logical_task_id": "integration-001", "scope_revision": "scope-r2"})
+        result = DAGOrchestrator().compile(
+            loop_command(),
+            {
+                "state_entries": [
+                    {"identity": LOOP_IDENTITY, "events": [wire_event]},
+                    {"identity": integration_identity, "events": [wire_event]},
+                ]
+            },
+        )
+        self.assertEqual("continue", result["outcome"])
+        self.assertEqual(2, result["counters"]["additional_iterations"])
+        self.assertEqual(1, result["counters"]["additional_iterations_remaining"])
+
+    def test_workflow_loop_reads_phase_limits_from_loop_contract(self):
+        expected = {
+            "D5": 1,
+            "D6": 2,
+            "D12": 2,
+            "D6-D12": 2,
+            "E4": 3,
+            "E3-E7": 3,
+            "E8": 2,
+            "E8-E9": 2,
+        }
+        for phase, limit in expected.items():
+            with self.subTest(phase=phase):
+                result = DAGOrchestrator().compile(loop_command(phase), {})
+                self.assertEqual(limit, result["policy"]["additional_iteration_limit"])
+                self.assertEqual(1, result["policy"]["technical_retry_limit"])
+
+    def test_compatible_required_findings_share_one_repair_round_and_delta_review(self):
+        assignment = {
+            "architecture-safety": {
+                "assignment_id": "assignment-architecture",
+                "actor_id": "actor-architecture",
+                "context_epoch": "epoch-architecture",
+            },
+            "integration-operability": {
+                "assignment_id": "assignment-integration",
+                "actor_id": "actor-integration",
+                "context_epoch": "epoch-integration",
+            },
+        }
+        state = {
+            "repair_findings": [repair_finding("F1"), repair_finding("F2")],
+            "candidate": review_candidate(),
+            "review_requirements": review_requirements(),
+            "prior_findings": [
+                {
+                    "finding_id": "F1",
+                    "finding_ref": {"id": "F1", "digest": LOOP_DIGEST},
+                    "status": "required",
+                    "scope": ["src/a.py"],
+                    "resolution_ref": None,
+                }
+            ],
+            "impact": {
+                "known": True,
+                "changed_paths": ["src/a.py"],
+                "affected_requirements": ["R1"],
+                "affected_interfaces": [],
+                "affected_tests": ["test-a"],
+            },
+            "review_assignments": assignment,
+        }
+        result = DAGOrchestrator().compile(loop_command(), state)
+        self.assertEqual("continue", result["outcome"])
+        self.assertEqual(["F1", "F2"], result["repair_plan"]["batches"][0]["finding_ids"])
+        self.assertEqual(2, len(result["review_packages"]))
+        self.assertEqual({"delta"}, {item["mode"] for item in result["review_packages"]})
+        self.assertEqual(["src/a.py"], result["review_packages"][0]["read_scope"])
+
+    def test_unknown_impact_scope_is_a_hard_failure(self):
+        state = {
+            "repair_findings": [repair_finding("F1")],
+            "candidate": review_candidate(),
+            "review_requirements": review_requirements(),
+            "prior_findings": [],
+            "impact": {
+                "known": True,
+                "changed_paths": ["src/escape.py"],
+                "affected_requirements": ["R1"],
+                "affected_interfaces": [],
+                "affected_tests": [],
+            },
+            "review_assignments": {
+                "architecture-safety": {
+                    "assignment_id": "assignment-architecture",
+                    "actor_id": "actor-architecture",
+                    "context_epoch": "epoch-architecture",
+                }
+            },
+        }
+        result = DAGOrchestrator().compile(loop_command(), state)
+        self.assertEqual("execution-failed", result["outcome"])
+        self.assertTrue(result["hard_failure"])
+        self.assertIn("changed_paths", result["error"])
+
+    def test_strict_zero_finding_terminal_requires_all_current_gates(self):
+        evidence = {
+            "schema": "loop-evidence-record/v1",
+            "evidence_id": "evidence-1",
+            "evidence_digest": "",
+            "candidate_digest": LOOP_DIGEST,
+            "spec_digest": LOOP_DIGEST,
+            "source_digest": LOOP_DIGEST,
+            "dependency_digest": LOOP_DIGEST,
+            "environment_digest": LOOP_DIGEST,
+            "check_definition_digest": LOOP_DIGEST,
+            "coverage": ["R1"],
+            "status": "pass",
+        }
+        evidence["evidence_digest"] = canonical_digest(
+            {key: value for key, value in evidence.items() if key != "evidence_digest"}
+        )
+        completion = {
+            "identity": LOOP_IDENTITY,
+            "candidate_digest": LOOP_DIGEST,
+            "package_digest": LOOP_DIGEST,
+            "requirements": [{
+                "schema": "loop-requirement-assessment/v1",
+                "requirement_id": "R1",
+                "status": "pass",
+                "scope": ["src/a.py"],
+                "evidence_refs": [{"id": "evidence-1", "digest": evidence["evidence_digest"]}],
+            }],
+            "reviews": [
+                {
+                    "schema": "loop-review-assessment/v1",
+                    "review_id": "review-architecture",
+                    "axis": "architecture-safety",
+                    "actor_id": "actor-a",
+                    "context_epoch": "epoch-a",
+                    "candidate_digest": LOOP_DIGEST,
+                    "package_digest": LOOP_DIGEST,
+                    "coverage": ["R1"],
+                    "completed": True,
+                    "unevaluated": [],
+                    "finding_refs": [],
+                },
+                {
+                    "schema": "loop-review-assessment/v1",
+                    "review_id": "review-integration",
+                    "axis": "integration-operability",
+                    "actor_id": "actor-b",
+                    "context_epoch": "epoch-b",
+                    "candidate_digest": LOOP_DIGEST,
+                    "package_digest": LOOP_DIGEST,
+                    "coverage": ["R1"],
+                    "completed": True,
+                    "unevaluated": [],
+                    "finding_refs": [],
+                },
+            ],
+            "evidence": [evidence],
+            "findings": [],
+        }
+        complete = DAGOrchestrator().compile(loop_command(completion_request=completion), {})
+        incomplete = copy.deepcopy(completion)
+        incomplete["reviews"] = incomplete["reviews"][:1]
+        pending = DAGOrchestrator().compile(loop_command(completion_request=incomplete), {})
+        self.assertEqual("completed", complete["outcome"])
+        self.assertEqual("needs-input", pending["outcome"])
+        self.assertFalse(pending["completion"]["completed"])
+
+    def test_phase_limit_retry_and_unknown_execution_are_explicit(self):
+        limited = DAGOrchestrator().compile(
+            loop_command(), {"events": loop_history("initial", "improvement", "improvement", "improvement")}
+        )
+        d5_limited = DAGOrchestrator().compile(
+            loop_command("D5"), {"events": loop_history("initial", "improvement")}
+        )
+        retry = DAGOrchestrator().compile(
+            loop_command(), {"events": loop_history("initial", "technical-retry")}
+        )
+        unknown = DAGOrchestrator().compile(
+            loop_command(), {"events": loop_history("initial", status="execution-unknown")}
+        )
+        self.assertEqual("iteration-limit", limited["outcome"])
+        self.assertTrue(limited["limit_exhausted"])
+        self.assertEqual("iteration-limit", d5_limited["outcome"])
+        self.assertEqual("execution-failed", retry["outcome"])
+        self.assertTrue(retry["hard_failure"])
+        self.assertEqual("recovery-required", unknown["outcome"])
+        self.assertTrue(unknown["execution_unknown"])
+        self.assertTrue(unknown["needs_recovery"])
 
 
 if __name__ == "__main__":

@@ -6,12 +6,12 @@
   "workflow_manifest_ref": {
     "path": "agent-workflows/workflows/improvement-measured.json",
     "version": "workflow-manifest/v1",
-    "digest": "sha256:d545860609ca6b9844f6ffac45cf69cdc19c6e240824a5377f063f431b1cca9d"
+    "digest": "sha256:b89d9262f7943ba6107e9789412a143e4cff92dc1907f995d9e3758ad5f55354"
   },
   "profile_manifest_ref": {
     "path": "agent-workflows/profiles/improvement.json",
     "version": "software-profile-manifest/v1",
-    "digest": "sha256:86216b07c0271ffe9fe78b0709d1e151f29ba72f223a746c8bba307bf45385fd"
+    "digest": "sha256:35218f18a859db1e0fc116a1f93082639b46732e7acf20669c28fe81de92e260"
   },
   "claimed_stage_order": [
     "purpose",

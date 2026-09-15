@@ -9,7 +9,7 @@ acceptance-test: agent-workflows/tests/test_execution_group.py::E8_ConvergeParal
 
 Use `group.E.E8` with physical sibling result, review, validation, and receipt
 objects plus their shared contract, batch frontier, expected HEAD, actor
-assignments, freshness, and remaining finite budget. Retain each independently
+assignments, freshness, loop identity, and current evidence. Retain each independently
 successful result and reject incomplete, conflicting, or unbound joins.
 
 For a purely mechanical join, the DAG Orchestrator may validate compatibility
@@ -21,8 +21,8 @@ that domain judgment or ingest full tool transcripts.
 
 Complete with a reviewed canonical convergence result and a HEAD-bound batch
 Artifact Bundle containing paths, versions, digests, Findings, evidence,
-unresolved items, budget consumption, purpose audit, and next frontier. Close
-the batch Epoch. Stop when fragmented knowledge cannot be safely converged or
-budget expires, preserving partial success for a tightly coupled replan. This
+unresolved items, loop counters, purpose audit, and next frontier. Close the
+batch Epoch. Stop when fragmented knowledge cannot be safely converged, the
+E8-E9 iteration limit is reached, or progress stalls, preserving partial success for a tightly coupled replan. This
 Skill does not itself advance HEAD or grant external action; only a validated
 Orchestrator command may advance canonical state.

@@ -222,7 +222,25 @@ def prepare(project: Path, source_root: Path, *, objective_ref: Mapping[str, Any
         {"specification": spec}, {"options": options, "status_quo": {"name": "manual-prioritization", "cost": "Each morning requires manual filtering and ordering with inconsistent error handling."}, "recommendation": "validated-records"},
         {"approved_option_receipt": approved_option, "design": design}, {"contracts": contracts}, {"tasks": tasks},
         {"tasks": tasks, "edges": [{"from": "parse-select", "to": "cli-render"}, {"from": "cli-render", "to": "tests-docs"}], "parallel_batches": [], "convergence": []},
-        {"briefs": briefs}, {"task_budgets": [{"task_id": t["task_id"], "wall_clock_minutes": 15, "review_rounds": 2, "fix_attempts": 2} for t in tasks], "gates": gates},
+        {"briefs": briefs},
+        {
+            "task_loop_policies": [
+                {
+                    "task_id": task["task_id"],
+                    "logical_task_id": task["task_id"],
+                    "phase": "E3",
+                    "additional_iteration_limit": 3,
+                    "technical_retry_limit": 1,
+                    "verification_scope": task["checks"],
+                    "recovery": {
+                        "on_stop": "Persist the terminal record and resume only from digest-bound evidence."
+                    },
+                    "process_timeout": 60,
+                }
+                for task in tasks
+            ],
+            "gates": gates,
+        },
         {"evidence_refs": [specification, design_ref, predicate, option_receipt], "open_risks": [], "upstream_route": None},
     ]
     for number, values in enumerate(d_values, 1):

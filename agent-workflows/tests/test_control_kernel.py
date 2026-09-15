@@ -6,19 +6,28 @@ import tempfile
 import unittest
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 sys.path.insert(0, str(SRC))
 
-from ai_agent_workflow.control_kernel import (  # noqa: E402
+from ai_agent_workflow.control_kernel import (
     AuthorizationError,
     ControlKernel,
     DuplicateCommandError,
     InjectedCrash,
     IntegrityBlockedError,
+    KernelError,
+    LifecycleClosedError,
     StaleHeadError,
 )
+from ai_agent_workflow.loop_contracts import canonical_digest
+from ai_agent_workflow.loop_state import (
+    CommandConflictError,
+    RecoveryRequiredError,
+    ResultRejectedError,
+    event_ref,
+)
+from ai_agent_workflow.schema_validation import SchemaValidationError, validate_document
 
 
 class ControlKernelTests(unittest.TestCase):
@@ -275,9 +284,8 @@ class ControlKernelTests(unittest.TestCase):
         for phase in ("before_publish", "after_publish_before_head", "after_head_before_projection"):
             k = ControlKernel(self.root / phase, "run-a6r")
             k.entry(self.objective, authority_ref=self.authority)
-            with self.assertRaises(InjectedCrash):
-                with k.fault(phase):
-                    k.publish_artifact("faulty", "v1", {"phase": phase}, authority_ref=self.authority)
+            with self.assertRaises(InjectedCrash), k.fault(phase):
+                k.publish_artifact("faulty", "v1", {"phase": phase}, authority_ref=self.authority)
             old_head = k.head()
             if phase != "after_head_before_projection":
                 self.assertEqual(old_head["revision"], 1)
@@ -314,7 +322,7 @@ class ControlKernelTests(unittest.TestCase):
         self.kernel.publish_task_package("task-fresh", {"acceptance": ["fresh"]}, assignment_id="worker-fresh", authority_ref=self.authority)
         env = os.environ.copy()
         env["PYTHONPATH"] = str(SRC)
-        code = "from ai_agent_workflow.control_kernel import ControlKernel; import json; print(json.dumps(ControlKernel(%r, 'run-a6r').resume()))" % str(self.root)
+        code = f"from ai_agent_workflow.control_kernel import ControlKernel; import json; print(json.dumps(ControlKernel({str(self.root)!r}, 'run-a6r').resume()))"
         result = subprocess.run([sys.executable, "-c", code], env=env, text=True, capture_output=True, check=True)
         self.assertEqual(json.loads(result.stdout)["revision"], 2)
 
@@ -372,6 +380,334 @@ class ControlKernelTests(unittest.TestCase):
         self.assertEqual(result["objective_history"][0]["version"], "v001")
         self.assertEqual(len(result["objective_approvals"]), 1)
         self.assertEqual(result["objective_events"][0]["event"], "objective-approved")
+
+    def _loop_fixture(self):
+        kernel = ControlKernel(self.root, "run-loop")
+        authority = {
+            "status": "approved", "scopes": ["*"],
+            "fixture_identity": {
+                "schema": "canonical-fixture-identity/v1", "run_id": "run-loop",
+                "namespace": "fixture:loop", "approval_scope": "fixture-only",
+            },
+        }
+        identity = {
+            "schema": "loop-work-identity/v1", "work_lineage_id": "lineage-1",
+            "logical_task_id": "task-1", "phase": "B", "scope_revision": "scope-1",
+            "requirements_digest": "sha256:" + "a" * 64, "predecessor_ref": None,
+        }
+        kernel.entry(
+            {"path": "objectives/loop.md", "version": "v001", "digest": "b" * 64},
+            authority_ref=authority,
+            loop_control={"identity": identity, "history": []},
+        )
+        return kernel, authority, identity
+
+    def test_loop_entry_keeps_context_budget_and_omits_legacy_progress_fields(self):
+        kernel, _, _ = self._loop_fixture()
+        state = kernel.read_state()
+        self.assertIn("loop_control", state)
+        self.assertEqual(
+            set(state["loop_control"]),
+            {
+                "schema", "identity", "event_refs", "archives", "counter_identity", "counters",
+                "status", "outcome", "terminal_outcome", "recovery_required",
+                "dispatch_allowed", "recovery", "control_refs", "terminal_ref",
+                "terminal_record",
+            },
+        )
+        self.assertNotIn("review_budget", state)
+        self.assertNotIn("budget_terminal", state)
+        self.assertNotIn("terminal_history", state)
+        self.assertNotIn("expires_at", state["authority"])
+        self.assertEqual(
+            state["loop_control"]["counters"]["counter_key"],
+            state["loop_control"]["counter_identity"],
+        )
+        self.assertEqual(state["loop_control"]["counters"]["policy"]["policy_id"], "B")
+        self.assertEqual(
+            state["context_budget"],
+            {"target": 200000, "normal_limit": 300000, "absolute_limit": 500000,
+             "token_status": "unavailable", "token_count": None},
+        )
+        legacy = self.kernel.read_state()
+        self.assertNotIn("loop_control", legacy)
+
+        registry = {
+            path.name: json.loads(path.read_text())
+            for path in (ROOT / "schemas").glob("*.schema.json")
+        }
+        validate_document(state, registry["dag-state-v1.schema.json"], registry)
+        mixed = json.loads(json.dumps(state))
+        mixed["review_budget"] = {}
+        with self.assertRaises(SchemaValidationError):
+            validate_document(mixed, registry["dag-state-v1.schema.json"], registry)
+
+    def test_loop_run_keeps_normal_dag_operations_but_rejects_legacy_progress_commands(self):
+        kernel, authority, _ = self._loop_fixture()
+        state = kernel.publish_artifact(
+            "loop-artifact",
+            "v1",
+            {"value": "available"},
+            authority_ref=authority,
+        )
+        self.assertEqual(state["artifacts"]["loop-artifact"]["version"], "v1")
+        with self.assertRaises(AuthorizationError):
+            kernel.terminal_review("rounds_exhausted", unresolved_finding_ids=[], authority_ref=authority)
+
+    def test_entry_rejects_mixed_progress_control_schemas(self):
+        authority = {"status": "approved", "scopes": ["*"]}
+        identity = {
+            "schema": "loop-work-identity/v1", "work_lineage_id": "lineage-1",
+            "logical_task_id": "task-1", "phase": "B", "scope_revision": "scope-1",
+            "requirements_digest": "sha256:" + "a" * 64, "predecessor_ref": None,
+        }
+        kernel = ControlKernel(self.root / "mixed", "run-mixed")
+        with self.assertRaises(KernelError):
+            kernel.entry(
+                self.objective,
+                authority_ref=authority,
+                review_budget={"version": "v1"},
+                loop_control={"identity": identity, "history": []},
+            )
+
+    def test_kernel_loop_cas_idempotency_and_counter_identity(self):
+        kernel, authority, identity = self._loop_fixture()
+        first = kernel.reserve_loop_event(
+            identity=identity, command_id="command-initial", authority_ref=authority,
+            expected_revision=1, idempotency_key="loop-reserve-initial",
+        )
+        duplicate = kernel.reserve_loop_event(
+            identity=identity, command_id="command-initial", authority_ref=authority,
+            expected_revision=2, idempotency_key="loop-reserve-initial",
+        )
+        self.assertEqual(duplicate["revision"], first["revision"])
+        self.assertEqual(len(duplicate["loop_control"]["event_refs"]), 1)
+        with self.assertRaises(StaleHeadError):
+            kernel.mark_loop_running("event-command-initial", authority_ref=authority, expected_revision=1)
+        kernel.mark_loop_running(
+            "event-command-initial", authority_ref=authority, expected_revision=2,
+        )
+        accepted = kernel.accept_loop_result(
+            "event-command-initial",
+            {"id": "result-initial", "digest": "sha256:" + "c" * 64},
+            authority_ref=authority,
+            expected_revision=3,
+        )
+        event = kernel.read_object(accepted["loop_control"]["event_refs"][0])["payload"]
+        changed_identity = dict(identity, scope_revision="scope-2")
+        next_state = kernel.reserve_loop_event(
+            identity=changed_identity,
+            command_id="command-improvement",
+            event_id="event-improvement",
+            kind="improvement",
+            attempt=1,
+            predecessor_ref=event_ref(event),
+            authority_ref=authority,
+            expected_revision=4,
+        )
+        self.assertEqual(
+            next_state["loop_control"]["counter_identity"],
+            first["loop_control"]["counter_identity"],
+        )
+        self.assertEqual(next_state["loop_control"]["counters"]["additional_iterations"], 1)
+        with self.assertRaises(CommandConflictError):
+            kernel.reserve_loop_event(
+                identity=identity, command_id="command-improvement", event_id="other-event",
+                kind="improvement", attempt=1, predecessor_ref=event_ref(event),
+                authority_ref=authority, idempotency_key="different-idempotency-key",
+            )
+        with self.assertRaises(DuplicateCommandError):
+            kernel.reserve_loop_event(
+                identity=identity, command_id="command-other", authority_ref=authority,
+                idempotency_key="loop-reserve-initial",
+            )
+
+    def test_loop_result_unknown_and_explicit_recovery_are_not_budget_terminals(self):
+        kernel, authority, identity = self._loop_fixture()
+        with self.assertRaises(ResultRejectedError):
+            kernel.accept_loop_result(
+                "event-before-reservation", {"id": "result", "digest": "sha256:" + "c" * 64},
+                authority_ref=authority,
+            )
+        kernel.reserve_loop_event(identity=identity, command_id="command-unknown", authority_ref=authority)
+        kernel.mark_loop_running("event-command-unknown", authority_ref=authority)
+        unknown = kernel.mark_loop_execution_unknown("event-command-unknown", authority_ref=authority)
+        self.assertEqual(unknown["loop_control"]["outcome"], "recovery-required")
+        self.assertTrue(unknown["loop_control"]["recovery_required"])
+        self.assertNotIn("review_budget", unknown)
+        self.assertNotIn("budget_terminal", unknown)
+        with self.assertRaises(RecoveryRequiredError):
+            kernel.reserve_loop_event(
+                identity=identity, command_id="command-blocked", kind="improvement", attempt=1,
+                predecessor_ref=event_ref(kernel.read_object(unknown["loop_control"]["event_refs"][0])["payload"]),
+                authority_ref=authority,
+            )
+        recovered = kernel.recover_loop_execution(
+            "event-command-unknown",
+            resolution="accept-result",
+            evidence_ref={"id": "recovery-evidence", "digest": "sha256:" + "d" * 64},
+            result_ref={"id": "result-unknown", "digest": "sha256:" + "e" * 64},
+            authority_ref=authority,
+        )
+        self.assertEqual(recovered["loop_control"]["status"], "evaluated")
+        self.assertFalse(recovered["loop_control"]["recovery_required"])
+        self.assertEqual(recovered["loop_control"]["recovery"]["resolution"], "accept-result")
+
+    def test_phase_transition_archives_immutable_history_without_counter_reset(self):
+        kernel, authority, identity = self._loop_fixture()
+        kernel.reserve_loop_event(identity=identity, command_id="command-b", authority_ref=authority)
+        kernel.mark_loop_running("event-command-b", authority_ref=authority)
+        evaluated = kernel.accept_loop_result(
+            "event-command-b", {"id": "result-b", "digest": "sha256:" + "c" * 64},
+            authority_ref=authority,
+        )
+        old_ref = evaluated["loop_control"]["event_refs"][0]
+        next_identity = dict(identity, phase="E4", scope_revision="scope-e4")
+        transitioned = kernel.transition_loop_phase(
+            next_identity, authority_ref=authority, expected_revision=4,
+        )
+        self.assertEqual(transitioned["loop_control"]["event_refs"], [])
+        self.assertEqual(len(transitioned["loop_control"]["archives"]), 1)
+        self.assertEqual(transitioned["loop_control"]["archives"][0]["event_refs"], [old_ref])
+        self.assertIn(old_ref["digest"], transitioned["object_refs"])
+        self.assertEqual(transitioned["loop_control"]["counter_identity"]["policy_id"], "E3-E7")
+        self.assertEqual(kernel.read_state()["loop_control"]["archives"][0]["event_refs"], [old_ref])
+        with self.assertRaises(KernelError):
+            kernel.transition_loop_phase(
+                dict(next_identity, scope_revision="scope-e5"), authority_ref=authority,
+            )
+        resumed = kernel.transition_loop_phase(
+            dict(identity, scope_revision="scope-b2"), authority_ref=authority,
+        )
+        self.assertEqual(resumed["loop_control"]["identity"]["phase"], "B")
+        self.assertEqual(resumed["loop_control"]["event_refs"], [old_ref])
+        self.assertEqual(resumed["loop_control"]["counters"]["initial"], 1)
+        self.assertEqual(
+            resumed["loop_control"]["archives"][0]["counter_identity"]["policy_id"],
+            "E3-E7",
+        )
+        with self.assertRaises(AuthorizationError):
+            kernel.transition_loop_phase(
+                dict(identity, work_lineage_id="lineage-other", phase="C"),
+                authority_ref=authority,
+            )
+
+    def test_loop_incomplete_terminal_is_durable_and_requires_explicit_resume(self):
+        kernel, authority, identity = self._loop_fixture()
+        terminal = {
+            "schema": "loop-terminal-record/v1",
+            "terminal_id": "terminal-input-1",
+            "identity": identity,
+            "outcome": "needs-input",
+            "reason": "a required choice is missing",
+            "candidate_ref": None,
+            "requirements": [],
+            "reviews": [],
+            "evidence": [],
+            "open_items": ["choose an option"],
+            "resume_ref": {"id": "question-1", "digest": "sha256:" + "d" * 64},
+            "non_authorizing": True,
+        }
+        stopped = kernel.record_loop_outcome(terminal, authority_ref=authority)
+        self.assertEqual(stopped["loop_control"]["outcome"], "needs-input")
+        self.assertFalse(stopped["loop_control"]["dispatch_allowed"])
+        self.assertEqual(len(stopped["loop_control"]["control_refs"]), 1)
+        with self.assertRaises(LifecycleClosedError):
+            kernel.reserve_loop_event(identity=identity, command_id="blocked", authority_ref=authority)
+
+        terminal_ref = stopped["loop_control"]["terminal_ref"]
+        resumed = kernel.resume_loop_outcome(
+            {
+                "schema": "loop-resume-record/v1",
+                "resume_id": "resume-input-1",
+                "identity": identity,
+                "terminal_ref": {"path": terminal_ref["path"], "digest": terminal_ref["digest"]},
+                "reason": "the required choice was supplied",
+                "evidence_ref": {"id": "answer-1", "digest": "sha256:" + "e" * 64},
+                "non_authorizing": True,
+            },
+            authority_ref=authority,
+        )
+        self.assertIsNone(resumed["loop_control"]["terminal_ref"])
+        self.assertTrue(resumed["loop_control"]["dispatch_allowed"])
+        self.assertEqual(len(resumed["loop_control"]["control_refs"]), 2)
+        kernel.reserve_loop_event(identity=identity, command_id="after-resume", authority_ref=authority)
+        self.assertTrue(kernel.verify_integrity()["ok"])
+
+    def test_completed_loop_terminal_rechecks_machine_predicate(self):
+        kernel, authority, identity = self._loop_fixture()
+        kernel.reserve_loop_event(identity=identity, command_id="command-complete", authority_ref=authority)
+        kernel.mark_loop_running("event-command-complete", authority_ref=authority)
+        candidate_digest = "sha256:" + "c" * 64
+        kernel.accept_loop_result(
+            "event-command-complete",
+            {"id": "candidate-1", "digest": candidate_digest},
+            authority_ref=authority,
+        )
+        evidence = {
+            "schema": "loop-evidence-record/v1", "evidence_id": "evidence-1",
+            "evidence_digest": "", "candidate_digest": candidate_digest,
+            "spec_digest": "sha256:" + "d" * 64,
+            "source_digest": "sha256:" + "e" * 64,
+            "dependency_digest": "sha256:" + "f" * 64,
+            "environment_digest": "sha256:" + "1" * 64,
+            "check_definition_digest": "sha256:" + "2" * 64,
+            "coverage": ["R1"], "status": "pass",
+        }
+        evidence["evidence_digest"] = canonical_digest({
+            key: value for key, value in evidence.items() if key != "evidence_digest"
+        })
+        requirement = {
+            "schema": "loop-requirement-assessment/v1", "requirement_id": "R1",
+            "status": "pass", "scope": ["src/a.py"],
+            "evidence_refs": [{"id": "evidence-1", "digest": evidence["evidence_digest"]}],
+        }
+        reviews = [
+            {
+                "schema": "loop-review-assessment/v1", "review_id": "review-architecture",
+                "axis": "architecture-safety", "actor_id": "reviewer-a",
+                "context_epoch": "epoch-a", "candidate_digest": candidate_digest,
+                "package_digest": "sha256:" + "3" * 64, "coverage": ["R1"],
+                "completed": True, "unevaluated": [], "finding_refs": [],
+            },
+            {
+                "schema": "loop-review-assessment/v1", "review_id": "review-integration",
+                "axis": "integration-operability", "actor_id": "reviewer-b",
+                "context_epoch": "epoch-b", "candidate_digest": candidate_digest,
+                "package_digest": "sha256:" + "3" * 64, "coverage": ["R1"],
+                "completed": True, "unevaluated": [], "finding_refs": [],
+            },
+        ]
+        terminal = {
+            "schema": "loop-terminal-record/v1", "terminal_id": "terminal-complete-1",
+            "identity": identity, "outcome": "completed", "reason": "all gates passed",
+            "candidate_ref": {"id": "candidate-1", "digest": candidate_digest},
+            "requirements": [requirement], "reviews": reviews, "evidence": [evidence],
+            "open_items": [], "resume_ref": None, "non_authorizing": True,
+        }
+        foreign = json.loads(json.dumps(terminal))
+        foreign_digest = "sha256:" + "9" * 64
+        foreign["terminal_id"] = "terminal-foreign-1"
+        foreign["candidate_ref"]["digest"] = foreign_digest
+        foreign["evidence"][0]["candidate_digest"] = foreign_digest
+        foreign["evidence"][0]["evidence_digest"] = canonical_digest({
+            key: value
+            for key, value in foreign["evidence"][0].items()
+            if key != "evidence_digest"
+        })
+        foreign["requirements"][0]["evidence_refs"][0]["digest"] = foreign["evidence"][0]["evidence_digest"]
+        for review in foreign["reviews"]:
+            review["candidate_digest"] = foreign_digest
+        with self.assertRaisesRegex(KernelError, "latest evaluated result"):
+            kernel.record_loop_outcome(foreign, authority_ref=authority)
+        completed = kernel.record_loop_outcome(terminal, authority_ref=authority)
+        self.assertEqual(completed["loop_control"]["outcome"], "completed")
+        self.assertFalse(completed["loop_control"]["dispatch_allowed"])
+        self.assertEqual(
+            kernel.read_object(completed["loop_control"]["terminal_ref"])["payload"],
+            terminal,
+        )
+        self.assertTrue(kernel.verify_integrity()["ok"])
 
 
 if __name__ == "__main__":
