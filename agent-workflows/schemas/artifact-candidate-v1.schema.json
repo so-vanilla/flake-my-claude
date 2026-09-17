@@ -1,5 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "artifact-candidate-v1.schema.json", "type": "object", "additionalProperties": false,
-  "required": ["schema", "candidate_id", "candidate_digest", "execution_closure_digest", "regression_inventory", "frozen"],
-  "properties": {"schema": {"const": "artifact-candidate/v1"}, "candidate_id": {"type": "string", "minLength": 1}, "candidate_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "execution_closure_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "regression_inventory": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}}, "frozen": {"const": true}}
-}

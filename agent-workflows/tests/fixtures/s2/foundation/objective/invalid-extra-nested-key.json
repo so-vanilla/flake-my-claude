@@ -1,4 +1,0 @@
-{
-  "schema": "objective-system-artifact/v1", "qualified_id": "group.B.B1", "inputs": [{"path": "docs/request.md", "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "selector": "request", "alias": "request"}],
-  "authority": {"owner_ref": {"owner_kind": "human", "owner_id": "owner-1", "authority_ref": {"path": ".local/agent/a.json", "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "selector": "authority"}}, "source_refs": [{"path": "docs/p.md", "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "selector": "p"}]}, "expected_head": {"revision": 13, "transaction_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}, "candidate": {"status": "candidate", "candidate_ref": {"path": ".local/agent/c.json", "digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "selector": "v001"}, "version": "v001"}
-}

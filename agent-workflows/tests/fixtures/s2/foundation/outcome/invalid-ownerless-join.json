@@ -1,7 +1,0 @@
-{
-  "schema": "outcome-dependency-graph/v1",
-  "node_ids": ["outcome-a", "outcome-b", "outcome-c"],
-  "edges": [{"prerequisite": "outcome-a", "dependent": "outcome-c"}, {"prerequisite": "outcome-b", "dependent": "outcome-c"}],
-  "joins": [{"outcome_id": "outcome-c", "incoming": ["outcome-a", "outcome-b"]}],
-  "runtime_checks": ["unknown_endpoint", "orphan", "cycle", "ownerless_join"]
-}

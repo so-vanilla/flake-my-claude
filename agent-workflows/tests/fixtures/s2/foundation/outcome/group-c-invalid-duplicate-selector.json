@@ -1,6 +1,0 @@
-{
-  "schema": "group-c-manifest/v1",
-  "group_id": "agent-workflows.group.C",
-  "implementation_kind": "skill",
-  "contracts": []
-}

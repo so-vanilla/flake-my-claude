@@ -1,9 +1,0 @@
-{
-  "catalog_digest": "sha256:5bfbb5342bb8d3fbc1f85876ce588adb00eedaa4d961e41b14121603ead1da4b",
-  "catalog_source": "docs/plans/ai-agent-workflow-step-catalog.md",
-  "current_lineage": {
-    "digest": "sha256:671d17390fc3e55289cd66048df2fa4ddd82280525eb63f207e712d085c9a822",
-    "path": "agent-workflows/evidence/current-canonical-lineage.json"
-  },
-  "schema": "catalog-contract-inventory/v2"
-}

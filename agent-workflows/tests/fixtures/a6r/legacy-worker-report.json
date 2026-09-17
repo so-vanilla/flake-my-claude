@@ -1,7 +1,0 @@
-{
-  "schema": "agent-worker-report/v1",
-  "worker_id": "a6-worker",
-  "context_epoch": "epoch-0002",
-  "artifact_refs": [],
-  "verification": ["fixture only"]
-}

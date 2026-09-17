@@ -1,0 +1,6 @@
+interface:
+  display_name: "Rubber Duck"
+  short_description: "Understand a diff before deciding whether to accept it"
+  default_prompt: "Use $rubber-duck to walk through this diff within 25m before I decide whether to accept it."
+policy:
+  allow_implicit_invocation: false

@@ -1,1 +1,0 @@
-{"type":"object","additionalProperties":false,"required":["schema","catalog_source","catalog_digest"],"properties":{"schema":{"const":"catalog-contract-inventory/v1"},"catalog_source":{"const":"docs/plans/ai-agent-workflow-step-catalog.md"},"catalog_digest":{"const":"sha256:8418e7d32291860faeb7e905b048a7ff7a03d0768b258ac9e4a75f4e7d498b6b"}}}
